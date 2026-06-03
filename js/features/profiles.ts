@@ -178,8 +178,13 @@ function _getOrCreateEditOverlay(): HTMLElement {
   document.body.appendChild(ovl);
   ovl.querySelectorAll<HTMLButtonElement>('.prf-edit-av').forEach(btn => {
     btn.addEventListener('click', () => {
-      ovl.querySelectorAll('.prf-edit-av').forEach(b => (b as HTMLElement).style.borderColor = 'transparent');
+      // Use data-selected instead of style query — avoids iOS Safari selector bug
+      ovl.querySelectorAll('.prf-edit-av').forEach(b => {
+        (b as HTMLElement).style.borderColor = 'var(--border)';
+        (b as HTMLElement).removeAttribute('data-selected');
+      });
       btn.style.borderColor = 'var(--accent)';
+      btn.dataset.selected = 'true';
     });
   });
   ovl.addEventListener('click', (e: MouseEvent) => { if (e.target === ovl) _hideEditModal(); });
@@ -188,7 +193,8 @@ function _getOrCreateEditOverlay(): HTMLElement {
     const nameInp = document.getElementById('prf-edit-name') as HTMLInputElement;
     const name = nameInp?.value.trim();
     if (!name) { nameInp.style.borderColor = '#e74c3c'; setTimeout(() => { nameInp.style.borderColor = ''; }, 1200); return; }
-    const selAv = ovl.querySelector<HTMLButtonElement>('.prf-edit-av[style*="var(--accent)"]');
+    // Query by data-selected instead of style attribute (iOS Safari safe)
+    const selAv = ovl.querySelector<HTMLButtonElement>('.prf-edit-av[data-selected="true"]');
     _saveEdit(name, selAv?.dataset.av ?? '🧑');
   });
   _editOverlay = ovl; return ovl;
@@ -200,7 +206,10 @@ function _showEditModal(id: string, currentName: string, currentAvatar: string, 
   const nameInp = ovl.querySelector<HTMLInputElement>('#prf-edit-name')!;
   nameInp.value = currentName;
   ovl.querySelectorAll<HTMLButtonElement>('.prf-edit-av').forEach(btn => {
-    btn.style.borderColor = btn.dataset.av === currentAvatar ? 'var(--accent)' : 'transparent';
+    const isSelected = btn.dataset.av === currentAvatar;
+    btn.style.borderColor = isSelected ? 'var(--accent)' : 'var(--border)';
+    if (isSelected) btn.dataset.selected = 'true';
+    else btn.removeAttribute('data-selected');
   });
   ovl.style.display = 'flex';
   setTimeout(() => nameInp.focus(), 60);

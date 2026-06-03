@@ -152,7 +152,10 @@
     font-size: 1.8rem;
     color: var(--text);
     line-height: 1.1;
-    word-break: break-word;
+    overflow-wrap: break-word;
+    word-break: normal;
+    -webkit-hyphens: none;
+    hyphens: none;
   }
   .speak-btn {
     background: none;
@@ -3482,4 +3485,31 @@ body.dark .gr-tip      { background: rgba(243,156,18,.1); }
 
   /* Scrollbar: thinner on touch (finger scrolling) */
   ::-webkit-scrollbar { width: 3px; height: 3px; }
+}
+
+/* ── Word card text — Safari/iOS fix ────────────────────────── */
+/* Prevent syllable-break on all platforms */
+.word-text {
+  -webkit-hyphens: none;
+  hyphens: none;
+  overflow-wrap: break-word;   /* only break if truly no room */
+  word-break: normal;          /* replaces the non-standard break-word */
+}
+
+@media (max-width: 480px) {
+  /* Shrink word text so it fits next to image on narrow phones */
+  .word-text { font-size: 1.5rem !important; }
+
+  /* If still not fitting, shrink image further */
+  .card-face-front { gap: 10px; }
+  .illus-box { width: 72px !important; height: 72px !important; }
+  .illus-box svg { width: 72px !important; height: 72px !important; }
+  .illus-box img { width: 72px !important; height: 72px !important; }
+}
+
+@media (max-width: 360px) {
+  /* Very small phones (older iPhones, small Androids) */
+  .word-text { font-size: 1.3rem !important; }
+  .illus-box { width: 60px !important; height: 60px !important; }
+  .illus-box svg, .illus-box img { width: 60px !important; height: 60px !important; }
 }
