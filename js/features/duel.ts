@@ -103,6 +103,65 @@ let _mode: DuelMode = 'quiz';
 let _tempoTimer: ReturnType<typeof setInterval> | null = null;
 let _tempoLeft = 4;
 
+// ── Session persistence (survives page refresh) ───────────────
+const SESSION_KEY = 'ew_duel_session';
+
+function _saveSession(): void {
+  try {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+      roomId: _roomId, slot: _mySlot, mode: _mode,
+      idx: _quizIdx, score: _myScore,
+    }));
+  } catch (e) {}
+}
+function _clearSession(): void {
+  try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+}
+function _loadSession(): { roomId:string; slot:'p1'|'p2'; mode:DuelMode; idx:number; score:number } | null {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+async function _tryResumeSession(): Promise<boolean> {
+  const sess = _loadSession();
+  if (!sess?.roomId) return false;
+  try {
+    const room = await _fbGet(`/duel_rooms/${sess.roomId}`) as RoomData|null;
+    if (!room || room.finished) { _clearSession(); return false; }
+    // Show resume banner
+    const resumeEl = document.getElementById('duel-resume');
+    if (!resumeEl) return false;
+    const mInfo = DUEL_MODES.find(m=>m.id===sess.mode)||DUEL_MODES[0];
+    const opp = sess.slot==='p1' ? room.p2 : room.p1;
+    resumeEl.innerHTML =
+      `<div style="background:rgba(0,200,100,.1);border:1.5px solid var(--accent);border-radius:14px;padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">` +
+        `<div><div style="font-size:.82rem;font-weight:700;color:var(--accent);">🔄 Незавершена дуель</div>` +
+        `<div style="font-size:.75rem;color:var(--text3);margin-top:2px;">${mInfo.icon} ${mInfo.label} · ${sess.score}/${ROOM_SIZE} очок · суперник: ${opp?.name||'?'}</div></div>` +
+        `<div style="display:flex;gap:6px;">` +
+          `<button id="duel-resume-btn" style="padding:7px 14px;border-radius:9px;border:none;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;font-family:inherit;font-size:.82rem;">Продовжити</button>` +
+          `<button id="duel-resume-discard" style="padding:7px 12px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit;font-size:.78rem;">✕</button>` +
+        `</div>` +
+      `</div>`;
+    resumeEl.style.display = 'block';
+    document.getElementById('duel-resume-btn')?.addEventListener('click', () => {
+      resumeEl.style.display='none';
+      _roomId=sess.roomId; _mySlot=sess.slot; _mode=sess.mode;
+      _quizIdx=sess.idx; _myScore=sess.score;
+      _quizDeck = _buildDeck(room.seed);
+      const opp2 = _mySlot==='p1' ? room.p2 : room.p1;
+      _startGame(opp2?.name||'Суперник', opp2?.avatar||'🧑', _mode);
+      // Restore progress counters immediately
+      _quizIdx=sess.idx; _myScore=sess.score;
+    });
+    document.getElementById('duel-resume-discard')?.addEventListener('click', () => {
+      _clearSession(); resumeEl.style.display='none';
+    });
+    return true;
+  } catch (e) { _clearSession(); return false; }
+}
+
 function _rng(seed: number): () => number {
   let s = seed;
   return () => { s = (s * 1664525 + 1013904223) & 0x7FFFFFFF; return s / 0x7FFFFFFF; };
@@ -232,6 +291,7 @@ function _startWaitPoll(): void {
 
 function _startGame(oppName: string, oppAvatar: string, mode: DuelMode): void {
   _mode=mode; _quizIdx=0; _myScore=0; _answered=false;
+  _saveSession();
   elOppName().textContent=oppName; elOppAv().textContent=oppAvatar;
   elMyScore().textContent='0'; elOppScore().textContent='0';
   const mInfo = DUEL_MODES.find(m=>m.id===mode)||DUEL_MODES[0];
@@ -373,6 +433,7 @@ function _submitWrite(): void {
 }
 
 async function _pushScore(): Promise<void> {
+  _saveSession();
   try { await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`, { score:_myScore, idx:_quizIdx }); } catch(e){}
 }
 
@@ -394,6 +455,7 @@ async function _finishMyGame(): Promise<void> {
 }
 
 function _showFinish(room: RoomData): void {
+  _clearSession();
   _showResult();
   const me  = room[_mySlot] as PlayerData;
   const opp = (_mySlot==='p1' ? room.p2 : room.p1) as PlayerData;
@@ -411,6 +473,7 @@ function _showFinish(room: RoomData): void {
 }
 
 function _cancelRoom(): void {
+  _clearSession();
   if (_pollTimer)   { clearInterval(_pollTimer); _pollTimer=null; }
   if (_tempoTimer)  { clearInterval(_tempoTimer); _tempoTimer=null; }
   if (_roomId) { fetch(`${DB_URL}/duel_rooms/${_roomId}.json`,{method:'DELETE'}).catch(()=>{}); _roomId=''; }
@@ -425,6 +488,7 @@ function _cancelRoom(): void {
 export function renderDuel(): void {
   renderLeaderboard();
   _renderModePicker();
+  _tryResumeSession();
 }
 window.renderDuel = renderDuel;
 
