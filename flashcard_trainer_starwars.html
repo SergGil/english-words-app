@@ -64,6 +64,7 @@
     <button class="sb-btn" id="sb-stats"        ><span class="sb-icon">📊</span><span class="sb-label">Статистика</span></button>
     <button class="sb-btn" id="sb-achievements" ><span class="sb-icon">🏆</span><span class="sb-label">Досягнення</span></button>
     <button class="sb-btn" id="sb-modes"        ><span class="sb-icon">🎮</span><span class="sb-label">Режими</span></button>
+    <button class="sb-btn" id="sb-grammar"      ><span class="sb-icon">📖</span><span class="sb-label">Граматика</span></button>
     <button class="sb-btn" id="sb-duel"         ><span class="sb-icon">⚔️</span><span class="sb-label">Дуель</span></button>
     <button class="sb-btn" id="sb-settings"     ><span class="sb-icon">⚙️</span><span class="sb-label">Налаштування</span></button>
   </div>
@@ -858,6 +859,24 @@
         <button id="duel-again-btn" style="margin-top:20px;padding:12px 28px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.95rem;">🔄 Нова дуель</button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ══ GRAMMAR PAGE ══ -->
+  <div id="grammar-overlay" class="page-overlay">
+    <div class="page-inner grammar-inner">
+      <div class="page-header">
+        <div class="page-title">📖 Граматика</div>
+        <button class="page-close-btn" id="grammar-close">✕</button>
+      </div>
+      <div class="grammar-layout">
+        <!-- Left nav -->
+        <div id="grammar-nav" class="grammar-nav"></div>
+        <!-- Right content -->
+        <div id="grammar-content" class="grammar-content">
+          <div class="gr-empty">Оберіть тему зліва 👈</div>
+        </div>
+      </div>
     </div>
   </div>
 
