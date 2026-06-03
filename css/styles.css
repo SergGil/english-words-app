@@ -1558,15 +1558,18 @@
 
 /* ── Змінні ── */
 body.sw {
-  --bg:      #070d1a;
-  --card:    #0c1830;
-  --text:    #d4e8f8;
-  --text2:   #6a9ab8;
-  --text3:   #2d5878;
-  --accent:  #00c8ff;
-  --accent2: #ff3355;
-  --border:  #1a3d6b;
-  --shadow:  0 0 18px rgba(0,200,255,0.12), 0 4px 24px rgba(0,0,0,0.6);
+  --bg:        #070d1a;
+  --card:      #0c1830;
+  --text:      #d4e8f8;
+  --text2:     #6a9ab8;
+  --text3:     #2d5878;
+  --accent:    #00c8ff;
+  --accent2:   #ff3355;
+  --border:    #1a3d6b;
+  --shadow:    0 0 18px rgba(0,200,255,0.12), 0 4px 24px rgba(0,0,0,0.6);
+  /* Modal backgrounds — dark neon panels instead of white */
+  --modal-bg:     #0e1f38;
+  --modal-av-bg:  rgba(0,200,255,.08);
 }
 
 /* ── Star Wars neon scrollbars ── */
@@ -3534,3 +3537,7 @@ body.dark .gr-tip      { background: rgba(243,156,18,.1); }
   .word-text { flex: 1 1 60%; }
   .word-actions { flex: 0 0 auto; }
 }
+
+/* ── Search overlay input — dark/SW theming ─────────────────── */
+body.dark #ov-search-input { color: var(--text); }
+body.sw   #ov-search-input { color: var(--text); }

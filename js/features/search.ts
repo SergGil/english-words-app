@@ -6,11 +6,12 @@ import { decodeIpa } from '../core/ui-helpers.ts';
 import { openWordDetail } from './word-detail.ts';
 import type { WordEntry } from '../../src/types.js';
 
-const overlay   = document.getElementById('search-overlay')!    as HTMLElement;
-const panel     = document.getElementById('search-panel')!      as HTMLElement;
-const input     = document.getElementById('search-input')!      as HTMLInputElement;
-const results   = document.getElementById('search-results')!    as HTMLElement;
-const emptyEl   = document.getElementById('search-empty')!      as HTMLElement;
+const overlay   = document.getElementById('search-overlay')!      as HTMLElement;
+const panel     = document.getElementById('search-panel')!        as HTMLElement;
+// Use unique IDs so they don't conflict with the inline search bar (id="search-input")
+const input     = document.getElementById('ov-search-input')!     as HTMLInputElement;
+const results   = document.getElementById('ov-search-results')!   as HTMLElement;
+const emptyEl   = document.getElementById('ov-search-empty')!     as HTMLElement;
 const closeBtn  = document.getElementById('search-close')!;
 const openBtn   = document.getElementById('btn-search')!;
 
