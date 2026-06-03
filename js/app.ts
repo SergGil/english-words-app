@@ -1751,10 +1751,11 @@ function updateSimilarWords() {
   var isInStandalone = (navigator as any).standalone === true;
   if(isIOS && !isInStandalone && !localStorage.getItem('ew_pwa_dismissed')){
     setTimeout(function(){
-      banner.querySelector('.pwa-text strong')!.textContent = 'Додай на головний екран';
-      (banner.querySelector('.pwa-text') as HTMLElement)!.innerHTML = '<strong>Додай на головний екран</strong>Натисни <strong>⬜ Поділитися</strong> → <strong>На екран «Додому»</strong>';
-      const _pwaBtn = banner.querySelector('') as HTMLElement | null;
-      if (_pwaBtn) _pwaBtn.style.display = 'none';
+      (banner.querySelector('.pwa-text') as HTMLElement|null)?.setAttribute('innerHTML',
+        '<strong>Додай на головний екран</strong> · Натисни <strong>⬜ Поділитися</strong> → <strong>На екран «Додому»</strong>');
+      // Hide install button on iOS (no install prompt)
+      const installBtn = banner.querySelector<HTMLElement>('.pwa-install-btn');
+      if (installBtn) installBtn.style.display = 'none';
       banner.className = 'show';
     }, 2000);
   }

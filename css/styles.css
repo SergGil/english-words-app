@@ -3513,3 +3513,24 @@ body.dark .gr-tip      { background: rgba(243,156,18,.1); }
   .illus-box { width: 60px !important; height: 60px !important; }
   .illus-box svg, .illus-box img { width: 60px !important; height: 60px !important; }
 }
+
+/* ── Word row layout fix — icons stay visible ────────────────── */
+/* word-text grows to fill space, pushing nothing out */
+.word-row   { flex-wrap: nowrap; align-items: center; }
+.word-text  { flex: 1; min-width: 0; }
+.word-actions { flex-shrink: 0; gap: 4px; }
+
+@media (max-width: 480px) {
+  /* Compact icon buttons on mobile */
+  .word-actions { gap: 2px; }
+  .word-actions .speak-btn {
+    padding: 4px 5px;
+    font-size: 14px;
+    min-width: 28px;
+    min-height: 28px;
+  }
+  /* If word + icons still too wide, wrap icons below */
+  .word-row { flex-wrap: wrap; gap: 4px; }
+  .word-text { flex: 1 1 60%; }
+  .word-actions { flex: 0 0 auto; }
+}
