@@ -828,10 +828,37 @@
 
         <!-- Async challenge create button -->
         <button id="duel-async-btn" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text2);font-weight:600;cursor:pointer;font-family:inherit;font-size:.85rem;margin-top:-4px;margin-bottom:4px;">📬 Надіслати виклик (async · 24год)</button>
+        <!-- Tournament button -->
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button id="tourn-create-4" style="flex:1;padding:10px;border-radius:12px;border:1.5px solid #f39c12;background:rgba(243,156,18,.08);color:#f39c12;font-weight:600;cursor:pointer;font-family:inherit;font-size:.82rem;">🏟️ Турнір ×4</button>
+          <button id="tourn-create-8" style="flex:1;padding:10px;border-radius:12px;border:1.5px solid #e74c3c;background:rgba(231,76,60,.07);color:#e74c3c;font-weight:600;cursor:pointer;font-family:inherit;font-size:.82rem;">🏆 Турнір ×8</button>
+          <button id="tourn-join-btn" style="flex:1;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:inherit;font-size:.82rem;">➡️ Вступити</button>
+        </div>
       </div>
 
       <!-- SPECTATOR VIEW -->
       <div id="duel-spectate" style="display:none;"></div>
+
+      <!-- TOURNAMENT VIEW -->
+      <div id="duel-tournament" style="display:none;">
+        <!-- Waiting room -->
+        <div id="tourn-waiting" style="display:none;">
+          <div style="text-align:center;margin-bottom:14px;">
+            <div style="font-size:.72rem;color:var(--text3);margin-bottom:6px;">Код турніру:</div>
+            <div id="tourn-code" style="font-family:monospace;font-size:1.8rem;font-weight:900;color:var(--accent);letter-spacing:.15em;"></div>
+            <div id="tourn-mode-label" style="font-size:.75rem;color:var(--accent);margin-top:4px;"></div>
+          </div>
+          <div id="tourn-slots" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"></div>
+          <button id="tourn-start-btn" style="display:none;width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.9rem;">⚔️ Почати турнір</button>
+          <button id="tourn-cancel-btn" style="width:100%;padding:8px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit;font-size:.78rem;margin-top:6px;">✕ Скасувати</button>
+        </div>
+        <!-- Bracket view -->
+        <div id="tourn-bracket" style="display:none;">
+          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:10px;" id="tourn-status-label">Турнір</div>
+          <div id="tourn-bracket-visual"></div>
+          <div id="tourn-match-area" style="margin-top:14px;"></div>
+        </div>
+      </div>
 
       <!-- COUNTDOWN -->
       <div id="duel-countdown" style="display:none;text-align:center;padding:40px 0;">

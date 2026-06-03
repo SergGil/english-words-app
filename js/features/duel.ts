@@ -679,6 +679,14 @@ async function _finishMyGame():Promise<void>{
 function _showFinish(room:RoomData):void{
   if(_finished) return;
   _finished=true;
+  // Tournament hook: if we're in a tournament match, report result and return to bracket
+  const hook=(window as Window&{_tournFinishHook?:(r:RoomData)=>void})._tournFinishHook;
+  if(hook&&_tournId){
+    (window as Window&{_tournFinishHook?:(r:RoomData)=>void})._tournFinishHook=undefined;
+    hook(room);
+    setTimeout(()=>{ _showTournament(); const t=_tournData; if(t) _renderTournBracket(t); },800);
+    return;
+  }
   const me=room[_mySlot] as PlayerData;
   const opp=(_mySlot==='p1'?room.p2:room.p1) as PlayerData;
   const won=me.score>(opp?.score??0), tie=me.score===(opp?.score??0);
@@ -915,6 +923,296 @@ async function _tryResumeSession():Promise<void>{
   }catch(e){_clearSession();}
 }
 
+// ── Tournament ────────────────────────────────────────────────
+
+interface TournMatch { p1:number; p2:number; p1score:number; p2score:number; winner:number; done:boolean; roomId:string; }
+interface Tournament {
+  code:string; size:4|8; mode:DuelMode; category:string; difficulty:Difficulty;
+  players:Record<string,{name:string;avatar:string}>; // slot→player
+  bracket:TournMatch[][]; // rounds[matches]
+  currentRound:number; currentMatch:number;
+  started:boolean; finished:boolean; champion:string;
+  createdAt:number;
+}
+
+let _tournId    = '';
+let _tournSlot  = -1;
+let _tournData: Tournament | null = null;
+let _tournPoll: ReturnType<typeof setInterval> | null = null;
+
+function _showTournament() { elLobby().style.display='none'; ($('duel-tournament') as HTMLElement).style.display=''; }
+function _hideTournament() { ($('duel-tournament') as HTMLElement).style.display='none'; }
+
+function _buildBracket(size:4|8): TournMatch[][] {
+  // Single-elimination bracket
+  // Round 1: size/2 matches, then halve each round
+  const rounds: TournMatch[][] = [];
+  let prev = Array.from({length:size},(_,i)=>i); // slot indices
+  while(prev.length > 1) {
+    const matches: TournMatch[] = [];
+    for(let i=0;i<prev.length;i+=2)
+      matches.push({p1:prev[i],p2:prev[i+1],p1score:0,p2score:0,winner:-1,done:false,roomId:''});
+    rounds.push(matches);
+    prev = matches.map((_,i)=>-(i+1)); // placeholder winners
+  }
+  return rounds;
+}
+
+function _tournRoundName(round:number, totalRounds:number): string {
+  const left = totalRounds - round;
+  if(left===1) return '🏆 Фінал';
+  if(left===2) return '🥈 Півфінал';
+  if(left===3) return '🥉 Чвертьфінал';
+  return `Раунд ${round+1}`;
+}
+
+async function createTournament(size:4|8): Promise<void> {
+  const btn=$(`tourn-create-${size}`) as HTMLButtonElement;
+  btn.disabled=true; btn.textContent='Створення...';
+  try {
+    _tournId=_genCode();
+    const tourn: Tournament = {
+      code:_tournId, size, mode:_selMode, category:_selCategory, difficulty:_selDifficulty,
+      players:{0:{name:_getMyName(),avatar:_getMyAvatar()}},
+      bracket:_buildBracket(size), currentRound:0, currentMatch:0,
+      started:false, finished:false, champion:'', createdAt:Date.now(),
+    };
+    await _fbSet(`/tournaments/${_tournId}`, tourn);
+    _tournSlot=0; _tournData=tourn;
+    _showTournament();
+    _renderTournWaiting(tourn);
+    _startTournWaitPoll();
+  } catch(e){
+    btn.disabled=false; btn.textContent=size===4?'🏟️ Турнір ×4':'🏆 Турнір ×8';
+    elMsg().textContent='❌ '+(e as Error).message; elMsg().style.display='block';
+  }
+}
+
+async function joinTournament(): Promise<void> {
+  const code = prompt('Введи код турніру:')?.replace(/[-\s]/g,'').toUpperCase();
+  if(!code||code.length<6) return;
+  try {
+    const tourn=await _fbGet(`/tournaments/${code}`) as Tournament|null;
+    if(!tourn) throw new Error('Турнір не знайдено');
+    if(tourn.started) throw new Error('Турнір вже почався');
+    if(tourn.finished) throw new Error('Турнір завершено');
+    const slots=Object.keys(tourn.players).map(Number);
+    if(slots.length>=tourn.size) throw new Error(`Всі ${tourn.size} місць зайняті`);
+    // Find first free slot
+    const mySlot=Array.from({length:tourn.size},(_,i)=>i).find(i=>!tourn.players[i]);
+    if(mySlot===undefined) throw new Error('Немає вільних місць');
+    await _fbPatch(`/tournaments/${code}/players/${mySlot}`,{name:_getMyName(),avatar:_getMyAvatar()});
+    _tournId=code; _tournSlot=mySlot; _tournData=tourn;
+    _showTournament();
+    // Reload updated tourn
+    const updated=await _fbGet(`/tournaments/${code}`) as Tournament;
+    _tournData=updated;
+    _renderTournWaiting(updated);
+    _startTournWaitPoll();
+  } catch(e){
+    alert('❌ '+(e as Error).message);
+  }
+}
+
+function _renderTournWaiting(t:Tournament): void {
+  const wEl=$('tourn-waiting') as HTMLElement;
+  const bEl=$('tourn-bracket') as HTMLElement;
+  wEl.style.display=''; bEl.style.display='none';
+  ($('tourn-code') as HTMLElement).textContent=_fmtCode(_tournId);
+  const mInfo=DUEL_MODES.find(m=>m.id===t.mode)||DUEL_MODES[0];
+  ($('tourn-mode-label') as HTMLElement).textContent=`${mInfo.icon} ${mInfo.label} · ${t.size} гравців`;
+  const slotsEl=$('tourn-slots') as HTMLElement;
+  slotsEl.innerHTML=Array.from({length:t.size},(_,i)=>{
+    const p=t.players[i];
+    return `<div style="padding:8px 10px;border-radius:10px;border:1.5px solid ${p?'var(--accent)':'var(--border)'};background:${p?'rgba(0,200,100,.06)':'var(--bg)'};text-align:center;">
+      ${p?`<span style="font-size:1.2rem;">${p.avatar}</span> <span style="font-size:.8rem;font-weight:600;color:var(--text);">${p.name}</span>`
+         :`<span style="color:var(--text3);font-size:.78rem;">Слот ${i+1}</span>`}
+    </div>`;
+  }).join('');
+  const joined=Object.keys(t.players).length;
+  const startBtn=$('tourn-start-btn') as HTMLButtonElement;
+  startBtn.style.display=(_tournSlot===0&&joined===t.size)?'':'none';
+  startBtn.textContent=`⚔️ Почати турнір (${joined}/${t.size})`;
+}
+
+function _startTournWaitPoll(): void {
+  _tournPoll=setInterval(async()=>{
+    try{
+      const t=await _fbGet(`/tournaments/${_tournId}`) as Tournament|null;
+      if(!t) return;
+      _tournData=t;
+      if(!t.started) { _renderTournWaiting(t); return; }
+      clearInterval(_tournPoll!); _tournPoll=null;
+      _renderTournBracket(t);
+      _startTournMatchPoll();
+    }catch(e){}
+  },2000);
+}
+
+function _startTournMatchPoll(): void {
+  _tournPoll=setInterval(async()=>{
+    try{
+      const t=await _fbGet(`/tournaments/${_tournId}`) as Tournament|null;
+      if(!t) return;
+      _tournData=t;
+      _renderTournBracket(t);
+      if(t.finished){ clearInterval(_tournPoll!); _tournPoll=null; }
+    }catch(e){}
+  },2000);
+}
+
+async function startTournament(): Promise<void> {
+  if(_tournSlot!==0||!_tournData) return;
+  await _fbPatch(`/tournaments/${_tournId}`,{started:true});
+  _renderTournBracket(_tournData);
+}
+
+function _renderTournBracket(t:Tournament): void {
+  const wEl=$('tourn-waiting') as HTMLElement;
+  const bEl=$('tourn-bracket') as HTMLElement;
+  wEl.style.display='none'; bEl.style.display='';
+  const totalRounds=t.bracket.length;
+  const statusEl=$('tourn-status-label') as HTMLElement;
+  if(t.finished){
+    statusEl.innerHTML=`🏆 Переможець турніру: ${t.champion}!`;
+    statusEl.style.color='#f39c12';
+  } else {
+    statusEl.textContent=`${_tournRoundName(t.currentRound,totalRounds)} · Матч ${t.currentMatch+1}`;
+    statusEl.style.color='var(--text3)';
+  }
+  // Bracket visual
+  const visEl=$('tourn-bracket-visual') as HTMLElement;
+  visEl.innerHTML=t.bracket.map((round,ri)=>{
+    const rName=_tournRoundName(ri,totalRounds);
+    return `<div style="margin-bottom:10px;">
+      <div style="font-size:.68rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">${rName}</div>
+      ${round.map((m,mi)=>{
+        const p1=t.players[m.p1]??{name:'?',avatar:'?'};
+        const p2=t.players[m.p2]??{name:'?',avatar:'?'};
+        const active=ri===t.currentRound&&mi===t.currentMatch&&!m.done;
+        const done=m.done;
+        return `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:9px;border:1.5px solid ${active?'var(--accent)':done?'var(--border)':'var(--border)'};background:${active?'rgba(0,200,100,.06)':'transparent'};margin-bottom:4px;">
+          <span style="${m.winner===m.p1?'font-weight:700;color:var(--accent)':'color:var(--text2)'}">${p1.avatar} ${p1.name}</span>
+          ${done?`<span style="font-size:.75rem;font-weight:700;color:var(--text3);">${m.p1score}:${m.p2score}</span>`:'<span style="color:var(--text3);font-size:.72rem;">vs</span>'}
+          <span style="${m.winner===m.p2?'font-weight:700;color:var(--accent)':'color:var(--text2)'}">${p2.avatar} ${p2.name}</span>
+          ${active?'<span style="font-size:.65rem;color:var(--accent);margin-left:auto;">▶ Зараз</span>':''}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+  // Match area — show play button if it's my turn
+  const matchEl=$('tourn-match-area') as HTMLElement;
+  if(t.finished){
+    matchEl.innerHTML=`<div style="text-align:center;padding:16px;"><div style="font-size:3rem;">🏆</div><div style="font-weight:700;font-size:1.1rem;color:#f39c12;margin-top:8px;">${t.champion} — чемпіон!</div><button id="tourn-leave-btn" style="margin-top:14px;padding:8px 20px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:inherit;font-size:.82rem;">← Вийти</button></div>`;
+    $('tourn-leave-btn')?.addEventListener('click',()=>{ _cancelTournament(); });
+    return;
+  }
+  const curMatch=t.bracket[t.currentRound]?.[t.currentMatch];
+  if(!curMatch||curMatch.done){ matchEl.innerHTML=''; return; }
+  const myTurn=curMatch.p1===_tournSlot||curMatch.p2===_tournSlot;
+  if(myTurn&&!curMatch.roomId){
+    matchEl.innerHTML=`<button id="tourn-play-btn" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.9rem;">⚔️ Грати зараз!</button>`;
+    $('tourn-play-btn')?.addEventListener('click',()=>_startTournMatch(t,t.currentRound,t.currentMatch));
+  } else if(myTurn&&curMatch.roomId){
+    matchEl.innerHTML=`<button id="tourn-rejoin-btn" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.9rem;">▶ Продовжити матч</button>`;
+    $('tourn-rejoin-btn')?.addEventListener('click',()=>_joinTournMatch(curMatch.roomId));
+  } else {
+    const opp=curMatch.p1===_tournSlot?t.players[curMatch.p2]:t.players[curMatch.p1];
+    matchEl.innerHTML=`<div style="text-align:center;padding:12px;color:var(--text3);font-size:.82rem;">⏳ Ідуть матч: ${opp?.name||'?'} vs …<br>Твій черга пізніше</div>`;
+  }
+}
+
+async function _startTournMatch(t:Tournament, round:number, matchIdx:number): Promise<void> {
+  const match=t.bracket[round][matchIdx];
+  // Create a duel room for this match
+  _roomId=_genCode(); _mySlot=match.p1===_tournSlot?'p1':'p2';
+  const seed=Date.now();
+  const room:RoomData={
+    seed, mode:t.mode, category:t.category, difficulty:t.difficulty,
+    bestOf:1, maxHints:3, powerupsEnabled:false,
+    createdAt:Date.now(), started:false, finished:false,
+    series:{p1wins:0,p2wins:0,round:1},
+    p1:{name:t.players[match.p1].name,avatar:t.players[match.p1].avatar,score:0,idx:0,done:false,hintsLeft:3,powerups:{double:0,skip:0,freeze:0}},
+    p2:null,
+  };
+  await _fbSet(`/duel_rooms/${_roomId}`,room);
+  // Save room ID to tournament match
+  const matchPath=`/tournaments/${_tournId}/bracket/${round}/${matchIdx}`;
+  await _fbPatch(matchPath,{roomId:_roomId});
+  _oppName=t.players[match.p1===_tournSlot?match.p2:match.p1].name;
+  _oppAvatar=t.players[match.p1===_tournSlot?match.p2:match.p1].avatar;
+  _quizDeck=_buildDeck(seed,t.category,t.difficulty);
+  _hideTournament();
+  _initGame(t.mode,3,1,{p1wins:0,p2wins:0,round:1},false);
+  // After game finishes, save result to tournament
+  const origFinish=_showFinish.bind(null);
+  (window as Window & {_tournFinishHook?:(r:RoomData)=>void})._tournFinishHook=async(roomData:RoomData)=>{
+    const me=roomData[_mySlot] as PlayerData;
+    const opp=(roomData[_mySlot==='p1'?'p2':'p1']) as PlayerData;
+    const myScore=me.score, oppScore=opp?.score??0;
+    const winner=myScore>oppScore?match.p1===_tournSlot?match.p1:match.p2:match.p1===_tournSlot?match.p2:match.p1;
+    await _fbPatch(`/tournaments/${_tournId}/bracket/${round}/${matchIdx}`,{
+      p1score:match.p1===_tournSlot?myScore:oppScore,
+      p2score:match.p1===_tournSlot?oppScore:myScore,
+      winner, done:true,
+    });
+    // Advance tournament
+    await _advanceTournament();
+  };
+}
+
+async function _joinTournMatch(roomId:string): Promise<void> {
+  try{
+    const room=await _fbGet(`/duel_rooms/${roomId}`) as RoomData|null;
+    if(!room) return;
+    _roomId=roomId; _mySlot='p2';
+    await _fbPatch(`/duel_rooms/${roomId}`,{
+      p2:{name:_getMyName(),avatar:_getMyAvatar(),score:0,idx:0,done:false,hintsLeft:3,powerups:{double:0,skip:0,freeze:0}},
+      started:true,
+    });
+    _quizDeck=_buildDeck(room.seed,room.category,room.difficulty);
+    _oppName=room.p1.name; _oppAvatar=room.p1.avatar;
+    _hideTournament();
+    _initGame(room.mode,3,1,{p1wins:0,p2wins:0,round:1},false);
+  }catch(e){}
+}
+
+async function _advanceTournament(): Promise<void> {
+  const t=await _fbGet(`/tournaments/${_tournId}`) as Tournament;
+  const {currentRound,currentMatch,bracket,players,size} = t;
+  const round=bracket[currentRound];
+  // Check if all matches in current round done
+  const allDone=round.every(m=>m.done);
+  if(!allDone){
+    // Advance to next match in same round
+    await _fbPatch(`/tournaments/${_tournId}`,{currentMatch:currentMatch+1});
+    return;
+  }
+  // Advance to next round — fill in winners
+  const nextRound=bracket[currentRound+1];
+  if(!nextRound){
+    // Tournament finished
+    const finalMatch=round[0];
+    const champ=players[finalMatch.winner];
+    await _fbPatch(`/tournaments/${_tournId}`,{finished:true,champion:`${champ.avatar} ${champ.name}`});
+    return;
+  }
+  // Fill next round with winners
+  const winners=round.map(m=>m.winner);
+  const updatedNext=nextRound.map((m,i)=>({...m,p1:winners[i*2]??m.p1,p2:winners[i*2+1]??m.p2}));
+  await _fbPatch(`/tournaments/${_tournId}`,{
+    currentRound:currentRound+1, currentMatch:0,
+    [`bracket/${currentRound+1}`]:updatedNext,
+  });
+}
+
+function _cancelTournament(): void {
+  if(_tournPoll){clearInterval(_tournPoll);_tournPoll=null;}
+  if(_tournId&&_tournSlot===0) fetch(`${DB_URL}/tournaments/${_tournId}.json`,{method:'DELETE'}).catch(()=>{});
+  _tournId=''; _tournData=null; _tournSlot=-1;
+  _hideTournament(); _showLobby(); renderDuel();
+}
+
 // ── renderDuel (full page) ────────────────────────────────────
 export function renderDuel():void{
   _renderLeaderboard(); _renderModePicker(); _renderCategoryPicker(); _renderOptionsRow();
@@ -931,6 +1229,11 @@ $('duel-rematch-btn')?.addEventListener('click',_doRematch);
 $('duel-spectate-btn')?.addEventListener('click',joinAsSpectator);
 $('duel-async-btn')?.addEventListener('click',createAsyncChallenge);
 $('duel-async-join-btn')?.addEventListener('click',joinAsyncChallenge);
+$('tourn-create-4')?.addEventListener('click',()=>createTournament(4));
+$('tourn-create-8')?.addEventListener('click',()=>createTournament(8));
+$('tourn-join-btn')?.addEventListener('click',joinTournament);
+$('tourn-start-btn')?.addEventListener('click',startTournament);
+$('tourn-cancel-btn')?.addEventListener('click',_cancelTournament);
 
 $('duel-join-input')?.addEventListener('keydown',(e:KeyboardEvent)=>{
   const inp=e.target as HTMLInputElement;
