@@ -20,6 +20,15 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* ── Custom scrollbars ── */
+  ::-webkit-scrollbar              { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track        { background: transparent; }
+  ::-webkit-scrollbar-thumb        { background: var(--border); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover  { background: var(--text3); }
+  ::-webkit-scrollbar-corner       { background: transparent; }
+  /* Firefox */
+  * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--bg);
@@ -1556,6 +1565,26 @@ body.sw {
   --border:  #1a3d6b;
   --shadow:  0 0 18px rgba(0,200,255,0.12), 0 4px 24px rgba(0,0,0,0.6);
 }
+
+/* ── Star Wars neon scrollbars ── */
+body.sw ::-webkit-scrollbar             { width: 5px; height: 5px; }
+body.sw ::-webkit-scrollbar-track       { background: rgba(0,5,20,.7); }
+body.sw ::-webkit-scrollbar-thumb       {
+  background: linear-gradient(180deg, #00c8ff 0%, #0066aa 100%);
+  border-radius: 10px;
+  box-shadow: 0 0 6px rgba(0,200,255,.6), 0 0 12px rgba(0,200,255,.25);
+}
+body.sw ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #40d8ff 0%, #00aadd 100%);
+  box-shadow: 0 0 10px rgba(0,200,255,.9), 0 0 20px rgba(0,200,255,.4);
+}
+body.sw ::-webkit-scrollbar-corner { background: rgba(0,5,20,.7); }
+body.sw * { scrollbar-color: #00c8ff rgba(0,5,20,.7); }
+
+/* Dark theme scrollbar (subtle improvement) */
+body.dark ::-webkit-scrollbar-thumb       { background: #2a2a4a; }
+body.dark ::-webkit-scrollbar-thumb:hover { background: #3a3a5a; }
+body.dark * { scrollbar-color: #2a2a4a transparent; }
 
 /* ── Зіркове небо ── */
 body.sw::before {

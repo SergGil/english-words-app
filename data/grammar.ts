@@ -259,7 +259,7 @@ export const GRAMMAR: GrammarCategory[] = [
   },
 
   // ══════════════════════════════════════
-  //   ГРАМАТИКА
+  //   ГРАМАТИКА (усі теми разом)
   // ══════════════════════════════════════
   {
     id: 'grammar', title: 'Граматика', emoji: '📖',
@@ -403,16 +403,7 @@ export const GRAMMAR: GrammarCategory[] = [
         ],
       },
 
-    ],
-  },
-
-  // ══════════════════════════════════════
-  //   ВИКЛЮЧЕННЯ
-  // ══════════════════════════════════════
-  {
-    id: 'exceptions', title: 'Виключення', emoji: '⚠️',
-    rules: [
-
+      // ─── Merged exceptions into grammar ──────────────────────
       {
         id: 'irregular-verbs', title: 'Неправильні дієслова (топ-60)', emoji: '📋',
         sections: [
@@ -527,15 +518,7 @@ export const GRAMMAR: GrammarCategory[] = [
         ],
       },
 
-    ],
-  },
-
-  // ══════════════════════════════════════
-  //   БІЛЬШЕ ЧАСІВ
-  // ══════════════════════════════════════
-  {
-    id: 'tenses2', title: 'Ще часи', emoji: '🕑',
-    rules: [
+      // ── Ще часи (merged) ──
 
       {
         id: 'past-perfect', title: 'Past Perfect', emoji: '⏪',
@@ -683,12 +666,11 @@ export const GRAMMAR: GrammarCategory[] = [
   },
 
   // ══════════════════════════════════════
-  //   БІЛЬШЕ ГРАМАТИКИ
+  //   ВИКЛЮЧЕННЯ (злиті)
   // ══════════════════════════════════════
   {
-    id: 'grammar2', title: 'Більше граматики', emoji: '📝',
+    id: 'exceptions', title: 'Виключення', emoji: '⚠️',
     rules: [
-
       {
         id: 'reported-speech', title: 'Непряма мова', emoji: '💬→📄',
         sections: [
@@ -976,15 +958,7 @@ export const GRAMMAR: GrammarCategory[] = [
         ],
       },
 
-    ],
-  },
-
-  // ══════════════════════════════════════
-  //   БІЛЬШЕ ВИКЛЮЧЕНЬ
-  // ══════════════════════════════════════
-  {
-    id: 'exceptions2', title: 'Ще виключення', emoji: '⚡',
-    rules: [
+      // ─── Merged from exceptions2 ─────────────────────────────
 
       {
         id: 'phrasal-verbs', title: 'Фразові дієслова (топ-40)', emoji: '🔗',
