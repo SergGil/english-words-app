@@ -116,22 +116,24 @@ function _renderSection(s: GSection): string {
 }
 
 // ── Open / close ──────────────────────────────────────────────
-export function openGrammar(): void {
-  overlay.classList.add('open');
-  if (!_activeId) {
-    _activeId = GRAMMAR[0]?.rules[0]?.id ?? '';
-  }
+
+/** Called by sidebar openPage('grammar') to initialize content */
+export function openGrammarContent(): void {
+  if (!_activeId) _activeId = GRAMMAR[0]?.rules[0]?.id ?? '';
   _renderNav();
   _renderRule(_activeId);
 }
+window.openGrammarContent = openGrammarContent;
 
-function closeGrammar(): void { overlay.classList.remove('open'); }
+export function openGrammar(): void {
+  (window.openPage as ((p: string) => void) | undefined)?.('grammar');
+}
+
+function closeGrammar(): void {
+  (window.closePage as (() => void) | undefined)?.();
+}
 
 document.getElementById('grammar-close')?.addEventListener('click', closeGrammar);
-document.getElementById('sb-grammar')?.addEventListener('click', () => {
-  (window.openPage as ((p: string) => void) | undefined)?.('grammar');
-  openGrammar();
-});
 overlay.addEventListener('click', (e: MouseEvent) => {
   if (e.target === overlay) closeGrammar();
 });
