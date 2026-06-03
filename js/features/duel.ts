@@ -763,18 +763,59 @@ function _cancelRoom():void{
   elMsg().style.display='none';
 }
 
+// ── Reusable styled code input (replaces ugly browser prompt) ─
+function _askCode(title: string, desc: string): Promise<string | null> {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('code-input-overlay') as HTMLElement;
+    const titleEl = document.getElementById('code-input-title')!;
+    const descEl  = document.getElementById('code-input-desc')!;
+    const inp     = document.getElementById('code-input-field') as HTMLInputElement;
+    const okBtn   = document.getElementById('code-input-ok')!;
+    const cancelBtn = document.getElementById('code-input-cancel')!;
+
+    titleEl.textContent = title;
+    descEl.textContent  = desc;
+    inp.value = '';
+    inp.placeholder = 'ABC-123';
+    overlay.style.display = 'flex';
+    setTimeout(() => inp.focus(), 80);
+
+    function _close(val: string | null): void {
+      overlay.style.display = 'none';
+      okBtn.removeEventListener('click', _ok);
+      cancelBtn.removeEventListener('click', _cancel);
+      inp.removeEventListener('keydown', _key);
+      resolve(val);
+    }
+    function _ok(): void {
+      const v = inp.value.replace(/[-\s]/g, '').toUpperCase();
+      if (v.length >= 6) _close(v); else inp.style.borderColor = '#e74c3c';
+    }
+    function _cancel(): void { _close(null); }
+    function _key(e: KeyboardEvent): void {
+      inp.style.borderColor = '';
+      // Auto-format: insert dash after 3rd char
+      let v = inp.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+      if (v.length > 3) v = v.slice(0,3) + '-' + v.slice(3);
+      inp.value = v.slice(0, 7);
+      if (e.key === 'Enter') _ok();
+      if (e.key === 'Escape') _cancel();
+    }
+    okBtn.addEventListener('click', _ok);
+    cancelBtn.addEventListener('click', _cancel);
+    inp.addEventListener('keydown', _key);
+  });
+}
+
 // ── Spectator mode ────────────────────────────────────────────
 async function joinAsSpectator(): Promise<void> {
-  const inp=$('duel-join-input') as HTMLInputElement;
-  const code=inp.value.replace(/[^A-Z0-9]/gi,'').toUpperCase();
-  if(code.length<6){elMsg().textContent='❌ Введіть код кімнати';elMsg().style.display='block';return;}
+  const code = await _askCode('👀 Спостерігати за дуеллю', 'Введи код кімнати, яку хочеш подивитись');
+  if (!code) return;
   try {
     const room=await _fbGet(`/duel_rooms/${code}`) as RoomData|null;
     if(!room?.seed) throw new Error('Кімнату не знайдено');
     _isSpectator=true; _specId=_genCode(); _roomId=code;
-    // Register spectator
     await _fbPatch(`/duel_rooms/${code}/spectators/${_specId}`,{name:_getMyName(),avatar:_getMyAvatar()});
-    // Show spectator view
     _startSpectatorView(room);
   } catch(e){
     elMsg().textContent='❌ '+(e as Error).message; elMsg().style.display='block';
@@ -871,9 +912,8 @@ async function createAsyncChallenge(): Promise<void> {
 }
 
 async function joinAsyncChallenge(): Promise<void> {
-  const inp=$('duel-join-input') as HTMLInputElement;
-  const code=inp.value.replace(/[^A-Z0-9]/gi,'').toUpperCase();
-  if(code.length<6){elMsg().textContent='❌ Введіть код виклику';elMsg().style.display='block';return;}
+  const code = await _askCode('📬 Відповісти на виклик', 'Введи код виклику, який тобі надіслали (дійсний 24 години)');
+  if (!code) return;
   try {
     const challenge=await _fbGet(`/duel_async/${code}`) as AsyncDuel|null;
     if(!challenge) throw new Error('Виклик не знайдено');
@@ -882,9 +922,10 @@ async function joinAsyncChallenge(): Promise<void> {
     if(challenge.opponent) throw new Error('Хтось вже відповів на цей виклик');
     _roomId=code; _mySlot='p2'; _quizDeck=_buildDeck(challenge.seed,challenge.category,challenge.difficulty);
     _oppName=challenge.challenger.name; _oppAvatar=challenge.challenger.avatar;
-    const msg=`📬 Виклик від ${challenge.challenger.avatar} ${challenge.challenger.name} · ${DUEL_MODES.find(m=>m.id===challenge.mode)?.label}`;
-    elMsg().textContent=msg; elMsg().style.display='block';
-    setTimeout(()=>{ elMsg().style.display='none'; _initGame(challenge.mode,3,1,{p1wins:0,p2wins:0,round:1}); }, 1500);
+    const mInfo=DUEL_MODES.find(m=>m.id===challenge.mode);
+    elMsg().innerHTML=`<span style="color:var(--accent)">📬 Виклик від ${challenge.challenger.avatar} <b>${challenge.challenger.name}</b> · ${mInfo?.icon} ${mInfo?.label}</span>`;
+    elMsg().style.display='block';
+    setTimeout(()=>{ elMsg().style.display='none'; _initGame(challenge.mode,3,1,{p1wins:0,p2wins:0,round:1}); }, 1800);
   } catch(e){
     elMsg().textContent='❌ '+(e as Error).message; elMsg().style.display='block';
   }
@@ -1000,8 +1041,8 @@ async function createTournament(size:4|8): Promise<void> {
 }
 
 async function joinTournament(): Promise<void> {
-  const code = prompt('Введи код турніру:')?.replace(/[-\s]/g,'').toUpperCase();
-  if(!code||code.length<6) return;
+  const code = await _askCode('🏟️ Вступити в турнір', 'Введи код турніру від організатора');
+  if(!code) return;
   try {
     const tourn=await _fbGet(`/tournaments/${code}`) as Tournament|null;
     if(!tourn) throw new Error('Турнір не знайдено');
