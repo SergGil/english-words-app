@@ -607,13 +607,18 @@ async function _answerChoice(btn:HTMLButtonElement,chosen:string,correct:string,
   const ok=chosen===correct;
   btn.classList.add(ok?'correct':'wrong');
   if(!ok) elOpts().querySelectorAll<HTMLButtonElement>('.quiz-option').forEach(b=>{if(b.textContent?.includes(correct)) b.classList.add('reveal');});
+  let feedbackHtml = '';
   if(ok){
-    const pts = _doubleActive ? 2 : 1;
+    const wasDouble = _doubleActive;
+    const pts = wasDouble ? 2 : 1;
     _myScore += pts;
-    if(_doubleActive){ _doubleActive=false; elFeedback().innerHTML=`<span style="color:#f39c12">🎯 +2 очки!</span>`; }
+    if(wasDouble){ _doubleActive=false; feedbackHtml=`<span style="color:#f39c12">🎯 +2 очки!</span>`; }
+    else { feedbackHtml='<span style="color:#27ae60">✓ Правильно!</span>'; }
+  } else {
+    feedbackHtml=`<span style="color:#e74c3c">✗ ${correct}</span>`;
   }
   elMyScore().textContent=String(_myScore);
-  if(!_doubleActive) elFeedback().innerHTML=ok?'<span style="color:#27ae60">✓ Правильно!</span>':`<span style="color:#e74c3c">✗ ${correct}</span>`;
+  elFeedback().innerHTML=feedbackHtml;
   elSpeed().textContent=ok?`⚡ ${(ms/1000).toFixed(1)}с`:'';
   _renderPowerups();
   _quizIdx++; await _pushScore();
@@ -787,6 +792,9 @@ function _startSpectatorView(room:RoomData): void {
       _renderSpectatorView(r);
       if(r.finished){
         clearInterval(_pollTimer!); _pollTimer=null;
+        // Clean up spectator entry in Firebase before leaving
+        if(_specId) fetch(`${DB_URL}/duel_rooms/${_roomId}/spectators/${_specId}.json`,{method:'DELETE'}).catch(()=>{});
+        _specId=''; _isSpectator=false;
         setTimeout(()=>{ el.style.display='none'; _showLobby(); renderDuel(); },3000);
       }
     }catch(e){}
@@ -831,6 +839,9 @@ async function createAsyncChallenge(): Promise<void> {
   const btn=$('duel-async-btn') as HTMLButtonElement;
   btn.disabled=true; btn.textContent='Створення...';
   try {
+    // Clear any stale tournament state so _showFinish doesn't route to tournament path
+    _tournId=''; _tournData=null;
+    (window as Window & {_tournFinishHook?:unknown})._tournFinishHook=undefined;
     const code=_genCode();
     const seed=Date.now();
     const challenge: AsyncDuel = {
@@ -1177,33 +1188,37 @@ async function _joinTournMatch(roomId:string): Promise<void> {
   }catch(e){}
 }
 
+// Guard: prevents both p1 and p2 from calling _advanceTournament simultaneously
+let _advanceLock = false;
+
 async function _advanceTournament(): Promise<void> {
-  const t=await _fbGet(`/tournaments/${_tournId}`) as Tournament;
-  const {currentRound,currentMatch,bracket,players,size} = t;
-  const round=bracket[currentRound];
-  // Check if all matches in current round done
-  const allDone=round.every(m=>m.done);
-  if(!allDone){
-    // Advance to next match in same round
-    await _fbPatch(`/tournaments/${_tournId}`,{currentMatch:currentMatch+1});
-    return;
+  if(_advanceLock) return;
+  _advanceLock = true;
+  try {
+    const t=await _fbGet(`/tournaments/${_tournId}`) as Tournament;
+    const {currentRound,currentMatch,bracket,players} = t;
+    const round=bracket[currentRound];
+    const allDone=round.every(m=>m.done);
+    if(!allDone){
+      await _fbPatch(`/tournaments/${_tournId}`,{currentMatch:currentMatch+1});
+      return;
+    }
+    const nextRound=bracket[currentRound+1];
+    if(!nextRound){
+      const finalMatch=round[0];
+      const champ=players[finalMatch.winner];
+      await _fbPatch(`/tournaments/${_tournId}`,{finished:true,champion:`${champ.avatar} ${champ.name}`});
+      return;
+    }
+    // Fill next round — use direct path so Firebase applies nested update correctly
+    const winners=round.map(m=>m.winner);
+    const updatedNext=nextRound.map((m,i)=>({...m,p1:winners[i*2]??m.p1,p2:winners[i*2+1]??m.p2}));
+    // Use separate PATCH calls: one for metadata, one for the specific bracket round via URL path
+    await _fbPatch(`/tournaments/${_tournId}`,{currentRound:currentRound+1,currentMatch:0});
+    await _fbSet(`/tournaments/${_tournId}/bracket/${currentRound+1}`,updatedNext);
+  } finally {
+    _advanceLock = false;
   }
-  // Advance to next round — fill in winners
-  const nextRound=bracket[currentRound+1];
-  if(!nextRound){
-    // Tournament finished
-    const finalMatch=round[0];
-    const champ=players[finalMatch.winner];
-    await _fbPatch(`/tournaments/${_tournId}`,{finished:true,champion:`${champ.avatar} ${champ.name}`});
-    return;
-  }
-  // Fill next round with winners
-  const winners=round.map(m=>m.winner);
-  const updatedNext=nextRound.map((m,i)=>({...m,p1:winners[i*2]??m.p1,p2:winners[i*2+1]??m.p2}));
-  await _fbPatch(`/tournaments/${_tournId}`,{
-    currentRound:currentRound+1, currentMatch:0,
-    [`bracket/${currentRound+1}`]:updatedNext,
-  });
 }
 
 function _cancelTournament(): void {

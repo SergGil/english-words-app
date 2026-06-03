@@ -255,6 +255,152 @@ export const GRAMMAR: GrammarCategory[] = [
         ],
       },
 
+      // ─── Additional tenses ─────────────────────────────────────
+      // ── Ще часи (merged) ──
+
+      {
+        id: 'past-perfect', title: 'Past Perfect', emoji: '⏪',
+        sections: [
+          { type: 'intro', text: 'Минулий доконаний час. Дія відбулась ДО іншої дії в минулому. Використовується з Past Simple для показу послідовності подій.' },
+          {
+            type: 'formula', title: 'Структура',
+            rows: [
+              ['✅ (+)', 'Всі особи', 'had + V₃', '→ She had already left.'],
+              ['❌ (−)', 'Всі особи', "hadn't + V₃", "→ He hadn't eaten before."],
+              ['❓ (?)', 'Всі особи', 'Had + V₃?', '→ Had they met before?'],
+            ],
+          },
+          { type: 'tip', title: 'Past Perfect vs Past Simple',
+            text: 'When I arrived, she had already left. (спочатку пішла → потім я прийшов)\nПасивний: The cake had been eaten. (хтось з\'їв до моменту в минулому)',
+          },
+          { type: 'markers', title: 'Маркери часу',
+            items: ['before', 'after', 'already', 'just', 'never', 'when', 'by the time', 'as soon as'],
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['By the time he arrived, we had finished.', 'На момент коли він прийшов, ми вже закінчили.'],
+              ['She had never seen snow before.', 'Вона ніколи раніше не бачила снігу.'],
+              ['Had you eaten before the meeting?', 'Ти поїв до наради?'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'present-perfect-cont', title: 'Present Perfect Continuous', emoji: '🔄✔️',
+        sections: [
+          { type: 'intro', text: 'Теперішній доконано-тривалий час. Дія почалась у минулому і продовжується зараз. Акцент на тривалості процесу.' },
+          {
+            type: 'formula', title: 'Структура',
+            rows: [
+              ['✅ (+)', 'I / You / We / They', 'have been + V-ing', '→ I have been waiting for an hour.'],
+              ['✅ (+)', 'He / She / It', 'has been + V-ing', '→ She has been working all day.'],
+              ['❌ (−)', 'I / You / We / They', "haven't been + V-ing", "→ We haven't been sleeping well."],
+              ['❌ (−)', 'He / She / It', "hasn't been + V-ing", "→ He hasn't been feeling well."],
+              ['❓ (?)', '', 'Have/Has + been + V-ing?', '→ How long have you been waiting?'],
+            ],
+          },
+          { type: 'tip', title: 'Present Perfect vs Present Perfect Continuous',
+            text: 'I have read 3 books this week. (скільки — результат, кількість)\nI have been reading all evening. (як довго — процес, тривалість)',
+          },
+          { type: 'markers', title: 'Маркери часу',
+            items: ['for + тривалість (for 2 hours)', 'since + момент (since morning)', 'how long?', 'all day / all week', 'lately', 'recently'],
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['I have been learning French for 3 years.', 'Я вивчаю французьку вже 3 роки.'],
+              ['She has been crying. Her eyes are red.', 'Вона плакала. Очі червоні. (видний результат)'],
+              ['How long have you been waiting?', 'Як довго ти чекаєш?'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'future-going-to', title: 'Future: Going to', emoji: '🗓️',
+        sections: [
+          { type: 'intro', text: 'Going to вживається для заздалегідь запланованих дій або для прогнозів на основі видимих ознак.' },
+          {
+            type: 'formula', title: 'Структура',
+            rows: [
+              ['✅ (+)', 'I', 'am going to + V₁', "→ I'm going to travel next month."],
+              ['✅ (+)', 'He / She / It', 'is going to + V₁', "→ She's going to study abroad."],
+              ['✅ (+)', 'You / We / They', 'are going to + V₁', "→ They're going to buy a house."],
+              ['❌ (−)', '', "not going to + V₁", "→ I'm not going to apologize."],
+              ['❓ (?)', '', 'Am/Is/Are + going to + V₁?', '→ Are you going to call him?'],
+            ],
+          },
+          {
+            type: 'table', title: 'Will vs Going to',
+            rows: [
+              ['', 'WILL', 'GOING TO'],
+              ['Рішення', 'Спонтанне (зараз)', 'Заздалегідь заплановане'],
+              ['Прогноз', 'Думка/припущення', 'На основі ознак зараз'],
+              ['Приклад', '"I\'ll answer the phone."', '"I\'m going to visit Paris."'],
+              ['Приклад', '"I think it will rain."', '"Look at those clouds — it\'s going to rain!"'],
+            ],
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ["We're going to move to a new city.", 'Ми плануємо переїхати в нове місто.'],
+              ["She's going to have a baby!", 'Вона чекає дитину!'],
+              ["They're not going to be late.", 'Вони не спізняться.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'future-continuous', title: 'Future Continuous', emoji: '🔮▶️',
+        sections: [
+          { type: 'intro', text: 'Майбутній тривалий час. Дія буде тривати в певний момент у майбутньому або відбуватиметься паралельно з іншою дією.' },
+          {
+            type: 'formula', title: 'Структура',
+            rows: [
+              ['✅ (+)', 'Всі особи', 'will be + V-ing', '→ I will be working at 8 pm.'],
+              ['❌ (−)', 'Всі особи', "won't be + V-ing", "→ She won't be sleeping then."],
+              ['❓ (?)', 'Всі особи', 'Will + be + V-ing?', '→ Will you be using the car?'],
+            ],
+          },
+          { type: 'markers', title: 'Маркери часу',
+            items: ['at this time tomorrow', 'at 8 pm tonight', 'this time next week', 'while', 'when'],
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['This time tomorrow I will be flying to London.', 'Завтра в цей час я буду летіти до Лондона.'],
+              ["Don't call at 7 — I'll be having dinner.", 'Не телефонуй о 7 — я буду вечеряти.'],
+              ['Will you be attending the conference?', 'Ти будеш на конференції?'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'future-perfect', title: 'Future Perfect', emoji: '✅🔮',
+        sections: [
+          { type: 'intro', text: 'Майбутній доконаний час. Дія буде ЗАВЕРШЕНА до певного моменту в майбутньому.' },
+          {
+            type: 'formula', title: 'Структура',
+            rows: [
+              ['✅ (+)', 'Всі особи', 'will have + V₃', '→ I will have finished by 6 pm.'],
+              ['❌ (−)', 'Всі особи', "won't have + V₃", "→ He won't have arrived by then."],
+              ['❓ (?)', 'Всі особи', 'Will + have + V₃?', '→ Will you have done it by Monday?'],
+            ],
+          },
+          { type: 'markers', title: 'Маркери часу',
+            items: ['by + час/момент (by 5 pm)', 'by the time', 'before', 'in + тривалість (in 2 years)'],
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['By Friday, I will have completed the project.', 'До п\'ятниці я завершу проєкт.'],
+              ['She will have graduated by next summer.', 'Вона закінчить навчання до наступного літа.'],
+              ['Will you have read the book by then?', 'Ти прочитаєш книгу до того часу?'],
+            ],
+          },
+        ],
+      },
+
+
     ],
   },
 
@@ -403,274 +549,8 @@ export const GRAMMAR: GrammarCategory[] = [
         ],
       },
 
-      // ─── Merged exceptions into grammar ──────────────────────
-      {
-        id: 'irregular-verbs', title: 'Неправильні дієслова (топ-60)', emoji: '📋',
-        sections: [
-          {
-            type: 'intro',
-            text: 'Неправильні дієслова не утворюють Past Simple та Past Participle за допомогою -ed. Їх потрібно вивчити окремо.',
-          },
-          {
-            type: 'table', title: 'Неправильні дієслова',
-            rows: [
-              ['Base (V₁)', 'Past Simple (V₂)', 'Past Participle (V₃)', 'Переклад'],
-              ['be', 'was / were', 'been', 'бути'],
-              ['beat', 'beat', 'beaten', 'бити'],
-              ['become', 'became', 'become', 'ставати'],
-              ['begin', 'began', 'begun', 'починати'],
-              ['break', 'broke', 'broken', 'ламати'],
-              ['bring', 'brought', 'brought', 'приносити'],
-              ['build', 'built', 'built', 'будувати'],
-              ['buy', 'bought', 'bought', 'купувати'],
-              ['catch', 'caught', 'caught', 'ловити'],
-              ['choose', 'chose', 'chosen', 'вибирати'],
-              ['come', 'came', 'come', 'приходити'],
-              ['cost', 'cost', 'cost', 'коштувати'],
-              ['cut', 'cut', 'cut', 'різати'],
-              ['do', 'did', 'done', 'робити'],
-              ['draw', 'drew', 'drawn', 'малювати'],
-              ['drink', 'drank', 'drunk', 'пити'],
-              ['drive', 'drove', 'driven', 'їздити'],
-              ['eat', 'ate', 'eaten', 'їсти'],
-              ['fall', 'fell', 'fallen', 'падати'],
-              ['feel', 'felt', 'felt', 'відчувати'],
-              ['find', 'found', 'found', 'знаходити'],
-              ['fly', 'flew', 'flown', 'летіти'],
-              ['forget', 'forgot', 'forgotten', 'забувати'],
-              ['get', 'got', 'got / gotten', 'отримувати'],
-              ['give', 'gave', 'given', 'давати'],
-              ['go', 'went', 'gone', 'іти'],
-              ['grow', 'grew', 'grown', 'рости'],
-              ['have', 'had', 'had', 'мати'],
-              ['hear', 'heard', 'heard', 'чути'],
-              ['hide', 'hid', 'hidden', 'ховати'],
-              ['hit', 'hit', 'hit', 'вдаряти'],
-              ['hold', 'held', 'held', 'тримати'],
-              ['keep', 'kept', 'kept', 'тримати / зберігати'],
-              ['know', 'knew', 'known', 'знати'],
-              ['lead', 'led', 'led', 'вести'],
-              ['leave', 'left', 'left', 'залишати'],
-              ['lend', 'lent', 'lent', 'позичати'],
-              ['let', 'let', 'let', 'дозволяти'],
-              ['lose', 'lost', 'lost', 'губити'],
-              ['make', 'made', 'made', 'робити'],
-              ['mean', 'meant', 'meant', 'означати'],
-              ['meet', 'met', 'met', 'зустрічати'],
-              ['put', 'put', 'put', 'класти'],
-              ['read', 'read', 'read', 'читати'],
-              ['ride', 'rode', 'ridden', 'їхати'],
-              ['run', 'ran', 'run', 'бігти'],
-              ['say', 'said', 'said', 'казати'],
-              ['see', 'saw', 'seen', 'бачити'],
-              ['sell', 'sold', 'sold', 'продавати'],
-              ['send', 'sent', 'sent', 'надсилати'],
-              ['show', 'showed', 'shown', 'показувати'],
-              ['sit', 'sat', 'sat', 'сидіти'],
-              ['sleep', 'slept', 'slept', 'спати'],
-              ['speak', 'spoke', 'spoken', 'говорити'],
-              ['spend', 'spent', 'spent', 'витрачати'],
-              ['stand', 'stood', 'stood', 'стояти'],
-              ['swim', 'swam', 'swum', 'плавати'],
-              ['take', 'took', 'taken', 'брати'],
-              ['teach', 'taught', 'taught', 'вчити'],
-              ['tell', 'told', 'told', 'розказувати'],
-              ['think', 'thought', 'thought', 'думати'],
-              ['throw', 'threw', 'thrown', 'кидати'],
-              ['understand', 'understood', 'understood', 'розуміти'],
-              ['wear', 'wore', 'worn', 'носити (одяг)'],
-              ['win', 'won', 'won', 'перемагати'],
-              ['write', 'wrote', 'written', 'писати'],
-            ],
-          },
-        ],
-      },
 
-      {
-        id: 'spelling-rules', title: 'Правила написання', emoji: '✏️',
-        sections: [
-          {
-            type: 'intro',
-            text: 'Основні правила написання дієслів при додаванні -ing, -ed, та -s/-es.',
-          },
-          {
-            type: 'table', title: 'Правила додавання -ing',
-            rows: [
-              ['Правило', 'Приклад → результат'],
-              ['Просто додати -ing', 'work → working, play → playing'],
-              ['Кінцева -e зникає', 'make → making, drive → driving'],
-              ['1 склад, CVC — подвоїти', 'run → running, sit → sitting'],
-              ['Кінцева -ie → -ying', 'lie → lying, die → dying'],
-              ['l → ll (British)', 'travel → travelling (Brit), traveling (Am)'],
-            ],
-          },
-          {
-            type: 'table', title: 'Правила додавання -ed',
-            rows: [
-              ['Правило', 'Приклад → результат'],
-              ['Просто додати -ed', 'work → worked, play → played'],
-              ['Кінцева -e → тільки -d', 'like → liked, close → closed'],
-              ['1 склад, CVC — подвоїти', 'stop → stopped, plan → planned'],
-              ['Приголосна + -y → -ied', 'study → studied, try → tried'],
-              ['Голосна + -y → -ed', 'play → played, enjoy → enjoyed'],
-            ],
-          },
-        ],
-      },
-
-      // ── Ще часи (merged) ──
-
-      {
-        id: 'past-perfect', title: 'Past Perfect', emoji: '⏪',
-        sections: [
-          { type: 'intro', text: 'Минулий доконаний час. Дія відбулась ДО іншої дії в минулому. Використовується з Past Simple для показу послідовності подій.' },
-          {
-            type: 'formula', title: 'Структура',
-            rows: [
-              ['✅ (+)', 'Всі особи', 'had + V₃', '→ She had already left.'],
-              ['❌ (−)', 'Всі особи', "hadn't + V₃", "→ He hadn't eaten before."],
-              ['❓ (?)', 'Всі особи', 'Had + V₃?', '→ Had they met before?'],
-            ],
-          },
-          { type: 'tip', title: 'Past Perfect vs Past Simple',
-            text: 'When I arrived, she had already left. (спочатку пішла → потім я прийшов)\nПасивний: The cake had been eaten. (хтось з\'їв до моменту в минулому)',
-          },
-          { type: 'markers', title: 'Маркери часу',
-            items: ['before', 'after', 'already', 'just', 'never', 'when', 'by the time', 'as soon as'],
-          },
-          { type: 'examples', title: 'Приклади',
-            rows: [
-              ['By the time he arrived, we had finished.', 'На момент коли він прийшов, ми вже закінчили.'],
-              ['She had never seen snow before.', 'Вона ніколи раніше не бачила снігу.'],
-              ['Had you eaten before the meeting?', 'Ти поїв до наради?'],
-            ],
-          },
-        ],
-      },
-
-      {
-        id: 'present-perfect-cont', title: 'Present Perfect Continuous', emoji: '🔄✔️',
-        sections: [
-          { type: 'intro', text: 'Теперішній доконано-тривалий час. Дія почалась у минулому і продовжується зараз. Акцент на тривалості процесу.' },
-          {
-            type: 'formula', title: 'Структура',
-            rows: [
-              ['✅ (+)', 'I / You / We / They', 'have been + V-ing', '→ I have been waiting for an hour.'],
-              ['✅ (+)', 'He / She / It', 'has been + V-ing', '→ She has been working all day.'],
-              ['❌ (−)', 'I / You / We / They', "haven't been + V-ing", "→ We haven't been sleeping well."],
-              ['❌ (−)', 'He / She / It', "hasn't been + V-ing", "→ He hasn't been feeling well."],
-              ['❓ (?)', '', 'Have/Has + been + V-ing?', '→ How long have you been waiting?'],
-            ],
-          },
-          { type: 'tip', title: 'Present Perfect vs Present Perfect Continuous',
-            text: 'I have read 3 books this week. (скільки — результат, кількість)\nI have been reading all evening. (як довго — процес, тривалість)',
-          },
-          { type: 'markers', title: 'Маркери часу',
-            items: ['for + тривалість (for 2 hours)', 'since + момент (since morning)', 'how long?', 'all day / all week', 'lately', 'recently'],
-          },
-          { type: 'examples', title: 'Приклади',
-            rows: [
-              ['I have been learning French for 3 years.', 'Я вивчаю французьку вже 3 роки.'],
-              ['She has been crying. Her eyes are red.', 'Вона плакала. Очі червоні. (видний результат)'],
-              ['How long have you been waiting?', 'Як довго ти чекаєш?'],
-            ],
-          },
-        ],
-      },
-
-      {
-        id: 'future-going-to', title: 'Future: Going to', emoji: '🗓️',
-        sections: [
-          { type: 'intro', text: 'Going to вживається для заздалегідь запланованих дій або для прогнозів на основі видимих ознак.' },
-          {
-            type: 'formula', title: 'Структура',
-            rows: [
-              ['✅ (+)', 'I', 'am going to + V₁', "→ I'm going to travel next month."],
-              ['✅ (+)', 'He / She / It', 'is going to + V₁', "→ She's going to study abroad."],
-              ['✅ (+)', 'You / We / They', 'are going to + V₁', "→ They're going to buy a house."],
-              ['❌ (−)', '', "not going to + V₁", "→ I'm not going to apologize."],
-              ['❓ (?)', '', 'Am/Is/Are + going to + V₁?', '→ Are you going to call him?'],
-            ],
-          },
-          {
-            type: 'table', title: 'Will vs Going to',
-            rows: [
-              ['', 'WILL', 'GOING TO'],
-              ['Рішення', 'Спонтанне (зараз)', 'Заздалегідь заплановане'],
-              ['Прогноз', 'Думка/припущення', 'На основі ознак зараз'],
-              ['Приклад', '"I\'ll answer the phone."', '"I\'m going to visit Paris."'],
-              ['Приклад', '"I think it will rain."', '"Look at those clouds — it\'s going to rain!"'],
-            ],
-          },
-          { type: 'examples', title: 'Приклади',
-            rows: [
-              ["We're going to move to a new city.", 'Ми плануємо переїхати в нове місто.'],
-              ["She's going to have a baby!", 'Вона чекає дитину!'],
-              ["They're not going to be late.", 'Вони не спізняться.'],
-            ],
-          },
-        ],
-      },
-
-      {
-        id: 'future-continuous', title: 'Future Continuous', emoji: '🔮▶️',
-        sections: [
-          { type: 'intro', text: 'Майбутній тривалий час. Дія буде тривати в певний момент у майбутньому або відбуватиметься паралельно з іншою дією.' },
-          {
-            type: 'formula', title: 'Структура',
-            rows: [
-              ['✅ (+)', 'Всі особи', 'will be + V-ing', '→ I will be working at 8 pm.'],
-              ['❌ (−)', 'Всі особи', "won't be + V-ing", "→ She won't be sleeping then."],
-              ['❓ (?)', 'Всі особи', 'Will + be + V-ing?', '→ Will you be using the car?'],
-            ],
-          },
-          { type: 'markers', title: 'Маркери часу',
-            items: ['at this time tomorrow', 'at 8 pm tonight', 'this time next week', 'while', 'when'],
-          },
-          { type: 'examples', title: 'Приклади',
-            rows: [
-              ['This time tomorrow I will be flying to London.', 'Завтра в цей час я буду летіти до Лондона.'],
-              ["Don't call at 7 — I'll be having dinner.", 'Не телефонуй о 7 — я буду вечеряти.'],
-              ['Will you be attending the conference?', 'Ти будеш на конференції?'],
-            ],
-          },
-        ],
-      },
-
-      {
-        id: 'future-perfect', title: 'Future Perfect', emoji: '✅🔮',
-        sections: [
-          { type: 'intro', text: 'Майбутній доконаний час. Дія буде ЗАВЕРШЕНА до певного моменту в майбутньому.' },
-          {
-            type: 'formula', title: 'Структура',
-            rows: [
-              ['✅ (+)', 'Всі особи', 'will have + V₃', '→ I will have finished by 6 pm.'],
-              ['❌ (−)', 'Всі особи', "won't have + V₃", "→ He won't have arrived by then."],
-              ['❓ (?)', 'Всі особи', 'Will + have + V₃?', '→ Will you have done it by Monday?'],
-            ],
-          },
-          { type: 'markers', title: 'Маркери часу',
-            items: ['by + час/момент (by 5 pm)', 'by the time', 'before', 'in + тривалість (in 2 years)'],
-          },
-          { type: 'examples', title: 'Приклади',
-            rows: [
-              ['By Friday, I will have completed the project.', 'До п\'ятниці я завершу проєкт.'],
-              ['She will have graduated by next summer.', 'Вона закінчить навчання до наступного літа.'],
-              ['Will you have read the book by then?', 'Ти прочитаєш книгу до того часу?'],
-            ],
-          },
-        ],
-      },
-
-    ],
-  },
-
-  // ══════════════════════════════════════
-  //   ВИКЛЮЧЕННЯ (злиті)
-  // ══════════════════════════════════════
-  {
-    id: 'exceptions', title: 'Виключення', emoji: '⚠️',
-    rules: [
+      // ─── Additional grammar topics ───────────────────────────────
       {
         id: 'reported-speech', title: 'Непряма мова', emoji: '💬→📄',
         sections: [
@@ -1157,5 +1037,130 @@ export const GRAMMAR: GrammarCategory[] = [
 
     ],
   },
+
+  // ══════════════════════════════════════
+  //   ВИКЛЮЧЕННЯ
+  // ══════════════════════════════════════
+  {
+    id: 'exceptions', title: 'Виключення', emoji: '⚠️',
+    rules: [
+
+      {
+        id: 'irregular-verbs', title: 'Неправильні дієслова (топ-60)', emoji: '📋',
+        sections: [
+          {
+            type: 'intro',
+            text: 'Неправильні дієслова не утворюють Past Simple та Past Participle за допомогою -ed. Їх потрібно вивчити окремо.',
+          },
+          {
+            type: 'table', title: 'Неправильні дієслова',
+            rows: [
+              ['Base (V₁)', 'Past Simple (V₂)', 'Past Participle (V₃)', 'Переклад'],
+              ['be', 'was / were', 'been', 'бути'],
+              ['beat', 'beat', 'beaten', 'бити'],
+              ['become', 'became', 'become', 'ставати'],
+              ['begin', 'began', 'begun', 'починати'],
+              ['break', 'broke', 'broken', 'ламати'],
+              ['bring', 'brought', 'brought', 'приносити'],
+              ['build', 'built', 'built', 'будувати'],
+              ['buy', 'bought', 'bought', 'купувати'],
+              ['catch', 'caught', 'caught', 'ловити'],
+              ['choose', 'chose', 'chosen', 'вибирати'],
+              ['come', 'came', 'come', 'приходити'],
+              ['cost', 'cost', 'cost', 'коштувати'],
+              ['cut', 'cut', 'cut', 'різати'],
+              ['do', 'did', 'done', 'робити'],
+              ['draw', 'drew', 'drawn', 'малювати'],
+              ['drink', 'drank', 'drunk', 'пити'],
+              ['drive', 'drove', 'driven', 'їздити'],
+              ['eat', 'ate', 'eaten', 'їсти'],
+              ['fall', 'fell', 'fallen', 'падати'],
+              ['feel', 'felt', 'felt', 'відчувати'],
+              ['find', 'found', 'found', 'знаходити'],
+              ['fly', 'flew', 'flown', 'летіти'],
+              ['forget', 'forgot', 'forgotten', 'забувати'],
+              ['get', 'got', 'got / gotten', 'отримувати'],
+              ['give', 'gave', 'given', 'давати'],
+              ['go', 'went', 'gone', 'іти'],
+              ['grow', 'grew', 'grown', 'рости'],
+              ['have', 'had', 'had', 'мати'],
+              ['hear', 'heard', 'heard', 'чути'],
+              ['hide', 'hid', 'hidden', 'ховати'],
+              ['hit', 'hit', 'hit', 'вдаряти'],
+              ['hold', 'held', 'held', 'тримати'],
+              ['keep', 'kept', 'kept', 'тримати / зберігати'],
+              ['know', 'knew', 'known', 'знати'],
+              ['lead', 'led', 'led', 'вести'],
+              ['leave', 'left', 'left', 'залишати'],
+              ['lend', 'lent', 'lent', 'позичати'],
+              ['let', 'let', 'let', 'дозволяти'],
+              ['lose', 'lost', 'lost', 'губити'],
+              ['make', 'made', 'made', 'робити'],
+              ['mean', 'meant', 'meant', 'означати'],
+              ['meet', 'met', 'met', 'зустрічати'],
+              ['put', 'put', 'put', 'класти'],
+              ['read', 'read', 'read', 'читати'],
+              ['ride', 'rode', 'ridden', 'їхати'],
+              ['run', 'ran', 'run', 'бігти'],
+              ['say', 'said', 'said', 'казати'],
+              ['see', 'saw', 'seen', 'бачити'],
+              ['sell', 'sold', 'sold', 'продавати'],
+              ['send', 'sent', 'sent', 'надсилати'],
+              ['show', 'showed', 'shown', 'показувати'],
+              ['sit', 'sat', 'sat', 'сидіти'],
+              ['sleep', 'slept', 'slept', 'спати'],
+              ['speak', 'spoke', 'spoken', 'говорити'],
+              ['spend', 'spent', 'spent', 'витрачати'],
+              ['stand', 'stood', 'stood', 'стояти'],
+              ['swim', 'swam', 'swum', 'плавати'],
+              ['take', 'took', 'taken', 'брати'],
+              ['teach', 'taught', 'taught', 'вчити'],
+              ['tell', 'told', 'told', 'розказувати'],
+              ['think', 'thought', 'thought', 'думати'],
+              ['throw', 'threw', 'thrown', 'кидати'],
+              ['understand', 'understood', 'understood', 'розуміти'],
+              ['wear', 'wore', 'worn', 'носити (одяг)'],
+              ['win', 'won', 'won', 'перемагати'],
+              ['write', 'wrote', 'written', 'писати'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'spelling-rules', title: 'Правила написання', emoji: '✏️',
+        sections: [
+          {
+            type: 'intro',
+            text: 'Основні правила написання дієслів при додаванні -ing, -ed, та -s/-es.',
+          },
+          {
+            type: 'table', title: 'Правила додавання -ing',
+            rows: [
+              ['Правило', 'Приклад → результат'],
+              ['Просто додати -ing', 'work → working, play → playing'],
+              ['Кінцева -e зникає', 'make → making, drive → driving'],
+              ['1 склад, CVC — подвоїти', 'run → running, sit → sitting'],
+              ['Кінцева -ie → -ying', 'lie → lying, die → dying'],
+              ['l → ll (British)', 'travel → travelling (Brit), traveling (Am)'],
+            ],
+          },
+          {
+            type: 'table', title: 'Правила додавання -ed',
+            rows: [
+              ['Правило', 'Приклад → результат'],
+              ['Просто додати -ed', 'work → worked, play → played'],
+              ['Кінцева -e → тільки -d', 'like → liked, close → closed'],
+              ['1 склад, CVC — подвоїти', 'stop → stopped, plan → planned'],
+              ['Приголосна + -y → -ied', 'study → studied, try → tried'],
+              ['Голосна + -y → -ed', 'play → played, enjoy → enjoyed'],
+            ],
+          },
+        ],
+      },
+
+    ],
+  },
+
 
 ];
