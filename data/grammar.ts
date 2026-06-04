@@ -1035,6 +1035,152 @@ export const GRAMMAR: GrammarCategory[] = [
         ],
       },
 
+      {
+        id: 'numbers-determiners', title: 'Числівники і Детермінери', emoji: '🔢',
+        sections: [
+          {
+            type: 'intro',
+            text: 'Числівники (Cardinals/Ordinals) та детермінери (a/an/the/this/that/some/any/each/every) — слова що визначають кількість та конкретність іменника.',
+          },
+          {
+            type: 'table', title: 'Кількісні vs Порядкові',
+            rows: [
+              ['Кількісний (Cardinal)', 'Порядковий (Ordinal)', 'Вживання'],
+              ['one', 'first (1st)', 'один / перший'],
+              ['two', 'second (2nd)', 'два / другий'],
+              ['three', 'third (3rd)', 'три / третій'],
+              ['four', 'fourth (4th)', 'чотири / четвертий'],
+              ['twenty', 'twentieth (20th)', 'двадцять / двадцятий'],
+              ['hundred', 'hundredth (100th)', 'сто / сотий'],
+            ],
+          },
+          {
+            type: 'table', title: 'Детермінери',
+            rows: [
+              ['Детермінер', 'Вживання', 'Приклад'],
+              ['this / these', 'ближчий предмет', 'This book / These books'],
+              ['that / those', 'дальший предмет', 'That car / Those cars'],
+              ['each', 'кожен (окремо)', 'Each student has a book.'],
+              ['every', 'кожен (разом)', 'Every day is different.'],
+              ['both', 'обидва', 'Both answers are correct.'],
+              ['either', 'будь-який з двох', 'Either day works for me.'],
+              ['neither', 'жоден з двох', 'Neither option is perfect.'],
+              ['all', 'всі', 'All students passed.'],
+              ['no', 'жодного', 'No time to waste.'],
+            ],
+          },
+          {
+            type: 'examples',
+            rows: [
+              ['She finished third in the race.', 'Вона фінішувала третьою.'],
+              ['Each child received a gift.', 'Кожна дитина отримала подарунок.'],
+              ['Neither answer was correct.', 'Жодна відповідь не була правильною.'],
+              ['Both solutions work well.', 'Обидва рішення добре працюють.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'reported-questions', title: 'Непряме питання', emoji: '❓📄',
+        sections: [
+          {
+            type: 'intro',
+            text: 'Непрямі питання (Reported Questions) вставляються в речення без допоміжного дієслова та з прямим порядком слів.',
+          },
+          {
+            type: 'table', title: 'Структура непрямих питань',
+            rows: [
+              ['Тип', 'Пряме питання', 'Непряме питання'],
+              ['Yes/No', 'Is she home?', 'He asked if/whether she was home.'],
+              ['Wh-', 'Where does he live?', 'She asked where he lived.'],
+              ['How', 'How much does it cost?', 'I wondered how much it cost.'],
+              ['What time', 'What time does it start?', 'He asked what time it started.'],
+            ],
+          },
+          {
+            type: 'note', title: 'Зміни при непрямому питанні',
+            text: '1. Немає допоміжного (do/does/did)\n2. Прямий порядок слів (Subject + Verb)\n3. Час зсувається назад (як у reported speech)\n4. Yes/No → if/whether',
+          },
+          {
+            type: 'examples',
+            rows: [
+              ['"Where are you going?" → He asked where I was going.', 'Він запитав, куди я йшов.'],
+              ['"Do you speak French?" → She asked if I spoke French.', 'Вона запитала, чи я говорю французькою.'],
+              ['"What time is it?" → I asked what time it was.', 'Я запитав, котра година.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'wish-would-rather', title: 'Wish / Would rather', emoji: '🌠',
+        sections: [
+          {
+            type: 'intro',
+            text: 'Wish та Would rather виражають бажання щодо нереальних або небажаних ситуацій.',
+          },
+          {
+            type: 'table', title: 'Структури з Wish',
+            rows: [
+              ['Час', 'Структура', 'Значення', 'Приклад'],
+              ['Теперішнє/майбутнє', 'wish + Past Simple', 'Жаль що зараз не так', 'I wish I knew the answer.'],
+              ['Минуле', 'wish + Past Perfect', 'Жаль що в минулому не так', 'I wish I had studied harder.'],
+              ['Майбутнє (скарга)', 'wish + would + V', 'Хотів би щоб хтось щось зробив', 'I wish you would stop smoking.'],
+              ['Постійний стан', 'wish + could', 'Жаль що не вмію', 'I wish I could fly.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Would rather',
+            rows: [
+              ['Структура', 'Значення', 'Приклад'],
+              ["would rather + V₁ (than)", 'Надаю перевагу', "I'd rather stay home."],
+              ["would rather + V than + V", 'Краще X ніж Y', "I'd rather walk than drive."],
+              ["would rather + S + Past Simple", 'Хотів би щоб хтось зробив', "I'd rather you didn't tell anyone."],
+            ],
+          },
+          {
+            type: 'examples',
+            rows: [
+              ['I wish it were summer already.', 'Хотів би щоб вже було літо.'],
+              ['She wishes she had taken the job.', 'Вона шкодує, що не взяла ту роботу.'],
+              ["I'd rather you came tomorrow.", 'Я б хотів, щоб ти прийшов завтра.'],
+              ["He'd rather read than watch TV.", 'Він воліє читати, а не дивитися ТВ.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'causative-have-get', title: 'Каузатив (have/get)', emoji: '🔧',
+        sections: [
+          {
+            type: 'intro',
+            text: "Каузативна конструкція використовується коли суб'єкт не сам виконує дію, а організовує її виконання кимось іншим.",
+          },
+          {
+            type: 'formula', title: 'Структура',
+            rows: [
+              ['✅ have + O + V₃', 'Організувати виконання', 'I had my car repaired.', 'Я здав машину на ремонт.'],
+              ['✅ get + O + to + V', 'Переконати зробити', 'I got him to fix my car.', 'Я умовив його полагодити машину.'],
+              ['✅ have + O + V₁', 'Доручити (AmE)', 'She had the assistant book tickets.', 'Вона доручила асистенту забронювати квитки.'],
+            ],
+          },
+          {
+            type: 'note', title: 'Have vs Get',
+            text: 'HAVE: офіційніше, акцент на результаті: "I had my hair cut."\nGET: менш офіційне, акцент на процесі переконання: "I got him to cut my hair."',
+          },
+          {
+            type: 'examples',
+            rows: [
+              ['I need to have my phone fixed.', 'Мені потрібно здати телефон у ремонт.'],
+              ['She got her students to write essays.', 'Вона змусила студентів написати есе.'],
+              ['We had the house painted last summer.', 'Минулого літа ми пофарбували будинок.'],
+            ],
+          },
+        ],
+      },
+
     ],
   },
 

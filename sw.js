@@ -1,4 +1,4 @@
-﻿var CACHE = 'ew-v14';
+﻿var CACHE = 'ew-v15';
 var STATIC = [
   // Data
   './data/words.js',

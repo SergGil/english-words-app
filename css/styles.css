@@ -3621,3 +3621,41 @@ body.sw   #ov-search-input { color: var(--text); }
     min-height: 42px;
   }
 }
+
+/* ══════════════════════════════════════════
+   🎴 CARD SLIDE ANIMATIONS
+   ══════════════════════════════════════════ */
+
+/* Container for slide animation */
+.card-face {
+  animation-duration: .22s;
+  animation-timing-function: cubic-bezier(.25,.46,.45,.94);
+  animation-fill-mode: both;
+}
+
+/* Slide in from right (next card) */
+@keyframes card-slide-in-right {
+  from { opacity: 0; transform: translateX(28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Slide in from left (prev card) */
+@keyframes card-slide-in-left {
+  from { opacity: 0; transform: translateX(-28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Fade in (for first load and know/skip) */
+@keyframes card-fade-in {
+  from { opacity: 0; transform: scale(.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.card-face.anim-next { animation-name: card-slide-in-right; }
+.card-face.anim-prev { animation-name: card-slide-in-left; }
+.card-face.anim-fade { animation-name: card-fade-in; }
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .card-face { animation: none !important; }
+}

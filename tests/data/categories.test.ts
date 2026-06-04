@@ -52,12 +52,16 @@ describe('WORD_CATEGORIES', () => {
     }
   });
 
-  it('every word in a category is a lowercase string', () => {
+  it('every word in a category is a non-empty string', () => {
+    // Most words are lowercase; exceptions like "DNA" are uppercase acronyms
+    const UPPERCASE_EXCEPTIONS = new Set(['DNA']);
     for (const [cat, words] of Object.entries(WORD_CATEGORIES)) {
       for (const w of words) {
         expect(typeof w, `${cat}: word "${w}" must be string`).toBe('string');
         expect(w.length, `${cat}: word must not be empty`).toBeGreaterThan(0);
-        expect(w, `${cat}: word "${w}" should be lowercase`).toBe(w.toLowerCase());
+        if (!UPPERCASE_EXCEPTIONS.has(w)) {
+          expect(w, `${cat}: word "${w}" should be lowercase`).toBe(w.toLowerCase());
+        }
       }
     }
   });

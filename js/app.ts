@@ -163,6 +163,17 @@ function stopAuto(): void {
   if (btnAuto) btnAuto.textContent = '▶ Авто';
 }
 
+// ── Card animation ────────────────────────────────────────────
+function _animCard(dir: 'next' | 'prev' | 'fade'): void {
+  const face = document.querySelector<HTMLElement>('.card-face');
+  if (!face || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cls = dir === 'next' ? 'anim-next' : dir === 'prev' ? 'anim-prev' : 'anim-fade';
+  face.classList.remove('anim-next', 'anim-prev', 'anim-fade');
+  void face.offsetWidth; // force reflow
+  face.classList.add(cls);
+  setTimeout(() => face.classList.remove(cls), 250);
+}
+
 function render() {
   try {
     if (!deck || !deck.length) { console.error('render: deck empty'); return; }
@@ -416,7 +427,7 @@ if (isPronuncSupported()) {
   document.getElementById('btn-mic')!.style.display = '';
 }
 
-document.getElementById('btn-prev')!.addEventListener('click', function(e){e.stopPropagation();stopAuto();idx=(idx-1+deck.length)%deck.length;render();});
+document.getElementById('btn-prev')!.addEventListener('click', function(e){e.stopPropagation();stopAuto();idx=(idx-1+deck.length)%deck.length;_animCard('prev');render();});
 document.getElementById('btn-know')!.addEventListener('click', function(e){
   e.stopPropagation();
   if(cw){
@@ -444,10 +455,10 @@ document.getElementById('btn-know')!.addEventListener('click', function(e){
     if (v === 'unlearned') {
       deck = buildUnlearnedDeck(_baseWords as unknown as WordEntry[]);
       state.deck = deck; window.deck = deck; if (!deck.length) { render(); return; }
-      idx = idx % deck.length; render(); return;
+      idx = idx % deck.length; _animCard('fade'); render(); return;
     }
   }
-  idx=(idx+1)%deck.length; render();
+  _animCard('next'); idx=(idx+1)%deck.length; render();
 });
 document.getElementById('btn-next')!.addEventListener('click', function(e){
   e.stopPropagation();
@@ -465,7 +476,7 @@ document.getElementById('btn-next')!.addEventListener('click', function(e){
 document.getElementById('btn-auto')!.addEventListener('click', function(e){
   e.stopPropagation();
   if(autoTimer){stopAuto();}
-  else{this.textContent='⏹ Стоп';autoTimer=setInterval(function(){idx=(idx+1)%deck.length;render();},4500);}
+  else{this.textContent='⏹ Стоп';autoTimer=setInterval(function(){_animCard('next');idx=(idx+1)%deck.length;render();},4500);}
 });
 document.getElementById('btn-shuf')!.addEventListener('click', function(e){e.stopPropagation();stopAuto();shuffle(deck);idx=0;render();});
 document.getElementById('btn-reset')!.addEventListener('click', function(e){
