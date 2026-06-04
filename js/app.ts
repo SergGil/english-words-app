@@ -26,6 +26,8 @@ import { getSelectedUkVoice }                            from './features/voice.
 import { decodeIpa }                                    from './core/ui-helpers.ts';
 import { getCefrLevel }                                 from '../data/cefr.ts';
 import { ACHIEVEMENTS }                                 from '../data/achievements.ts';
+import { WORD_FAMILIES }                                from '../data/word-families.ts';
+import { searchCollocations }                          from '../data/collocations.ts';
 import { playSound }                                    from './core/audio.ts';
 import { launchConfetti }                               from './core/confetti.ts';
 import { updateRing }                                   from './features/ring.ts';
@@ -389,6 +391,8 @@ document.getElementById('card')!.addEventListener('click', function(){
     document.getElementById('wtransl')!.className='transl show';
     document.getElementById('exua')!.className='ex-ua show';
     try { updateSimilarWords(); } catch(e){}
+    try { updateWordFamilies(); } catch(e){}
+    try { updateCollocations(); } catch(e){}
   }
 });
 document.getElementById('speak-word')!.addEventListener('click', function(e){e.stopPropagation();if(cw)speak(cw[0],this);});
@@ -1233,11 +1237,45 @@ function _renderModeAccuracy(): void {
     : '<div style="font-size:.8rem;color:var(--text3);text-align:center;padding:8px 0;">Ще немає даних — грай у режимах!</div>';
 }
 
+function _renderCefrStats(): void {
+  const el = document.getElementById('cefr-stats-list'); if (!el) return;
+  const levels: import('../data/cefr.ts').CefrLevel[] = ['A1','A2','B1','B2','C1','C2'];
+  const colors: Record<string, string> = { A1:'#27ae60', A2:'#2ecc71', B1:'#d4ac0d', B2:'#e67e22', C1:'#e74c3c', C2:'#8e44ad' };
+  const descs:  Record<string, string> = { A1:'Початківець', A2:'Елементарний', B1:'Середній', B2:'Вище середнього', C1:'Просунутий', C2:'Майстерний' };
+
+  const stats: Record<string, {known:number; total:number}> = {};
+  levels.forEach(l => stats[l] = {known:0, total:0});
+  (W as unknown as import('../src/types.js').WordEntry[]).forEach(w => {
+    const lvl = getCefrLevel(w[0]);
+    stats[lvl].total++;
+    if (known.has(w[0])) stats[lvl].known++;
+  });
+
+  el.innerHTML = levels.map(l => {
+    const s = stats[l];
+    const pct = s.total > 0 ? Math.round(s.known / s.total * 100) : 0;
+    const c = colors[l];
+    return `<div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:.8rem;font-weight:700;">
+          <span style="background:${c}22;color:${c};border:1.5px solid ${c}44;border-radius:6px;padding:1px 6px;font-size:.72rem;margin-right:6px;">${l}</span>
+          ${descs[l]}
+        </span>
+        <span style="font-size:.75rem;color:var(--text2);">${s.known} / ${s.total} (${pct}%)</span>
+      </div>
+      <div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:${c};border-radius:3px;transition:width .5s;"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderStats() {
   try { _renderStatsCore(); }       catch(e){ console.error('renderStatsCore:', e); }
   try { renderAchievements(); }     catch(e){ console.error('renderAchievements:', e); }
   try { renderSRSForecast(); }      catch(e){ console.error('renderSRSForecast:', e); }
   try { _renderModeAccuracy(); }    catch(e){ console.error('renderModeAccuracy:', e); }
+  try { _renderCefrStats(); }       catch(e){ console.error('renderCefrStats:', e); }
 }
 
 // renderLevelBadge/checkAchievements вбудовано в основну onWordLearned нижче
@@ -1616,6 +1654,68 @@ function translSimilarity(ta: string, tb: string): number {
 
 // Індекс синонімів (будується один раз)
 // getSimilarWords imported from ./features/similar-words.ts
+
+function updateCollocations() {
+  if (!cw) return;
+  var section = document.getElementById('cb-collocations');
+  var list    = document.getElementById('cb-collocation-list');
+  if (!section || !list) return;
+
+  var colls = searchCollocations(cw[0]);
+  if (!colls.length) { section.style.display = 'none'; return; }
+
+  section.style.display = 'block';
+  list.innerHTML = colls.slice(0, 5).map(function(c) {
+    return '<div style="font-size:.8rem;padding:4px 8px;border-radius:7px;background:var(--bg);border:1px solid var(--border);">' +
+      '<span style="color:var(--accent);font-weight:600;">' + c.phrase + '</span>' +
+      (c.note ? ' <span style="font-size:.7rem;color:var(--text3);">— ' + c.note + '</span>' : '') +
+    '</div>';
+  }).join('');
+}
+
+function updateWordFamilies() {
+  if (!cw) return;
+  var section = document.getElementById('cb-families');
+  var chips   = document.getElementById('cb-family-chips');
+  if (!section || !chips) return;
+
+  var word = cw[0].toLowerCase();
+  // Find family: check if word IS a base, or if word is a member of a base family
+  var family: string[] | undefined = WORD_FAMILIES[word];
+  if (!family) {
+    // Search if this word appears as a member of another family
+    for (var [base, members] of Object.entries(WORD_FAMILIES)) {
+      if (members.includes(word)) {
+        family = [base, ...members.filter(m => m !== word)];
+        break;
+      }
+    }
+  }
+
+  if (!family || family.length === 0) { section.style.display = 'none'; return; }
+
+  section.style.display = 'block';
+  chips.innerHTML = family.slice(0, 6).map(function(w) {
+    var wi = _wordIdx.get(w);
+    var entry = wi !== undefined ? W[wi] : null;
+    var transl = entry ? (entry as string[])[1] : '';
+    var isKnown = known.has(w);
+    return '<div class="sim-chip family-chip' + (isKnown ? ' known-chip' : '') + '" data-word="' + w + '">' +
+      '<span class="sc-word">' + w + '</span>' +
+      (transl ? '<span class="sc-transl">' + transl + '</span>' : '') +
+    '</div>';
+  }).join('');
+
+  chips.querySelectorAll('.family-chip').forEach(function(chip) {
+    chip.addEventListener('click', function(this: HTMLElement, e: Event) {
+      e.stopPropagation();
+      var targetWord = this.dataset.word;
+      var wi2 = _wordIdx.has(targetWord) ? _wordIdx.get(targetWord) : -1;
+      if (wi2 === undefined || wi2 === -1) return;
+      openWordDetail(W[wi2 as number] as unknown as WordEntry);
+    });
+  });
+}
 
 function updateSimilarWords() {
   if (!cw) return;

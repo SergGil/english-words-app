@@ -64,6 +64,7 @@
     <button class="sb-btn" id="sb-stats"        ><span class="sb-icon">📊</span><span class="sb-label">Статистика</span></button>
     <button class="sb-btn" id="sb-achievements" ><span class="sb-icon">🏆</span><span class="sb-label">Досягнення</span></button>
     <button class="sb-btn" id="sb-modes"        ><span class="sb-icon">🎮</span><span class="sb-label">Режими</span></button>
+    <button class="sb-btn" id="sb-learning-path"><span class="sb-icon">🎯</span><span class="sb-label">Шлях навчання</span></button>
     <button class="sb-btn" id="sb-grammar"      ><span class="sb-icon">📖</span><span class="sb-label">Граматика</span></button>
     <button class="sb-btn" id="sb-duel"         ><span class="sb-icon">⚔️</span><span class="sb-label">Дуель</span></button>
     <button class="sb-btn" id="sb-settings"     ><span class="sb-icon">⚙️</span><span class="sb-label">Налаштування</span></button>
@@ -277,6 +278,16 @@
       <div class="card-back-ipa"    id="cb-ipa"></div>
       <div class="card-back-ex"     id="cb-ex"></div>
       <div class="card-back-exua"   id="cb-exua"></div>
+      <!-- Collocations -->
+      <div class="similar-section" id="cb-collocations" style="display:none;">
+        <div class="similar-title">🔗 Сталі словосполучення</div>
+        <div id="cb-collocation-list" style="display:flex;flex-direction:column;gap:4px;"></div>
+      </div>
+      <!-- Word Families -->
+      <div class="similar-section" id="cb-families" style="display:none;">
+        <div class="similar-title">🌱 Сімейство слів</div>
+        <div class="similar-chips" id="cb-family-chips"></div>
+      </div>
       <div class="similar-section" id="cb-similar" style="display:none;">
         <div class="similar-title">Схожі слова</div>
         <div class="similar-chips" id="cb-chips"></div>
@@ -477,6 +488,11 @@
       <div class="stats-section">
         <div class="stats-section-title">🎮 Точність по режимах</div>
         <div id="mode-accuracy-list"></div>
+      </div>
+
+      <div class="stats-section">
+        <div class="stats-section-title">📊 Прогрес за CEFR рівнями</div>
+        <div id="cefr-stats-list"></div>
       </div>
 
     </div>
@@ -979,6 +995,17 @@
     </div>
   </div>
 
+  <!-- ══ LEARNING PATH PAGE ══ -->
+  <div id="lp-overlay" class="page-overlay">
+    <div class="page-inner" style="max-width:700px;">
+      <div class="page-header">
+        <div class="page-title">🎯 Шлях навчання</div>
+        <button class="page-close-btn" data-close-page>✕</button>
+      </div>
+      <div id="lp-content" style="padding:16px 20px 32px;"></div>
+    </div>
+  </div>
+
   <!-- ══ GRAMMAR PAGE ══ -->
   <div id="grammar-overlay" class="page-overlay">
     <div class="page-inner grammar-inner">
@@ -1139,9 +1166,49 @@
         <button class="mode-card mc-word"      id="btn-add-word">        <span class="mode-icon">➕</span><span class="mode-name">Слово</span>      <span class="mode-desc">Додати своє</span></button>
         <button class="mode-card mc-daily"     id="btn-daily-challenge"><span class="mode-icon">⚡</span><span class="mode-name">Місія дня</span>  <span class="mode-desc">10 слів + таймер</span></button>
         <button class="mode-card mc-reading"   id="btn-reading">        <span class="mode-icon">📖</span><span class="mode-name">Читання</span>    <span class="mode-desc">Текст зі словами</span></button>
+        <button class="mode-card mc-context"   id="btn-context">        <span class="mode-icon">🔍</span><span class="mode-name">Контекст</span>   <span class="mode-desc">Вгадай з речення</span></button>
       </div>
     </div>
   </div>
+  <!-- ══ CONTEXT MODE MODAL ══ -->
+  <div id="ctx-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9100;align-items:center;justify-content:center;padding:16px 12px;">
+    <div class="quiz-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div>
+          <div style="font-size:1.05rem;font-weight:700;color:var(--text);">🔍 Контекст</div>
+          <div style="font-size:.75rem;color:var(--text3);margin-top:2px;" id="ctx-subtitle">Питання 1 з 8</div>
+        </div>
+        <button id="ctx-close" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text3);">✕</button>
+      </div>
+      <div style="height:4px;background:var(--border);border-radius:4px;margin-bottom:14px;overflow:hidden;"><div id="ctx-pbar" style="height:100%;background:var(--accent);border-radius:4px;transition:width .4s;width:0%"></div></div>
+      <div style="display:flex;gap:14px;justify-content:center;margin-bottom:12px;flex-shrink:0;" id="ctx-score-row">
+        <span style="font-size:.82rem;color:#27ae60;font-weight:600;">✓ <span id="ctx-ok">0</span></span>
+        <span style="font-size:.82rem;color:#e74c3c;font-weight:600;">✗ <span id="ctx-fail">0</span></span>
+      </div>
+      <!-- Sentence with hidden word -->
+      <div id="ctx-sentence" style="background:var(--bg);border-radius:12px;padding:16px;margin-bottom:10px;min-height:70px;"></div>
+      <!-- Hint -->
+      <div id="ctx-hint" style="display:none;font-size:.78rem;color:var(--accent);margin-bottom:8px;text-align:center;"></div>
+      <!-- Options -->
+      <div id="ctx-options" style="display:flex;flex-direction:column;gap:7px;"></div>
+      <div id="ctx-result" style="text-align:center;font-size:.88rem;font-weight:600;min-height:22px;margin-top:8px;"></div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;">
+        <button id="ctx-hint-btn" style="padding:8px 14px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit;font-size:.8rem;">💡 Підказка</button>
+        <button id="ctx-next" style="display:none;padding:10px 28px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;font-family:inherit;font-size:.88rem;">Наступне →</button>
+      </div>
+      <!-- Final -->
+      <div id="ctx-final" style="display:none;text-align:center;padding:10px 0 4px;">
+        <div style="font-size:2.5rem;margin-bottom:8px;" id="ctx-final-emoji">🎉</div>
+        <div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:6px;" id="ctx-final-title"></div>
+        <div style="font-size:.9rem;color:var(--text2);margin-bottom:16px;" id="ctx-final-desc"></div>
+        <div style="display:flex;gap:8px;justify-content:center;">
+          <button id="ctx-restart" style="padding:9px 20px;border-radius:10px;border:1.5px solid var(--accent);background:none;color:var(--accent);font-weight:600;cursor:pointer;font-family:inherit;font-size:.85rem;">🔄 Ще раз</button>
+          <button id="ctx-exit" style="padding:9px 20px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:inherit;font-size:.85rem;">Закрити</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ FILL IN BLANK MODAL ══ -->
   <div id="fib-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9100;align-items:center;justify-content:center;padding:16px 12px;">
     <div class="quiz-panel">

@@ -43,10 +43,11 @@ const PAGE_TO_SIDEBAR: Record<string, string> = {
   stats: 'sb-stats', ach: 'sb-achievements',
   modes: 'sb-modes', settings: 'sb-settings',
   duel: 'sb-duel',   grammar: 'sb-grammar',
+  'learning-path': 'sb-learning-path',
 };
 
 function _setSidebarActive(page: string | null): void {
-  ['sb-cards','sb-stats','sb-achievements','sb-modes','sb-settings','sb-duel','sb-grammar'].forEach(id => {
+  ['sb-cards','sb-stats','sb-achievements','sb-modes','sb-settings','sb-duel','sb-grammar','sb-learning-path'].forEach(id => {
     document.getElementById(id)?.classList.remove('sb-active');
   });
   const activeId = page ? (PAGE_TO_SIDEBAR[page] ?? 'sb-cards') : 'sb-cards';
@@ -77,6 +78,9 @@ export function openPage(page: string): void {
   } else if (page === 'grammar') {
     document.getElementById('grammar-overlay')?.classList.add('open');
     (window.openGrammarContent as (() => void) | undefined)?.();
+  } else if (page === 'learning-path') {
+    document.getElementById('lp-overlay')?.classList.add('open');
+    (window.openLearningPath as (() => void) | undefined)?.();
   }
   if (window.innerWidth <= 900) closeSidebar();
 }
@@ -93,6 +97,7 @@ export function closePage(): void {
   document.getElementById('settings-overlay')?.classList.remove('open');
   document.getElementById('duel-overlay')?.classList.remove('open');
   document.getElementById('grammar-overlay')?.classList.remove('open');
+  document.getElementById('lp-overlay')?.classList.remove('open');
 }
 window.closePage = closePage;
 
@@ -108,6 +113,7 @@ document.getElementById('sb-modes')?.addEventListener('click', () => openPage('m
 document.getElementById('sb-settings')?.addEventListener('click', () => openPage('settings'));
 document.getElementById('sb-duel')?.addEventListener('click', () => openPage('duel'));
 document.getElementById('sb-grammar')?.addEventListener('click', () => openPage('grammar'));
+document.getElementById('sb-learning-path')?.addEventListener('click', () => openPage('learning-path'));
 document.getElementById('sb-home')?.addEventListener('click', () => { closePage(); if (window.innerWidth <= 900) closeSidebar(); });
 
 // ── Theme toggles ──────────────────────────────────────────────
