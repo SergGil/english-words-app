@@ -834,20 +834,25 @@
             <button id="duel-join-btn" style="padding:10px 18px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;font-family:inherit;">→ Приєднатись</button>
           </div>
           <div style="font-size:.72rem;color:var(--text3);margin-top:6px;text-align:center;">Режим обирає той, хто створює кімнату</div>
-          <!-- Spectator + Async buttons -->
+          <!-- Secondary actions: Spectate + Reply to challenge -->
           <div style="display:flex;gap:6px;margin-top:8px;">
-            <button id="duel-spectate-btn" style="flex:1;padding:7px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit;font-size:.75rem;">👀 Спостерігати</button>
-            <button id="duel-async-join-btn" style="flex:1;padding:7px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit;font-size:.75rem;">📬 Відповісти на виклик</button>
+            <button id="duel-spectate-btn" style="flex:1;padding:7px 4px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit;font-size:.72rem;white-space:nowrap;">👀 Спостерігати</button>
+            <button id="duel-async-join-btn" style="flex:1;padding:7px 4px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit;font-size:.72rem;white-space:nowrap;">📬 Відповісти</button>
           </div>
         </div>
 
-        <!-- Async challenge create button -->
-        <button id="duel-async-btn" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text2);font-weight:600;cursor:pointer;font-family:inherit;font-size:.85rem;margin-top:-4px;margin-bottom:4px;">📬 Надіслати виклик (async · 24год)</button>
-        <!-- Tournament button -->
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <button id="tourn-create-4" style="flex:1;padding:10px;border-radius:12px;border:1.5px solid #f39c12;background:rgba(243,156,18,.08);color:#f39c12;font-weight:600;cursor:pointer;font-family:inherit;font-size:.82rem;">🏟️ Турнір ×4</button>
-          <button id="tourn-create-8" style="flex:1;padding:10px;border-radius:12px;border:1.5px solid #e74c3c;background:rgba(231,76,60,.07);color:#e74c3c;font-weight:600;cursor:pointer;font-family:inherit;font-size:.82rem;">🏆 Турнір ×8</button>
-          <button id="tourn-join-btn" style="flex:1;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:inherit;font-size:.82rem;">➡️ Вступити</button>
+        <!-- Divider -->
+        <div style="height:1px;background:var(--border);margin:10px 0;opacity:.5;"></div>
+
+        <!-- Async challenge -->
+        <button id="duel-async-btn" style="width:100%;padding:9px;border-radius:11px;border:1.5px solid var(--border);background:none;color:var(--text2);font-weight:600;cursor:pointer;font-family:inherit;font-size:.82rem;margin-bottom:8px;">📬 Надіслати виклик (async · 24год)</button>
+
+        <!-- Tournament -->
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:5px;">🏟️ Турнір</div>
+        <div style="display:flex;gap:6px;">
+          <button id="tourn-create-4" style="flex:1;padding:9px 6px;border-radius:11px;border:1.5px solid #f39c12;background:rgba(243,156,18,.08);color:#f39c12;font-weight:600;cursor:pointer;font-family:inherit;font-size:.8rem;">4 гравці</button>
+          <button id="tourn-create-8" style="flex:1;padding:9px 6px;border-radius:11px;border:1.5px solid #e74c3c;background:rgba(231,76,60,.07);color:#e74c3c;font-weight:600;cursor:pointer;font-family:inherit;font-size:.8rem;">8 гравців</button>
+          <button id="tourn-join-btn" style="flex:1;padding:9px 6px;border-radius:11px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:inherit;font-size:.8rem;">➡️ Вступити</button>
         </div>
       </div>
 
@@ -1002,6 +1007,19 @@
       <div class="prf-delete-btns">
         <button id="prf-delete-cancel"  class="prf-delete-btn prf-delete-btn-cancel">Скасувати</button>
         <button id="prf-delete-confirm" class="prf-delete-btn prf-delete-btn-confirm">Видалити</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CONFIRM MODAL (replaces browser confirm()) ══ -->
+  <div id="confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:30001;align-items:center;justify-content:center;padding:16px;">
+    <div style="background:var(--modal-bg,var(--card));border-radius:18px;padding:24px 22px;max-width:340px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.35);text-align:center;">
+      <div id="confirm-icon" style="font-size:2rem;margin-bottom:8px;">⚠️</div>
+      <div id="confirm-title" style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px;"></div>
+      <div id="confirm-message" style="font-size:.85rem;color:var(--text2);line-height:1.5;margin-bottom:20px;"></div>
+      <div style="display:flex;gap:10px;">
+        <button id="confirm-cancel" style="flex:1;padding:11px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:inherit;font-size:.88rem;">Скасувати</button>
+        <button id="confirm-ok"     style="flex:1;padding:11px;border-radius:12px;border:none;background:#e74c3c;color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.88rem;">Залишити</button>
       </div>
     </div>
   </div>

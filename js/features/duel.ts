@@ -1428,17 +1428,51 @@ $('sb-duel')?.addEventListener('click',()=>{
   renderDuel();
 });
 
+// ── Styled confirm dialog (replaces browser confirm()) ────────
+function _showConfirm(title: string, message: string, okLabel = 'Залишити'): Promise<boolean> {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('confirm-overlay') as HTMLElement|null;
+    if (!overlay) { resolve(window.confirm(message)); return; }
+    const titleEl   = document.getElementById('confirm-title');
+    const msgEl     = document.getElementById('confirm-message');
+    const okBtn     = document.getElementById('confirm-ok')    as HTMLButtonElement|null;
+    const cancelBtn = document.getElementById('confirm-cancel') as HTMLButtonElement|null;
+    if (!okBtn || !cancelBtn) { resolve(window.confirm(message)); return; }
+    if (titleEl) titleEl.textContent  = title;
+    if (msgEl)   msgEl.textContent    = message;
+    okBtn.textContent    = okLabel;
+    overlay.style.display = 'flex';
+    const ovl = overlay!, ok = okBtn!, cancel = cancelBtn!;
+    function _close(val: boolean): void {
+      ovl.style.display = 'none';
+      ok.removeEventListener('click', _ok);
+      cancel.removeEventListener('click', _cancel);
+      resolve(val);
+    }
+    function _ok():     void { _close(true); }
+    function _cancel(): void { _close(false); }
+    ok.addEventListener('click',     _ok);
+    cancel.addEventListener('click', _cancel);
+    // Escape = cancel
+    const _key = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { _cancel(); document.removeEventListener('keydown', _key); }
+      if (e.key === 'Enter')  { _ok();    document.removeEventListener('keydown', _key); }
+    };
+    document.addEventListener('keydown', _key);
+  });
+}
+
 // ── Smart duel close button ────────────────────────────────────
 // If game/tournament/spectator is active → return to lobby; else → close page
-$('duel-page-close')?.addEventListener('click', () => {
+$('duel-page-close')?.addEventListener('click', async () => {
   const gameVisible    = elGame().style.display !== 'none';
   const tournVisible   = ($('duel-tournament') as HTMLElement|null)?.style.display !== 'none';
   const spectVisible   = ($('duel-spectate') as HTMLElement|null)?.style.display !== 'none';
   const countdownVisible = elCountdown().style.display !== 'none';
 
   if (gameVisible || countdownVisible) {
-    // Game in progress: confirm before leaving
-    if (!confirm('Покинути поточну дуель? Це зарахується як поразка.')) return;
+    const ok = await _showConfirm('Покинути дуель?', 'Поточний матч буде зараховано як поразку.');
+    if (!ok) return;
     _cancelRoom();
     _showLobby();
     renderDuel();
