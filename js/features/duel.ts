@@ -25,9 +25,9 @@ type BestOf         = 1 | 3;
 type PowerupType    = 'double' | 'skip' | 'freeze';
 
 const POWERUPS: { id:PowerupType; icon:string; label:string; desc:string }[] = [
-  { id:'double', icon:'🎯', label:'×2',      desc:'Наступна правильна = 2 очки' },
-  { id:'skip',   icon:'⏩', label:'Скіп',    desc:'Пропустити питання' },
-  { id:'freeze', icon:'🧊', label:'Мороз',   desc:'Заморозити суперника на 5с' },
+  { id:'double', icon:'🎯', label:'×2',    desc:'Наступна правильна відповідь = 2 очки' },
+  { id:'skip',   icon:'⏩', label:'Скіп',  desc:'Пропустити питання без штрафу' },
+  { id:'freeze', icon:'🧊', label:'Мороз', desc:'[Тільки Темп] Заморозити таймер суперника на 5с' },
 ];
 
 const DUEL_MODES: { id:DuelMode; icon:string; label:string; desc:string }[] = [
@@ -332,12 +332,21 @@ function _showInfoTooltip(anchor: HTMLElement, type: 'hints' | 'powerups'): void
          <li><b>1 підказка</b> — тільки один раз, думай!</li>
        </ul>`
     : `<div style="font-weight:700;margin-bottom:6px;">🎯 Power-ups — спеціальні здібності</div>
-       <div style="font-size:.8rem;">Кожен гравець отримує по 1 кожного типу на гру:</div>
-       <ul style="margin:8px 0 0 0;list-style:none;display:flex;flex-direction:column;gap:5px;">
-         <li>🎯 <b>×2 Double</b> — наступна правильна відповідь дає <b>2 очки</b> замість 1</li>
-         <li>⏩ <b>Skip</b> — пропустити поточне питання <b>без штрафу</b></li>
-         <li>🧊 <b>Freeze</b> — <b>заморозити таймер</b> суперника на 5 секунд (тільки в режимі Темп)</li>
-       </ul>`;
+       <div style="font-size:.8rem;color:var(--text2);margin-bottom:8px;">Кожен гравець отримує по 1 кожного типу на гру. Використай у потрібний момент!</div>
+       <div style="display:flex;flex-direction:column;gap:8px;">
+         <div style="padding:8px 10px;border-radius:9px;background:rgba(0,200,100,.08);border:1px solid rgba(0,200,100,.2);">
+           🎯 <b>×2 Double</b><br>
+           <span style="font-size:.76rem;color:var(--text2);">Наступна <b>правильна</b> відповідь дає <b>2 очки</b> замість 1. Активуй перед складним питанням!</span>
+         </div>
+         <div style="padding:8px 10px;border-radius:9px;background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);">
+           ⏩ <b>Skip</b><br>
+           <span style="font-size:.76rem;color:var(--text2);">Пропустити поточне питання <b>без штрафу</b>. Рахунок не зміниться.</span>
+         </div>
+         <div style="padding:8px 10px;border-radius:9px;background:rgba(142,68,173,.08);border:1px solid rgba(142,68,173,.2);">
+           🧊 <b>Freeze</b> <span style="font-size:.7rem;padding:1px 5px;border-radius:5px;background:rgba(230,126,34,.15);color:#e67e22;">тільки ⚡ Темп</span><br>
+           <span style="font-size:.76rem;color:var(--text2);">Зупиняє таймер суперника на <b>5 секунд</b>. Доступно тільки в режимі Темп — у інших режимах неактивно.</span>
+         </div>
+       </div>`;
 
   const tip = document.createElement('div');
   tip.id = 'duel-tooltip';
@@ -505,15 +514,35 @@ function _renderPowerups(): void {
   el.style.display='flex';
   el.innerHTML = POWERUPS.map(p=>{
     const left = _myPowerups[p.id];
-    const disabled = left<=0 || _answered ? 'disabled' : '';
+    // 🧊 Freeze — only in Tempo mode; show grayed with explanation in other modes
+    const freezeUnavailable = p.id === 'freeze' && _mode !== 'tempo';
+    const unavailable = freezeUnavailable;
+    const canUse = left > 0 && !_answered && !unavailable;
+    const disabled = !canUse ? 'disabled' : '';
+    const titleText = unavailable
+      ? '🧊 Freeze — доступно тільки в режимі Темп'
+      : `${p.desc}${left > 0 ? ` (×${left} залишилось)` : ' (використано)'}`;
+    const borderColor = unavailable ? 'var(--border)' : left>0 ? 'var(--accent)' : 'var(--border)';
+    const bgColor     = unavailable ? 'transparent' : left>0 ? 'rgba(0,200,100,.08)' : 'var(--bg2)';
+    const textColor   = unavailable ? 'var(--text3)' : left>0 ? 'var(--accent)' : 'var(--text3)';
+    const opacity     = unavailable ? '0.4' : '1';
     return `<button class="dm-pu-btn" data-pu="${p.id}" ${disabled}
-      title="${p.desc}"
-      style="padding:5px 8px;border-radius:9px;border:1.5px solid ${left>0?'var(--accent)':'var(--border)'};background:${left>0?'rgba(0,200,100,.08)':'var(--bg2)'};cursor:${left>0&&!_answered?'pointer':'default'};font-size:.78rem;color:${left>0?'var(--accent)':'var(--text3)'};">
-      ${p.icon} ${p.label}${left>0?` ×${left}`:''}
+      title="${titleText}"
+      style="padding:5px 8px;border-radius:9px;border:1.5px solid ${borderColor};background:${bgColor};cursor:${canUse?'pointer':'default'};font-size:.78rem;color:${textColor};opacity:${opacity};transition:opacity .2s;">
+      ${p.icon} ${p.label}${!unavailable&&left>0?` ×${left}`:''}${unavailable?' 🚫':''}
     </button>`;
   }).join('');
   el.querySelectorAll<HTMLButtonElement>('.dm-pu-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>{ if(!btn.disabled) _usePowerup(btn.dataset.pu as PowerupType); });
+    btn.addEventListener('click',()=>{
+      if(btn.disabled) return;
+      const type = btn.dataset.pu as PowerupType;
+      // Extra guard: prevent freeze outside tempo (belt-and-suspenders)
+      if(type==='freeze' && _mode!=='tempo'){
+        _showMiniToast('🧊 Freeze працює тільки в режимі Темп!');
+        return;
+      }
+      _usePowerup(type);
+    });
   });
 }
 
