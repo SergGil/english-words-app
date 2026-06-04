@@ -278,16 +278,6 @@
       <div class="card-back-ipa"    id="cb-ipa"></div>
       <div class="card-back-ex"     id="cb-ex"></div>
       <div class="card-back-exua"   id="cb-exua"></div>
-      <!-- Collocations -->
-      <div class="similar-section" id="cb-collocations" style="display:none;">
-        <div class="similar-title">🔗 Сталі словосполучення</div>
-        <div id="cb-collocation-list" style="display:flex;flex-direction:column;gap:4px;"></div>
-      </div>
-      <!-- Word Families -->
-      <div class="similar-section" id="cb-families" style="display:none;">
-        <div class="similar-title">🌱 Сімейство слів</div>
-        <div class="similar-chips" id="cb-family-chips"></div>
-      </div>
       <div class="similar-section" id="cb-similar" style="display:none;">
         <div class="similar-title">Схожі слова</div>
         <div class="similar-chips" id="cb-chips"></div>
@@ -296,6 +286,18 @@
   
 
   <p class="hint">Натисни на картку — побачиш переклад</p>
+
+  <!-- Word Families — always visible below card -->
+  <div class="similar-section" id="cb-families" style="display:none;margin:8px 0 0;">
+    <div class="similar-title">🌱 Сімейство слів</div>
+    <div class="similar-chips" id="cb-family-chips"></div>
+  </div>
+
+  <!-- Collocations — always visible below card -->
+  <div class="similar-section" id="cb-collocations" style="display:none;margin:6px 0 0;">
+    <div class="similar-title">🔗 Сталі словосполучення</div>
+    <div id="cb-collocation-list" style="display:flex;flex-direction:column;gap:4px;"></div>
+  </div>
 
   <!-- Actions bar -->
   <div class="actions-bar">

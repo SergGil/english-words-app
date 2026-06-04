@@ -85,7 +85,8 @@ function $e(id: string): HTMLElement { return $el[id] as HTMLElement; }
 var $el: Record<string, HTMLElement | null> = {};
 ['wnum','wlang','wword','wtrans','wtransl','exen','exua','cidx','cknown',
  'pbar','illus','card','srs-next','streak-num','goal-cur','goal-max','goal-fill',
- 'goal-done','ring-fill','ring-center','level-badge','cb-similar'].forEach(function(id: string) {
+ 'goal-done','ring-fill','ring-center','level-badge','cb-similar',
+ 'cb-families','cb-collocations'].forEach(function(id: string) {
   $el[id] = document.getElementById(id);
 });
 
@@ -236,7 +237,9 @@ function render() {
       $e('exua').innerHTML = _boldEn(_enEx);  // англійський після flip
     }
     $e('exua').className = 'ex-ua';
-    if ($e('cb-similar')) $e('cb-similar').style.display = 'none';
+    if ($e('cb-similar'))     $e('cb-similar').style.display     = 'none';
+    if ($e('cb-families'))   $e('cb-families').style.display   = 'none';
+    if ($e('cb-collocations')) $e('cb-collocations').style.display = 'none';
     $e('cidx').textContent = (idx%deck.length+1)+'/'+deck.length;
     $e('cknown').textContent = String(known.size);
     $e('pbar').style.width = (known.size/W.length*100)+'%';
