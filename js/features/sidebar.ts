@@ -58,6 +58,8 @@ export function openPage(page: string): void {
   closePage();
   _activePage = page;
   _setSidebarActive(page);
+  // Prevent body scroll when a page overlay is open
+  document.body.style.overflow = 'hidden';
   if (page === 'stats') {
     const so = document.getElementById('stats-overlay');
     if (so) { so.classList.add('as-page'); so.style.display = 'flex'; }
@@ -89,6 +91,8 @@ window.openPage = openPage;
 export function closePage(): void {
   _activePage = null;
   _setSidebarActive(null);
+  // Restore body scroll when page is closed
+  document.body.style.overflow = '';
   const so = document.getElementById('stats-overlay');
   if (so) { so.classList.remove('as-page'); so.style.display = 'none'; }
   document.getElementById('ach-overlay')?.classList.remove('open');

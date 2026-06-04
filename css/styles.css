@@ -2572,6 +2572,9 @@ body.sw .hamburger { border-color: rgba(0,200,255,.3); }
   background: var(--bg);
   z-index: 600;
   overflow-y: auto;
+  overflow-x: hidden;
+  /* One scrollbar only — body scroll locked by JS when open */
+  overscroll-behavior: contain;
 }
 .page-overlay.open { display: block; }
 
