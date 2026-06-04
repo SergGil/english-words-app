@@ -121,6 +121,14 @@
         <option value="srs">🔁 Spaced Repetition</option>
         <option value="weak">⚠️ Слабкі слова</option>
         <option value="hard">🔴 Важкі слова</option>
+        <optgroup label="📊 Рівень CEFR">
+          <option value="cefr-A1">🟢 A1 — Початківець</option>
+          <option value="cefr-A2">🟩 A2 — Елементарний</option>
+          <option value="cefr-B1">🟡 B1 — Середній</option>
+          <option value="cefr-B2">🟠 B2 — Вище середнього</option>
+          <option value="cefr-C1">🔴 C1 — Просунутий</option>
+          <option value="cefr-C2">🟣 C2 — Майстерний</option>
+        </optgroup>
         <option value="stale7">🕰️ Не бачені 7 днів</option>
         <option value="stale30">🕰️ Не бачені 30 днів</option>
         <option value="1">1–500</option>
@@ -232,6 +240,7 @@
     <div class="card-face" id="card-front">
     <div class="card-meta">
       <span class="card-num" id="wnum">#1</span><span class="known-badge">✓ Знаю <button class="unmark-btn" id="btn-unmark" title="Прибрати з вивчених" onclick="event.stopPropagation()">✕</button></span>
+      <span class="cefr-badge" id="wcefr" style="display:none;"></span>
       <span class="card-tag" id="wlang">EN</span>
     </div>
     <div class="card-body">

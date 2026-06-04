@@ -3659,3 +3659,40 @@ body.sw   #ov-search-input { color: var(--text); }
 @media (prefers-reduced-motion: reduce) {
   .card-face { animation: none !important; }
 }
+
+/* ══════════════════════════════════════════
+   📊 CEFR LEVEL BADGES
+   ══════════════════════════════════════════ */
+
+.cefr-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+  border: 1.5px solid;
+}
+
+/* Level colors */
+.cefr-A1 { background: rgba(39,174,96,.12);  color: #27ae60; border-color: rgba(39,174,96,.3); }
+.cefr-A2 { background: rgba(46,204,113,.1);  color: #2ecc71; border-color: rgba(46,204,113,.3); }
+.cefr-B1 { background: rgba(241,196,15,.12); color: #d4ac0d; border-color: rgba(241,196,15,.3); }
+.cefr-B2 { background: rgba(230,126,34,.12); color: #e67e22; border-color: rgba(230,126,34,.3); }
+.cefr-C1 { background: rgba(231,76,60,.1);   color: #e74c3c; border-color: rgba(231,76,60,.3); }
+.cefr-C2 { background: rgba(142,68,173,.1);  color: #8e44ad; border-color: rgba(142,68,173,.3); }
+
+/* Dark / SW theme adjustments */
+body.dark .cefr-A1, body.sw .cefr-A1 { background: rgba(39,174,96,.18); }
+body.dark .cefr-A2, body.sw .cefr-A2 { background: rgba(46,204,113,.15); }
+body.dark .cefr-B1, body.sw .cefr-B1 { background: rgba(241,196,15,.18); }
+body.dark .cefr-B2, body.sw .cefr-B2 { background: rgba(230,126,34,.18); }
+body.dark .cefr-C1, body.sw .cefr-C1 { background: rgba(231,76,60,.18); }
+body.dark .cefr-C2, body.sw .cefr-C2 { background: rgba(142,68,173,.18); }
+
+/* Mobile: smaller badge */
+@media (max-width: 480px) {
+  .cefr-badge { font-size: .62rem; padding: 1px 5px; }
+}

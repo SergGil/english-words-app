@@ -24,6 +24,7 @@ import { isPronuncSupported, showPronuncResult,
          startPronunciationCheck, stopPronunciationCheck } from './features/pronunciation.ts';
 import { getSelectedUkVoice }                            from './features/voice.ts';
 import { decodeIpa }                                    from './core/ui-helpers.ts';
+import { getCefrLevel }                                 from '../data/cefr.ts';
 import { ACHIEVEMENTS }                                 from '../data/achievements.ts';
 import { playSound }                                    from './core/audio.ts';
 import { launchConfetti }                               from './core/confetti.ts';
@@ -186,6 +187,14 @@ function render() {
     $e('wnum').textContent = '#' + (_realIdx >= 0 ? _realIdx + 1 : idx % deck.length + 1);
     $e('wlang').textContent = mode==='en'?'EN':'UA';
     $e('wword').textContent = mode==='en'?cw[0]:cw[1];
+    // ── CEFR badge ────────────────────────────────────────────
+    var cefrEl = document.getElementById('wcefr') as HTMLElement | null;
+    if (cefrEl) {
+      const level = getCefrLevel(cw[0]);
+      cefrEl.textContent = level;
+      cefrEl.className = 'cefr-badge cefr-' + level;
+      cefrEl.style.display = '';
+    }
     var tr = $e('wtrans');
     // ── Автовизначення формату даних ──
     // Format A: [en, ua, en_example, ua_example, ipa_escaped]  (більшість слів)
@@ -582,6 +591,20 @@ document.getElementById('sel-range')!.addEventListener('change', function(){
   } else if (v === 'srs') {
     _baseWords = W.slice();
     deck = buildSRSDeck(_baseWords as unknown as WordEntry[]);       // патчений buildSRSDeck враховує _activeTagSet
+  } else if (v.startsWith('cefr-')) {
+    const cefrTarget = v.replace('cefr-', '') as import('../data/cefr.ts').CefrLevel;
+    _baseWords = W.slice();
+    deck = (W as unknown as WordEntry[]).filter(w => getCefrLevel(w[0]) === cefrTarget);
+    shuffle(deck);
+    if (!deck.length) {
+      var _mt2 = document.getElementById('milestone-toast');
+      if (_mt2) { _mt2.textContent = `Немає слів рівня ${cefrTarget} — додай більше слів!`; _mt2.className='milestone-toast';void _mt2.offsetWidth;_mt2.className='milestone-toast show';setTimeout(()=>{_mt2!.className='milestone-toast';},3500); }
+      deck = _baseWords as unknown as WordEntry[]; shuffle(deck);
+    }
+    state._activeTagSet = null;
+    if (selTagEl) selTagEl.value = '';
+    state.deck = deck; window.deck = deck;
+    idx = 0; render(); return;
   } else if (v.startsWith('stale')) {
     _baseWords = W.slice();
     deck = buildStaleDeck(v === 'stale7' ? 7 : 30);
