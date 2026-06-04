@@ -4,6 +4,8 @@
 import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
 import { WORD_CATEGORIES, CATEGORY_LIST } from '../../data/categories.js';
+import { getCefrLevel, CEFR_META } from '../../data/cefr.ts';
+import type { CefrLevel } from '../../data/cefr.ts';
 import LZString from '../../lib/lzstring.js';
 import { _shuf } from '../core/srs.ts';
 import { lev } from '../core/distance.ts';
@@ -18,7 +20,7 @@ const REACTIONS = ['👍','😅','🔥','😂','🤯','😤','🎉','👏'];
 
 // ── Types ─────────────────────────────────────────────────────
 type DuelMode       = 'quiz' | 'reverse' | 'write' | 'tempo';
-type Difficulty     = 'easy' | 'normal' | 'hard';
+type Difficulty     = CefrLevel | 'mixed'; // CEFR-based difficulty
 type BestOf         = 1 | 3;
 type PowerupType    = 'double' | 'skip' | 'freeze';
 
@@ -34,10 +36,14 @@ const DUEL_MODES: { id:DuelMode; icon:string; label:string; desc:string }[] = [
   { id:'write',   icon:'✍️', label:'Письмо',  desc:'Введи переклад' },
   { id:'tempo',   icon:'⚡', label:'Темп',    desc:`4 варіанти · ${TEMPO_SEC}с/питання` },
 ];
-const DIFFICULTIES: { id:Difficulty; label:string; desc:string }[] = [
-  { id:'easy',   label:'Легкий',   desc:'Перші 1000 слів' },
-  { id:'normal', label:'Середній', desc:'Перші 3000 слів' },
-  { id:'hard',   label:'Важкий',   desc:'Всі 5598 слів' },
+const DIFFICULTIES: { id:Difficulty; label:string; desc:string; color:string }[] = [
+  { id:'mixed', label:'Мікс',    desc:'Усі рівні разом',     color:'var(--text3)' },
+  { id:'A1',    label:'A1',      desc:'Початківець',         color:'#27ae60' },
+  { id:'A2',    label:'A2',      desc:'Елементарний',        color:'#2ecc71' },
+  { id:'B1',    label:'B1',      desc:'Середній',            color:'#d4ac0d' },
+  { id:'B2',    label:'B2',      desc:'Вище середнього',     color:'#e67e22' },
+  { id:'C1',    label:'C1',      desc:'Просунутий',          color:'#e74c3c' },
+  { id:'C2',    label:'C2',      desc:'Майстерний',          color:'#8e44ad' },
 ];
 
 interface PlayerData {
@@ -183,10 +189,14 @@ function _buildDeck(seed:number, category:string, difficulty:Difficulty): WordEn
     const allowed = new Set((WORD_CATEGORIES[category]??[]).map((w:string)=>w.toLowerCase()));
     pool = pool.filter(w => allowed.has(w[0].toLowerCase()));
   }
-  // Difficulty filter
-  if (difficulty === 'easy')   pool = pool.slice(0, Math.min(1000, pool.length));
-  if (difficulty === 'normal') pool = pool.slice(0, Math.min(3000, pool.length));
-  if (pool.length < ROOM_SIZE) pool = W as unknown as WordEntry[]; // fallback
+  // CEFR-based difficulty filter
+  if (difficulty !== 'mixed') {
+    const cefrPool = pool.filter(w => getCefrLevel(w[0]) === difficulty);
+    if (cefrPool.length >= ROOM_SIZE) pool = cefrPool;
+    // fallback: include adjacent levels if not enough words
+    else if (cefrPool.length > 0) pool = cefrPool;
+  }
+  if (pool.length < ROOM_SIZE) pool = W as unknown as WordEntry[]; // final fallback
   return Array.from({length:pool.length},(_,i)=>i).sort(()=>rnd()-0.5).slice(0,ROOM_SIZE).map(i=>pool[i]);
 }
 
@@ -223,7 +233,7 @@ function _showResult()   { elLobby().style.display='none'; elCountdown().style.d
 // ── Lobby pickers ─────────────────────────────────────────────
 let _selMode:       DuelMode   = 'quiz';
 let _selCategory:   string     = '';
-let _selDifficulty: Difficulty = 'normal';
+let _selDifficulty: Difficulty = 'mixed'; // default: всі рівні
 let _selBestOf:      BestOf     = 1;
 let _selMaxHints:    number     = 3;
 let _selPowerups:    boolean    = true;
@@ -252,14 +262,23 @@ function _renderCategoryPicker(): void {
 
 function _renderOptionsRow(): void {
   const el = $('duel-options-row'); if(!el) return;
+
+  // CEFR difficulty buttons
+  const diffBtns = DIFFICULTIES.map(d => {
+    const active = d.id === _selDifficulty;
+    return `<button class="duel-cefr-btn${active?' duel-cefr-active':''}" data-diff="${d.id}"
+      title="${d.desc}"
+      style="padding:5px 9px;border-radius:8px;border:1.5px solid ${active?d.color:'var(--border)'};background:${active?d.color+'22':'transparent'};color:${active?d.color:'var(--text3)'};cursor:pointer;font-family:inherit;font-size:.78rem;font-weight:${active?'700':'400'};transition:all .12s;">
+      ${d.label}
+    </button>`;
+  }).join('');
+
   el.innerHTML = `
+    <div style="margin-bottom:8px;">
+      <div style="font-size:.72rem;color:var(--text3);margin-bottom:5px;">Складність (CEFR рівень слів):</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">${diffBtns}</div>
+    </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:.8rem;color:var(--text2);">
-      <label style="display:flex;align-items:center;gap:5px;">
-        Складність:
-        <select id="duel-diff-sel" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.8rem;font-family:inherit;outline:none;">
-          ${DIFFICULTIES.map(d=>`<option value="${d.id}"${d.id===_selDifficulty?' selected':''}>${d.label}</option>`).join('')}
-        </select>
-      </label>
       <label style="display:flex;align-items:center;gap:5px;">
         Формат:
         <select id="duel-bestof-sel" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.8rem;font-family:inherit;outline:none;">
@@ -268,9 +287,10 @@ function _renderOptionsRow(): void {
         </select>
       </label>
       <label style="display:flex;align-items:center;gap:5px;">
-        Підказок:
+        Підказок
+        <button class="duel-info-btn" data-info="hints" title="Інфо про підказки" style="background:none;border:none;cursor:pointer;font-size:.85rem;color:var(--text3);padding:0 2px;">ℹ️</button>:
         <select id="duel-hints-sel" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.8rem;font-family:inherit;outline:none;">
-          <option value="0"${_selMaxHints===0?' selected':''}>Без обмежень</option>
+          <option value="0"${_selMaxHints===0?' selected':''}>∞ Без ліміту</option>
           <option value="3"${_selMaxHints===3?' selected':''}>3 підказки</option>
           <option value="1"${_selMaxHints===1?' selected':''}>1 підказка</option>
         </select>
@@ -278,12 +298,69 @@ function _renderOptionsRow(): void {
       <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
         <input type="checkbox" id="duel-powerups-chk"${_selPowerups?' checked':''} style="cursor:pointer;">
         <span>🎯 Power-ups</span>
+        <button class="duel-info-btn" data-info="powerups" title="Інфо про power-ups" style="background:none;border:none;cursor:pointer;font-size:.85rem;color:var(--text3);padding:0 2px;">ℹ️</button>
       </label>
     </div>`;
-  $('duel-diff-sel')?.addEventListener('change', e=>{ _selDifficulty=(e.target as HTMLSelectElement).value as Difficulty; });
+
+  // CEFR button clicks
+  el.querySelectorAll<HTMLButtonElement>('.duel-cefr-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{ _selDifficulty=btn.dataset.diff as Difficulty; _renderOptionsRow(); });
+  });
   $('duel-bestof-sel')?.addEventListener('change', e=>{ _selBestOf=parseInt((e.target as HTMLSelectElement).value) as BestOf; });
   $('duel-hints-sel')?.addEventListener('change', e=>{ _selMaxHints=parseInt((e.target as HTMLSelectElement).value); });
   ($('duel-powerups-chk') as HTMLInputElement)?.addEventListener('change', e=>{ _selPowerups=(e.target as HTMLInputElement).checked; });
+
+  // Info tooltips
+  el.querySelectorAll<HTMLButtonElement>('.duel-info-btn').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      _showInfoTooltip(btn, btn.dataset.info as 'hints'|'powerups');
+    });
+  });
+}
+
+function _showInfoTooltip(anchor: HTMLElement, type: 'hints' | 'powerups'): void {
+  const existing = document.getElementById('duel-tooltip');
+  if (existing) { existing.remove(); return; }
+
+  const content = type === 'hints'
+    ? `<div style="font-weight:700;margin-bottom:6px;">💡 Підказки у режимі Письмо</div>
+       <div>Під час дуелі в режимі <b>Письмо</b> можна підглянути першу третину слова.</div>
+       <ul style="margin:6px 0 0 14px;font-size:.78rem;color:var(--text3);">
+         <li><b>Без ліміту</b> — підказок скільки завгодно</li>
+         <li><b>3 підказки</b> — можна підглянути 3 рази за гру</li>
+         <li><b>1 підказка</b> — тільки один раз, думай!</li>
+       </ul>`
+    : `<div style="font-weight:700;margin-bottom:6px;">🎯 Power-ups — спеціальні здібності</div>
+       <div style="font-size:.8rem;">Кожен гравець отримує по 1 кожного типу на гру:</div>
+       <ul style="margin:8px 0 0 0;list-style:none;display:flex;flex-direction:column;gap:5px;">
+         <li>🎯 <b>×2 Double</b> — наступна правильна відповідь дає <b>2 очки</b> замість 1</li>
+         <li>⏩ <b>Skip</b> — пропустити поточне питання <b>без штрафу</b></li>
+         <li>🧊 <b>Freeze</b> — <b>заморозити таймер</b> суперника на 5 секунд (тільки в режимі Темп)</li>
+       </ul>`;
+
+  const tip = document.createElement('div');
+  tip.id = 'duel-tooltip';
+  tip.style.cssText = 'position:fixed;z-index:99999;background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;max-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.25);font-size:.82rem;color:var(--text);line-height:1.45;';
+  tip.innerHTML = content;
+
+  // Position near anchor
+  const rect = anchor.getBoundingClientRect();
+  document.body.appendChild(tip);
+  const tRect = tip.getBoundingClientRect();
+  let top = rect.bottom + 8;
+  let left = rect.left - tRect.width / 2 + rect.width / 2;
+  if (left < 8) left = 8;
+  if (left + tRect.width > window.innerWidth - 8) left = window.innerWidth - tRect.width - 8;
+  if (top + tRect.height > window.innerHeight - 8) top = rect.top - tRect.height - 8;
+  tip.style.top = top + 'px';
+  tip.style.left = left + 'px';
+
+  // Close on outside click
+  const close = (e: MouseEvent) => {
+    if (!tip.contains(e.target as Node)) { tip.remove(); document.removeEventListener('click', close); }
+  };
+  setTimeout(() => document.addEventListener('click', close), 10);
 }
 
 // ── Countdown ─────────────────────────────────────────────────

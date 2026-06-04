@@ -4,3 +4,6 @@ dist/
 *.local
 W_backup.json
 *.backup.*
+data/wordlist.txt
+data/words_array.json
+data/*.json
