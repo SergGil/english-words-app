@@ -810,11 +810,13 @@ document.getElementById('btn-theme')!.addEventListener('click', function(){
     inp!.value = ''; box.className = 'search-results'; inp!.blur();
   }
 
-  // Event delegation: один listener замість N нових на кожен keystroke
-  box.addEventListener('click', function(e) {
-    var item = (e.target as Element).closest('.search-result-item');
-    if (item && (item as HTMLElement).dataset.word) goToWord((item as HTMLElement).dataset.word ?? '');
-  });
+  // Event delegation: click + touchend for iOS Safari compatibility
+  function _handleSearchSelect(e: Event): void {
+    var item = (e.target as Element).closest<HTMLElement>('.search-result-item');
+    if (item?.dataset.word) { e.preventDefault(); goToWord(item.dataset.word); }
+  }
+  box.addEventListener('click',    _handleSearchSelect);
+  box.addEventListener('touchend', _handleSearchSelect);
 
   var _searchTimer: ReturnType<typeof setTimeout> | null = null;
   inp!.addEventListener('input', function(){

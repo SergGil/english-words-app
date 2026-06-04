@@ -410,7 +410,7 @@
     border-radius: 10px;
     font-size: .85rem;
     font-family: inherit;
-    background: #fff;
+    background: var(--card);
     color: var(--text);
     outline: none;
     transition: border-color .2s;
@@ -430,7 +430,7 @@
     position: absolute;
     top: calc(100% + 4px);
     left: 0; right: 0;
-    background: #fff;
+    background: var(--card);
     border: 1.5px solid var(--border);
     border-radius: 10px;
     max-height: 220px;
@@ -2012,21 +2012,37 @@ body.sw .mode-name { color: #d4e8f8; }
 
 /* Block 3: Level XP */
 .gb-level-block { flex: 1.5; }
-.gb-level-header {
+
+/* Level name row: badge + number */
+.gb-level-name-row {
   display: flex;
-  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   gap: 4px;
   margin-bottom: 2px;
+}
+.gb-level-num {
+  font-size: .75rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  opacity: .7;
+}
+
+/* Next level row */
+.gb-level-next-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 3px;
   overflow: hidden;
 }
 .gb-level-arrow {
-  font-size: .65rem;
+  font-size: .62rem;
   color: var(--text3);
   flex-shrink: 0;
 }
 .gb-level-next {
-  font-size: .7rem;
+  font-size: .68rem;
   color: var(--text3);
   white-space: nowrap;
   overflow: hidden;
@@ -3541,3 +3557,67 @@ body.dark .gr-tip      { background: rgba(243,156,18,.1); }
 /* ── Search overlay input — dark/SW theming ─────────────────── */
 body.dark #ov-search-input { color: var(--text); }
 body.sw   #ov-search-input { color: var(--text); }
+
+/* ── Level block — mobile redesign ──────────────────────────── */
+@media (max-width: 480px) {
+  /* Compact but readable level block */
+  .gb-level-block { flex: 1.5; }
+  .gb-level-name-row { margin-bottom: 3px; }
+
+  /* Level badge: bigger, prominent */
+  .level-badge {
+    font-size: .68rem !important;
+    padding: 2px 6px !important;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Hide next-level arrow row — save space */
+  .gb-level-next-row { display: none; }
+
+  /* XP text: more visible */
+  .gb-level-xp {
+    font-size: .68rem !important;
+    color: var(--text2) !important;
+    text-align: left !important;
+    margin-top: 3px;
+  }
+
+  /* Track slightly taller on mobile */
+  .gb-level-track { height: 5px; margin: 4px 0; }
+}
+
+@media (max-width: 360px) {
+  .level-badge { max-width: 72px; font-size: .62rem !important; }
+}
+
+/* ── Inline search — mobile improvements ────────────────────── */
+/* Higher z-index so results appear above other content on mobile */
+.search-results {
+  z-index: 500 !important;  /* was 100, needs to be above cards/game-bar */
+}
+
+@media (max-width: 640px) {
+  /* Touch-friendly result items: taller tap targets */
+  .search-result-item {
+    padding: 10px 14px !important;
+    min-height: 44px;
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+  }
+  .search-result-item .sr-word   { font-size: .88rem; }
+  .search-result-item .sr-transl { font-size: .8rem; }
+
+  /* Max height clipped to not go off screen with keyboard up */
+  .search-results { max-height: 160px !important; }
+
+  /* Input: larger on mobile */
+  #search-input {
+    font-size: .9rem !important;
+    padding: 10px 14px 10px 34px !important;
+    min-height: 42px;
+  }
+}

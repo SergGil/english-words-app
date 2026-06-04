@@ -171,15 +171,21 @@
 
     <!-- Block 3: Level XP progress -->
     <div class="gb-block gb-level-block" id="level-box" title="Прогрес рівня">
-      <div class="gb-level-header">
-        <span class="gb-level-num" id="gb-level-num">1</span>
+      <!-- Level name row -->
+      <div class="gb-level-name-row">
         <span class="level-badge" id="level-badge">🌌 Цивільний</span>
+        <span class="gb-level-num" id="gb-level-num">1</span>
+      </div>
+      <!-- Next level (hidden on very narrow) -->
+      <div class="gb-level-next-row">
         <span class="gb-level-arrow">→</span>
         <span class="gb-level-next" id="gb-level-next"></span>
       </div>
-      <div class="gb-level-track" style="margin:5px 0 4px;">
+      <!-- Progress bar -->
+      <div class="gb-level-track">
         <div class="gb-level-fill" id="gb-level-fill" style="width:0%"></div>
       </div>
+      <!-- XP text -->
       <div class="gb-level-xp" id="gb-level-xp"></div>
     </div>
 
