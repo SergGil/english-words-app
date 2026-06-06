@@ -2035,6 +2035,400 @@ export const GRAMMAR: GrammarCategory[] = [
         ],
       },
 
+      {
+        id: 'pronouns', title: 'Займенники — A2', emoji: '👤',
+        sections: [
+          { type: 'intro', text: 'Займенники замінюють іменники. Основні групи: зворотні (reflexive), взаємні (reciprocal) та неозначені (indefinite).' },
+          {
+            type: 'table', title: 'Зворотні займенники (Reflexive)',
+            rows: [
+              ['Особа', 'Займенник', 'Приклад'],
+              ['I', 'myself', 'I did it myself. (сам зробив)'],
+              ['you (ти)', 'yourself', 'Did you hurt yourself?'],
+              ['he', 'himself', 'He taught himself French.'],
+              ['she', 'herself', 'She looked at herself in the mirror.'],
+              ['it', 'itself', 'The cat cleaned itself.'],
+              ['we', 'ourselves', "Let's not fool ourselves."],
+              ['you (ви)', 'yourselves', 'Help yourselves to food.'],
+              ['they', 'themselves', 'They introduced themselves.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Два вживання зворотних займенників',
+            rows: [
+              ['Вживання', 'Значення', 'Приклад'],
+              ['Зворотна дія (reflexive)', 'Суб\'єкт = об\'єкт', 'She cut herself while cooking.'],
+              ['Підсилення (emphatic)', 'Акцент: "саме/особисто"', 'The president himself opened the event.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Взаємні займенники (Reciprocal)',
+            rows: [
+              ['Займенник', 'Вживання', 'Приклад'],
+              ['each other', '2 особи', 'They looked at each other.'],
+              ['one another', '3+ особи (формально)', 'The students helped one another.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Неозначені займенники (Indefinite)',
+            rows: [
+              ['Група', 'Людина', 'Предмет', 'Місце'],
+              ['some- (ствердне)', 'someone / somebody', 'something', 'somewhere'],
+              ['any- (питання / заперечення)', 'anyone / anybody', 'anything', 'anywhere'],
+              ['no- (заперечне значення)', 'no one / nobody', 'nothing', 'nowhere'],
+              ['every- (всі)', 'everyone / everybody', 'everything', 'everywhere'],
+            ],
+          },
+          { type: 'note', title: 'Неозначені займенники — завжди однина!',
+            text: 'Everyone IS here. (не "are")\nSomebody HAS called. (не "have")\nНавіть якщо значення множинне — дієслово в однині.\n\nАле займенник після може бути множинним (розмовне):\n"Everyone has their own opinion." ✅ (формально: his or her)',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['Nobody told me about the meeting.', 'Ніхто не сказав мені про зустріч.'],
+              ['Is there anything I can do?', 'Чи є щось, що я можу зробити?'],
+              ['She did everything herself.', 'Вона зробила все сама. (reflexive + emphatic)'],
+              ['They congratulated each other.', 'Вони привітали одне одного.'],
+              ['Somewhere out there is the answer.', 'Десь там є відповідь.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'word-formation', title: 'Утворення слів — B1', emoji: '🔨',
+        sections: [
+          { type: 'intro', text: 'Word formation — додавання префіксів і суфіксів для утворення нових слів. Знання цих закономірностей дозволяє здогадуватись про значення нових слів і будувати словниковий запас швидше.' },
+          {
+            type: 'table', title: 'Префікси — заперечення / протилежність',
+            rows: [
+              ['Префікс', 'Значення', 'Приклади'],
+              ['un-', 'не-, без-', 'unhappy, unfair, unusual, undo, unclear'],
+              ['dis-', 'не-, роз-', 'disagree, disappear, dishonest, disconnect, dislike'],
+              ['in- / im- / il- / ir-', 'не- (залежно від звуку)', 'informal, impossible, illegal, irregular, incorrect'],
+              ['non-', 'не-, без-', 'non-stop, non-fiction, non-profit, non-violent'],
+            ],
+          },
+          {
+            type: 'table', title: 'Префікси — значення',
+            rows: [
+              ['Префікс', 'Значення', 'Приклади'],
+              ['over-', 'над-, пере- (надмірно)', 'overdo, overestimate, overlook, overwork, overreact'],
+              ['under-', 'недо-, під-', 'underestimate, underpay, undercooked, underperform'],
+              ['re-', 'знову, пере-', 'redo, rewrite, reconsider, reorganise, reuse'],
+              ['mis-', 'неправильно, хибно', 'misunderstand, mislead, misuse, misspell, misinterpret'],
+              ['pre-', 'до-, перед-', 'preview, predict, prevent, preorder, prehistory'],
+              ['co-', 'спільно', 'cooperate, co-author, coexist, co-worker'],
+            ],
+          },
+          {
+            type: 'table', title: 'Суфікси — іменники від дієслів',
+            rows: [
+              ['Суфікс', 'Приклади'],
+              ['-tion / -sion', 'education, decision, production, confusion, invitation'],
+              ['-ment', 'development, management, improvement, agreement, movement'],
+              ['-ance / -ence', 'performance, experience, independence, existence, entrance'],
+              ['-er / -or', 'teacher, writer, driver, actor, director, visitor'],
+              ['-al', 'arrival, refusal, survival, approval, denial'],
+            ],
+          },
+          {
+            type: 'table', title: 'Суфікси — іменники від прикметників',
+            rows: [
+              ['Суфікс', 'Приклади'],
+              ['-ness', 'happiness, kindness, awareness, weakness, darkness'],
+              ['-ity / -ty', 'creativity, quality, ability, beauty, reality, popularity'],
+              ['-ism', 'realism, optimism, capitalism, criticism, tourism'],
+            ],
+          },
+          {
+            type: 'table', title: 'Суфікси — прикметники',
+            rows: [
+              ['Суфікс', 'Значення', 'Приклади'],
+              ['-ful', 'що має певну якість', 'beautiful, careful, helpful, powerful, useful'],
+              ['-less', 'без певної якості', 'careless, hopeless, homeless, worthless, useless'],
+              ['-ous / -ious', 'що має, характеризується', 'dangerous, famous, serious, obvious, furious'],
+              ['-able / -ible', 'можна, придатний до', 'comfortable, reasonable, possible, responsible'],
+              ['-al', 'що стосується', 'natural, cultural, traditional, original, global'],
+              ['-ic', 'що стосується', 'romantic, realistic, systematic, historic, dramatic'],
+              ['-ish', 'схожий на / приблизно', 'childish, foolish, British, reddish, tallish'],
+            ],
+          },
+          {
+            type: 'table', title: 'Суфікси — дієслова та прислівники',
+            rows: [
+              ['Суфікс', 'Частина мови', 'Приклади'],
+              ['-ise / -ize', 'дієслово', 'modernise, organise, realise, summarise, specialise'],
+              ['-en', 'дієслово', 'strengthen, widen, shorten, darken, deepen'],
+              ['-ly', 'прислівник', 'quickly, carefully, seriously, honestly, surprisingly'],
+            ],
+          },
+          { type: 'tip', title: 'Стратегія: розкладай слово на частини',
+            text: '"Unacceptable" = un- (не) + accept (приймати) + -able (можна) = неприйнятний\n"Misunderstanding" = mis- (неправильно) + understand + -ing = непорозуміння\n"Overdevelopment" = over- (надмірно) + develop + -ment = надмірний розвиток',
+          },
+        ],
+      },
+
+      {
+        id: 'ellipsis-substitution', title: 'Еліпсис і заміна — B1', emoji: '♻️',
+        sections: [
+          { type: 'intro', text: 'Еліпсис (ellipsis) — пропуск слів, які вже зрозумілі з контексту. Заміна (substitution) — використання коротших слів замість довших фраз. Обидва роблять мову природною і уникають повторень.' },
+          {
+            type: 'table', title: 'So / Not — заміна цілого речення',
+            rows: [
+              ['Вираз', 'Значення', 'Приклад'],
+              ['I think so.', 'Я думаю, що так.', '"Will it rain?" — "I think so."'],
+              ["I don't think so.", 'Я думаю, що ні.', '"Is he coming?" — "I don\'t think so."'],
+              ['I hope so.', 'Я сподіваюсь, що так.', '"Will they win?" — "I hope so."'],
+              ['I hope not.', 'Я сподіваюсь, що ні.', '"Is it serious?" — "I hope not."'],
+              ["I'm afraid so.", 'На жаль, так.', '"Did we miss it?" — "I\'m afraid so."'],
+              ["I'm afraid not.", 'На жаль, ні.', '"Can you help?" — "I\'m afraid not."'],
+              ['I suppose so.', 'Мабуть, так.', '"Should we wait?" — "I suppose so."'],
+              ['I guess so.', 'Напевно, так. (розмовне)', '"Ready?" — "I guess so."'],
+            ],
+          },
+          {
+            type: 'table', title: 'So do I / Neither do I — згода з твердженням',
+            rows: [
+              ['Ствердне речення', 'Погодитись', 'Не погодитись'],
+              ['I like jazz.', 'So do I. / I do too.', "I don't."],
+              ["She's tired.", 'So am I. / I am too.', "I'm not."],
+              ["They've finished.", 'So have I. / I have too.', "I haven't."],
+              ['He works hard.', 'So does she. / She does too.', "She doesn't."],
+              ['I was there.', 'So was I. / I was too.', "I wasn't."],
+            ],
+          },
+          {
+            type: 'table', title: 'Neither do I / Nor do I — згода із запереченням',
+            rows: [
+              ['Заперечне речення', 'Погодитись', 'Не погодитись'],
+              ["I don't like it.", 'Neither do I. / I don\'t either.', 'I do.'],
+              ["He isn't ready.", "Neither am I. / I'm not either.", 'I am.'],
+              ["She hasn't called.", "Neither has he. / He hasn't either.", 'He has.'],
+              ["We can't come.", "Neither can I. / I can't either.", 'I can.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Еліпсис — пропуск зрозумілих слів',
+            rows: [
+              ['Повне речення', 'З еліпсисом', 'Примітка'],
+              ['I want to go, but I don\'t want to go alone.', "I want to go, but not alone.", 'пропуск "want to go"'],
+              ['She can play piano and he can play piano too.', 'She can play piano and he can too.', 'пропуск "play piano"'],
+              ['Are you coming? I hope you are coming.', "I hope so.", 'замість "you are coming"'],
+              ["I meant to call you.", "I meant to.", 'пропуск "call you"'],
+              ['Can you help? I\'ll try to help.', "I'll try to.", 'пропуск "help"'],
+            ],
+          },
+          { type: 'tip', title: 'Do so — офіційна заміна дієслівної фрази',
+            text: '"Please submit the report." — "I will do so immediately." (офіційне)\n"He signed the contract, and so did she."\n"If you need to leave early, feel free to do so."',
+          },
+        ],
+      },
+
+      {
+        id: 'emphatic-do', title: 'Емфатичне do — B1', emoji: '💪',
+        sections: [
+          { type: 'intro', text: 'Емфатичне do/does/did + інфінітив без to — для підсилення, вираження несподіванки, суперечності або наполягання. Наголос завжди падає на do/does/did.' },
+          {
+            type: 'formula', title: 'Структура',
+            rows: [
+              ['Present', 'I / You / We / They', 'DO + V₁', '→ I DO understand you!'],
+              ['Present', 'He / She / It', 'DOES + V₁', '→ She DOES care about it.'],
+              ['Past', 'Всі особи', 'DID + V₁', '→ He DID call — I heard it myself.'],
+              ['Imperative', 'Запрошення / ввічливе прохання', 'DO + V₁', '→ Do sit down. / Do help yourself.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Коли вживається',
+            rows: [
+              ['Функція', 'Приклад', 'Переклад'],
+              ['Суперечність', '"You never listen!" — "I DO listen!"', '"Я таки слухаю!"'],
+              ['Підтвердження несподіваного', 'She did pass the exam after all.', 'Вона все-таки склала іспит.'],
+              ['Наполягання', 'I did tell you about it last week.', 'Я таки казав тобі про це.'],
+              ['Ввічлива команда/запрошення', 'Do come in. / Do try the cake.', 'Заходьте. / Спробуйте торт.'],
+              ['Підсилення після прислівника', 'She rarely writes, but she did write to me.', 'Вона рідко пише, але таки написала.'],
+              ['Контраст у порівнянні', 'I don\'t love opera, but I do enjoy musicals.', 'Опера — ні, але мюзикли — так.'],
+            ],
+          },
+          { type: 'note', title: 'Емфатичне do ≠ заперечення',
+            text: 'Емфатичне do вживається ТІЛЬКИ у СТВЕРДЖУВАЛЬНИХ реченнях.\n✅ "I DO agree." (наголошено)\n❌ "I do not agree." (це звичайне заперечення, не емфатичне)',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['"You don\'t believe me." "I DO believe you!"', '"Ти мені не віриш." "Я таки вірю!"'],
+              ['He did make a good impression on everyone.', 'Він справді справив хороше враження на всіх.'],
+              ['Do feel free to ask any questions.', 'Будь ласка, не соромтесь ставити запитання.'],
+              ['She does have a point, you know.', 'Вона, знаєш, має рацію.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'advanced-passive', title: 'Просунутий пасив — C1', emoji: '🔄📢',
+        sections: [
+          { type: 'intro', text: 'Просунуті форми пасивного стану: пасив із дієсловами повідомлення (reporting verbs), get-пасив і подвійний пасив. Типові для академічного, журналістського та офіційного стилю.' },
+          {
+            type: 'table', title: 'Пасив із дієсловами повідомлення (Impersonal Passive)',
+            rows: [
+              ['Active (активний)', 'It is... (безособовий)', 'Subject is... (особовий)'],
+              ['People say he is rich.', 'It is said that he is rich.', 'He is said to be rich.'],
+              ['They believe she stole it.', 'It is believed that she stole it.', 'She is believed to have stolen it.'],
+              ['They report he has escaped.', 'It is reported that he has escaped.', 'He is reported to have escaped.'],
+              ['People consider her brilliant.', 'It is considered that she is brilliant.', 'She is considered to be brilliant.'],
+              ['They claim the drug is safe.', 'It is claimed that the drug is safe.', 'The drug is claimed to be safe.'],
+              ['Everyone knows he lied.', 'It is known that he lied.', 'He is known to have lied.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Часові форми в особовому пасиві',
+            rows: [
+              ['Значення', 'Структура', 'Приклад'],
+              ['Теперішнє', 'is/are + said + to + V₁', 'He is thought to live abroad.'],
+              ['Минуле', 'is/are + said + to + have + V₃', 'She is believed to have left the country.'],
+              ['Тривале', 'is/are + said + to + be + V-ing', 'The suspects are reported to be hiding.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Get-пасив (розмовний)',
+            rows: [
+              ['Значення', 'Приклад', 'Be-пасив (формальніший)'],
+              ['Несподівана або небажана дія', 'He got fired last week.', 'He was fired last week.'],
+              ['Нещасний випадок', 'She got hurt in the accident.', 'She was hurt in the accident.'],
+              ['Досягнення/процес', 'The work got done eventually.', 'The work was done eventually.'],
+              ['Passive з reflexive', 'Get dressed. / Get lost.', 'Be dressed. (рідше)'],
+            ],
+          },
+          {
+            type: 'table', title: 'Пасив + модальні в минулому',
+            rows: [
+              ['Структура', 'Значення', 'Приклад'],
+              ['must have been + V₃', 'майже точно сталось (пасивно)', 'The file must have been deleted.'],
+              ['could have been + V₃', 'могло статись (пасивно)', 'The mistake could have been avoided.'],
+              ['should have been + V₃', 'мало б статись (пасивно)', 'The report should have been submitted.'],
+              ['might have been + V₃', 'можливо сталось (пасивно)', 'He might have been informed already.'],
+            ],
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['It is widely believed that the economy will recover.', 'Широко вважається, що економіка відновиться.'],
+              ['The suspect is thought to have fled the country.', 'Підозрюваний, як вважають, втік з країни.'],
+              ['She got promoted after only six months.', 'Вона отримала підвищення всього за пів року.'],
+              ['The documents are said to have been destroyed.', 'Кажуть, що документи були знищені.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'hedging', title: 'Хеджинг (Hedging) — C1', emoji: '🛡️',
+        sections: [
+          { type: 'intro', text: 'Hedging — навмисно обережна, пом\'якшена мова для уникнення категоричних тверджень. Необхідна в академічному письмі, діловому спілкуванні та дипломатичному мовленні.' },
+          {
+            type: 'table', title: 'Модальні хеджі',
+            rows: [
+              ['Слово/фраза', 'Ступінь невпевненості', 'Приклад'],
+              ['would / could', 'гіпотетично', '"This would suggest that..." / "This could indicate..."'],
+              ['might / may', 'можливо', '"There might be other factors involved."'],
+              ['should', 'очікувано, але не певно', '"This should improve the results."'],
+              ['tend to', 'зазвичай, як правило', '"Students tend to underestimate the workload."'],
+              ['seem / appear', 'здається, схоже', '"It appears to be correct." / "She seems to understand."'],
+            ],
+          },
+          {
+            type: 'table', title: 'Дієслова-хеджі',
+            rows: [
+              ['Дієслово', 'Замість', 'Приклад'],
+              ['suggest / indicate', 'prove / show', '"The data suggests a link..." (не "proves")'],
+              ['appear / seem', 'be', '"It appears to be effective."'],
+              ['believe / think', 'know', '"We believe this is the case."'],
+              ['assume / suppose', 'know for certain', '"We can assume that..."'],
+              ['estimate / approximate', 'calculate exactly', '"We estimate the cost to be..."'],
+            ],
+          },
+          {
+            type: 'table', title: 'Прислівники та фрази-хеджі',
+            rows: [
+              ['Тип', 'Слова/фрази'],
+              ['Частота/типовість', 'generally, usually, typically, in most cases, as a rule'],
+              ['Невпевненість', 'arguably, apparently, seemingly, supposedly, presumably'],
+              ['Наближеність', 'roughly, approximately, around, about, in the region of'],
+              ['Обмеження', 'to some extent, to a certain degree, in some ways, in many respects'],
+              ['Дистанціювання', '"It could be argued that..." / "It would seem that..."'],
+            ],
+          },
+          {
+            type: 'table', title: 'Академічні хеджингові фрази',
+            rows: [
+              ['Категорична мова ❌', 'Хеджингова мова ✅'],
+              ['This proves that...', 'This suggests / indicates that...'],
+              ['It is clear that...', 'It would appear that... / It seems that...'],
+              ['This causes...', 'This may contribute to... / This tends to cause...'],
+              ['All students feel...', 'Many students tend to feel... / Some students appear to...'],
+              ['The results show...', 'The results would seem to indicate...'],
+            ],
+          },
+          { type: 'tip', title: 'Хеджинг ≠ слабкість',
+            text: 'Хеджинг не означає, що ти не впевнений — він показує, що ти добросовісний і чесний у своїх твердженнях.\n\nНауковець, який пише "this may indicate" замість "this proves", виглядає БІЛЬШ авторитетно — бо не перебільшує.',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['There tends to be a gap between theory and practice.', 'Зазвичай існує розрив між теорією і практикою.'],
+              ['It would appear that the situation is improving.', 'Схоже, ситуація покращується.'],
+              ['The findings suggest a possible link between stress and illness.', 'Результати вказують на можливий зв\'язок між стресом та хворобою.'],
+              ['To some extent, success depends on luck.', 'Певною мірою успіх залежить від удачі.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'nominalisation', title: 'Номіналізація — C1', emoji: '📝',
+        sections: [
+          { type: 'intro', text: 'Номіналізація (nominalisation) — перетворення дієслів і прикметників на іменники. Робить мову офіційнішою, стислішою та характерною для академічного і ділового письма.' },
+          {
+            type: 'table', title: 'Схеми перетворення',
+            rows: [
+              ['Джерело', 'Суфікс', 'Приклади'],
+              ['Дієслово → іменник', '-tion / -sion', 'decide → decision, produce → production, discuss → discussion'],
+              ['Дієслово → іменник', '-ment', 'develop → development, improve → improvement, manage → management'],
+              ['Дієслово → іменник', '-al', 'arrive → arrival, refuse → refusal, propose → proposal'],
+              ['Дієслово → іменник', '-ance / -ence', 'perform → performance, exist → existence, prefer → preference'],
+              ['Дієслово → іменник', '-ing (process)', 'teach → teaching, manage → managing, understand → understanding'],
+              ['Прикметник → іменник', '-ness', 'happy → happiness, aware → awareness, weak → weakness'],
+              ['Прикметник → іменник', '-ity', 'creative → creativity, able → ability, similar → similarity'],
+              ['Прикметник → іменник', '-th', 'strong → strength, wide → width, warm → warmth'],
+            ],
+          },
+          {
+            type: 'table', title: 'Порівняння: розмовний vs формальний стиль',
+            rows: [
+              ['Розмовний (дієслова)', 'Формальний (номіналізація)'],
+              ['We discussed how to solve the problem.', 'Our discussion focused on problem-solving solutions.'],
+              ['The government decided to increase taxes.', "The government's decision to increase taxes..."],
+              ['If we improve the system, we\'ll succeed.', 'System improvement will lead to success.'],
+              ['He failed to meet the deadline.', 'His failure to meet the deadline resulted in...'],
+              ['They analysed the data carefully.', 'A careful analysis of the data revealed...'],
+              ['The company expanded rapidly.', 'The rapid expansion of the company led to...'],
+              ['Scientists discovered a new planet.', 'The discovery of a new planet by scientists...'],
+            ],
+          },
+          { type: 'tip', title: 'Переваги номіналізації',
+            text: '✅ Офіційний, нейтральний тон\n✅ Дозволяє будувати складніші речення\n✅ Акцент на дії, а не на діяча ("the decision was made" vs "they decided")\n✅ Стисліше у деяких контекстах\n\n⚠️ Надмірна номіналізація робить текст громіздким:\n❌ "The facilitation of the implementation of the reorganisation..." → ✅ "Helping to reorganise..."',
+          },
+          { type: 'note', title: 'Артикль + номіналізація',
+            text: 'Номіналізовані іменники часто вживаються з артиклями або присвійними займенниками:\n"The announcement of the results..." (the + noun + of)\n"Their refusal to cooperate..." (possessive + noun + to)\n"A significant improvement in..." (a/an + adj + noun + in)',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['The investigation into corruption took two years.', 'Розслідування корупції тривало два роки.'],
+              ['Her understanding of the situation was impressive.', 'Її розуміння ситуації вражало.'],
+              ['The introduction of new technology changed everything.', 'Введення нової технології змінило все.'],
+              ['There has been a significant improvement in air quality.', 'Якість повітря значно покращилась.'],
+            ],
+          },
+        ],
+      },
+
     ],
   },
 
