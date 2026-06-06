@@ -388,6 +388,73 @@ const OXFORD = {
     'systematically','therefore','thoroughly','typically','ultimately','uniquely',
     'virtually','widely',
   ],
+
+  // ── Oxford 5000 phrasal verbs ─────────────────────────────────
+  phrasals2: [
+    'back up','break into','bring about','bring back','build up',
+    'call off','call on','carry out','check in','check out',
+    'come across','come up with','cut back','cut down','cut off',
+    'deal with','die out','draw up','drop off','fall apart',
+    'fall behind','figure out','get along','get away','get back',
+    'get over','give back','give out','go ahead','go along with',
+    'go away','go over','hand in','hand out','keep away',
+    'keep up with','lay off','leave out','let down','live up to',
+    'look back','look out','look up to','make out','make up for',
+    'pass away','pick out','pull off','put aside','put forward',
+    'put out','put up','run away','run into','set off',
+    'settle down','stand out','stand up for','step up','take apart',
+    'take back','take on','talk over','think through','throw away',
+    'try out','turn down','turn into','turn out','use up',
+    'work on','work through','write down','write off',
+  ],
+
+  // ── Oxford 5000 compound nouns ────────────────────────────────
+  compounds: [
+    'age group','air pollution','bank account','birth rate','blood pressure',
+    'body language','carbon footprint','case study','civil rights',
+    'climate change','contact details','cost of living','credit card',
+    'customer service','data protection','decision making','economic growth',
+    'energy consumption','equal opportunity','exchange rate','food chain',
+    'free trade','global warming','health care','interest rate','job market',
+    'labour market','law enforcement','learning curve','life expectancy',
+    'living standard','long term','market share','mass media','mental health',
+    'middle class','natural disaster','news agency','open source',
+    'peer pressure','per capita','point of view','public sector',
+    'quality of life','raw material','role model','rule of law',
+    'sea level','short term','side effect','skill set','social media',
+    'social network','standard of living','state of mind','stock market',
+    'supply chain','tax rate','think tank','trade off','turning point',
+    'unemployment rate','urban area','value added','work experience',
+    'working class','world view',
+  ],
+
+  // ── Oxford 5000 AWL academic verbs ───────────────────────────
+  awl_verbs: [
+    'abstract','accelerate','accumulate','administer','affirm',
+    'approximate','assemble','attain','attribute','coincide',
+    'commence','compensate','complement','comply','conceive',
+    'contradict','correlate','deduce','depict','derive',
+    'detect','deviate','discriminate','distort','diversify',
+    'elaborate','equate','erode','estimate','exemplify',
+    'exploit','formulate','inhabit','interact','invoke',
+    'legislate','likewise','offset','orient','participate',
+    'perceive','persist','portray','precede','presume',
+    'reconstruct','refine','register','relocate','resolve',
+    'simulate','stimulate','substitute','supplement','terminate',
+    'transmit','underlie','undertake','unify','vary',
+  ],
+
+  // ── Oxford 5000 AWL academic nouns ───────────────────────────
+  awl_nouns: [
+    'amendment','annotation','approximation','coefficient','commodity',
+    'connotation','convention','criteria','dimension','domain',
+    'entity','equation','error','ethic','formula',
+    'goal','hierarchy','incidence','indicator','inference',
+    'margin','medium','minimum','module','norm',
+    'notion','output','parameter','period','principal',
+    'publication','ratio','shift','symbol','syntax',
+    'technique','trigger',
+  ],
 };
 
 const gaps = {};
