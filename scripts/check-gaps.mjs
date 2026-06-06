@@ -455,6 +455,89 @@ const OXFORD = {
     'publication','ratio','shift','symbol','syntax',
     'technique','trigger',
   ],
+
+  // ── Oxford 5000 B1/B2 topic vocabulary: Environment ──────────
+  environment: [
+    'atmosphere','biodiversity','conservation','deforestation','drought',
+    'ecosystem','emission','endangered','erosion','fossil fuel',
+    'habitat','hurricane','landfill','ozone layer','pesticide',
+    'precipitation','recyclable','renewable','sewage','solar panel',
+    'species','toxic','typhoon','wildfire','wind turbine',
+  ],
+
+  // ── Oxford 5000 B1/B2 topic vocabulary: Technology ───────────
+  technology: [
+    'algorithm','application','artificial intelligence','automation',
+    'bandwidth','browser','cloud computing','cybersecurity','database',
+    'device','encryption','firewall','hardware','interface','malware',
+    'network','password','platform','processor','programming',
+    'prototype','router','server','software','startup',
+    'streaming','update','upload','username','virtual reality',
+    'wireless','workflow',
+  ],
+
+  // ── Oxford 5000 B2/C1 topic vocabulary: Economy & Business ───
+  business2: [
+    'bankruptcy','benchmark','brand','breakeven','bribery',
+    'budget','buyout','cashflow','commodity','competitive advantage',
+    'compliance','consumer','contractor','copyright','corporate',
+    'cost-effective','debt','demographic','depreciation','downturn',
+    'due diligence','earnings','equity','expenditure','fiscal',
+    'forecast','franchise','gross','incentive','incorporation',
+    'inflation','insolvency','intellectual property','inventory',
+    'invoice','liability','liquidation','logistics','merger',
+    'monopoly','niche','overhead','outsource','patent',
+    'profit margin','quarterly','recession','redundancy','revenue',
+    'shareholder','sole trader','startup','subsidy','takeover',
+    'tariff','taxation','turnover','valuation','venture capital',
+    'wholesale','workforce',
+  ],
+
+  // ── Oxford 5000 B1/B2 topic vocabulary: Society & Culture ─────
+  society: [
+    'asylum seeker','bias','census','citizenship','civic',
+    'civil society','class system','cohesion','colonialism',
+    'community centre','consensus','conservative','constitution',
+    'cultural heritage','customs','demography','deportation',
+    'detention','diaspora','ethnocentric','extremism','feminism',
+    'gender equality','gentrification','grassroots','ideology',
+    'immigration','inclusive','indigenous','integration','liberal',
+    'mainstream','marginalised','multicultural','nationalism',
+    'norm','oppression','patriarchy','pluralism','populism',
+    'prejudice','privilege','progressive','racism','radical',
+    'referendum','refugee','segregation','social justice',
+    'stereotyping','suffrage','tolerance','welfare state',
+    'xenophobia',
+  ],
+
+  // ── Oxford 5000 B1/B2 topic vocabulary: Health & Science ──────
+  health2: [
+    'antibiotic','antidepressant','artery','biopsy','cardiac',
+    'cardiovascular','clinical','cognitive','complication',
+    'congenital','consultation','contraception','deficiency',
+    'dementia','epidemic','fatigue','genetic','hygiene',
+    'immunity','infectious','insomnia','malnutrition','obesity',
+    'organ','outbreak','pandemic','parasite','pathogen',
+    'pharmacy','placebo','prevention','prognosis','psychiatric',
+    'psychologist','pulmonary','relapse','respiratory','sedative',
+    'side effect','specimen','sterile','stroke','syndrome',
+    'transplant','trauma','tumour','ulcer','vitamin',
+  ],
+
+  // ── Oxford 5000 B2/C1 academic vocabulary ────────────────────
+  academic2: [
+    'abstract noun','abstract thinking','analytical','argumentation',
+    'assertion','citation','clause','cohesion','collocation',
+    'connotation','deduction','discourse','essay structure',
+    'evidence-based','exemplification','exposition','fallacy',
+    'hedging','induction','inference','literary device',
+    'logical fallacy','nominalization','objective','paragraph',
+    'paraphrase','peer review','plagiarism','premise','proposition',
+    'qualitative','quantitative','quotation','reasoning','refutation',
+    'register','rhetorical','rubric','scholar','scope',
+    'structure','stylistic','summary','syntax','thesis statement',
+    'topic sentence','transition','validity',
+  ],
 };
 
 const gaps = {};
