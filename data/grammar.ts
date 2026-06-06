@@ -1701,6 +1701,188 @@ export const GRAMMAR: GrammarCategory[] = [
       },
 
       {
+        id: 'inversion', title: 'Інверсія (Inversion)', emoji: '🔃',
+        sections: [
+          { type: 'intro', text: 'Інверсія — перестановка підмета та допоміжного дієслова для підсилення або після заперечних/обмежувальних слів. Характерна для формального стилю та C1–C2.' },
+          {
+            type: 'table', title: 'Негативна інверсія (після заперечних слів)',
+            rows: [
+              ['Тригер', 'Структура', 'Приклад'],
+              ['Never', 'Never + aux + S + V', 'Never have I seen such courage.'],
+              ['Seldom / Rarely', 'Seldom/Rarely + aux + S + V', 'Seldom does she complain.'],
+              ['Hardly / Scarcely ... when', 'Hardly had S + V₃ when...', 'Hardly had I sat down when the phone rang.'],
+              ['No sooner ... than', 'No sooner had S + V₃ than...', 'No sooner had he left than she arrived.'],
+              ['Not only ... but also', 'Not only + aux + S + V...', 'Not only did he lie, but he also stole.'],
+              ['Not until', 'Not until + clause + aux + S + V', 'Not until I saw it did I believe it.'],
+              ['Under no circumstances', 'Under no circumstances + aux + S + V', 'Under no circumstances should you open this.'],
+              ['On no account', 'On no account + aux + S + V', 'On no account are you to leave.'],
+              ['Little', 'Little + aux + S + V', 'Little did she know what awaited her.'],
+              ['At no time', 'At no time + aux + S + V', 'At no time was the building safe.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Умовна інверсія (замість if)',
+            rows: [
+              ['Звичайне умовне', 'Інверсія (формальне)', 'Тип'],
+              ['If I had known...', 'Had I known...', '3rd Conditional'],
+              ['If I were you...', 'Were I you...', '2nd Conditional'],
+              ['If this should happen...', 'Should this happen...', '1st Conditional (малоймовірне)'],
+            ],
+          },
+          { type: 'tip', title: 'Як будується інверсія',
+            text: '1. Заперечне/обмежувальне слово виходить на перше місце\n2. Допоміжне дієслово (do/did/have/had/will/is тощо) — перед підметом\n3. Основне дієслово — після підмета\n\n"She had never seen it." → "Never had she seen it."',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['Never have I been so embarrassed in my life.', 'Ніколи в житті мені не було так незручно.'],
+              ['Had I known about the problem, I would have fixed it.', 'Якби я знав про проблему, я б виправив її.'],
+              ['Not only is the price high, but the quality is poor.', 'Не лише ціна висока, але й якість погана.'],
+              ['Should you need any help, please call me.', 'Якщо вам знадобиться допомога — зателефонуйте.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'cleft-sentences', title: 'Розщеплені речення (Cleft Sentences)', emoji: '✂️',
+        sections: [
+          { type: 'intro', text: 'Cleft sentences — спосіб виділити певний елемент речення, перебудувавши його. Два основних типи: It-cleft і Wh-cleft (What-cleft).' },
+          {
+            type: 'formula', title: 'IT-CLEFT: виділяє підмет, додаток або обставину',
+            rows: [
+              ['✅ Структура', 'It + be + виділений елемент + that/who + решта', ''],
+              ['Звичайне', 'John broke the window.', '→ виділити: хто'],
+              ['It-cleft', 'It was John who broke the window.', '(не Пол, не Марія — саме Джон)'],
+              ['Звичайне', 'She met him in Paris.', '→ виділити: де'],
+              ['It-cleft', 'It was in Paris that she met him.', ''],
+              ['Звичайне', 'He called me yesterday.', '→ виділити: коли'],
+              ['It-cleft', 'It was yesterday that he called me.', ''],
+            ],
+          },
+          {
+            type: 'formula', title: 'WH-CLEFT (What-cleft): виділяє дію або ідею',
+            rows: [
+              ['✅ Структура', 'What + S + V + be + виділений елемент', ''],
+              ['Звичайне', 'I need a holiday.', '→ виділити: що'],
+              ['Wh-cleft', 'What I need is a holiday.', ''],
+              ['Звичайне', 'She wants you to apologise.', '→ виділити: що'],
+              ['Wh-cleft', 'What she wants is for you to apologise.', ''],
+            ],
+          },
+          {
+            type: 'table', title: 'Порівняння двох типів',
+            rows: [
+              ['Тип', 'Виділяє', 'Структура', 'Приклад'],
+              ['It-cleft', 'Конкретний факт (хто, де, коли, що саме)', 'It was X that/who...', 'It was the noise that woke me up.'],
+              ['Wh-cleft', 'Дію або ситуацію в цілому', 'What S V is/was...', 'What surprised me was his reaction.'],
+            ],
+          },
+          { type: 'note', title: 'All-cleft — варіант Wh-cleft',
+            text: '"All I want is some peace and quiet." (все що мені потрібно — лише...)\n"All she did was cry." (все що вона робила — лише плакала)',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['It was the manager who made the decision.', 'Саме менеджер прийняв рішення. (не хтось інший)'],
+              ['It was last year that they got married.', 'Саме минулого року вони одружились.'],
+              ['What I find difficult is speaking in public.', 'Те, що мені важко — це виступати публічно.'],
+              ["What she needs is a good night's sleep.", 'Те, що їй потрібно — це добре виспатись.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'subjunctive', title: 'Умовний спосіб (Subjunctive)', emoji: '🎭',
+        sections: [
+          { type: 'intro', text: 'Subjunctive (умовний спосіб) — особлива форма дієслова для вираження побажань, рекомендацій, вимог і гіпотетичних ситуацій. Найчастіше: base form (V₁) без закінчень та were для всіх осіб.' },
+          {
+            type: 'table', title: 'Present Subjunctive — після дієслів рекомендації/вимоги',
+            rows: [
+              ['Тригерне дієслово', 'Структура', 'Приклад'],
+              ['suggest, recommend', 'S + V + that + S + V₁ (base form)', 'I suggest that he take the exam again.'],
+              ['insist, demand', '', 'She insisted that he be present.'],
+              ['propose, request', '', 'They requested that the meeting be postponed.'],
+              ['require, ask', '', 'The law requires that everyone pay taxes.'],
+              ['advise, urge', '', 'The doctor advised that she rest completely.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Після прикметників важливості/необхідності',
+            rows: [
+              ['Тригерний прикметник', 'Структура', 'Приклад'],
+              ['essential, vital', 'It\'s + adj + that + S + V₁', 'It\'s essential that everyone arrive on time.'],
+              ['important, necessary', '', 'It\'s important that she be informed.'],
+              ['crucial, imperative', '', 'It\'s crucial that he not miss the deadline.'],
+              ['advisable, recommended', '', 'It\'s advisable that you consult a doctor.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Were-subjunctive — гіпотетичні ситуації',
+            rows: [
+              ['Вживання', 'Приклад'],
+              ['2nd Conditional (всі особи)', 'If I were you, I would apologise.'],
+              ['Після wish (теперішнє)', 'I wish I were taller.'],
+              ['Після as if / as though', 'She acts as if she were the boss.'],
+              ['Після if only', 'If only he were here right now!'],
+              ['Після it\'s time', 'It\'s time you were in bed. / It\'s high time she knew the truth.'],
+            ],
+          },
+          { type: 'note', title: 'Британська vs Американська англійська',
+            text: 'Subjunctive поширеніший в американській англійській.\nУ британській часто замість нього вживають should:\n\nAm.E: "I suggest that he take the job."\nBr.E: "I suggest that he should take the job." (або "I suggest he takes the job.")',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['The committee demanded that the report be submitted immediately.', 'Комітет вимагав, щоб звіт було подано негайно.'],
+              ['It\'s vital that every passenger wear a seatbelt.', 'Важливо, щоб кожен пасажир пристебнувся.'],
+              ['She talks to him as if he were a child.', 'Вона розмовляє з ним, наче він дитина.'],
+              ['It\'s high time you started saving money.', 'Давно час починати заощаджувати гроші.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'past-modals', title: 'Модальні в минулому (Modal Perfects)', emoji: '🕵️',
+        sections: [
+          { type: 'intro', text: 'Modal Perfect = модальне дієслово + have + V₃. Вживається для висновків, здогадок і жалкувань про минуле.' },
+          {
+            type: 'table', title: 'Здогадки та висновки про минуле',
+            rows: [
+              ['Конструкція', 'Ступінь впевненості', 'Значення', 'Приклад'],
+              ['must have + V₃', '~95% впевненість (+)', 'майже точно відбулось', 'She must have missed the train.'],
+              ['can\'t / couldn\'t have + V₃', '~95% впевненість (−)', 'майже точно НЕ відбулось', 'He can\'t have seen you — he was abroad.'],
+              ['may / might have + V₃', '~50% можливість', 'можливо відбулось', 'She might have forgotten about it.'],
+              ['could have + V₃', 'можливість (не реалізована)', 'могло б бути, але не сталось', 'He could have been a doctor.'],
+              ['should have + V₃', 'очікування (але так не сталось)', 'мало б статись', 'They should have arrived by now.'],
+              ['needn\'t have + V₃', 'зайва дія', 'зробив непотрібне', 'You needn\'t have bought so much food.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Жалкування та критика',
+            rows: [
+              ['Конструкція', 'Значення', 'Приклад'],
+              ['should have + V₃', 'Треба було зробити (але не зробив) — жаль', 'I should have studied harder.'],
+              ['shouldn\'t have + V₃', 'Не треба було робити (але зробив) — критика', 'You shouldn\'t have said that.'],
+              ['could have + V₃', 'Міг зробити, але не зробив — упущена можливість', 'We could have won the match.'],
+              ['might have + V₃', 'Міг би зробити — мʼяка критика', 'You might have told me earlier!'],
+            ],
+          },
+          { type: 'tip', title: 'Логіка висновків',
+            text: 'Впевненість 100% → звичайні дієслова: "She was tired."\nВпевненість ~95% → must have / can\'t have\nВпевненість ~50% → might have / may have\nВпевненість ~30% → could have\n\n"The lights are off — she must have gone home." (логічний висновок)\n"She can\'t have finished already — it\'s too early." (логічне заперечення)',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['He\'s not answering — he must have fallen asleep.', 'Він не відповідає — мабуть, заснув.'],
+              ['She can\'t have understood — her face was blank.', 'Вона не могла зрозуміти — у неї було порожнє обличчя.'],
+              ['I should have listened to your advice.', 'Мені треба було послухати твою пораду.'],
+              ['You needn\'t have waited — I took a taxi.', 'Тобі не треба було чекати — я взяв таксі.'],
+              ['They might have taken the wrong turn.', 'Можливо, вони повернули не туди.'],
+            ],
+          },
+        ],
+      },
+
+      {
         id: 'causative-have-get', title: 'Каузатив (have/get)', emoji: '🔧',
         sections: [
           {
