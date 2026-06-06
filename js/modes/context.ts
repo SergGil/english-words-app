@@ -5,7 +5,6 @@ import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
 import { addCombo, breakCombo } from '../features/combo.ts';
 import { recordModeComplete, recordModeAnswer, recordMistake } from '../features/game.ts';
-import { speakBtn } from '../core/ui-helpers.ts';
 import type { WordEntry } from '../../src/types.js';
 
 const SIZE = 8, NUM_OPTS = 4;
@@ -95,6 +94,7 @@ function renderQ(): void {
   allOpts.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'quiz-option';
+    btn.dataset.translation = opt;
     btn.innerHTML = `<span class="opt-num">${i+1}</span> ${opt}`;
     btn.addEventListener('click', () => checkAnswer(btn, opt, correct, w));
     elOpts.appendChild(btn);
@@ -109,7 +109,7 @@ function checkAnswer(btn: HTMLButtonElement, chosen: string, correct: string, w:
   btn.classList.add(ok ? 'correct' : 'wrong');
   if (!ok) {
     elOpts.querySelectorAll<HTMLButtonElement>('.quiz-option').forEach(b => {
-      if (b.textContent?.includes(correct)) b.classList.add('reveal');
+      if (b.dataset.translation === correct) b.classList.add('reveal');
     });
     recordMistake(w[0]);
   }

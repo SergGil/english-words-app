@@ -83,7 +83,7 @@ function renderQ(): void {
 
   // Update speak button
   elSpeakBtn.onclick = () => _speak(w[0]);
-  elNext.textContent = beeIdx >= SIZE-1 ? '🏆 Фініш!' : 'Наступне →';
+  elNext.textContent = beeIdx >= beeDeck.length-1 ? '🏆 Фініш!' : 'Наступне →';
 }
 
 function submit(): void {
@@ -91,8 +91,15 @@ function submit(): void {
   const w = beeDeck[beeIdx];
   const answer = w[0].toLowerCase().trim();
   const input  = elInput.value.toLowerCase().trim();
+  // Guard: never accept empty input
+  if (!input) {
+    elInput.style.borderColor = '#e74c3c';
+    elInput.placeholder = 'Введи слово!';
+    setTimeout(() => { elInput.placeholder = 'Введи слово англійською...'; elInput.style.borderColor = ''; }, 1500);
+    return;
+  }
   const ok = input === answer || lev(input, answer) === 0;
-  const close1 = lev(input, answer) === 1; // one typo
+  const close1 = input.length >= 3 && lev(input, answer) === 1; // near-miss only for non-trivial input
 
   beeAnswered = true;
   elInput.disabled = true;

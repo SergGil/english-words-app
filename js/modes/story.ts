@@ -41,6 +41,7 @@ function _getWordIdx(): Map<string, number> {
 // ── Render ────────────────────────────────────────────────────
 let _currentStory: typeof STORIES[0] | null = null;
 let _knownInStory = 0, _totalHighlighted = 0;
+let _storyCompleted = false;
 
 const overlay = document.getElementById('story-mode-overlay')! as HTMLElement;
 const elTitle = document.getElementById('sm-title')!;
@@ -90,6 +91,7 @@ function _highlightText(text: string): string {
 
 function openStory(story: typeof STORIES[0]): void {
   _currentStory = story;
+  _storyCompleted = false;
   elTitle.textContent = story.title;
   elLevel.textContent = story.level;
   elText.innerHTML = _highlightText(story.text);
@@ -109,6 +111,8 @@ function openStory(story: typeof STORIES[0]): void {
     });
   });
 
+  document.getElementById('sm-picker-view')!.style.display = 'none';
+  document.getElementById('sm-story-view')!.style.display = 'block';
   overlay.style.display = 'flex';
   elPopup.style.display = 'none';
 }
@@ -122,11 +126,12 @@ function showPopup(w: WordEntry, anchor: HTMLElement): void {
   elPopupSpeak.onclick = () => (window.speak as SpeakFn | undefined)?.(w[0], elPopupSpeak);
   elPopup.style.display = 'flex';
 
-  // Position near clicked word
-  const rect = anchor.getBoundingClientRect();
-  const pr   = elPopup.parentElement!.getBoundingClientRect();
-  let top  = rect.bottom - pr.top + 8;
-  let left = rect.left   - pr.left;
+  // Position near clicked word — account for scroll offset of parent
+  const rect   = anchor.getBoundingClientRect();
+  const parent = elPopup.parentElement!;
+  const pr     = parent.getBoundingClientRect();
+  let top  = rect.bottom - pr.top + parent.scrollTop + 8;
+  let left = rect.left   - pr.left + parent.scrollLeft;
   // Clamp
   if (left + 200 > pr.width) left = pr.width - 210;
   if (left < 0) left = 0;
@@ -171,7 +176,7 @@ document.getElementById('btn-story')?.addEventListener('click', open);
 document.getElementById('sm-back')?.addEventListener('click', () => {
   document.getElementById('sm-story-view')!.style.display = 'none';
   document.getElementById('sm-picker-view')!.style.display = 'block';
-  if (_currentStory) recordModeComplete('story');
+  if (_currentStory && !_storyCompleted) { _storyCompleted = true; recordModeComplete('story'); }
 });
 document.addEventListener('keydown', (e: KeyboardEvent) => {
   if (e.key === 'Escape' && overlay.style.display === 'flex') close();
