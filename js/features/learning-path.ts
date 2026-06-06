@@ -1,90 +1,142 @@
 // English Words App — js/features/learning-path.ts
 // 🎯 Learning Path: structured CEFR-based curriculum with daily goals
 import { state } from '../../src/state.ts';
-import { getCefrLevel, CEFR_META } from '../../data/cefr.ts';
+import { CEFR_META } from '../../data/cefr.ts';
 import type { CefrLevel } from '../../data/cefr.ts';
 import { W } from '../../data/words.js';
 import { getLevel } from '../features/game.ts';
 import { openPage } from '../features/sidebar.ts';
 import type { WordEntry } from '../../src/types.js';
+import {
+  computeCefrStats, findCurrentLevel, filterDailyWords,
+  computePersonalPace, estimateDays, updateCompletionDates,
+} from './learning-path-logic.ts';
+export type { CefrStats, CefrStat, PaceSnapshot } from './learning-path-logic.ts';
+export {
+  computeCefrStats, findCurrentLevel, filterDailyWords,
+  computePersonalPace, estimateDays, updateCompletionDates,
+} from './learning-path-logic.ts';
 
 // ── Plan definition ───────────────────────────────────────────
 interface LevelPlan {
   level:     CefrLevel;
-  wordsGoal: number;    // how many words of this level to learn
-  daysEst:   number;    // estimated days at 20 words/day
-  skills:    string[];  // what skills this level unlocks
+  wordsGoal: number;
+  skills:    string[];
+  grammarLinks: Partial<Record<string, string>>; // skill label → grammar rule id
 }
 
 const PLANS: LevelPlan[] = [
-  { level:'A1', wordsGoal: 283,  daysEst: 15,  skills: ['Базове вітання', 'Числа і кольори', 'Сімя та тіло', 'Повсякденні дії'] },
-  { level:'A2', wordsGoal: 883,  daysEst: 45,  skills: ['Опис людей/місць', 'Магазини і ціни', 'Подорожі', 'Минулі події'] },
-  { level:'B1', wordsGoal: 1917, daysEst: 96,  skills: ['Розмова про роботу', 'Новини та медіа', 'Вирішення проблем', 'Плани на майбутнє'] },
-  { level:'B2', wordsGoal: 1512, daysEst: 76,  skills: ['Академічні тексти', 'Бізнес комунікація', 'Складні аргументи', 'Філми без субтитрів'] },
-  { level:'C1', wordsGoal: 817,  daysEst: 41,  skills: ['Наукові статті', 'Переговори', 'Нюанси та ідіоми', 'Публічні виступи'] },
-  { level:'C2', wordsGoal: 230,  daysEst: 12,  skills: ['Художня проза', 'Академічний стиль', 'Повне розуміння', 'Рівень носія'] },
+  {
+    level: 'A1', wordsGoal: 283,
+    skills: ['Базове вітання', 'Числа і кольори', 'Сім\'я та тіло', 'Повсякденні дії'],
+    grammarLinks: { 'Повсякденні дії': 'present-simple' },
+  },
+  {
+    level: 'A2', wordsGoal: 883,
+    skills: ['Опис людей/місць', 'Магазини і ціни', 'Подорожі', 'Минулі події'],
+    grammarLinks: { 'Минулі події': 'past-simple', 'Опис людей/місць': 'comparatives' },
+  },
+  {
+    level: 'B1', wordsGoal: 1917,
+    skills: ['Розмова про роботу', 'Новини та медіа', 'Вирішення проблем', 'Плани на майбутнє'],
+    grammarLinks: { 'Плани на майбутнє': 'future-forms', 'Розмова про роботу': 'modal-verbs' },
+  },
+  {
+    level: 'B2', wordsGoal: 1512,
+    skills: ['Академічні тексти', 'Бізнес комунікація', 'Складні аргументи', 'Фільми без субтитрів'],
+    grammarLinks: { 'Академічні тексти': 'passive-voice', 'Складні аргументи': 'conditionals' },
+  },
+  {
+    level: 'C1', wordsGoal: 817,
+    skills: ['Наукові статті', 'Переговори', 'Нюанси та ідіоми', 'Публічні виступи'],
+    grammarLinks: { 'Публічні виступи': 'register', 'Наукові статті': 'nominalisation' },
+  },
+  {
+    level: 'C2', wordsGoal: 230,
+    skills: ['Художня проза', 'Академічний стиль', 'Повне розуміння', 'Рівень носія'],
+    grammarLinks: { 'Академічний стиль': 'register' },
+  },
 ];
 
-// ── Stats calculation ─────────────────────────────────────────
-function _getCefrStats(): Record<CefrLevel, { total:number; known:number; pct:number }> {
-  const result = {} as Record<CefrLevel, { total:number; known:number; pct:number }>;
-  const levels: CefrLevel[] = ['A1','A2','B1','B2','C1','C2'];
-  levels.forEach(l => result[l] = { total:0, known:0, pct:0 });
+// ── LocalStorage helpers ──────────────────────────────────────
 
-  (W as unknown as WordEntry[]).forEach(w => {
-    const lvl = getCefrLevel(w[0]);
-    result[lvl].total++;
-    if (state.known.has(w[0])) result[lvl].known++;
-  });
+const LS_PACE = 'lp_pace_snapshots';
+const LS_COMP = 'lp_completion_dates';
 
-  levels.forEach(l => {
-    result[l].pct = result[l].total > 0
-      ? Math.round(result[l].known / result[l].total * 100) : 0;
-  });
-  return result;
+function _loadSnapshots(): PaceSnapshot[] {
+  try { return JSON.parse(localStorage.getItem(LS_PACE) ?? '[]'); } catch { return []; }
 }
 
-function _getCurrentCefrLevel(): CefrLevel {
-  const stats = _getCefrStats();
-  // Find first level below 70% — that's where to focus
-  const levels: CefrLevel[] = ['A1','A2','B1','B2','C1','C2'];
-  for (const l of levels) {
-    if (stats[l].pct < 70) return l;
+function _saveSnapshot(knownCount: number): void {
+  const today = new Date().toISOString().slice(0, 10);
+  const snaps = _loadSnapshots().filter(s => s.date !== today);
+  snaps.push({ date: today, count: knownCount });
+  const kept = snaps.sort((a, b) => a.date.localeCompare(b.date)).slice(-14);
+  try { localStorage.setItem(LS_PACE, JSON.stringify(kept)); } catch { /* quota */ }
+}
+
+function _loadCompletionDates(): Record<string, string> {
+  try { return JSON.parse(localStorage.getItem(LS_COMP) ?? '{}'); } catch { return {}; }
+}
+
+function _saveCompletionDates(dates: Record<string, string>): void {
+  try { localStorage.setItem(LS_COMP, JSON.stringify(dates)); } catch { /* quota */ }
+}
+
+function _formatDate(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString('uk-UA', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// ── Navigate to CEFR level ────────────────────────────────────
+
+function _navigateToLevel(level: CefrLevel): void {
+  const sel = document.getElementById('sel-range') as HTMLSelectElement | null;
+  if (sel) {
+    sel.value = `cefr-${level}`;
+    sel.dispatchEvent(new Event('change'));
   }
-  return 'C2';
-}
-
-function _getDailyGoalWords(level: CefrLevel): WordEntry[] {
-  const notKnown = (W as unknown as WordEntry[])
-    .filter(w => getCefrLevel(w[0]) === level && !state.known.has(w[0]));
-  return notKnown.slice(0, 20);
+  openPage('cards' as Parameters<typeof openPage>[0]);
+  (window.closePage as (() => void) | undefined)?.();
 }
 
 // ── Render ────────────────────────────────────────────────────
+
 export function renderLearningPath(): void {
   const el = document.getElementById('lp-content') as HTMLElement | null;
   if (!el) return;
 
-  const stats = _getCefrStats();
-  const currentLevel = _getCurrentCefrLevel();
-  const knownTotal   = state.known.size;
-  const lv = getLevel(knownTotal);
-  const todayWords   = _getDailyGoalWords(currentLevel);
+  const words = W as unknown as WordEntry[];
 
-  // Daily challenge words
+  // Track daily pace snapshot
+  _saveSnapshot(state.known.size);
+
+  const stats        = computeCefrStats(state.known, words);
+  const currentLevel = findCurrentLevel(stats);
+  const snapshots    = _loadSnapshots();
+  const pace         = computePersonalPace(snapshots);
+  const todayStr     = new Date().toISOString().slice(0, 10);
+  const lv           = getLevel(state.known.size);
+  const todayWords   = filterDailyWords(currentLevel, state.known, words);
+
+  // Save completion dates for newly-completed levels
+  const prevDates = _loadCompletionDates();
+  const newDates  = updateCompletionDates(stats, prevDates, todayStr);
+  if (JSON.stringify(newDates) !== JSON.stringify(prevDates)) _saveCompletionDates(newDates);
+
+  // Daily challenge section
   const dailyChallengeHtml = todayWords.length > 0 ? `
     <div class="lp-section">
       <div class="lp-section-title">📅 Сьогоднішній план — рівень ${currentLevel}</div>
       <div class="lp-day-words">
-        ${todayWords.slice(0,10).map(w => `
-          <div class="lp-word-chip" title="${w[1]}">
+        ${todayWords.map(w => `
+          <div class="lp-word-chip">
             <span class="lp-word">${w[0]}</span>
             <span class="lp-transl">${w[1]}</span>
           </div>
         `).join('')}
-        ${todayWords.length > 10 ? `<div class="lp-word-chip lp-more">+${todayWords.length-10} більше</div>` : ''}
       </div>
-      <button id="lp-start-btn" class="lp-start-btn">
+      <button class="lp-start-btn" data-lp-level="${currentLevel}">
         📚 Вчити слова ${currentLevel} зараз
       </button>
     </div>
@@ -95,16 +147,37 @@ export function renderLearningPath(): void {
     </div>
   `;
 
-  // CEFR progress bars
+  // CEFR progress rows
   const progressHtml = PLANS.map(plan => {
-    const s = stats[plan.level];
-    const meta = CEFR_META[plan.level];
+    const s         = stats[plan.level];
+    const meta      = CEFR_META[plan.level];
     const isCurrent = plan.level === currentLevel;
     const isComplete = s.pct >= 90;
-    const isLocked = false; // no locking — all levels accessible
+    const compDate  = newDates[plan.level];
+    const remaining = s.total - s.known;
+    const days      = estimateDays(remaining, pace);
+    const paceLabel = pace !== null && pace > 0
+      ? `твій темп: ${pace} сл/день`
+      : '20 сл/день';
+
+    const skillsHtml = plan.skills.map(sk => {
+      const gid = plan.grammarLinks[sk];
+      if (gid) {
+        return `<span class="lp-skill-tag lp-skill-link" data-grammar="${gid}" title="Відкрити граматику">✓ ${sk} ↗</span>`;
+      }
+      return `<span class="lp-skill-tag">✓ ${sk}</span>`;
+    }).join('');
+
+    const milestones = [25, 50, 75].map(m =>
+      `<div class="lp-milestone" style="left:${m}%"></div>`
+    ).join('');
+
+    const completionHtml = isComplete && compDate
+      ? `<div class="lp-completion-date">✓ Завершено ${_formatDate(compDate)}</div>`
+      : '';
 
     return `
-      <div class="lp-level-row${isCurrent?' lp-current':''}${isComplete?' lp-done':''}">
+      <div class="lp-level-row${isCurrent ? ' lp-current' : ''}${isComplete ? ' lp-done' : ''}">
         <div class="lp-level-header">
           <span class="lp-level-badge" style="background:${meta.color}22;color:${meta.color};border:1.5px solid ${meta.color}44;">
             ${isComplete ? '✓' : plan.level}
@@ -114,19 +187,22 @@ export function renderLearningPath(): void {
               ${plan.level} — ${meta.desc}
               ${isCurrent ? '<span class="lp-current-badge">← зараз</span>' : ''}
             </div>
-            <div class="lp-level-skills">${plan.skills.slice(0,2).join(' · ')}</div>
+            <div class="lp-level-skills">${plan.skills.slice(0, 2).join(' · ')}</div>
           </div>
           <div class="lp-level-stat">
             <div class="lp-stat-num" style="color:${meta.color}">${s.known}/${s.total}</div>
             <div class="lp-stat-pct">${s.pct}%</div>
           </div>
+          ${!isComplete ? `<button class="lp-learn-btn" data-lp-level="${plan.level}" style="border-color:${meta.color};color:${meta.color}">Вчити →</button>` : ''}
         </div>
         <div class="lp-progress-bar">
           <div class="lp-progress-fill" style="width:${s.pct}%;background:${meta.color};"></div>
+          ${milestones}
         </div>
+        ${completionHtml}
         <div class="lp-level-details">
-          ${plan.skills.map(sk => `<span class="lp-skill-tag">✓ ${sk}</span>`).join('')}
-          <span class="lp-days-est">~${plan.daysEst} днів (20 слів/день)</span>
+          ${skillsHtml}
+          <span class="lp-days-est">~${days} днів (${paceLabel})</span>
         </div>
       </div>
     `;
@@ -136,15 +212,18 @@ export function renderLearningPath(): void {
   const totalKnown = Object.values(stats).reduce((s, v) => s + v.known, 0);
   const totalWords  = Object.values(stats).reduce((s, v) => s + v.total, 0);
   const overallPct  = Math.round(totalKnown / totalWords * 100);
+  const paceDisplay = pace !== null && pace > 0
+    ? `⚡ ${pace} слів/день`
+    : '📈 Починай вчити — побачиш свій темп';
 
   el.innerHTML = `
-    <!-- Header -->
     <div class="lp-hero">
       <div class="lp-hero-left">
         <div class="lp-hero-level">${lv.name}</div>
         <div class="lp-hero-stats">
           <span>📚 ${totalKnown} / ${totalWords} слів</span>
           <span>📊 ${overallPct}% завершено</span>
+          <span class="lp-pace-display">${paceDisplay}</span>
         </div>
         <div class="lp-hero-bar">
           <div class="lp-hero-fill" style="width:${overallPct}%"></div>
@@ -159,22 +238,26 @@ export function renderLearningPath(): void {
 
     ${dailyChallengeHtml}
 
-    <!-- CEFR Progress -->
     <div class="lp-section">
       <div class="lp-section-title">📊 Прогрес за рівнями CEFR</div>
       <div class="lp-levels-list">${progressHtml}</div>
     </div>
   `;
 
-  // Start button — navigate to CEFR filter
-  document.getElementById('lp-start-btn')?.addEventListener('click', () => {
-    const sel = document.getElementById('sel-range') as HTMLSelectElement | null;
-    if (sel) {
-      sel.value = `cefr-${currentLevel}`;
-      sel.dispatchEvent(new Event('change'));
-    }
-    openPage('cards' as any);
-    (window.closePage as (() => void) | undefined)?.();
+  // Wire up "Start / Learn" buttons
+  el.querySelectorAll<HTMLButtonElement>('[data-lp-level]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lvl = btn.dataset.lpLevel as CefrLevel;
+      _navigateToLevel(lvl);
+    });
+  });
+
+  // Wire up grammar skill links
+  el.querySelectorAll<HTMLElement>('.lp-skill-link').forEach(tag => {
+    tag.addEventListener('click', () => {
+      const gid = tag.dataset.grammar!;
+      (window as unknown as Record<string, unknown>).jumpToGrammarRule?.(gid);
+    });
   });
 }
 

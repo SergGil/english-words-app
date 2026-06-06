@@ -138,6 +138,12 @@ export function openGrammar(): void {
   (window.openPage as ((p: string) => void) | undefined)?.('grammar');
 }
 
+export function jumpToGrammarRule(id: string): void {
+  _activeId = id;
+  openGrammar();
+}
+window.jumpToGrammarRule = jumpToGrammarRule;
+
 function closeGrammar(): void {
   (window.closePage as (() => void) | undefined)?.();
 }

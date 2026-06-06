@@ -3845,7 +3845,44 @@ body.dark .cefr-C2, body.sw .cefr-C2 { background: rgba(142,68,173,.18); }
 
 .lp-level-details { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .lp-skill-tag { font-size: .68rem; color: var(--text3); background: var(--border); border-radius: 5px; padding: 2px 7px; }
+.lp-skill-tag.lp-skill-link { cursor: pointer; color: var(--accent); background: rgba(0,200,100,.08); border: 1px solid rgba(0,200,100,.2); transition: background .15s; }
+.lp-skill-tag.lp-skill-link:hover { background: rgba(0,200,100,.18); }
 .lp-days-est  { font-size: .68rem; color: var(--text3); margin-left: auto; }
+
+/* Pace display */
+.lp-pace-display { font-weight: 600; color: var(--accent); }
+
+/* Learn button per level row */
+.lp-learn-btn {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1.5px solid;
+  background: transparent;
+  font-size: .72rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s, color .15s;
+}
+.lp-learn-btn:hover { background: rgba(0,200,100,.1); }
+
+/* Progress bar milestones */
+.lp-progress-bar { position: relative; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.lp-progress-fill { height: 100%; border-radius: 3px; transition: width .6s; }
+.lp-milestone {
+  position: absolute; top: 0; width: 1px; height: 100%;
+  background: rgba(255,255,255,.35);
+  pointer-events: none;
+}
+
+/* Completion date */
+.lp-completion-date {
+  font-size: .68rem;
+  color: #27ae60;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
 
 /* Mobile */
 @media (max-width: 480px) {
@@ -3853,6 +3890,7 @@ body.dark .cefr-C2, body.sw .cefr-C2 { background: rgba(142,68,173,.18); }
   .lp-hero-focus { display: flex; align-items: center; gap: 12px; text-align: left; padding: 8px 12px; }
   .lp-focus-level { font-size: 1.5rem; }
   .lp-level-details .lp-days-est { display: none; }
+  .lp-learn-btn { display: none; }
 }
 
 /* ── Story Mode ─────────────────────────────────────────────── */
