@@ -29,32 +29,59 @@ const PLANS: LevelPlan[] = [
   {
     level: 'A1', wordsGoal: 283,
     skills: ['Базове вітання', 'Числа і кольори', 'Сім\'я та тіло', 'Повсякденні дії'],
-    grammarLinks: { 'Повсякденні дії': 'present-simple' },
+    grammarLinks: {
+      'Базове вітання':   'greetings-intro',
+      'Числа і кольори':  'numbers-determiners',
+      'Повсякденні дії':  'present-simple',
+    },
   },
   {
     level: 'A2', wordsGoal: 883,
     skills: ['Опис людей/місць', 'Магазини і ціни', 'Подорожі', 'Минулі події'],
-    grammarLinks: { 'Минулі події': 'past-simple', 'Опис людей/місць': 'comparatives' },
+    grammarLinks: {
+      'Опис людей/місць': 'comparatives',
+      'Магазини і ціни':  'countable-uncountable',
+      'Подорожі':         'prepositions',
+      'Минулі події':     'past-simple',
+    },
   },
   {
     level: 'B1', wordsGoal: 1917,
     skills: ['Розмова про роботу', 'Новини та медіа', 'Вирішення проблем', 'Плани на майбутнє'],
-    grammarLinks: { 'Плани на майбутнє': 'future-forms', 'Розмова про роботу': 'modal-verbs' },
+    grammarLinks: {
+      'Розмова про роботу':  'modal-verbs',
+      'Новини та медіа':     'reported-speech',
+      'Вирішення проблем':   'advice-suggestions',
+      'Плани на майбутнє':   'future-forms',
+    },
   },
   {
     level: 'B2', wordsGoal: 1512,
     skills: ['Академічні тексти', 'Бізнес комунікація', 'Складні аргументи', 'Фільми без субтитрів'],
-    grammarLinks: { 'Академічні тексти': 'passive-voice', 'Складні аргументи': 'conditionals' },
+    grammarLinks: {
+      'Академічні тексти':   'passive-voice',
+      'Бізнес комунікація':  'business-english',
+      'Складні аргументи':   'conditionals',
+      // 'Фільми без субтитрів' — навичка слухання, не граматика
+    },
   },
   {
     level: 'C1', wordsGoal: 817,
     skills: ['Наукові статті', 'Переговори', 'Нюанси та ідіоми', 'Публічні виступи'],
-    grammarLinks: { 'Публічні виступи': 'register', 'Наукові статті': 'nominalisation' },
+    grammarLinks: {
+      'Наукові статті':   'nominalisation',
+      'Переговори':       'negotiation-language',
+      'Нюанси та ідіоми': 'idioms',
+      'Публічні виступи': 'register',
+    },
   },
   {
     level: 'C2', wordsGoal: 230,
     skills: ['Художня проза', 'Академічний стиль', 'Повне розуміння', 'Рівень носія'],
-    grammarLinks: { 'Академічний стиль': 'register' },
+    grammarLinks: {
+      'Академічний стиль': 'register',
+      // 'Художня проза', 'Повне розуміння', 'Рівень носія' — профіційні мілстоуни
+    },
   },
 ];
 

@@ -2982,6 +2982,288 @@ export const GRAMMAR: GrammarCategory[] = [
         ],
       },
 
+      // ── Вітання та знайомство ─────────────────────────────────
+      {
+        id: 'greetings-intro', title: 'Вітання та знайомство — A1', emoji: '👋',
+        sections: [
+          {
+            type: 'intro',
+            text: 'Вміння представитися та привітатися — перший крок у вивченні англійської. Ці конструкції фіксовані: їх треба знати напам\'ять.',
+          },
+          {
+            type: 'table', title: 'Офіційне vs Неофіційне вітання',
+            rows: [
+              ['Ситуація', 'Неофіційно', 'Офіційно'],
+              ['Вітання', 'Hi! / Hey!', 'Good morning / afternoon / evening.'],
+              ['Як справи?', 'How are you? / How\'s it going?', 'How do you do? / How are you?'],
+              ['Відповідь', 'Fine, thanks! / Not bad.', 'Very well, thank you. / I\'m doing well.'],
+              ['До побачення', 'Bye! / See you later!', 'Goodbye. / It was a pleasure.'],
+            ],
+          },
+          {
+            type: 'formula', title: 'Знайомство — структура',
+            rows: [
+              ['✅ Ім\'я', 'My name is / I\'m', '+ ім\'я', 'My name is Anna. / I\'m Tom.'],
+              ['✅ Звідки', 'I\'m from', '+ країна/місто', 'I\'m from Ukraine.'],
+              ['✅ Де живу', 'I live in', '+ місто', 'I live in Kyiv.'],
+              ['✅ Робота', 'I work as / I\'m a', '+ посада', 'I\'m a teacher.'],
+              ['✅ Вік', 'I\'m', '+ число + years old', 'I\'m 25 years old.'],
+              ['✅ Задоволений', 'Nice to meet you! / Pleased to meet you!', '', ''],
+            ],
+          },
+          {
+            type: 'examples', title: 'Типовий діалог знайомства',
+            rows: [
+              ['Hi! My name\'s Kate. What\'s your name?', 'Привіт! Мене звати Кейт. Як тебе звати?'],
+              ['I\'m Alex. Nice to meet you!', 'Я Алекс. Приємно познайомитися!'],
+              ['Where are you from?', 'Звідки ти?'],
+              ['I\'m from Ukraine. I live in Kyiv.', 'Я з України. Я живу в Києві.'],
+              ['What do you do?', 'Чим ти займаєшся?'],
+              ['I\'m a software engineer. And you?', 'Я програміст. А ти?'],
+            ],
+          },
+          {
+            type: 'table', title: 'Питальні слова для знайомства',
+            rows: [
+              ['Питання', 'Відповідь (шаблон)'],
+              ['What\'s your name?', 'My name is... / I\'m...'],
+              ['Where are you from?', 'I\'m from... / I come from...'],
+              ['Where do you live?', 'I live in... / I\'m based in...'],
+              ['What do you do (for a living)?', 'I work as... / I\'m a... / I study...'],
+              ['How old are you?', 'I\'m... years old.'],
+            ],
+          },
+          {
+            type: 'tip',
+            title: 'Nice to meet you vs How do you do?',
+            text: '"Nice to meet you!" — природне і часте, підходить для будь-якої ситуації.\n"How do you do?" — дуже формальне (британський стиль). Відповідь на нього: "How do you do?" (повторити питання!).',
+          },
+        ],
+      },
+
+      // ── Поради та пропозиції ──────────────────────────────────
+      {
+        id: 'advice-suggestions', title: 'Поради та пропозиції — B1', emoji: '🗣️',
+        sections: [
+          {
+            type: 'intro',
+            text: 'Англійська має кілька способів дати пораду або зробити пропозицію — від м\'яких ("maybe you could") до прямих ("you must"). Вибір залежить від ситуації та стосунків.',
+          },
+          {
+            type: 'table', title: 'Структури для порад',
+            rows: [
+              ['Конструкція', 'Сила', 'Приклад'],
+              ['You should / shouldn\'t', 'Нейтральна порада', 'You should see a doctor.'],
+              ['You ought to', 'Легкий обов\'язок', 'You ought to apologize.'],
+              ['You had better (\'d better)', 'Попередження/наполегливо', 'You\'d better hurry — it\'s late.'],
+              ['Why don\'t you...?', 'М\'яка порада', 'Why don\'t you try talking to him?'],
+              ['If I were you, I would...', 'Особиста порада', 'If I were you, I\'d take the job.'],
+              ['I suggest / recommend + -ing', 'Формальна порада', 'I suggest taking a break.'],
+              ['It would be better to...', 'Нейтральна рекомендація', 'It would be better to call first.'],
+              ['Have you tried + -ing?', 'Нова ідея', 'Have you tried changing the settings?'],
+            ],
+          },
+          {
+            type: 'table', title: 'Пропозиції (Suggestions)',
+            rows: [
+              ['Конструкція', 'Контекст', 'Приклад'],
+              ['Let\'s + infinitive', 'Разом / неформально', 'Let\'s take a taxi.'],
+              ['Shall we + infinitive?', 'Пропозиція / запит', 'Shall we meet at 6?'],
+              ['What about / How about + -ing?', 'Ідея', 'What about going to the cinema?'],
+              ['We could + infinitive', 'Варіант', 'We could try the new restaurant.'],
+              ['I suggest + -ing / that + clause', 'Формальна пропозиція', 'I suggest leaving early.'],
+            ],
+          },
+          {
+            type: 'examples', title: 'Приклади порад',
+            rows: [
+              ['You should drink more water every day.', 'Тобі варто пити більше води щодня.'],
+              ['You\'d better leave now or you\'ll miss the train.', 'Краще виходь зараз, а то спізнишся на потяг.'],
+              ['If I were you, I wouldn\'t take that offer.', 'На твоєму місці я б не брав цю пропозицію.'],
+              ['Why don\'t you ask for help?', 'Чому б тобі не попросити про допомогу?'],
+              ['I recommend reading the instructions first.', 'Раджу спочатку прочитати інструкцію.'],
+              ['Have you tried restarting the computer?', 'Ти пробував перезавантажити комп\'ютер?'],
+            ],
+          },
+          {
+            type: 'note',
+            title: 'had better vs should',
+            text: '<b>Should</b> — загальна порада: "You should exercise more."\n<b>Had better</b> — наполегливе попередження з наслідком: "You\'d better call her — she\'s worried."\nПомилково плутати: had better НЕ є минулим часом!',
+          },
+        ],
+      },
+
+      // ── Ділова комунікація ────────────────────────────────────
+      {
+        id: 'business-english', title: 'Ділова комунікація — B2', emoji: '💼',
+        sections: [
+          {
+            type: 'intro',
+            text: '<b>Business English</b> — це не інша мова, а інший регістр. Ключові відмінності: формальна лексика, пасивний стан, ввічливі запити та чіткі структури листів.',
+          },
+          {
+            type: 'table', title: 'Структура ділового листа / email',
+            rows: [
+              ['Частина', 'Фраза'],
+              ['Відкриття', 'Dear Mr/Ms Smith, / To Whom It May Concern,'],
+              ['Мета листа', 'I am writing to... / I am contacting you regarding...'],
+              ['Посилання', 'With reference to your email of... / Following our conversation...'],
+              ['Запит', 'Could you please... / I would be grateful if you could...'],
+              ['Прикладення', 'Please find attached... / I am enclosing...'],
+              ['Очікування відповіді', 'I look forward to hearing from you.'],
+              ['Закриття', 'Yours sincerely, (ім\'я відомо) / Yours faithfully, (невідомо)'],
+            ],
+          },
+          {
+            type: 'table', title: 'Ввічливі запити (Polite Requests)',
+            rows: [
+              ['Пряме (неформально)', 'Ввічливе (формально)'],
+              ['Send me the report.', 'Could you please send me the report?'],
+              ['I need this by Friday.', 'I would appreciate receiving this by Friday.'],
+              ['Call me back.', 'I would be grateful if you could return my call.'],
+              ['We want to meet.', 'We would like to arrange a meeting.'],
+              ['Fix the problem.', 'We kindly request that this matter be resolved.'],
+            ],
+          },
+          {
+            type: 'examples', title: 'Ключові ділові фрази',
+            rows: [
+              ['I am writing to enquire about the position.', 'Пишу, щоб дізнатися про вакансію.'],
+              ['Please do not hesitate to contact me.', 'Будь ласка, не вагайтеся зв\'язатися зі мною.'],
+              ['We regret to inform you that...', 'З жалем повідомляємо, що...'],
+              ['I would like to take this opportunity to...', 'Хотів би скористатися нагодою, щоб...'],
+              ['Further to my previous email...', 'На додаток до мого попереднього листа...'],
+              ['As per our agreement, the deadline is...', 'Згідно з нашою угодою, термін...'],
+            ],
+          },
+          {
+            type: 'table', title: 'Корисна лексика на нарадах',
+            rows: [
+              ['Ситуація', 'Фрази'],
+              ['Почати нараду', 'Shall we get started? / Let\'s begin.'],
+              ['Передати слово', 'I\'d like to hand over to... / Over to you, John.'],
+              ['Уточнити', 'Could you clarify what you mean by...?'],
+              ['Погодитися', 'That\'s a valid point. / I\'d agree with that.'],
+              ['Не погодитися', 'With respect, I see it differently. / I\'m not sure that\'s the case.'],
+              ['Підсумувати', 'To summarise... / In conclusion...'],
+            ],
+          },
+          {
+            type: 'tip',
+            title: 'Золоте правило ділової мови',
+            text: 'Уникай: contractions (I\'m → I am), phrasal verbs (find out → ascertain), надто прямих наказів.\nВикористовуй: passive voice, hedging (tend to, may, might), nominalization (discuss → discussion).',
+          },
+        ],
+      },
+
+      // ── Мова переговорів ──────────────────────────────────────
+      {
+        id: 'negotiation-language', title: 'Мова переговорів — C1', emoji: '🤝',
+        sections: [
+          {
+            type: 'intro',
+            text: 'Переговори вимагають точної мови: поступки, умови, відмова без конфлікту, пом\'якшення позицій. Англійська переговорна мова спирається на conditionals, hedging та tentative language.',
+          },
+          {
+            type: 'table', title: 'Ключові стратегії та фрази',
+            rows: [
+              ['Стратегія', 'Фрази'],
+              ['Відкриття позиції', 'Our position is... / We are looking for... / What we\'re proposing is...'],
+              ['Поступка', 'We\'d be willing to... / We could consider... / That might be possible if...'],
+              ['Умова', 'On condition that... / Provided that... / As long as...'],
+              ['Відмова без конфлікту', 'I\'m afraid that\'s not quite what we had in mind. / That would be difficult for us.'],
+              ['Пауза / обдумування', 'I\'d need to think about that. / Could we come back to this point?'],
+              ['Підсумок', 'So, if I understand correctly... / Let me recap what we\'ve agreed...'],
+            ],
+          },
+          {
+            type: 'table', title: 'Conditionals у переговорах',
+            rows: [
+              ['Структура', 'Використання', 'Приклад'],
+              ['If you... , we could...', 'Реальна поступка', 'If you order 500 units, we could offer a 10% discount.'],
+              ['If you were to... , we would...', 'Гіпотетична пропозиція', 'If you were to extend the deadline, we would accept the terms.'],
+              ['Provided that... , we\'ll...', 'Чітка умова', 'Provided that the price is fixed, we\'ll sign today.'],
+              ['Unless... , we can\'t...', 'Межа переговорів', 'Unless the quality improves, we can\'t renew the contract.'],
+            ],
+          },
+          {
+            type: 'examples', title: 'Переговорні фрази',
+            rows: [
+              ['That\'s a reasonable point, but we\'d need something in return.', 'Це слушна думка, але нам потрібно щось натомість.'],
+              ['We\'re flexible on the timeline if you can meet us on the price.', 'Ми гнучкі щодо термінів, якщо ви підете нам назустріч у ціні.'],
+              ['I understand your position, but I\'m not in a position to agree to that.', 'Я розумію вашу позицію, але не можу на це погодитися.'],
+              ['Let\'s see if we can find some common ground here.', 'Давайте подивимось, чи можемо знайти спільну мову.'],
+              ['That\'s outside our budget, but perhaps we could explore alternatives.', 'Це поза нашим бюджетом, але можливо варто розглянути альтернативи.'],
+              ['I think we\'re close to a deal — just a few points to finalise.', 'Думаю, ми близько до угоди — лишилось кілька моментів.'],
+            ],
+          },
+          {
+            type: 'note',
+            title: 'Tentative language (пом\'якшення)',
+            text: 'Замість категоричних тверджень використовуй пом\'якшувачі:\n→ "That\'s wrong" → "I\'m not entirely sure that\'s accurate."\n→ "We can\'t do that" → "That would be rather difficult for us at this stage."\n→ "The price is too high" → "The price point gives us some concern."',
+          },
+        ],
+      },
+
+      // ── Ідіоми та усталені вирази ─────────────────────────────
+      {
+        id: 'idioms', title: 'Ідіоми та усталені вирази — C1', emoji: '🎨',
+        sections: [
+          {
+            type: 'intro',
+            text: '<b>Ідіома</b> — вираз, значення якого не виводиться з окремих слів. "It\'s raining cats and dogs" ≠ кішки і собаки. Знання ідіом відрізняє B2 від C1.',
+          },
+          {
+            type: 'table', title: 'Ідіоми з частинами тіла (Body idioms)',
+            rows: [
+              ['Ідіома', 'Значення', 'Приклад'],
+              ['cost an arm and a leg', 'дуже дорого коштувати', 'That jacket cost an arm and a leg!'],
+              ['keep an eye on', 'стежити за', 'Can you keep an eye on my bag?'],
+              ['pull someone\'s leg', 'жартувати / дурити', 'Are you serious or pulling my leg?'],
+              ['bite the bullet', 'стиснути зуби і зробити', 'Just bite the bullet and call him.'],
+              ['get cold feet', 'злякатися в останній момент', 'She got cold feet before the speech.'],
+              ['have a gut feeling', 'мати передчуття', 'I have a gut feeling this will work.'],
+              ['turn a blind eye', 'закривати очі на щось', 'The manager turned a blind eye to it.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Ідіоми з часом (Time idioms)',
+            rows: [
+              ['Ідіома', 'Значення', 'Приклад'],
+              ['once in a blue moon', 'дуже рідко', 'He calls once in a blue moon.'],
+              ['in the nick of time', 'якраз вчасно', 'We arrived in the nick of time.'],
+              ['at the drop of a hat', 'негайно / без вагань', 'She\'d help you at the drop of a hat.'],
+              ['burning the midnight oil', 'працювати до ночі', 'I\'ve been burning the midnight oil.'],
+              ['kill time', 'вбивати час', 'We killed time at the airport.'],
+              ['better late than never', 'краще пізно, ніж ніколи', 'Better late than never, I suppose.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Ідіоми про ситуації та рішення',
+            rows: [
+              ['Ідіома', 'Значення', 'Приклад'],
+              ['hit the nail on the head', 'влучити в крапку', 'You hit the nail on the head!'],
+              ['in hot water', 'у халепі', 'He\'s in hot water with his boss.'],
+              ['spill the beans', 'розказати секрет', 'Who spilled the beans?'],
+              ['beat around the bush', 'ходити навкруги', 'Stop beating around the bush.'],
+              ['bite off more than you can chew', 'взяти більше, ніж можеш', 'Don\'t bite off more than you can chew.'],
+              ['under the weather', 'недобре себе почувати', 'I\'m feeling a bit under the weather.'],
+              ['the ball is in your court', 'тепер твій хід / рішення за тобою', 'The ball is in your court now.'],
+            ],
+          },
+          {
+            type: 'tip',
+            title: 'Як вчити ідіоми',
+            text: 'Не вчи списком — вчи в контексті речення. Запам\'ятай одне яскраве речення з кожною ідіомою.\nГрупуй за темою (тіло, час, природа) — так легше запам\'ятати через асоціації.\nПеревір себе: чи можеш пояснити значення без словника?',
+          },
+          {
+            type: 'note',
+            title: 'Ідіома vs Фразовий дієслово',
+            text: '<b>Ідіома</b>: цілий вираз з переносним значенням — "kick the bucket" (померти).\n<b>Фразовий дієслово</b>: дієслово + прийменник/прислівник — "give up" (здатися).\nОбидва — фіксовані, обидва треба вчити як одиницю.',
+          },
+        ],
+      },
+
     ],
   },
 
