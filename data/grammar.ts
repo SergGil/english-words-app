@@ -1317,6 +1317,390 @@ export const GRAMMAR: GrammarCategory[] = [
       },
 
       {
+        id: 'relative-clauses', title: 'Відносні речення (Relative Clauses)', emoji: '🔗',
+        sections: [
+          { type: 'intro', text: 'Відносні речення уточнюють або доповнюють іменник. Є два типи: визначальні (Defining) — без ком, та невизначальні (Non-defining) — з комами.' },
+          {
+            type: 'table', title: 'Відносні займенники',
+            rows: [
+              ['Займенник', 'Відноситься до', 'Приклад'],
+              ['who', 'людина (підмет/додаток)', 'The man who called is my boss.'],
+              ['whom', 'людина (додаток, формально)', 'The person whom I met was kind.'],
+              ['which', 'предмет або тварина', 'The book which I bought is great.'],
+              ['that', 'людина або предмет (тільки defining)', 'The car that she drives is red.'],
+              ['whose', 'приналежність', 'The girl whose bag was stolen cried.'],
+              ['where', 'місце', 'The city where I was born is small.'],
+              ['when', 'час', 'The year when we met was 2020.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Defining vs Non-defining',
+            rows: [
+              ['', 'Defining (без ком)', 'Non-defining (з комами)'],
+              ['Значення', 'Уточнює — без нього незрозуміло про кого/що', 'Додає інфо — без нього речення залишається зрозумілим'],
+              ['Займенник', 'who / which / that / whose', 'who / which / whose (НЕ that)'],
+              ['Коми', 'НЕ вживаються', 'Обов\'язкові коми'],
+              ['Приклад', 'The woman who lives next door is a nurse.', 'My sister, who lives in Paris, is a nurse.'],
+            ],
+          },
+          { type: 'tip', title: 'Коли можна опустити займенник',
+            text: 'Якщо відносний займенник є додатком (object), його можна опустити:\n"The book (that) I read was amazing." ✅\nЯкщо займенник є підметом (subject) — опустити не можна:\n"The man who called is here." ❌ "The man called is here."',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['The student who got the highest mark is Maria.', 'Студентка, яка отримала найвищу оцінку — Марія. (defining)'],
+              ['Shakespeare, who wrote Hamlet, was born in 1564.', 'Шекспір, який написав Гамлета, народився у 1564. (non-defining)'],
+              ['Is this the file (that) you were looking for?', 'Це той файл, який ти шукав? (that — опущено)'],
+              ["She lives in a house whose roof is green.", 'Вона живе в будинку із зеленим дахом.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'used-to', title: 'Used to / Be used to / Get used to', emoji: '🔁',
+        sections: [
+          { type: 'intro', text: 'Три схожі конструкції з різними значеннями — одна з найпоширеніших точок плутанини.' },
+          {
+            type: 'table', title: 'Порівняльна таблиця',
+            rows: [
+              ['Конструкція', 'Структура', 'Значення', 'Приклад'],
+              ['used to + V₁', 'used to + інфінітив', 'Звичка/стан у минулому, якої більше немає', 'I used to smoke. (тепер не курю)'],
+              ['would + V₁', 'would + інфінітив', 'Повторна дія в минулому (НЕ для станів)', 'We would go to the beach every summer.'],
+              ['be used to + V-ing', 'am/is/are used to + герундій', 'Звик до чогось (зараз)', 'I am used to working late.'],
+              ['get used to + V-ing', 'get/got used to + герундій', 'Звикати до чогось (процес)', 'She is getting used to the cold.'],
+            ],
+          },
+          { type: 'formula', title: 'Структура used to',
+            rows: [
+              ['✅ (+)', 'Всі особи', 'used to + V₁', '→ He used to play tennis.'],
+              ['❌ (−)', 'Всі особи', "didn't use to + V₁", "→ She didn't use to drink coffee."],
+              ['❓ (?)', 'Всі особи', 'Did + use to + V₁?', '→ Did you use to live here?'],
+            ],
+          },
+          { type: 'note', title: 'would НЕ вживається зі статичними дієсловами',
+            text: 'would НЕ можна вжити зі stative verbs (know, love, have, believe):\n❌ "I would know him." → ✅ "I used to know him."\n❌ "We would have a dog." → ✅ "We used to have a dog."',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['I used to be very shy.', 'Я колись був дуже сором\'язливим. (минула риса — більше немає)'],
+              ['We would walk to school every day.', 'Ми щодня ходили до школи пішки. (повторна дія в минулому)'],
+              ['He is used to driving on the left.', 'Він звик їздити по лівій стороні. (звик — сейчас)'],
+              ["She'll get used to the new city soon.", 'Вона скоро звикне до нового міста. (процес звикання)'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'linking-words', title: 'Сполучники та зв\'язки (Linking Words)', emoji: '🧩',
+        sections: [
+          { type: 'intro', text: 'Linking words з\'єднують речення та ідеї. Є різні групи залежно від логічного зв\'язку: протиставлення, додавання, причина/наслідок, приклад.' },
+          {
+            type: 'table', title: 'Протиставлення та контраст',
+            rows: [
+              ['Слово/фраза', 'Структура', 'Приклад'],
+              ['however', 'на початку/в середині речення', 'It was cold. However, we went out.'],
+              ['although / even though', '+ підрядне речення', 'Although it was cold, we went out.'],
+              ['despite / in spite of', '+ noun / V-ing', 'Despite the cold, we went out.'],
+              ['whereas / while', '+ підрядне (порівняння)', 'She is tall, whereas her sister is short.'],
+              ['yet / but', 'сполучник', 'He is poor yet happy.'],
+              ['on the other hand', 'початок речення', 'On the other hand, prices are rising.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Додавання',
+            rows: [
+              ['Слово/фраза', 'Значення', 'Приклад'],
+              ['moreover / furthermore', 'крім того, до того ж', 'Moreover, the food was delicious.'],
+              ['in addition (to)', 'на додаток', 'In addition to English, she speaks French.'],
+              ['besides', 'до того ж, крім того', "Besides, it's too expensive."],
+              ['also / as well / too', 'також', 'She sings. She also plays guitar.'],
+              ['not only... but also', 'не лише... але й', 'Not only is he smart, but he\'s also kind.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Причина та наслідок',
+            rows: [
+              ['Слово/фраза', 'Структура', 'Приклад'],
+              ['because', '+ підрядне', 'She stayed home because she was sick.'],
+              ['because of / due to', '+ noun / V-ing', 'Due to the rain, the match was cancelled.'],
+              ['therefore / thus / hence', 'наслідок (початок речення)', 'She worked hard; therefore, she succeeded.'],
+              ['as a result / consequently', 'наслідок', 'As a result, prices increased.'],
+              ['so (that)', 'мета / наслідок', 'She studied so that she could pass.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Приклад, уточнення, висновок',
+            rows: [
+              ['Функція', 'Слово/фраза', 'Приклад'],
+              ['Приклад', 'for example / for instance / such as', 'For example, cats and dogs are popular pets.'],
+              ['Уточнення', 'in other words / that is (to say)', 'In other words, it\'s too expensive.'],
+              ['Висновок', 'in conclusion / to sum up / overall', 'In conclusion, the results are positive.'],
+              ['Послідовність', 'firstly / then / finally / subsequently', 'Firstly, mix the ingredients. Then bake.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'countable-uncountable', title: 'Злічувані та незлічувані іменники', emoji: '🧮',
+        sections: [
+          { type: 'intro', text: 'Злічувані іменники (Countable) можна рахувати: a book / two books. Незлічувані (Uncountable) — не мають множини і не вживаються з a/an.' },
+          {
+            type: 'table', title: 'Порівняння',
+            rows: [
+              ['', 'Countable (злічувані)', 'Uncountable (незлічувані)'],
+              ['Однина', 'a car, an apple, a chair', '— (не має)'],
+              ['Множина', 'cars, apples, chairs', '— (не має)'],
+              ['Артикль', 'a/an + однина; the + будь-яке', 'the або ∅; НЕ a/an'],
+              ['Квантифікатори', 'many, a few, few, several', 'much, a little, little'],
+              ['A lot of / some / any', 'обидва типи', 'обидва типи'],
+            ],
+          },
+          {
+            type: 'table', title: 'Типові незлічувані (часто плутають)',
+            rows: [
+              ['Іменник', 'Чому незлічуваний', 'Як сказати "один/два"'],
+              ['advice', 'a piece of advice / some advice', ''],
+              ['information', 'a piece of information', ''],
+              ['news', '"the news is" (не are!)', 'a piece of news'],
+              ['furniture', 'a piece of furniture', ''],
+              ['luggage / baggage', 'a bag, a suitcase', ''],
+              ['money', 'a coin, a note, a sum of money', ''],
+              ['work', 'a job, a task, a piece of work', ''],
+              ['research', 'a study, a piece of research', ''],
+              ['progress', 'a step forward', ''],
+              ['knowledge', 'a fact, a piece of knowledge', ''],
+              ['weather', 'a sunny day', ''],
+              ['traffic', 'a car, a vehicle', ''],
+            ],
+          },
+          {
+            type: 'table', title: 'Іменники з двома значеннями',
+            rows: [
+              ['Іменник', 'Незлічуване', 'Злічуване'],
+              ['hair', 'hair — волосся (загально)', 'a hair — одна волосинка'],
+              ['light', 'light — світло', 'a light — лампа, джерело світла'],
+              ['glass', 'glass — скло (матеріал)', 'a glass — склянка'],
+              ['paper', 'paper — папір', 'a paper — газета, документ'],
+              ['time', 'time — час (загально)', 'a time — раз, випадок'],
+              ['room', 'room — місце, простір', 'a room — кімната'],
+            ],
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['I need some advice. / Can you give me a piece of advice?', 'Мені потрібна порада.'],
+              ['The news was shocking. (не "were"!)', 'Новини були шокуючими.'],
+              ['I have little time but a few ideas.', 'У мене мало часу, але кілька ідей.'],
+              ['She has beautiful hair. / I found a hair in my soup.', 'У неї гарне волосся. / Я знайшов волосину в супі.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'adjective-order', title: 'Порядок прикметників', emoji: '📐',
+        sections: [
+          { type: 'intro', text: 'Коли перед іменником стоїть кілька прикметників, вони вживаються у суворо визначеному порядку. Порушення цього порядку звучить неприродно.' },
+          {
+            type: 'table', title: 'Порядок (OSASCOMP)',
+            rows: [
+              ['1. Opinion (думка)', 'beautiful, lovely, boring, awful', ''],
+              ['2. Size (розмір)', 'big, small, tiny, enormous', ''],
+              ['3. Age (вік)', 'old, young, ancient, new', ''],
+              ['4. Shape (форма)', 'round, square, flat, triangular', ''],
+              ['5. Colour (колір)', 'red, blue, dark, light', ''],
+              ['6. Origin (походження)', 'French, wooden, British, Chinese', ''],
+              ['7. Material (матеріал)', 'wooden, metal, plastic, silk', ''],
+              ['8. Purpose (призначення)', 'sleeping (bag), dining (table)', ''],
+              ['→ NOUN', '', ''],
+            ],
+          },
+          { type: 'tip', title: 'Мнемоніка OSASCOMP',
+            text: 'Opinion – Size – Age – Shape – Colour – Origin – Material – Purpose\n"A beautiful small old round red Italian metal dining table."',
+          },
+          { type: 'note', title: 'На практиці — не більше 3-4 прикметників',
+            text: 'У живому мовленні рідко вживають більше 2-3 прикметників поспіль. Перелік з 7+ — лише для пояснення правила.',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['a lovely old French house', '✅ думка → вік → походження'],
+              ['a big black leather bag', '✅ розмір → колір → матеріал'],
+              ['some delicious hot Italian pasta', '✅ думка → температура → походження'],
+              ['an old red wooden chair', '✅ вік → колір → матеріал'],
+              ['❌ a red old big bag → ✅ a big old red bag', 'розмір перед віком перед кольором'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'adverbs', title: 'Прислівники (Adverbs)', emoji: '💨',
+        sections: [
+          { type: 'intro', text: 'Прислівники модифікують дієслова, прикметники або інші прислівники. Відповідають на питання: як? де? коли? як часто? якою мірою?' },
+          {
+            type: 'table', title: 'Типи прислівників',
+            rows: [
+              ['Тип', 'Питання', 'Приклади'],
+              ['Manner (образу дії)', 'Як?', 'quickly, slowly, well, hard, fast'],
+              ['Place (місця)', 'Де? Куди?', 'here, there, inside, abroad, everywhere'],
+              ['Time (часу)', 'Коли?', 'now, yesterday, soon, already, still, yet'],
+              ['Frequency (частоти)', 'Як часто?', 'always, usually, often, sometimes, rarely, never'],
+              ['Degree (ступеня)', 'Якою мірою?', 'very, quite, rather, fairly, extremely, too, enough'],
+            ],
+          },
+          {
+            type: 'table', title: 'Утворення (прикметник → прислівник)',
+            rows: [
+              ['Правило', 'Прикметник', 'Прислівник'],
+              ['Просто + -ly', 'quick, slow, careful', 'quickly, slowly, carefully'],
+              ['Кінцева -y → -ily', 'happy, easy, heavy', 'happily, easily, heavily'],
+              ['Кінцева -le → -ly', 'gentle, simple', 'gently, simply'],
+              ['Кінцева -ic → -ically', 'automatic, basic', 'automatically, basically'],
+              ['Неправильні', 'good, fast, hard, early', 'well, fast, hard, early'],
+              ['Однакові форми', 'fast car / drive fast', 'hard work / work hard'],
+            ],
+          },
+          {
+            type: 'table', title: 'Позиція в реченні',
+            rows: [
+              ['Тип', 'Позиція', 'Приклад'],
+              ['Frequency (частоти)', 'Перед основним дієсловом, після be', 'She often reads. / He is always late.'],
+              ['Manner (образу дії)', 'Після дієслова або об\'єкта', 'She sings beautifully. / He drove fast.'],
+              ['Place та Time', 'Зазвичай в кінці речення', 'I saw him yesterday at school.'],
+              ['Degree (ступеня)', 'Перед прикметником/прислівником', 'It\'s very cold. / She speaks quite well.'],
+            ],
+          },
+          { type: 'note', title: 'Увага: late / lately, hard / hardly',
+            text: 'late = пізно: "She arrived late."\nlately = нещодавно: "I haven\'t seen her lately."\n\nhard = сильно, наполегливо: "He works hard."\nhardly = ледве, майже ні: "I can hardly hear you."',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['She spoke so quietly that nobody heard her.', 'Вона говорила так тихо, що ніхто не почув.'],
+              ['He is always on time.', 'Він завжди вчасно. (після be)'],
+              ['I hardly ever go to the cinema.', 'Я майже ніколи не ходжу в кіно.'],
+              ['The test was extremely difficult.', 'Тест був надзвичайно складним.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'too-enough-so-such', title: 'Too / Enough / So / Such', emoji: '⚖️',
+        sections: [
+          { type: 'intro', text: 'Чотири конструкції для вираження ступеня або інтенсивності. Кожна має свою структуру та значення.' },
+          {
+            type: 'formula', title: 'TOO — "надто" (негативне значення: більше ніж потрібно)',
+            rows: [
+              ['✅ Структура', 'too + adj/adv', '→ It\'s too hot to drink.'],
+              ['✅ Структура', 'too + adj/adv + for + noun', '→ This is too difficult for beginners.'],
+              ['✅ Структура', 'too + adj/adv + to + V', '→ She\'s too tired to work.'],
+            ],
+          },
+          {
+            type: 'formula', title: 'ENOUGH — "достатньо"',
+            rows: [
+              ['✅ Структура', 'adj/adv + enough', '→ Is it warm enough?'],
+              ['✅ Структура', 'enough + noun', '→ I don\'t have enough time.'],
+              ['✅ Структура', 'adj + enough + to + V', '→ She\'s old enough to drive.'],
+            ],
+          },
+          {
+            type: 'formula', title: 'SO — "так, настільки" (+ прикметник або прислівник)',
+            rows: [
+              ['✅ Структура', 'so + adj/adv', '→ It was so cold!'],
+              ['✅ Структура', 'so + adj/adv + that', '→ It was so cold that we stayed home.'],
+            ],
+          },
+          {
+            type: 'formula', title: 'SUCH — "такий" (+ іменникова група)',
+            rows: [
+              ['✅ Структура', 'such + a/an + adj + noun', '→ It was such a cold day!'],
+              ['✅ Структура', 'such + adj + noun (мн.)', '→ They are such nice people.'],
+              ['✅ Структура', 'such + adj + noun + that', '→ It was such a storm that trees fell.'],
+            ],
+          },
+          { type: 'tip', title: 'So vs Such',
+            text: 'SO + прикметник/прислівник: "so beautiful / so quickly"\nSUCH + іменникова група: "such a beautiful girl / such kind people"\n\n✅ She is so beautiful.\n✅ She is such a beautiful girl.',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['The coffee was too hot to drink.', 'Кава була надто гарячою, щоб пити.'],
+              ["I don't have enough money to buy it.", 'У мене не вистачає грошей, щоб купити це.'],
+              ['The film was so boring that I fell asleep.', 'Фільм був таким нудним, що я заснув.'],
+              ['It was such a long journey!', 'Це була така довга поїздка!'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'mixed-conditionals', title: 'Змішані умовні (Mixed Conditionals)', emoji: '🔀🔀',
+        sections: [
+          { type: 'intro', text: 'Mixed Conditionals поєднують умову одного типу з наслідком іншого — для вираження зв\'язку між минулим та теперішнім (або навпаки).' },
+          {
+            type: 'table', title: 'Два типи змішаних умовних',
+            rows: [
+              ['Тип', 'IF-частина', 'Головна частина', 'Значення'],
+              ['3rd → 2nd\n(минуле → теперішнє)', 'If + Past Perfect', 'would + V₁', 'Нереальна дія в минулому → результат у теперішньому'],
+              ['2nd → 3rd\n(теперішнє → минуле)', 'If + Past Simple', 'would have + V₃', 'Нереальний стан зараз → наслідок у минулому'],
+            ],
+          },
+          { type: 'tip', title: 'Приклади з поясненням',
+            text: '3rd → 2nd:\n"If I had studied medicine, I would be a doctor now."\n(Не навчився у минулому → зараз не є лікарем)\n\n2nd → 3rd:\n"If I were braver, I would have spoken to her."\n(Я не сміливий зараз → тому не заговорив тоді)',
+          },
+          {
+            type: 'table', title: 'Порівняння з чистими типами',
+            rows: [
+              ['Тип', 'Приклад'],
+              ['2nd Conditional (чистий)', 'If I had money, I would buy a car. (зараз)'],
+              ['3rd Conditional (чистий)', 'If I had had money, I would have bought a car. (минуле)'],
+              ['Mixed 3rd→2nd', 'If I had saved money, I would be rich now. (минуле → теперішнє)'],
+              ['Mixed 2nd→3rd', 'If I were more careful, I wouldn\'t have made that mistake. (зараз → минуле)'],
+            ],
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['If she had taken the job, she would be living in Paris now.', 'Якби вона взяла ту роботу, зараз жила б у Парижі.'],
+              ['If I spoke Spanish, I would have understood that conversation.', 'Якби я говорив іспанською, я б зрозумів ту розмову.'],
+              ['If he had slept earlier, he wouldn\'t be tired now.', 'Якби він ліг раніше, зараз не був би втомленим.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'participle-clauses', title: 'Дієприкметникові звороти (Participle Clauses)', emoji: '📎',
+        sections: [
+          { type: 'intro', text: 'Participle clauses — скорочені підрядні речення з дієприкметником замість підрядного речення. Роблять мову стислішою та формальнішою.' },
+          {
+            type: 'table', title: 'Три типи',
+            rows: [
+              ['Тип', 'Структура', 'Значення', 'Приклад'],
+              ['Present Participle', 'V-ing + ...', 'активна дія, одночасна або наступна', 'Walking home, I noticed a strange car.'],
+              ['Past Participle', 'V₃ + ...', 'пасивна дія або завершена перед основною', 'Built in 1900, the bridge is still strong.'],
+              ['Perfect Participle', 'Having + V₃ + ...', 'активна, завершена ДО основної дії', 'Having finished the report, she left the office.'],
+            ],
+          },
+          { type: 'note', title: 'Підмет має бути однаковим!',
+            text: '✅ Seeing the sign, I stopped the car. (я побачив → я зупинив)\n❌ Seeing the sign, the car stopped. (хто побачив? Машина?)\n\nЯкщо підмети різні — підрядне речення обов\'язкове:\n"When I saw the sign, the car stopped."',
+          },
+          { type: 'tip', title: 'Заміна підрядних речень',
+            text: 'Because she was tired → Being tired, she went to bed.\nAfter he had eaten → Having eaten, he washed the dishes.\nWhen I arrived → Arriving at the station, I called a taxi.\nAs it was built in 1900 → Built in 1900, the bridge is historic.',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['Not knowing what to say, he left the room.', 'Не знаючи що сказати, він вийшов з кімнати.'],
+              ['Having read the book, she recommended it to everyone.', 'Прочитавши книгу, вона порадила її всім.'],
+              ['Surprised by the news, she sat down slowly.', 'Здивована новинами, вона повільно сіла.'],
+              ['Located near the centre, the hotel is very convenient.', 'Розташований біля центру, готель дуже зручний.'],
+            ],
+          },
+        ],
+      },
+
+      {
         id: 'causative-have-get', title: 'Каузатив (have/get)', emoji: '🔧',
         sections: [
           {
@@ -1433,6 +1817,80 @@ export const GRAMMAR: GrammarCategory[] = [
               ['wear', 'wore', 'worn', 'носити (одяг)'],
               ['win', 'won', 'won', 'перемагати'],
               ['write', 'wrote', 'written', 'писати'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'irregular-plurals', title: 'Неправильна множина іменників', emoji: '👥',
+        sections: [
+          { type: 'intro', text: 'Більшість іменників утворюють множину додаванням -s/-es. Але є група слів з нестандартними формами — їх треба вивчити окремо.' },
+          {
+            type: 'table', title: 'Внутрішня зміна голосної (Vowel change)',
+            rows: [
+              ['Однина', 'Множина', 'Переклад'],
+              ['man', 'men', 'чоловік / чоловіки'],
+              ['woman', 'women', 'жінка / жінки'],
+              ['child', 'children', 'дитина / діти'],
+              ['tooth', 'teeth', 'зуб / зуби'],
+              ['foot', 'feet', 'нога / ноги'],
+              ['goose', 'geese', 'гуска / гуси'],
+              ['mouse', 'mice', 'миша / миші'],
+              ['louse', 'lice', 'воша / воші'],
+              ['ox', 'oxen', 'бик / воли'],
+            ],
+          },
+          {
+            type: 'table', title: 'Кінцева -f / -fe → -ves',
+            rows: [
+              ['Однина', 'Множина'],
+              ['leaf', 'leaves'],
+              ['knife', 'knives'],
+              ['wife', 'wives'],
+              ['wolf', 'wolves'],
+              ['shelf', 'shelves'],
+              ['life', 'lives'],
+              ['half', 'halves'],
+              ['loaf', 'loaves'],
+              ['⚠️ Винятки: roof → roofs, cliff → cliffs, belief → beliefs', '', ''],
+            ],
+          },
+          {
+            type: 'table', title: 'Латинські та грецькі запозичення',
+            rows: [
+              ['Однина', 'Множина', 'Переклад'],
+              ['analysis', 'analyses', 'аналіз'],
+              ['basis', 'bases', 'основа'],
+              ['crisis', 'crises', 'криза'],
+              ['thesis', 'theses', 'теза'],
+              ['phenomenon', 'phenomena', 'явище'],
+              ['criterion', 'criteria', 'критерій'],
+              ['datum', 'data', 'дані'],
+              ['medium', 'media', 'засіб / медіа'],
+              ['nucleus', 'nuclei', 'ядро'],
+              ['cactus', 'cacti / cactuses', 'кактус'],
+              ['index', 'indices / indexes', 'індекс'],
+            ],
+          },
+          {
+            type: 'table', title: 'Незмінні форми (однина = множина)',
+            rows: [
+              ['Слово', 'Приклад'],
+              ['sheep', 'one sheep / three sheep'],
+              ['fish', 'one fish / many fish (або fishes)'],
+              ['deer', 'one deer / two deer'],
+              ['species', 'one species / many species'],
+              ['aircraft', 'one aircraft / ten aircraft'],
+              ['series', 'a series / two series'],
+            ],
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['The children were playing in the garden.', 'Діти гралися в саду.'],
+              ['There are two geese on the lake.', 'На озері два гусаки.'],
+              ['The data show interesting results.', 'Дані показують цікаві результати. (data = множина!)'],
+              ['She caught three fish in the river.', 'Вона впіймала трьох риб у річці.'],
             ],
           },
         ],
