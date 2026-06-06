@@ -9,19 +9,28 @@ const contentEl= document.getElementById('grammar-content')! as HTMLElement;
 
 let _activeId = '';
 
+// ── Level sort ────────────────────────────────────────────────
+function _levelOrder(title: string): number {
+  const m = title.match(/—\s*(A1|A2|B1|B2|C1|C2)/);
+  if (!m) return 99;
+  return ({A1:1, A2:2, B1:3, B2:4, C1:5, C2:6} as Record<string,number>)[m[1]] ?? 99;
+}
+
 // ── Nav tree ──────────────────────────────────────────────────
 function _renderNav(): void {
-  navEl.innerHTML = GRAMMAR.map(cat => `
+  navEl.innerHTML = GRAMMAR.map(cat => {
+    const sorted = [...cat.rules].sort((a, b) => _levelOrder(a.title) - _levelOrder(b.title));
+    return `
     <div class="gr-cat">
       <div class="gr-cat-title">${cat.emoji} ${cat.title}</div>
       <div class="gr-cat-rules">
-        ${cat.rules.map(r => `
+        ${sorted.map(r => `
           <button class="gr-nav-btn${r.id === _activeId ? ' gr-nav-active' : ''}"
             data-id="${r.id}">${r.emoji} ${r.title}</button>
         `).join('')}
       </div>
     </div>
-  `).join('');
+  `}).join('');
 
   navEl.querySelectorAll<HTMLButtonElement>('.gr-nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
