@@ -400,6 +400,68 @@ export const GRAMMAR: GrammarCategory[] = [
         ],
       },
 
+      {
+        id: 'past-perfect-cont', title: 'Past Perfect Continuous', emoji: '⏪🔄',
+        sections: [
+          { type: 'intro', text: 'Минулий доконано-тривалий час. Дія тривала протягом певного часу ДО іншої дії або моменту в минулому. Акцент на тривалості процесу.' },
+          {
+            type: 'formula', title: 'Структура',
+            rows: [
+              ['✅ (+)', 'Всі особи', 'had been + V-ing', '→ She had been waiting for an hour.'],
+              ['❌ (−)', 'Всі особи', "hadn't been + V-ing", "→ He hadn't been sleeping well."],
+              ['❓ (?)', 'Всі особи', 'Had + been + V-ing?', '→ How long had they been arguing?'],
+            ],
+          },
+          { type: 'tip', title: 'Past Perfect vs Past Perfect Continuous',
+            text: 'She had read 3 books. (скільки — акцент на результаті/кількості)\nShe had been reading all evening. (як довго — акцент на тривалості процесу)',
+          },
+          { type: 'tip', title: 'Видимі результати в минулому',
+            text: 'Her eyes were red because she had been crying. (очі були червоні — результат тривалої дії)\nHe was tired because he had been working all day. (втомився — результат)',
+          },
+          { type: 'markers', title: 'Маркери часу',
+            items: ['for + тривалість (for 2 hours)', 'since + момент (since morning)', 'how long?', 'all day / all week', 'before', 'when', 'by the time'],
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['I was exhausted because I had been running for an hour.', 'Я був виснажений, бо пробіг годину.'],
+              ['She had been studying French for 5 years before she moved to Paris.', 'Вона вчила французьку 5 років до переїзду в Париж.'],
+              ['How long had he been waiting when you arrived?', 'Як довго він чекав, коли ти прийшов?'],
+              ['The ground was wet — it had been raining.', 'Земля була мокрою — йшов дощ.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'future-perfect-cont', title: 'Future Perfect Continuous', emoji: '🔮🔄',
+        sections: [
+          { type: 'intro', text: 'Майбутній доконано-тривалий час. Дія буде тривати протягом певного часу до конкретного моменту в майбутньому. Акцент на тривалості процесу, а не результаті.' },
+          {
+            type: 'formula', title: 'Структура',
+            rows: [
+              ['✅ (+)', 'Всі особи', 'will have been + V-ing', '→ I will have been working here for 10 years.'],
+              ['❌ (−)', 'Всі особи', "won't have been + V-ing", "→ She won't have been sleeping long."],
+              ['❓ (?)', 'Всі особи', 'Will + have been + V-ing?', '→ How long will you have been studying?'],
+            ],
+          },
+          { type: 'tip', title: 'Future Perfect vs Future Perfect Continuous',
+            text: 'By 2030, I will have written 5 books. (скільки — результат, кількість)\nBy 2030, I will have been writing for 20 years. (як довго — тривалість процесу)',
+          },
+          { type: 'markers', title: 'Маркери часу',
+            items: ['by + час (by next year)', 'for + тривалість (for 3 hours)', 'how long?', 'by the time'],
+          },
+          { type: 'note', title: 'Вживається рідко',
+            text: 'Future Perfect Continuous — один з найрідших часів у щоденному мовленні. Найчастіше вживається для підкреслення тривалості дії до певного моменту в майбутньому.',
+          },
+          { type: 'examples', title: 'Приклади',
+            rows: [
+              ['By December, I will have been learning English for 2 years.', 'До грудня я вивчатиму англійську вже 2 роки.'],
+              ['When she retires, she will have been teaching for 30 years.', 'Коли вона вийде на пенсію, вона викладатиме вже 30 років.'],
+              ['Will you have been driving for long when you reach London?', 'Ти їдеш довго до того, як доберешся до Лондона?'],
+            ],
+          },
+        ],
+      },
 
     ],
   },
@@ -447,6 +509,109 @@ export const GRAMMAR: GrammarCategory[] = [
               ['The coffee is cold.', 'Кава холодна. (та, що ми замовили)'],
               ['She plays the piano.', 'Вона грає на піаніно. (the + інструменти)'],
               ['He works as a doctor.', 'Він працює лікарем.'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'articles-zero', title: 'Нульовий артикль (∅)', emoji: '⭕',
+        sections: [
+          {
+            type: 'intro',
+            text: 'Нульовий артикль (∅) — ситуації, коли артикль не вживається взагалі. Це одна з найпоширеніших помилок українських мовців.',
+          },
+          {
+            type: 'table', title: 'Коли НЕ вживається артикль',
+            rows: [
+              ['Категорія', 'Правило', 'Приклади'],
+              ['Власні імена', 'Імена людей, міста, країни (більшість)', 'John, Ukraine, Paris, London'],
+              ['Мови', 'Назви мов без артикля', 'She speaks English / French / German.'],
+              ['Предмети та науки', 'Навчальні дисципліни', 'I study math / history / biology.'],
+              ['Спорт та ігри', 'Назви видів спорту', 'He plays football / tennis / chess.'],
+              ['Їжа та напої (загалом)', 'Коли говоримо загалом, не конкретно', 'I like coffee. / She eats rice. / Bread is healthy.'],
+              ['Абстрактні іменники', 'Загальні поняття', 'Love is blind. / Time flies. / Knowledge is power.'],
+              ['Транспортні засоби', 'by + вид транспорту', 'by car / by train / by plane / on foot'],
+              ['Прийом їжі', 'breakfast, lunch, dinner без уточнення', 'Have breakfast. / Let\'s have lunch.'],
+              ['Пори року (загалом)', 'У загальному контексті (Am.E)', 'Summer is hot. / I love winter.'],
+              ['Дні тижня та місяці', 'У ствердних реченнях без the', 'See you on Monday. / She was born in May.'],
+            ],
+          },
+          {
+            type: 'table', title: 'Установи: ∅ vs THE — різниця в значенні',
+            rows: [
+              ['∅ (функція / призначення)', 'THE (конкретне місце/будівля)', 'Переклад різниці'],
+              ['go to school (учень)', 'go to the school (відвідати будівлю)', 'вчитися / відвідати школу'],
+              ['go to church (молитися)', 'go to the church (будівля)', 'йти до церкви (обряд) / будівля'],
+              ['go to hospital (лікуватися, Brit)', 'go to the hospital (навідати)', 'лягти в лікарню / піти в лікарню'],
+              ['go to prison (злочинець)', 'go to the prison (навідати)', 'потрапити у в\'язницю / відвідати'],
+              ['go to bed', 'sit on the bed', 'лягти спати / сидіти на ліжку'],
+            ],
+          },
+          {
+            type: 'note', title: 'Музичні інструменти — THE',
+            text: 'Артикль THE вживається з музичними інструментами:\nShe plays the piano / the guitar / the violin.\nАле: He plays drums (у рок-групі, розмовне — без артикля).',
+          },
+          {
+            type: 'examples', title: 'Приклади',
+            rows: [
+              ['Life is short. Enjoy every moment.', 'Життя коротке. (абстрактне — без артикля)'],
+              ['She goes to school by bus.', 'Вона їздить до школи автобусом. (∅ + ∅)'],
+              ['I had breakfast before leaving.', 'Я поснідав перед виходом.'],
+              ['He plays the violin beautifully.', 'Він чудово грає на скрипці. (the + інструмент)'],
+              ['I love summer, but winter is hard.', 'Я люблю літо, але зима важка. (загальне)'],
+            ],
+          },
+        ],
+      },
+
+      {
+        id: 'articles-geography', title: 'Артиклі з географією', emoji: '🌍',
+        sections: [
+          {
+            type: 'intro',
+            text: 'Географічні назви — одне з найскладніших правил артиклів. Одні назви вживаються з THE, інші — без.',
+          },
+          {
+            type: 'table', title: 'THE — обов\'язковий',
+            rows: [
+              ['Категорія', 'Приклади'],
+              ['Річки, моря, океани', 'the Nile, the Thames, the Black Sea, the Pacific (Ocean), the Amazon'],
+              ['Гірські системи', 'the Alps, the Himalayas, the Rocky Mountains, the Carpathians'],
+              ['Острівні групи та архіпелаги', 'the Maldives, the Philippines, the Canary Islands, the British Isles'],
+              ['Пустелі', 'the Sahara, the Gobi, the Mojave'],
+              ['Канали і протоки', 'the Panama Canal, the English Channel, the Suez Canal'],
+              ['Держави з "Republic/Kingdom/States"', 'the USA, the UK, the UAE, the Czech Republic'],
+              ['Регіони', 'the Middle East, the North Pole, the Balkans, the Far East'],
+              ['Газети та готелі', 'the Times, the Guardian, the Hilton, the Ritz'],
+            ],
+          },
+          {
+            type: 'table', title: '∅ — БЕЗ артикля',
+            rows: [
+              ['Категорія', 'Приклади'],
+              ['Більшість країн', 'France, Ukraine, Germany, Japan, Brazil, Canada'],
+              ['Міста і села', 'Paris, Kyiv, New York, London, Tokyo'],
+              ['Континенти', 'Europe, Asia, Africa, Australia, America'],
+              ['Окремі острови', 'Sicily, Cyprus, Cuba, Majorca'],
+              ['Окремі гори', 'Mount Everest, Ben Nevis, Kilimanjaro'],
+              ['Озера', 'Lake Baikal, Lake Victoria, Lake Ontario'],
+              ['Вулиці та площі', 'Oxford Street, Times Square, Trafalgar Square'],
+              ['Аеропорти та станції', 'Heathrow Airport, Waterloo Station'],
+            ],
+          },
+          {
+            type: 'tip', title: 'Підказка: множина та описові назви → THE',
+            text: 'Якщо назва у множині або містить описове слово (Republic, Kingdom, States, Islands) — зазвичай потрібен THE:\nthe United States, the Netherlands, the Philippines, the British Isles\n\nОдинична назва без опису — зазвичай без артикля:\nFrance, Italy, Japan, Sicily, Everest.',
+          },
+          {
+            type: 'examples', title: 'Приклади',
+            rows: [
+              ['The Nile is the longest river in Africa.', 'Ніл — найдовша річка в Африці. (THE + річка)'],
+              ['I have never been to Japan.', 'Я ніколи не був у Японії. (∅ + країна)'],
+              ['She climbed Mount Everest last year.', 'Торік вона підкорила Еверест. (∅ + гора)'],
+              ['The Alps stretch across several countries.', 'Альпи простягаються через кілька країн. (THE + гори)'],
+              ['He lives near the Dead Sea.', 'Він живе біля Мертвого моря. (THE + море)'],
             ],
           },
         ],
