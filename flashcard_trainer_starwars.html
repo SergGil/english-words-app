@@ -150,7 +150,7 @@
     <div class="gb-block gb-streak-block">
       <div class="gb-streak-num">🔥 <span id="streak-num">0</span></div>
       <div class="gb-streak-label" data-i18n="cards.streakLabel">днів підряд</div>
-      <div id="shields-row" style="font-size:.7rem;color:var(--text3);margin-top:2px;min-height:14px;"></div>
+      <div id="shields-row" class="gb-shields-row"></div>
       <div class="combo-box" id="combo-box" style="margin-top:4px;">
         🔥<span id="combo-num">0</span><span class="combo-x" id="combo-x"></span>
       </div>
@@ -175,15 +175,12 @@
 
     <!-- Block 3: Level XP progress -->
     <div class="gb-block gb-level-block" id="level-box" title="Прогрес рівня">
-      <!-- Level name row -->
+      <!-- Level name row: badge, next-level (hidden on very narrow), level number — all in one line -->
       <div class="gb-level-name-row">
         <span class="level-badge" id="level-badge">🌌 Цивільний</span>
-        <span class="gb-level-num" id="gb-level-num">1</span>
-      </div>
-      <!-- Next level (hidden on very narrow) -->
-      <div class="gb-level-next-row">
         <span class="gb-level-arrow">→</span>
         <span class="gb-level-next" id="gb-level-next"></span>
+        <span class="gb-level-num" id="gb-level-num">1</span>
       </div>
       <!-- Progress bar -->
       <div class="gb-level-track">

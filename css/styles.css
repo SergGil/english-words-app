@@ -2064,6 +2064,14 @@ body.sw .mode-name { color: #d4e8f8; }
   margin-top: 2px;
   white-space: nowrap;
 }
+.gb-shields-row {
+  font-size: .7rem;
+  color: var(--text3);
+}
+.gb-shields-row:not(:empty) {
+  margin-top: 2px;
+  min-height: 14px;
+}
 
 /* Block 2: Daily Goal */
 .gb-goal-block { flex: 2; text-align: center; }
@@ -2089,28 +2097,21 @@ body.sw .mode-name { color: #d4e8f8; }
 /* Block 3: Level XP */
 .gb-level-block { flex: 1.5; }
 
-/* Level name row: badge + number */
+/* Level name row: badge → next level → level number, all on one line */
 .gb-level-name-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  flex-wrap: nowrap;
   gap: 4px;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
+  overflow: hidden;
 }
 .gb-level-num {
   font-size: .75rem;
   font-weight: 800;
   flex-shrink: 0;
   opacity: .7;
-}
-
-/* Next level row */
-.gb-level-next-row {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  margin-bottom: 3px;
-  overflow: hidden;
+  margin-left: auto;
 }
 .gb-level-arrow {
   font-size: .62rem;
@@ -3715,8 +3716,8 @@ body.sw   #ov-search-input { color: var(--text); }
     white-space: nowrap;
   }
 
-  /* Hide next-level arrow row — save space */
-  .gb-level-next-row { display: none; }
+  /* Hide next-level arrow + name — save space on narrow screens */
+  .gb-level-arrow, .gb-level-next { display: none; }
 
   /* XP text: more visible */
   .gb-level-xp {

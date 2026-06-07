@@ -1335,7 +1335,7 @@ window._dailyCache         = state._dailyCache;
 // _srsStatsDirty moved to state
 window.idx                 = idx;
 window.flipped             = flipped;
-window.cw = cw;
+Object.defineProperty(window, 'cw', { configurable: true, get: function() { return cw; } });
 // ── Setters for module-scope primitives used by legacy files ──
 window.setIdx = function(i: number) { idx = i; };
 window.setDeck = function(d: WordEntry[]) { deck = d; window.deck = deck; };
