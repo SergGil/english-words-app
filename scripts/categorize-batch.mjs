@@ -38,7 +38,8 @@ for (const word of slice) {
   const key = word.toLowerCase();
   const cats = themedKeys.get(key) || ['📦 Інше'];
   if (themedKeys.has(key)) themedCount++; else otherCount++;
-  lines.push(`  '${word.replace(/'/g, "\\'")}':[${cats.map(c => `'${c}'`).join(',')}],`);
+  const storeKey = key === 'dna' ? 'DNA' : key;
+  lines.push(`  '${storeKey.replace(/'/g, "\\'")}':[${cats.map(c => `'${c.replace(/'/g, "\\'")}'`).join(',')}],`);
 }
 
 const insertion = '\n  // ── Auto-batch ─────────────────────────────────────────────\n' + lines.join('\n') + '\n';

@@ -28,7 +28,8 @@ for (const [word, cats] of Object.entries(batch)) {
   const key = word.toLowerCase();
   if (existing.has(key)) { skipped++; continue; }
   existing.add(key);
-  lines.push(`  '${word.replace(/'/g, "\\'")}':[${cats.map(c => `'${c}'`).join(',')}],`);
+  const storeKey = key === 'dna' ? 'DNA' : key;
+  lines.push(`  '${storeKey.replace(/'/g, "\\'")}':[${cats.map(c => `'${c.replace(/'/g, "\\'")}'`).join(',')}],`);
   added++;
 }
 
