@@ -39,10 +39,18 @@ describe('WORD_CATEGORIES', () => {
     expect(WORD_CATEGORIES).not.toBeNull();
   });
 
-  it('has the same keys as CATEGORY_LIST', () => {
-    const wcKeys = Object.keys(WORD_CATEGORIES).sort();
-    const clSorted = [...CATEGORY_LIST].sort();
-    expect(wcKeys).toEqual(clSorted);
+  it('every key is a known category from CATEGORY_LIST', () => {
+    const wcKeys = Object.keys(WORD_CATEGORIES);
+    for (const key of wcKeys) expect(CATEGORY_LIST).toContain(key);
+  });
+
+  it('every category except the 📦 Інше fallback has assigned words', () => {
+    // 📦 Інше is a fallback for getCategoriesForWord — every real word now
+    // has an explicit category, so it intentionally has no RAW entries.
+    for (const cat of CATEGORY_LIST) {
+      if (cat === '📦 Інше') continue;
+      expect(WORD_CATEGORIES[cat]?.length ?? 0).toBeGreaterThan(0);
+    }
   });
 
   it('every category has a non-empty words array', () => {
