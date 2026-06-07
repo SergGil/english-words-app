@@ -12,16 +12,12 @@ const tabUa    = document.getElementById('idioms-tab-ua')!  as HTMLButtonElement
 let _tab: 'en' | 'ua' = 'en';
 let _query = '';
 
-function _meaningLabel(): string {
-  return _tab === 'en' ? '🇺🇦 значення' : '🇬🇧 англійський відповідник';
-}
-
 function _renderCard(idiom: Idiom): string {
   return `
     <div class="idiom-card">
       <div class="idiom-head">
         <span class="idiom-phrase">${idiom.emoji ?? ''} ${idiom.phrase}</span>
-        <span class="idiom-meaning">— ${_meaningLabel()}: ${idiom.meaning}</span>
+        <span class="idiom-meaning">— ${idiom.meaning}</span>
       </div>
       <div class="idiom-example">
         ${idiom.exampleSrc}<br>
