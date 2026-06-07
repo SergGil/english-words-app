@@ -7,6 +7,7 @@ import { W } from '../../data/words.js';
 import { getLevel } from '../features/game.ts';
 import { openPage } from '../features/sidebar.ts';
 import type { WordEntry } from '../../src/types.js';
+import type { PaceSnapshot } from './learning-path-logic.ts';
 import {
   computeCefrStats, findCurrentLevel, filterDailyWords,
   computePersonalPace, estimateDays, updateCompletionDates,
@@ -283,7 +284,7 @@ export function renderLearningPath(): void {
   el.querySelectorAll<HTMLElement>('.lp-skill-link').forEach(tag => {
     tag.addEventListener('click', () => {
       const gid = tag.dataset.grammar!;
-      (window as unknown as Record<string, unknown>).jumpToGrammarRule?.(gid);
+      (window as unknown as { jumpToGrammarRule?: (id: string) => void }).jumpToGrammarRule?.(gid);
     });
   });
 }
