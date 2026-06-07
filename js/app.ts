@@ -3,7 +3,7 @@ import type { WordEntry, SRSData, GameData, ModeStats, Achievement, Level } from
 import { _lzLoad, _lzSave, saveKnown, saveSRS }    from './core/storage.ts';
 import { W }                                       from '../data/words.js';
 import { SVG, getIllus }                           from '../data/illustrations.js';
-import { WORD_CATEGORIES }                         from '../data/categories.js';
+import { WORD_CATEGORIES, getCategoriesForWord }    from '../data/categories.js';
 import { loadWikiImage, _imgCache, _idb,
          _saveImgCache, _getPixabayKey,
          resetImgCache }                           from './core/images.ts';
@@ -204,6 +204,14 @@ function render() {
       cefrEl.textContent = level;
       cefrEl.className = 'cefr-badge cefr-' + level;
       cefrEl.style.display = '';
+    }
+    // ── Category badge ────────────────────────────────────────
+    var catEl = document.getElementById('wcategory') as HTMLElement | null;
+    if (catEl) {
+      const cats = getCategoriesForWord(cw[0]);
+      catEl.textContent = cats[0] || '';
+      catEl.title = cats.join(', ');
+      catEl.style.display = cats[0] ? '' : 'none';
     }
     var tr = $e('wtrans');
     // ── Автовизначення формату даних ──

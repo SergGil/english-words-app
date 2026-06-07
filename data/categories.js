@@ -7937,3 +7937,8 @@ for (const [word, cats] of Object.entries(RAW)) {
     WORD_CATEGORIES[cat].push(word);
   }
 }
+
+// ── Word → categories lookup ──────────────────────────────────
+export function getCategoriesForWord(word) {
+  return RAW[word.toLowerCase()] ?? ['📦 Інше'];
+}

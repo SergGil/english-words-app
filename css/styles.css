@@ -3839,6 +3839,27 @@ body.dark .cefr-C2, body.sw .cefr-C2 { background: rgba(142,68,173,.18); }
 }
 
 /* ══════════════════════════════════════════
+   🏷️ CATEGORY BADGE
+   ══════════════════════════════════════════ */
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: .68rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 1.5px solid var(--border, rgba(127,127,127,.3));
+  background: rgba(127,127,127,.1);
+  color: var(--text2, inherit);
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .category-badge { font-size: .62rem; padding: 1px 5px; }
+}
+
+/* ══════════════════════════════════════════
    🎯 LEARNING PATH PAGE
    ══════════════════════════════════════════ */
 
