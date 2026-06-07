@@ -92,9 +92,12 @@
       <div class="title-row">
         <div class="title">English Words</div>
         <button id="title-sw-toggle" class="title-sw-toggle" title="Зоряні Війни — швидке перемикання теми">⚔️</button>
-        <button id="lang-toggle" class="lang-toggle" title="Мова меню / Menu language">UA</button>
+        <div id="lang-toggle" class="lang-toggle" title="Мова меню / Menu language">
+          <button class="lang-opt" data-lang="ua">UA</button>
+          <button class="lang-opt" data-lang="en">EN</button>
+        </div>
       </div>
-      <div class="subtitle">Картка <span id="cidx">1</span> · Вивчено: <span id="cknown">0</span></div>
+      <div class="subtitle"><span data-i18n="cards.cardLabel">Картка</span> <span id="cidx">1</span> · <span data-i18n="cards.learnedLabel">Вивчено</span>: <span id="cknown">0</span></div>
       <button id="profile-btn" class="profile-btn" style="display:none">🧑 <span>Гравець 1</span> ▾</button>
     </div>
     <div class="controls">
@@ -146,7 +149,7 @@
     <!-- Block 1: Streak + Combo -->
     <div class="gb-block gb-streak-block">
       <div class="gb-streak-num">🔥 <span id="streak-num">0</span></div>
-      <div class="gb-streak-label">днів підряд</div>
+      <div class="gb-streak-label" data-i18n="cards.streakLabel">днів підряд</div>
       <div id="shields-row" style="font-size:.7rem;color:var(--text3);margin-top:2px;min-height:14px;"></div>
       <div class="combo-box" id="combo-box" style="margin-top:4px;">
         🔥<span id="combo-num">0</span><span class="combo-x" id="combo-x"></span>
@@ -156,7 +159,7 @@
     <!-- Block 2: Daily goal -->
     <div class="gb-block gb-goal-block">
       <div class="gb-goal-header">
-        <span class="gb-label">Ціль на сьогодні</span>
+        <span class="gb-label" data-i18n="cards.dailyGoal">Ціль на сьогодні</span>
         <span class="goal-set" id="goal-set-btn" title="Змінити ціль">⚙️</span>
       </div>
       <div class="gb-goal-big">
@@ -166,7 +169,7 @@
         <div class="goal-fill" id="goal-fill" style="width:0%"></div>
       </div>
       <div class="gb-goal-footer">
-        <span class="goal-done-badge" id="goal-done">🎉 Ціль досягнута!</span>
+        <span class="goal-done-badge" id="goal-done" data-i18n="cards.goalDone">🎉 Ціль досягнута!</span>
       </div>
     </div>
 
@@ -227,9 +230,9 @@
 
   <div class="card-scene">
   <div class="card" id="card">
-    <span class="swipe-hint-right" id="sh-right">✓ Знаю</span>
-    <span class="swipe-hint-left" id="sh-left">Далі →</span>
-    <span class="swipe-hint-up" id="sh-up">👁 Переклад</span>
+    <span class="swipe-hint-right" id="sh-right" data-i18n="cards.know">✓ Знаю</span>
+    <span class="swipe-hint-left" id="sh-left" data-i18n="cards.next">Далі →</span>
+    <span class="swipe-hint-up" id="sh-up" data-i18n="cards.translation">👁 Переклад</span>
     <div class="card-face" id="card-front">
     <div class="card-meta">
       <span class="card-num" id="wnum">#1</span><span class="known-badge">✓ Знаю <button class="unmark-btn" id="btn-unmark" title="Прибрати з вивчених" onclick="event.stopPropagation()">✕</button></span>
@@ -253,7 +256,7 @@
         <div id="srs-next" style="display:none" class="srs-next"></div>
         <div class="transl" id="wtransl">—</div>
         <div class="divider"></div>
-        <div class="ex-label">Приклад</div>
+        <div class="ex-label" data-i18n="cards.example">Приклад</div>
         <div class="ex-row">
           <div class="ex-texts">
             <span class="ex-en" id="exen">—</span><button class="speak-btn speak-ex-btn" id="speak-ex" title="Вимовити приклад">🔊</button>
@@ -277,27 +280,27 @@
     </div>
   
 
-  <p class="hint">Натисни на картку — побачиш переклад</p>
+  <p class="hint" data-i18n="cards.hint">Натисни на картку — побачиш переклад</p>
 
   <!-- Actions bar — immediately after hint, before extra info -->
   <div class="actions-bar">
     <div class="actions-bar-center">
-      <button class="btn" id="btn-prev" title="Попередня картка">← Назад</button>
+      <button class="btn" id="btn-prev" title="Попередня картка"><span data-i18n="cards.back">← Назад</span></button>
       <button class="btn btn-auto" id="btn-auto" title="Авто-режим">▶ Авто</button>
       <button class="btn" id="btn-shuf" title="Перемішати" style="font-size:14px;">🔀</button>
       <button class="btn" id="btn-search" title="Пошук по словнику (Ctrl+F)" style="font-size:14px;">🔍</button>
       <button class="btn" id="btn-stats" title="Статистика" style="display:none"></button>
       <button class="btn btn-achievements" id="btn-achievements" title="Досягнення" style="display:none"></button>
       <button class="btn btn-modes-open" id="btn-modes-open" title="Режими навчання" style="display:none"></button>
-      <button class="btn" id="btn-next" title="Наступна картка">→ Далі</button>
+      <button class="btn" id="btn-next" title="Наступна картка"><span data-i18n="cards.forward">→ Далі</span></button>
     </div>
   </div>
   <div style="margin-top:8px;text-align:center;">
-    <button class="btn btn-know" id="btn-know" style="width:100%;max-width:360px;font-size:1.05rem;padding:14px 0;letter-spacing:.03em;">✓ Знаю</button>
+    <button class="btn btn-know" id="btn-know" style="width:100%;max-width:360px;font-size:1.05rem;padding:14px 0;letter-spacing:.03em;"><span data-i18n="cards.know">✓ Знаю</span></button>
   </div>
   <div style="margin-top:6px;text-align:center;">
     <button id="btn-quick-quiz" class="btn" title="5 питань з поточної колоди (Quick Quiz)"
-      style="width:100%;max-width:360px;font-size:.88rem;padding:9px 0;color:var(--accent);border-color:var(--accent);opacity:.85;">⚡ Quick Quiz — 5 питань</button>
+      style="width:100%;max-width:360px;font-size:.88rem;padding:9px 0;color:var(--accent);border-color:var(--accent);opacity:.85;"><span data-i18n="cards.quickQuiz">⚡ Quick Quiz — 5 питань</span></button>
   </div>
 
   <!-- Word Families — below action buttons -->
