@@ -126,19 +126,23 @@ document.getElementById('sb-idioms')?.addEventListener('click', () => openPage('
 document.getElementById('sb-learning-path')?.addEventListener('click', () => openPage('learning-path'));
 document.getElementById('sb-home')?.addEventListener('click', () => { closePage(); if (window.innerWidth <= 900) closeSidebar(); });
 
-// ── Theme toggles ──────────────────────────────────────────────
+// ── Theme toggles (in Settings page + quick toggle near the title) ──
 function _updateTogglePills(): void {
   // Dark theme pill reflects user preference (ew_theme), not SW-induced body.dark
   const isDark = localStorage.getItem('ew_theme') === 'dark';
   const isSW   = document.body.classList.contains('sw');
-  document.getElementById('sb-theme-pill')?.classList.toggle('on', isDark);
-  document.getElementById('sb-sw-pill')?.classList.toggle('on', isSW);
+  document.getElementById('set-theme-pill')?.classList.toggle('on', isDark);
+  document.getElementById('set-sw-pill')?.classList.toggle('on', isSW);
 }
-document.getElementById('sb-theme')?.addEventListener('click', () => {
+document.getElementById('set-theme')?.addEventListener('click', () => {
   document.getElementById('btn-theme')?.click();
   setTimeout(_updateTogglePills, 50);
 });
-document.getElementById('sb-sw')?.addEventListener('click', () => {
+document.getElementById('set-sw')?.addEventListener('click', () => {
+  document.getElementById('btn-sw')?.click();
+  setTimeout(_updateTogglePills, 50);
+});
+document.getElementById('title-sw-toggle')?.addEventListener('click', () => {
   document.getElementById('btn-sw')?.click();
   setTimeout(_updateTogglePills, 50);
 });

@@ -83,26 +83,16 @@
     </div>
   </div>
 
-  <div class="sidebar-footer sidebar-footer-compact">
-    <div class="sb-section-label">🎨 Теми</div>
-    <div class="sb-btn sb-toggle-row sb-toggle-row-compact" id="sb-theme">
-      <span class="sb-icon">🌙</span>
-      <span class="sb-label">Темна тема</span>
-      <span class="sb-toggle-pill" id="sb-theme-pill"></span>
-    </div>
-    <div class="sb-btn sb-toggle-row sb-toggle-row-compact" id="sb-sw">
-      <span class="sb-icon">⚔️</span>
-      <span class="sb-label">Star Wars</span>
-      <span class="sb-toggle-pill" id="sb-sw-pill"></span>
-    </div>
-  </div>
 </nav>
 
 <div class="app">
 
   <div class="header">
     <div class="header-left">
-      <div class="title">English Words</div>
+      <div class="title-row">
+        <div class="title">English Words</div>
+        <button id="title-sw-toggle" class="title-sw-toggle" title="Зоряні Війни — швидке перемикання теми">⚔️</button>
+      </div>
       <div class="subtitle">Картка <span id="cidx">1</span> · Вивчено: <span id="cknown">0</span></div>
       <button id="profile-btn" class="profile-btn" style="display:none">🧑 <span>Гравець 1</span> ▾</button>
     </div>
@@ -515,6 +505,24 @@
       <div class="page-header">
         <div class="page-title">⚙️ Налаштування</div>
         <button class="page-close-btn" data-close-page>✕</button>
+      </div>
+
+      <!-- Теми / зовнішній вигляд -->
+      <div class="settings-section">
+        <div class="settings-section-title">🎨 Теми</div>
+        <div class="settings-desc">Обери оформлення застосунку.</div>
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:2px;">
+          <div class="sb-toggle-row" id="set-theme" style="background:var(--bg);border-radius:10px;">
+            <span class="sb-icon">🌙</span>
+            <span class="sb-label">Темна тема</span>
+            <span class="sb-toggle-pill" id="set-theme-pill"></span>
+          </div>
+          <div class="sb-toggle-row" id="set-sw" style="background:var(--bg);border-radius:10px;">
+            <span class="sb-icon">⚔️</span>
+            <span class="sb-label">Star Wars</span>
+            <span class="sb-toggle-pill" id="set-sw-pill"></span>
+          </div>
+        </div>
       </div>
 
       <!-- Голос -->
