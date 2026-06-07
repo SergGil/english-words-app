@@ -831,6 +831,143 @@ const OXFORD = {
     'surely','temporarily','there','thus','together','totally',
     'typically','unless','until','usually','very','well','yet',
   ],
+  // ── Oxford 5000 Sport & Leisure vocabulary ───────────────────
+  sport_leisure: [
+    'amateur','arena','athlete','athletic','badminton','championship',
+    'coach','competitor','court','cricket','cycling','defeat','defender',
+    'draw','endurance','fan','final','fitness','goalkeeper','gym',
+    'gymnastics','hobby','hockey','league','leisure','marathon','medal',
+    'membership','opponent','pitch','playoff','professional','qualify',
+    'referee','relay','rival','round','score','spectator','sponsor',
+    'sportsmanship','squad','stadium','stamina','strategy','stretching',
+    'substitute','tactics','team spirit','tournament','trainer',
+    'training','trophy','umpire','venue','warm-up','workout',
+  ],
+
+  // ── Oxford 5000 Arts & Entertainment vocabulary ──────────────
+  arts_entertain: [
+    'abstract art','acoustic','actor','animation','art gallery',
+    'audition','ballet','biography','blockbuster','box office',
+    'cast','ceramics','choreography','cinema','classical music',
+    'comedy','composer','costume','critic','curator','director',
+    'drama','ensemble','exhibition','fiction','genre','illustration',
+    'improvisation','installation','lyrics','masterpiece','melody',
+    'memoir','musical','narrative','novelist','orchestra','painting',
+    'performance','plot','playwright','plot twist','portrait',
+    'premiere','production','protagonist','rehearsal','review',
+    'sculpture','screenplay','script','sequel','set design','soundtrack',
+    'spectacle','stage','studio','symphony','talent show','theatre',
+    'venue','villain',
+  ],
+
+  // ── Oxford 5000 Crime & Safety vocabulary ────────────────────
+  crime_safety: [
+    'alarm','arson','assault','burglar','burglary','CCTV','convict',
+    'detective','disorder','evacuate','evidence','felony','firearm',
+    'forensic','fraudster','getaway','hijack','hostage','interrogation',
+    'investigate','kidnap','larceny','manslaughter','misdemeanour',
+    'mugging','offender','perpetrator','pickpocket','poaching','raid',
+    'ransom','robbery','sabotage','security guard','shoplifting',
+    'smuggling','stalking','suspicious','swindler','theft','thief',
+    'trespassing','vandalism','victim','vigilante','watchdog',
+  ],
+
+  // ── Oxford 5000 Family & Relationships vocabulary ────────────
+  family_relations: [
+    'affection','ancestor','bond','bride','bridegroom','companionship',
+    'compatible','custody','dependant','divorce','engagement','estranged',
+    'extended family','fiancé','foster','genealogy','generation gap',
+    'godparent','guardian','heir','heritage','household','in-laws',
+    'inheritance','intimacy','kinship','matrimony','nephew','niece',
+    'nuclear family','offspring','only child','orphan','rapport',
+    'reconciliation','reunion','separation','sibling','single parent',
+    'spouse','stepfather','stepmother','toddler','twin','upbringing',
+    'widow','widower',
+  ],
+
+  // ── Oxford 5000 Work & Employment vocabulary ─────────────────
+  work_employment: [
+    'applicant','apprenticeship','bonus','career','colleague',
+    'commute','contract','CV','dismissal','employee','employer',
+    'employment','freelancer','gig economy','headhunter','hierarchy',
+    'incentive','induction','interview','job satisfaction','job security',
+    'jobseeker','layoff','minimum wage','negotiation','networking',
+    'occupation','overtime','paid leave','part-time','pension',
+    'performance review','perk','probation period','productivity',
+    'promotion','qualification','recruiter','recruitment','redundancy',
+    'remote work','resignation','résumé','retirement','salary',
+    'severance','shift work','sick leave','staff','supervisor',
+    'trade union','training','vacancy','wage','work-life balance',
+    'workforce','workload','workplace',
+  ],
+
+  // ── Oxford 5000 Housing & Daily Life vocabulary ──────────────
+  housing_life: [
+    'apartment block','appliance','balcony','basement','bill','blinds',
+    'ceiling','chores','cottage','courtyard','décor','deposit',
+    'detached house','dishwasher','district','drainage','dwelling',
+    'eviction','fixture','flatmate','furnished','heating','homeowner',
+    'household chores','landlord','lease','lodger','maintenance',
+    'mortgage','neighbourhood','outskirts','plumbing','property',
+    'real estate','renovation','rent','residence','residential',
+    'roommate','semi-detached','skyscraper','suburb','tenant',
+    'terraced house','utilities','ventilation','veranda',
+  ],
+
+  // ── Oxford 5000 Science & Research vocabulary ────────────────
+  science_research: [
+    'apparatus','astronomy','atom','bacteria','biology','botany',
+    'cell','chemical','chemistry','chromosome','data','DNA',
+    'ecosystem','electron','element','embryo','evolution','experiment',
+    'fossil','gene','genetics','geology','gravity','hypothesis',
+    'laboratory','laser','mammal','matter','microscope','molecule',
+    'neuron','nucleus','observation','organism','particle','physics',
+    'pressure','probe','protein','radiation','reaction','reproduction',
+    'reptile','researcher','sample','specimen','telescope','theory',
+    'tissue','vaccine','variable','virus',
+  ],
+
+  // ── Oxford 5000 phrasal verbs (batch 3) ──────────────────────
+  phrasals3: [
+    'account for','add up','ask around','back away','blow up',
+    'break down','break out','bring up','brush up on','burst into',
+    'butt in','calm down','carry on','catch up on','clear up',
+    'come about','come along','come down with','count on','cross out',
+    'cut in','dawn on','dress up','drop by','drop in',
+    'ease off','end up','fall back on','fall for','fall through',
+    'fill in','fit in','get ahead','get around','get by',
+    'get through','give in','give up','go for','go off',
+    'go through','grow up','hand over','hang on','hold back',
+    'hold on','keep on','knock out','lay out','let on',
+    'live on','look after','look down on','look forward to','look into',
+    'look through','make up','mess up','mix up','move on',
+    'narrow down','own up','pass on','pick up','point out',
+    'pull through','push through','put off','put through','rule out',
+    'run out of','set up','show off','show up','sort out',
+    'speak up','split up','stick to','take after','take off',
+    'take over','take up','tear apart','think over','tidy up',
+    'tip off','touch on','trade in','wear off','wear out',
+    'wind up','wipe out','wrap up',
+  ],
+
+  // ── Oxford 5000 noun + preposition / adjective + preposition collocations ──
+  preposition_colloc: [
+    'access to','addicted to','afraid of','agree with','angry about',
+    'anxious about','apologise for','approve of','ashamed of',
+    'aware of','based on','blame for','capable of','complain about',
+    'composed of','concerned about','confident in','congratulate on',
+    'conscious of','consist of','dependent on','devoted to',
+    'different from','disappointed with','due to','eligible for',
+    'engaged in','envious of','equal to','equivalent to','exposed to',
+    'familiar with','famous for','fond of','grateful for','guilty of',
+    'identical to','ignorant of','immune to','in charge of','in favour of',
+    'in need of','independent of','inferior to','interested in',
+    'involved in','jealous of','keen on','known for','linked to',
+    'married to','nervous about','opposed to','popular with',
+    'proud of','reliant on','responsible for','satisfied with',
+    'similar to','suspicious of','sympathetic to','tired of',
+    'typical of','worried about',
+  ],
 };
 
 const gaps = {};
