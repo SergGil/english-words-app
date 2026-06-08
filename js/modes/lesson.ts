@@ -7,10 +7,12 @@ import { W } from '../../data/words.js';
 import { addCombo, breakCombo, flashCard, getComboMult } from '../features/combo.ts';
 import { recordModeComplete, recordMistake, recordModeAnswer } from '../features/game.ts';
 import { speakBtn, decodeIpa } from '../core/ui-helpers.ts';
+import { t } from '../features/i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 const N = 5;
-const PHASE_LABELS = ['Флешкарти', 'Тест', 'Письмо'];
+const PHASE_COUNT = 3;
+function _phaseLabels(): string[] { return [t('lesson.phaseFlash'), t('lesson.phaseQuiz'), t('lesson.phaseWrite')]; }
 
 let lWords: WordEntry[] = [], lPhase = 0, lStep = 0, lScores = [0, 0, 0];
 let lAnswered = false, lFlipped = false;
@@ -46,9 +48,9 @@ function close(): void { oOverlay.style.display = 'none'; }
 
 function updateMeta(): void {
   const total = lPhase * N + lStep;
-  elSub.textContent = `Крок ${total + 1} з ${PHASE_LABELS.length * N}`;
-  elMbar.style.width = (total / (PHASE_LABELS.length * N) * 100) + '%';
-  elPhTag.textContent = PHASE_LABELS[lPhase] ?? '';
+  elSub.textContent = `${t('lesson.step')} ${total + 1} ${t('common.of')} ${PHASE_COUNT * N}`;
+  elMbar.style.width = (total / (PHASE_COUNT * N) * 100) + '%';
+  elPhTag.textContent = _phaseLabels()[lPhase] ?? '';
 }
 
 function resetUI(): void {
@@ -60,7 +62,7 @@ function resetUI(): void {
 }
 
 function renderStep(): void {
-  if (lPhase >= PHASE_LABELS.length) { showFinal(); return; }
+  if (lPhase >= PHASE_COUNT) { showFinal(); return; }
   const w = lWords[lStep];
   resetUI(); updateMeta();
   if (lPhase === 0) renderFlash(w);
@@ -69,7 +71,7 @@ function renderStep(): void {
 }
 
 function renderFlash(w: WordEntry): void {
-  elDir.textContent = 'Що означає це слово?';
+  elDir.textContent = t('lesson.dirFlash');
   elWord.textContent = w[0];
   elWord.appendChild(speakBtn(w[0], 'en-US'));
   elIpa.textContent = decodeIpa(w[4] ?? '');
@@ -111,7 +113,7 @@ btnSkip.addEventListener('click', () => {
 });
 
 function renderQuiz(w: WordEntry): void {
-  elDir.textContent = 'Оберіть переклад:';
+  elDir.textContent = t('lesson.dirQuiz');
   elWord.textContent = w[1]; elIpa.textContent = '';
   // No speak for UA word
   const correct = w[0];
@@ -135,25 +137,25 @@ function renderQuiz(w: WordEntry): void {
       elOpts.querySelectorAll<HTMLButtonElement>('.quiz-option').forEach(b => b.disabled = true);
       if (opt === correct) {
         btn.classList.add('correct'); lScores[1]++;
-        elResult.innerHTML = '<span style="color:#27ae60">✓ Правильно!</span>';
+        elResult.innerHTML = `<span style="color:#27ae60">${t('quiz.correctMsg')}</span>`;
         try { addCombo(); (window.playSound as PlaySound | undefined)?.('know'); } catch (e) {}
         recordModeAnswer('lesson', true);
       } else {
         btn.classList.add('wrong');
-        elResult.innerHTML = `<span style="color:#e74c3c">✗ Правильно: <b>${correct}</b></span>`;
+        elResult.innerHTML = `<span style="color:#e74c3c">✗ ${t('write.correctAnswerPrefix')} <b>${correct}</b></span>`;
         elOpts.querySelectorAll<HTMLButtonElement>('.quiz-option').forEach(b => { if (b.dataset.answer === correct) b.classList.add('reveal'); });
         try { breakCombo(); (window.playSound as PlaySound | undefined)?.('next'); } catch (e) {}
         recordMistake(lWords[lStep][0]);
         recordModeAnswer('lesson', false);
       }
-      btnNext.textContent = (lPhase === PHASE_LABELS.length-1 && lStep === N-1) ? '🏆 Фініш!' : 'Наступне →'; btnNext.style.display = 'inline-block';
+      btnNext.textContent = (lPhase === PHASE_COUNT-1 && lStep === N-1) ? t('quiz.finish') : t('quiz.next'); btnNext.style.display = 'inline-block';
     });
     elOpts.appendChild(btn);
   });
 }
 
 function renderWrite(w: WordEntry): void {
-  elDir.textContent = 'Введіть переклад англійською:';
+  elDir.textContent = t('lesson.dirWrite');
   elWord.textContent = w[1]; elIpa.textContent = '';
   elInput.style.display = 'block'; btnSubmit.style.display = 'inline-block';
   setTimeout(() => { try { elInput.focus(); } catch (e) {} }, 60);
@@ -168,17 +170,17 @@ function submitLesson(): void {
   lAnswered = true;
   if (ok) {
     lScores[2]++; elInput.style.borderColor = '#27ae60';
-    elResult.innerHTML = '<span style="color:#27ae60">✓ Правильно!</span>';
+    elResult.innerHTML = `<span style="color:#27ae60">${t('quiz.correctMsg')}</span>`;
     try { addCombo(); (window.playSound as PlaySound | undefined)?.('know'); } catch (e) {}
     recordModeAnswer('lesson', true);
   } else {
     elInput.style.borderColor = '#e74c3c';
-    elResult.innerHTML = `<span style="color:#e74c3c">✗ Правильно: <b>${w[0]}</b></span>`;
+    elResult.innerHTML = `<span style="color:#e74c3c">✗ ${t('write.correctAnswerPrefix')} <b>${w[0]}</b></span>`;
     try { breakCombo(); (window.playSound as PlaySound | undefined)?.('next'); } catch (e) {}
     recordMistake(w[0]);
     recordModeAnswer('lesson', false);
   }
-  btnSubmit.style.display = 'none'; btnNext.textContent = (lPhase === PHASE_LABELS.length-1 && lStep === N-1) ? '🏆 Фініш!' : 'Наступне →'; btnNext.style.display = 'inline-block';
+  btnSubmit.style.display = 'none'; btnNext.textContent = (lPhase === PHASE_COUNT-1 && lStep === N-1) ? t('quiz.finish') : t('quiz.next'); btnNext.style.display = 'inline-block';
 }
 
 btnSubmit.addEventListener('click', submitLesson);
@@ -195,8 +197,8 @@ function advance(): void {
 
 function showFinal(): void {
   const total = lScores[0] + lScores[1] + lScores[2];
-  const max = N * PHASE_LABELS.length, pct = Math.round(total / max * 100);
-  elMbar.style.width = '100%'; elSub.textContent = 'Завершено!';
+  const max = N * PHASE_COUNT, pct = Math.round(total / max * 100);
+  elMbar.style.width = '100%'; elSub.textContent = t('lesson.completedExcl');
   elOpts.style.display = 'none'; elInput.style.display = 'none';
   elResult.textContent = ''; elReveal.style.display = 'none';
   [btnReveal, btnKnow, btnSkip, btnSubmit, btnNext].forEach(b => b.style.display = 'none');
@@ -204,8 +206,9 @@ function showFinal(): void {
   recordModeComplete('lesson');
   document.getElementById('lf-stars')!.textContent = pct >= 95 ? '⭐⭐⭐' : pct >= 65 ? '⭐⭐' : '⭐';
   const emoji = pct === 100 ? '🏆' : pct >= 65 ? '🎉' : '💪';
-  document.getElementById('lf-title')!.textContent = emoji + (pct===100?' Ідеально!':pct>=65?' Чудово!':" Ще попрацюємо!");
-  document.getElementById('lf-score')!.textContent = `${total} з ${max} правильно (${pct}%)`;
+  document.getElementById('lf-title')!.textContent = emoji + ' ' + (pct===100?t('quiz.perfectTitle'):pct>=65?t('quiz.greatTitle'):t('quiz.keepTitle'));
+  document.getElementById('lf-score')!.textContent = t('lesson.scoreLine')
+    .replace('{total}', String(total)).replace('{max}', String(max)).replace('{pct}', String(pct));
   const mult = getComboMult(), xp = total * 5 * mult;
   document.getElementById('lf-xp')!.textContent = `+${xp} XP${mult > 1 ? ` (×${mult} COMBO!)` : ''}`;
   if (pct >= 80) try { (window.playSound as PlaySound | undefined)?.('goal'); } catch (e) {}
