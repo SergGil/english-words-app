@@ -2,6 +2,7 @@
 import type { WordEntry, SRSData, GameData, ModeStats, Achievement, Level } from '../src/types.js';
 import { _lzLoad, _lzSave, saveKnown, saveSRS }    from './core/storage.ts';
 import { W }                                       from '../data/words.js';
+import { W_ES }                                    from '../data/words_es.js';
 import { SVG, getIllus }                           from '../data/illustrations.js';
 import { WORD_CATEGORIES, getCategoriesForWord }    from '../data/categories.js';
 import { loadWikiImage, _imgCache, _idb,
@@ -164,6 +165,10 @@ function _speakWithLang(text: string, lang: string, btn: HTMLElement | null): vo
   synth.speak(u);
 }
 
+const ES_MODES = new Set(['en-es', 'es-en', 'es-ua', 'ua-es']);
+function _esEntry(word: string): readonly [string, string] | null {
+  return (W_ES as unknown as Record<string, readonly [string, string]>)[word] ?? null;
+}
 function getMode(): string {
   var m = (document.getElementById('sel-mode') as HTMLSelectElement | null)?.value ?? 'en';
   if (m === 'mix') return Math.random() > 0.5 ? 'en' : 'ua';
@@ -194,10 +199,24 @@ function render() {
     if (!cw) { console.error('render: cw is null'); return; }
     flipped = false;
     var mode = getMode();
+    // ── ES pair modes: look up the Spanish layer by the English headword ──
+    var esEntry = ES_MODES.has(mode) ? _esEntry(cw[0]) : null;
+    var _esWord = esEntry ? esEntry[0] : '';
+    var _esEx   = esEntry ? esEntry[1] : '';
+    var FRONT_LANG: 'EN' | 'UA' | 'ES';
+    var frontWord: string, backWord: string;
+    switch (mode) {
+      case 'ua':    FRONT_LANG = 'UA'; frontWord = cw[1];   backWord = cw[0];   break;
+      case 'en-es': FRONT_LANG = 'EN'; frontWord = cw[0];   backWord = _esWord; break;
+      case 'es-en': FRONT_LANG = 'ES'; frontWord = _esWord; backWord = cw[0];   break;
+      case 'es-ua': FRONT_LANG = 'ES'; frontWord = _esWord; backWord = cw[1];   break;
+      case 'ua-es': FRONT_LANG = 'UA'; frontWord = cw[1];   backWord = _esWord; break;
+      default:      FRONT_LANG = 'EN'; frontWord = cw[0];   backWord = cw[1];
+    }
     var _realIdx = _wordIdx.has(cw[0]) ? _wordIdx.get(cw[0]) : -1;
     $e('wnum').textContent = '#' + (_realIdx >= 0 ? _realIdx + 1 : idx % deck.length + 1);
-    $e('wlang').textContent = mode==='en'?'EN':'UA';
-    $e('wword').textContent = mode==='en'?cw[0]:cw[1];
+    $e('wlang').textContent = FRONT_LANG;
+    $e('wword').textContent = frontWord;
     // ── CEFR badge ────────────────────────────────────────────
     var cefrEl = document.getElementById('wcefr') as HTMLElement | null;
     if (cefrEl) {
@@ -219,10 +238,10 @@ function render() {
     var _enEx  = cw[2] || '';
     var _uaEx  = cw[3] || '';
     var trans = decodeIpa(cw[4] || '');
-    tr.textContent = (mode === 'en') ? trans : '';
-    tr.style.display = (mode === 'en' && trans) ? 'block' : 'none';
+    tr.textContent = (FRONT_LANG === 'EN') ? trans : '';
+    tr.style.display = (FRONT_LANG === 'EN' && trans) ? 'block' : 'none';
     var t = $e('wtransl');
-    t.textContent = mode==='en'?cw[1]:cw[0];
+    t.textContent = backWord;
     t.className = 'transl';
     // Приклад: EN→UA показуємо English (підсвічене слово), UA→EN — Ukrainian (не розкриває відповідь)
     function _boldEn(src: string): string {
@@ -237,14 +256,32 @@ function render() {
       var _uw = cw![1].split(/[;,\/]/)[0].trim().replace(/[.*+?^${}()|\[\]\\]/g,'\\$&');
       return src.replace(new RegExp('('+_uw+'\\w*)', 'i'), '<b>$1</b>');
     }
+    function _boldHead(src: string, word: string): string {
+      if (!src) return '';
+      if (!word || src.indexOf('<b>') !== -1) return src;
+      var _hw = word.replace(/\s*\([^)]*\)/g,'').split(/[;,\/]/)[0].trim().replace(/[.*+?^${}()|\[\]\\]/g,'\\$&');
+      if (!_hw) return src;
+      return src.replace(new RegExp('('+_hw+'\\w*)', 'i'), '<b>$1</b>');
+    }
     if (mode === 'en') {
       // EN→UA: первинний приклад — англійський з bold словом
       $e('exen').innerHTML = _boldEn(_enEx);
       $e('exua').textContent = _uaEx;  // після flip
-    } else {
+    } else if (mode === 'ua') {
       // UA→EN: первинний приклад — UKRAINIAN (не розкриває англійської відповіді)
       $e('exen').innerHTML = _boldUa(_uaEx) || _uaEx;
       $e('exua').innerHTML = _boldEn(_enEx);  // англійський після flip
+    } else if (ES_MODES.has(mode)) {
+      // ES-пари: первинний приклад мовою фронту з виділеним словом, відповідь — після flip
+      var _frontEx = '', _backEx = '';
+      switch (mode) {
+        case 'en-es': _frontEx = _enEx; _backEx = _esEx; break;
+        case 'es-en': _frontEx = _esEx; _backEx = _enEx; break;
+        case 'es-ua': _frontEx = _esEx; _backEx = _uaEx; break;
+        case 'ua-es': _frontEx = _uaEx; _backEx = _esEx; break;
+      }
+      $e('exen').innerHTML = _boldHead(_frontEx, frontWord) || _frontEx;
+      $e('exua').innerHTML = _boldHead(_backEx, backWord) || _backEx;
     }
     $e('exua').className = 'ex-ua';
     if ($e('cb-similar'))     $e('cb-similar').style.display     = 'none';
@@ -542,7 +579,44 @@ document.getElementById('modal-confirm')!.addEventListener('click', function(){
   try { render(); } catch(e){}
   document.getElementById('modal-overlay')!.style.display = 'none';
 });
-document.getElementById('sel-mode')!.addEventListener('change', function(){stopAuto();render();});
+// ── ES pair modes: тимчасово звужуємо колоду до слів з іспанським перекладом ──
+var _esWords: WordEntry[] | null = null;
+function _getEsDeck(): WordEntry[] {
+  if (!_esWords) _esWords = (W as unknown as WordEntry[]).filter(function(w){ return Object.prototype.hasOwnProperty.call(W_ES, w[0]); });
+  return _esWords;
+}
+var _preEsDeck: WordEntry[] | null = null;
+var _preEsIdx = 0;
+document.getElementById('sel-mode')!.addEventListener('change', function(){
+  stopAuto();
+  var m = (this as HTMLSelectElement).value;
+  var isEs = ES_MODES.has(m);
+  var selRangeEl = document.getElementById('sel-range') as HTMLSelectElement | null;
+  var selTagEl   = document.getElementById('sel-tag')   as HTMLSelectElement | null;
+  if (isEs && !_preEsDeck) {
+    // Входимо в ES-режим — запам'ятовуємо поточну колоду й звужуємо до перекладених слів
+    var esDeck = _getEsDeck();
+    if (!esDeck.length) {
+      var _mtEs = document.getElementById('milestone-toast');
+      if (_mtEs) { _mtEs.textContent = 'Іспанських перекладів ще немає для цих слів'; _mtEs.className = 'milestone-toast'; void _mtEs.offsetWidth; _mtEs.className = 'milestone-toast show'; setTimeout(function(){ _mtEs!.className = 'milestone-toast'; }, 3500); }
+      (this as HTMLSelectElement).value = 'en';
+      render();
+      return;
+    }
+    _preEsDeck = deck; _preEsIdx = idx;
+    deck = esDeck; state.deck = deck; window.deck = deck; idx = 0;
+    if (selRangeEl) selRangeEl.disabled = true;
+    if (selTagEl)   selTagEl.disabled   = true;
+  } else if (!isEs && _preEsDeck) {
+    // Виходимо з ES-режиму — повертаємо попередню колоду
+    deck = _preEsDeck; state.deck = deck; window.deck = deck;
+    idx = deck.length ? _preEsIdx % deck.length : 0;
+    _preEsDeck = null;
+    if (selRangeEl) selRangeEl.disabled = false;
+    if (selTagEl)   selTagEl.disabled   = false;
+  }
+  render();
+});
 
 // ══ Динамічне оновлення опцій фільтра "Всі слова" / блоків по 500 ══
 function _refreshRangeOptions(): void {
