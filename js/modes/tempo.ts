@@ -4,6 +4,7 @@ import { _shuf } from '../core/srs.ts';
 import { W } from '../../data/words.js';
 import { recordModeComplete, recordMistake, recordModeAnswer } from '../features/game.ts';
 import { speakBtn, decodeIpa } from '../core/ui-helpers.ts';
+import { t } from '../features/i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 const tOverlay  = document.getElementById('tempo-overlay')!;
@@ -46,7 +47,7 @@ document.querySelectorAll<HTMLButtonElement>('.tempo-time-btn').forEach(btn => {
 
 function updateBestLabel(): void {
   const b = getBest(selectedSec);
-  tBest.textContent = b > 0 ? `🏆 Рекорд: ${b} слів за ${selectedSec}с` : '';
+  tBest.textContent = b > 0 ? t('tempo.bestRecord').replace('{n}', String(b)).replace('{s}', String(selectedSec)) : '';
 }
 
 document.getElementById('btn-tempo')?.addEventListener('click', () => {
@@ -92,7 +93,7 @@ function showTempoQuestion(): void {
   const isEnToUa = Math.random() < 0.5;
   const question = isEnToUa ? w[0] : w[1];
   const answer   = isEnToUa ? w[1] : w[0];
-  tDir.textContent = isEnToUa ? 'Англійська → Українська' : 'Українська → Англійська';
+  tDir.textContent = isEnToUa ? t('quiz.enToUa') : t('quiz.uaToEn');
   tWord.textContent = question;
   tIpa.textContent  = isEnToUa ? decodeIpa(w[2] ?? '') : '';
   if (isEnToUa) tWord.appendChild(speakBtn(question, 'en-US')); // only EN
@@ -121,7 +122,7 @@ function showTempoQuestion(): void {
       if (opt === answer) {
         btn.classList.add('correct'); score++;
         tScore.textContent = String(score);
-        tFeedback.innerHTML = '<span style="color:#27ae60">✓ Правильно!</span>';
+        tFeedback.innerHTML = `<span style="color:#27ae60">${t('quiz.correctMsg')}</span>`;
         recordModeAnswer('tempo', true);
       } else {
         btn.classList.add('wrong'); miss++;
@@ -145,11 +146,13 @@ function endTempo(): void {
   const best = getBest(selectedSec), isNew = score > best;
   setBest(selectedSec, score);
   const emoji = score===0?'😅':pct===100?'🏆':pct>=80?'🎉':pct>=60?'👍':'💪';
-  const title = score===0?'Наступного разу!':pct===100?'Ідеально!':pct>=80?'Відмінно!':pct>=60?'Непогано!':'Тренуйся!';
+  const title = score===0?t('tempo.zeroTitle'):pct===100?t('quiz.perfectTitle'):pct>=80?t('tempo.excellentTitle'):pct>=60?t('quiz.goodTitle'):t('tempo.practiceTitle');
   tResEmoji.textContent = emoji; tResTitle.textContent = title;
   recordModeComplete('tempo');
-  tResScore.textContent = `✓ ${score} правильно  ✗ ${miss} помилок  (${pct}%)`;
-  tResBest.textContent = isNew && score > 0 ? `🌟 Новий рекорд: ${score} слів!` : (getBest(selectedSec) > 0 ? `🏆 Рекорд: ${getBest(selectedSec)} слів` : '');
+  tResScore.textContent = `✓ ${score} ${t('quiz.correctLbl')}  ✗ ${miss} ${t('quiz.mistakesGen')}  (${pct}%)`;
+  tResBest.textContent = isNew && score > 0
+    ? t('tempo.newRecord').replace('{n}', String(score))
+    : (getBest(selectedSec) > 0 ? t('tempo.record').replace('{n}', String(getBest(selectedSec))) : '');
 }
 
 document.addEventListener('keydown', (e: KeyboardEvent) => {
