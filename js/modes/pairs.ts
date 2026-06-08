@@ -3,6 +3,7 @@
 import { _shuf } from '../core/srs.ts';
 import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
+import { t } from '../features/i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 const N = 6;
@@ -20,17 +21,17 @@ const pBest    = document.getElementById('pairs-best-label')!;
 
 function getBest(): number { return parseFloat(localStorage.getItem('ew_pairs_best') ?? '0'); }
 function setBest(t: number): void { const b = getBest(); if (!b || t < b) localStorage.setItem('ew_pairs_best', t.toFixed(1)); }
-function fmt(ms: number): string { return (ms / 1000).toFixed(1) + 'с'; }
+function fmt(ms: number): string { return (ms / 1000).toFixed(1) + t('common.secSuffix'); }
 
 function open(): void {
   const pool = _shuf((state.deck?.length >= N ? state.deck : W).slice() as WordEntry[]);
   pDeck = pool.slice(0, N);
   pSel = null; pMatched = 0; pStart = null;
   if (pTick) clearInterval(pTick);
-  pTimer.textContent = '0.0с'; pTimer.style.color = 'var(--accent)';
+  pTimer.textContent = '0.0' + t('common.secSuffix'); pTimer.style.color = 'var(--accent)';
   pFinal.style.display = 'none'; pBoard.style.display = '';
   const b = getBest();
-  pBest.textContent = b ? '🏆 Рекорд: ' + fmt(b * 1000) : '';
+  pBest.textContent = b ? t('pairs.record').replace('{t}', fmt(b * 1000)) : '';
   renderBoard();
   pOverlay.style.display = 'flex';
 }
@@ -99,16 +100,16 @@ function onClick(btn: HTMLElement, item: { text: string; id: number }, side: str
 function finish(): void {
   if (pTick) clearInterval(pTick);
   const ms = Date.now() - pStart!;
-  const t  = ms / 1000;
-  const b  = getBest(), isNew = !b || t < b;
-  setBest(t);
+  const secs = ms / 1000;
+  const b  = getBest(), isNew = !b || secs < b;
+  setBest(secs);
   pBoard.style.display = 'none'; pFinal.style.display = 'block';
   (window.recordModeComplete as ((mode: string) => void) | undefined)?.('pairs');
   pTimer.textContent = fmt(ms); pTimer.style.color = isNew ? '#e67e22' : 'var(--accent)';
   document.getElementById('pf-emoji')!.textContent = isNew ? '🏆' : '🎉';
   document.getElementById('pf-time')!.textContent  = fmt(ms);
-  document.getElementById('pf-best')!.textContent  = isNew ? '🌟 Новий рекорд!' : ('🏆 Рекорд: ' + fmt(getBest() * 1000));
-  pBest.textContent = '🏆 Рекорд: ' + fmt(getBest() * 1000);
+  document.getElementById('pf-best')!.textContent  = isNew ? t('pairs.newRecord') : t('pairs.record').replace('{t}', fmt(getBest() * 1000));
+  pBest.textContent = t('pairs.record').replace('{t}', fmt(getBest() * 1000));
 }
 
 document.getElementById('btn-pairs')?.addEventListener('click', open);

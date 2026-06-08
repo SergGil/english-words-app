@@ -62,6 +62,7 @@ const DICT: Record<string, Record<Lang, string>> = {
   'common.of':     { ua: 'з',         en: 'of' },
   'common.close':  { ua: 'Закрити',   en: 'Close' },
   'common.tryAgain': { ua: '🔄 Ще раз', en: '🔄 Try again' },
+  'common.secSuffix': { ua: 'с',        en: 's' },
 
   'range.unlearned': { ua: '🔴 Тільки невивчені',     en: '🔴 Unlearned only' },
   'range.srs':       { ua: '🔁 Spaced Repetition',    en: '🔁 Spaced Repetition' },
@@ -256,6 +257,11 @@ const DICT: Record<string, Record<Lang, string>> = {
   'ctx.hintColon':    { ua: '💡 Підказка:',             en: '💡 Hint:' },
   'ctx.firstLetterColon': { ua: '💡 Перша літера:',     en: '💡 First letter:' },
   'ctx.hintBtn':      { ua: '💡 Підказка',              en: '💡 Hint' },
+
+  'pairs.title':      { ua: '🔗 Знайди пару',           en: '🔗 Find the Pair' },
+  'pairs.record':     { ua: '🏆 Рекорд: {t}',           en: '🏆 Record: {t}' },
+  'pairs.newRecord':  { ua: '🌟 Новий рекорд!',         en: '🌟 New record!' },
+  'pairs.again':      { ua: '🔄 Знову',                 en: '🔄 Again' },
 
   'cefr.A1': { ua: 'Початківець',     en: 'Beginner' },
   'cefr.A2': { ua: 'Елементарний',    en: 'Elementary' },
