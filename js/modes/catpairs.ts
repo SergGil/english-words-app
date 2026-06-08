@@ -8,7 +8,7 @@ import { WORD_CATEGORIES, CATEGORY_LIST } from '../../data/categories.js';
 import { getGameData } from '../features/game.ts';
 import { W } from '../../data/words.js';
 import type { WordEntry } from '../../src/types.js';
-import { t, wordsLabel } from '../features/i18n.ts';
+import { t, wordsLabel, categoryName } from '../features/i18n.ts';
 
 const CP = 6;
 const RANDOM_KEY = '🎲 Випадково';
@@ -60,7 +60,7 @@ function buildSelectGrid(): void {
     const btn = document.createElement('button');
     btn.className = 'cat-select-btn';
     const b = getBest(cat);
-    btn.innerHTML = `${cat}<span class="cat-count">${words.length} ${wordsLabel(words.length)}${b ? ` · 🏆${fmt(b * 1000)}` : ''}</span>`;
+    btn.innerHTML = `${categoryName(cat)}<span class="cat-count">${words.length} ${wordsLabel(words.length)}${b ? ` · 🏆${fmt(b * 1000)}` : ''}</span>`;
     if (words.length < 4) { btn.disabled = true; btn.style.opacity = '.4'; }
     btn.addEventListener('click', () => { if (words.length >= 4) startCatGame(cat, words); });
     elGrid.appendChild(btn);
@@ -84,7 +84,7 @@ function startCatGame(catName: string, words: WordEntry[]): void {
   cpCatKey = catName; cpSel = null; cpMatched = 0; cpStart = null;
   if (cpTick) clearInterval(cpTick);
   cpDeck = _shuf(words.slice()).slice(0, Math.min(CP, words.length));
-  elTitle.textContent = catName === RANDOM_KEY ? t('catpairs.random') : catName;
+  elTitle.textContent = catName === RANDOM_KEY ? t('catpairs.random') : categoryName(catName);
   elBest.textContent = getBest(catName) ? t('pairs.record').replace('{t}', fmt(getBest(catName) * 1000)) : '';
   elTimer.textContent = '0.0' + t('common.secSuffix'); elTimer.style.display = 'block'; elTimer.style.color = 'var(--accent)';
   elFinal.style.display = 'none'; elBoard.style.display = '';

@@ -1172,22 +1172,22 @@
   <div id="custom-modal">
     <div class="custom-panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <div style="font-size:1rem;font-weight:700;color:var(--text);">➕ Власні слова</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--text);" data-i18n="custom.title">➕ Власні слова</div>
         <button id="custom-modal-close" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text3);">✕</button>
       </div>
-      <div style="font-size:.8rem;color:var(--text2);margin-bottom:12px;">Додайте будь-яке слово яке хочете вивчити</div>
+      <div style="font-size:.8rem;color:var(--text2);margin-bottom:12px;" data-i18n="custom.desc">Додайте будь-яке слово яке хочете вивчити</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
-        <input id="cw-en" type="text" placeholder="English word *" autocomplete="off"
+        <input id="cw-en" type="text" placeholder="English word *" autocomplete="off" data-i18n-placeholder="custom.enPlaceholder"
           style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:.88rem;font-family:inherit;background:var(--bg);color:var(--text);outline:none;">
-        <input id="cw-ua" type="text" placeholder="Переклад * (обов'язково)" autocomplete="off"
+        <input id="cw-ua" type="text" placeholder="Переклад * (обов'язково)" autocomplete="off" data-i18n-placeholder="custom.uaPlaceholder"
           style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:.88rem;font-family:inherit;background:var(--bg);color:var(--text);outline:none;">
-        <input id="cw-ex-en" type="text" placeholder="Приклад англійською (необов'язково)" autocomplete="off"
+        <input id="cw-ex-en" type="text" placeholder="Приклад англійською (необов'язково)" autocomplete="off" data-i18n-placeholder="custom.exEnPlaceholder"
           style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:.88rem;font-family:inherit;background:var(--bg);color:var(--text);outline:none;">
-        <input id="cw-ex-ua" type="text" placeholder="Переклад прикладу (необов'язково)" autocomplete="off"
+        <input id="cw-ex-ua" type="text" placeholder="Переклад прикладу (необов'язково)" autocomplete="off" data-i18n-placeholder="custom.exUaPlaceholder"
           style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:.88rem;font-family:inherit;background:var(--bg);color:var(--text);outline:none;">
       </div>
       <div id="cw-error" style="font-size:.75rem;color:#e74c3c;margin-bottom:8px;min-height:16px;"></div>
-      <button id="cw-save" style="width:100%;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;margin-bottom:14px;">Додати слово</button>
+      <button id="cw-save" style="width:100%;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;margin-bottom:14px;" data-i18n="custom.saveBtn">Додати слово</button>
       <div id="custom-words-list" style="display:flex;flex-direction:column;"></div>
     </div>
   </div>
@@ -1402,7 +1402,7 @@
       <div style="text-align:center;margin-bottom:16px;">
         <button class="listen-play-btn" id="listen-play-btn">🔊</button>
         <div style="font-size:.78rem;color:var(--text3);" id="listen-play-hint" data-i18n="listen.playHint">Натисни щоб почути слово</div>
-        <div style="font-size:.72rem;color:var(--text3);margin-top:3px;"><kbd style="background:var(--border);border-radius:4px;padding:1px 5px;font-size:.68rem;">Space</kbd> повторити</div>
+        <div style="font-size:.72rem;color:var(--text3);margin-top:3px;"><kbd style="background:var(--border);border-radius:4px;padding:1px 5px;font-size:.68rem;" data-i18n="kbd.space">Space</kbd> <span data-i18n="listen.repeatHint">повторити</span></div>
       </div>
       <div id="listen-options" style="display:flex;flex-direction:column;gap:9px;"></div>
       <div id="listen-result" style="min-height:24px;text-align:center;font-size:.9rem;font-weight:600;margin-top:10px;"></div>

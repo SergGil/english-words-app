@@ -243,6 +243,7 @@ const DICT: Record<string, Record<Lang, string>> = {
   'listen.title':     { ua: '🔊 Слухання',              en: '🔊 Listening' },
   'listen.word':      { ua: 'Слово',                    en: 'Word' },
   'listen.playHint':  { ua: 'Натисни щоб почути слово', en: 'Click to hear the word' },
+  'listen.repeatHint': { ua: 'повторити',               en: 'repeat' },
   'listen.wrongPrefix': { ua: 'Це',                     en: 'This is' },
   'listen.keepGoingTitle': { ua: 'Продовжуй!',          en: 'Keep going!' },
 
@@ -507,6 +508,20 @@ const DICT: Record<string, Record<Lang, string>> = {
   'idioms.tabUa':      { ua: 'Українські ідіоми → англійською',        en: 'Ukrainian idioms → English' },
   'idioms.searchPlaceholder': { ua: '🔍 Пошук ідіоми...',              en: '🔍 Search an idiom...' },
   'idioms.empty':      { ua: 'Нічого не знайдено 🤷',                  en: 'Nothing found 🤷' },
+
+  // ── Custom words modal ─────────────────────────────────────
+  'custom.title':        { ua: '➕ Власні слова',                          en: '➕ Custom words' },
+  'custom.desc':         { ua: 'Додайте будь-яке слово яке хочете вивчити', en: 'Add any word you want to learn' },
+  'custom.enPlaceholder':   { ua: 'English word *',                          en: 'English word *' },
+  'custom.uaPlaceholder':   { ua: 'Переклад * (обов\'язково)',               en: 'Translation * (required)' },
+  'custom.exEnPlaceholder': { ua: 'Приклад англійською (необов\'язково)',    en: 'Example in English (optional)' },
+  'custom.exUaPlaceholder': { ua: 'Переклад прикладу (необов\'язково)',      en: 'Example translation (optional)' },
+  'custom.saveBtn':      { ua: 'Додати слово',                              en: 'Add word' },
+  'custom.deleteTitle':  { ua: 'Видалити',                                  en: 'Delete' },
+  'custom.empty':        { ua: 'Власних слів ще немає',                     en: 'No custom words yet' },
+  'custom.errBothFields':{ ua: 'Введіть обидва поля',                       en: 'Fill in both fields' },
+  'custom.errDuplicate': { ua: '⚠️ Слово "{w}" вже є у словнику',           en: '⚠️ The word "{w}" is already in the dictionary' },
+  'custom.errTooShort':  { ua: 'Слово занадто коротке',                     en: 'The word is too short' },
 };
 
 const LEVEL_NAMES_EN: Record<string, string> = {

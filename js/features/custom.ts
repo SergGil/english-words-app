@@ -3,6 +3,7 @@
 import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
 import { recordCustomWordAdded } from './game.ts';
+import { t } from './i18n.ts';
 
 type CustomWord = { en: string; ua: string; ex_en?: string; ex_ua?: string };
 type WordIdx = Map<string, number>;
@@ -33,10 +34,10 @@ function closeModal(): void { modal.className = ''; }
 function renderList(): void {
   if (!listEl) return;
   const cw = _cw();
-  if (!cw.length) { listEl.innerHTML = '<div style="font-size:.8rem;color:var(--text3);text-align:center;">Власних слів ще немає</div>'; return; }
+  if (!cw.length) { listEl.innerHTML = `<div style="font-size:.8rem;color:var(--text3);text-align:center;">${t('custom.empty')}</div>`; return; }
   listEl.innerHTML = cw.map((c, i) =>
     `<div class="custom-word-row"><span class="cw-en">${c.en}</span><span class="cw-ua">${c.ua}</span>` +
-    `<button class="custom-del" data-i="${i}" title="Видалити">✕</button></div>`
+    `<button class="custom-del" data-i="${i}" title="${t('custom.deleteTitle')}">✕</button></div>`
   ).join('');
   listEl.querySelectorAll<HTMLButtonElement>('.custom-del').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -56,12 +57,12 @@ function renderList(): void {
 document.getElementById('cw-save')?.addEventListener('click', () => {
   const en = enInp.value.trim(), ua = uaInp.value.trim();
   const exEn = exEnInp.value.trim(), exUa = exUaInp.value.trim();
-  if (!en || !ua) { errEl.textContent = 'Введіть обидва поля'; return; }
+  if (!en || !ua) { errEl.textContent = t('custom.errBothFields'); return; }
   const enLow = en.toLowerCase();
   let dupEn = false;
   _wi()?.forEach((_, key) => { if (key.toLowerCase() === enLow) dupEn = true; });
-  if (dupEn) { errEl.textContent = `⚠️ Слово "${en}" вже є у словнику`; return; }
-  if (en.length < 2) { errEl.textContent = 'Слово занадто коротке'; return; }
+  if (dupEn) { errEl.textContent = t('custom.errDuplicate').replace('{w}', en); return; }
+  if (en.length < 2) { errEl.textContent = t('custom.errTooShort'); return; }
   // Sanitize HTML to prevent XSS when example sentences are inserted via innerHTML
   const sanitize = (s: string) => s.replace(/[<>"'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'})[c] ?? c);
   const safeExEn = sanitize(exEn), safeExUa = sanitize(exUa);
