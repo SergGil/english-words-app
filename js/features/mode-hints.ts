@@ -1,18 +1,18 @@
 // English Words App — js/features/mode-hints.ts
 // Per-mode first-launch hint banner (shows once per mode)
-export {};
+import { t } from './i18n.ts';
 
 const SEEN_KEY = 'ew_mode_hints_seen';
 
-const HINTS: Record<string, { text: string; panel: string }> = {
-  'quiz-overlay':    { text: '🧠 Тест: оберіть правильний переклад з 4 варіантів. Клавіші 1–4 для швидкого вибору.', panel: '.quiz-panel' },
-  'write-overlay':   { text: '✍️ Письмо: введіть переклад англійською. 💡 — підказка, 🎤 — голосовий ввід.', panel: '.quiz-panel' },
-  'listen-overlay':  { text: '🔊 Аудіо: натисніть ▶ щоб прослухати слово, потім оберіть переклад. Пробіл = повторити.', panel: '.quiz-panel' },
-  'fib-overlay':     { text: '✏️ Речення: введіть пропущене слово в речення. Enter — підтвердити, 💡 — підказка.', panel: '.quiz-panel' },
-  'tempo-overlay':   { text: '⚡ Темп: відповідайте якнайшвидше до кінця таймера. Клавіші 1–4 для вибору.', panel: '#tempo-panel' },
-  'lesson-overlay':  { text: '📚 Урок: 3 фази — флешкарти, тест, письмо. Пройдіть всі 5 слів щоб завершити.', panel: '.quiz-panel' },
-  'dc-overlay':      { text: '📅 Місія дня: 10 слів з таймером 2 хв. Бонусні XP за кожну правильну відповідь!', panel: '.page-inner' },
-  'reading-overlay': { text: '📖 Читання: кольорові слова — невивчені. Натисніть на слово щоб побачити переклад.', panel: '.page-inner' },
+const HINTS: Record<string, { key: string; panel: string }> = {
+  'quiz-overlay':    { key: 'hints.quiz',    panel: '.quiz-panel' },
+  'write-overlay':   { key: 'hints.write',   panel: '.quiz-panel' },
+  'listen-overlay':  { key: 'hints.listen',  panel: '.quiz-panel' },
+  'fib-overlay':     { key: 'hints.fib',     panel: '.quiz-panel' },
+  'tempo-overlay':   { key: 'hints.tempo',   panel: '#tempo-panel' },
+  'lesson-overlay':  { key: 'hints.lesson',  panel: '.quiz-panel' },
+  'dc-overlay':      { key: 'hints.daily',   panel: '.page-inner' },
+  'reading-overlay': { key: 'hints.reading', panel: '.page-inner' },
 };
 
 function _getSeen(): Set<string> {
@@ -63,7 +63,7 @@ function _tryShow(overlayId: string): void {
 
   _markSeen(overlayId);
   const panel = overlay.querySelector<HTMLElement>(cfg.panel);
-  if (panel) setTimeout(() => _showHint(panel, cfg.text), 250);
+  if (panel) setTimeout(() => _showHint(panel, t(cfg.key)), 250);
 }
 
 function _watch(overlayId: string): void {
