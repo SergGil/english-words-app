@@ -143,6 +143,28 @@ const DICT: Record<string, Record<Lang, string>> = {
   'levels.maxReached': { ua: '🏆 Максимум!', en: '🏆 Max level!' },
   'levels.learned':    { ua: 'вивчено',      en: 'learned' },
 
+  'lp.pageTitle':       { ua: '🎯 Шлях навчання',                       en: '🎯 Learning Path' },
+  'lp.todayPlan':       { ua: 'Сьогоднішній план — рівень',             en: 'Today’s plan — level' },
+  'lp.learnWordsNow':   { ua: 'Вчити слова',                            en: 'Learn' },
+  'lp.now':             { ua: 'зараз',                                  en: 'now' },
+  'lp.levelWord':       { ua: 'Рівень',                                 en: 'Level' },
+  'lp.completedExcl':   { ua: 'завершено!',                             en: 'completed!' },
+  'lp.allLearned':      { ua: 'Всі слова цього рівня вивчено. Переходь до наступного!', en: 'You’ve learned all the words for this level. Move on to the next one!' },
+  'lp.yourPace':        { ua: 'твій темп:',                             en: 'your pace:' },
+  'lp.wordsPerDay':     { ua: 'сл/день',                                en: 'words/day' },
+  'lp.defaultPace':     { ua: '20 сл/день',                             en: '20 words/day' },
+  'lp.currentNow':      { ua: '← зараз',                                en: '← now' },
+  'lp.learnArrow':      { ua: 'Вчити →',                                en: 'Learn →' },
+  'lp.daysApprox':      { ua: 'днів',                                   en: 'days' },
+  'lp.openGrammar':     { ua: 'Відкрити граматику',                     en: 'Open grammar' },
+  'lp.completed':       { ua: '✓ Завершено',                            en: '✓ Completed' },
+  'lp.currentFocus':    { ua: 'Поточний фокус',                         en: 'Current focus' },
+  'lp.cefrProgress':    { ua: '📊 Прогрес за рівнями CEFR',             en: '📊 Progress by CEFR level' },
+  'lp.wordsCount':      { ua: 'слів',                                   en: 'words' },
+  'lp.completedPct':    { ua: 'завершено',                              en: 'completed' },
+  'lp.wordsPerDayFull': { ua: 'слів/день',                              en: 'words/day' },
+  'lp.startLearning':   { ua: 'Починай вчити — побачиш свій темп',      en: 'Start learning to see your pace' },
+
   'lb.loading':  { ua: '⏳ Завантаження...',                              en: '⏳ Loading...' },
   'lb.empty':    { ua: 'Поки немає учасників. Ти будеш першим!',         en: 'No participants yet. You’ll be the first!' },
   'lb.top20':    { ua: '🌍 Топ-20 гравців · оновлюється при відкритті',  en: '🌍 Top 20 players · refreshes on open' },
@@ -203,6 +225,37 @@ const CATEGORY_NAMES_EN: Record<string, string> = {
 
 export function categoryName(name: string): string {
   return getLang() === 'en' ? (CATEGORY_NAMES_EN[name] ?? name) : name;
+}
+
+const SKILL_NAMES_EN: Record<string, string> = {
+  'Базове вітання':        'Basic greetings',
+  'Числа і кольори':       'Numbers and colors',
+  'Сім\'я та тіло':        'Family and body',
+  'Повсякденні дії':       'Everyday actions',
+  'Опис людей/місць':      'Describing people/places',
+  'Магазини і ціни':       'Shops and prices',
+  'Подорожі':              'Travel',
+  'Минулі події':          'Past events',
+  'Розмова про роботу':    'Talking about work',
+  'Новини та медіа':       'News and media',
+  'Вирішення проблем':     'Problem solving',
+  'Плани на майбутнє':     'Future plans',
+  'Академічні тексти':     'Academic texts',
+  'Бізнес комунікація':    'Business communication',
+  'Складні аргументи':     'Complex arguments',
+  'Фільми без субтитрів':  'Movies without subtitles',
+  'Наукові статті':        'Scientific articles',
+  'Переговори':            'Negotiations',
+  'Нюанси та ідіоми':      'Nuances and idioms',
+  'Публічні виступи':      'Public speaking',
+  'Художня проза':         'Literary prose',
+  'Академічний стиль':     'Academic style',
+  'Повне розуміння':       'Full comprehension',
+  'Рівень носія':          'Native-like level',
+};
+
+export function skillName(name: string): string {
+  return getLang() === 'en' ? (SKILL_NAMES_EN[name] ?? name) : name;
 }
 
 const MONTHS_UA = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
@@ -269,6 +322,9 @@ export function applyI18n(): void {
   if (document.getElementById('ach-overlay')?.classList.contains('open')) {
     (window.renderAchievements as (() => void) | undefined)?.();
     (window.renderLevelsRoadmap as (() => void) | undefined)?.();
+  }
+  if (document.getElementById('lp-overlay')?.classList.contains('open')) {
+    (window.renderLearningPath as (() => void) | undefined)?.();
   }
   const statsOverlay = document.getElementById('stats-overlay') as HTMLElement | null;
   if (statsOverlay && statsOverlay.style.display === 'flex') {

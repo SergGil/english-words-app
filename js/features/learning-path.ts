@@ -12,6 +12,7 @@ import {
   computeCefrStats, findCurrentLevel, filterDailyWords,
   computePersonalPace, estimateDays, updateCompletionDates,
 } from './learning-path-logic.ts';
+import { t, getLang, skillName, levelName } from './i18n.ts';
 export type { CefrStats, CefrStat, PaceSnapshot } from './learning-path-logic.ts';
 export {
   computeCefrStats, findCurrentLevel, filterDailyWords,
@@ -113,7 +114,7 @@ function _saveCompletionDates(dates: Record<string, string>): void {
 
 function _formatDate(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString('uk-UA', { day: 'numeric', month: 'short', year: 'numeric' });
+  return d.toLocaleDateString(getLang() === 'en' ? 'en-US' : 'uk-UA', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 // ── Navigate to CEFR level ────────────────────────────────────
@@ -155,7 +156,7 @@ export function renderLearningPath(): void {
   // Daily challenge section
   const dailyChallengeHtml = todayWords.length > 0 ? `
     <div class="lp-section">
-      <div class="lp-section-title">📅 Сьогоднішній план — рівень ${currentLevel}</div>
+      <div class="lp-section-title">📅 ${t('lp.todayPlan')} ${currentLevel}</div>
       <div class="lp-day-words">
         ${todayWords.map(w => `
           <div class="lp-word-chip">
@@ -165,13 +166,13 @@ export function renderLearningPath(): void {
         `).join('')}
       </div>
       <button class="lp-start-btn" data-lp-level="${currentLevel}">
-        📚 Вчити слова ${currentLevel} зараз
+        📚 ${t('lp.learnWordsNow')} ${currentLevel} ${t('lp.now')}
       </button>
     </div>
   ` : `
     <div class="lp-section lp-complete">
-      <div class="lp-section-title">🏆 Рівень ${currentLevel} завершено!</div>
-      <p>Всі слова цього рівня вивчено. Переходь до наступного!</p>
+      <div class="lp-section-title">🏆 ${t('lp.levelWord')} ${currentLevel} ${t('lp.completedExcl')}</div>
+      <p>${t('lp.allLearned')}</p>
     </div>
   `;
 
@@ -185,15 +186,15 @@ export function renderLearningPath(): void {
     const remaining = s.total - s.known;
     const days      = estimateDays(remaining, pace);
     const paceLabel = pace !== null && pace > 0
-      ? `твій темп: ${pace} сл/день`
-      : '20 сл/день';
+      ? `${t('lp.yourPace')} ${pace} ${t('lp.wordsPerDay')}`
+      : t('lp.defaultPace');
 
     const skillsHtml = plan.skills.map(sk => {
       const gid = plan.grammarLinks[sk];
       if (gid) {
-        return `<span class="lp-skill-tag lp-skill-link" data-grammar="${gid}" title="Відкрити граматику">✓ ${sk} ↗</span>`;
+        return `<span class="lp-skill-tag lp-skill-link" data-grammar="${gid}" title="${t('lp.openGrammar')}">✓ ${skillName(sk)} ↗</span>`;
       }
-      return `<span class="lp-skill-tag">✓ ${sk}</span>`;
+      return `<span class="lp-skill-tag">✓ ${skillName(sk)}</span>`;
     }).join('');
 
     const milestones = [25, 50, 75].map(m =>
@@ -201,7 +202,7 @@ export function renderLearningPath(): void {
     ).join('');
 
     const completionHtml = isComplete && compDate
-      ? `<div class="lp-completion-date">✓ Завершено ${_formatDate(compDate)}</div>`
+      ? `<div class="lp-completion-date">${t('lp.completed')} ${_formatDate(compDate)}</div>`
       : '';
 
     return `
@@ -212,16 +213,16 @@ export function renderLearningPath(): void {
           </span>
           <div class="lp-level-info">
             <div class="lp-level-name" style="color:${meta.color}">
-              ${plan.level} — ${meta.desc}
-              ${isCurrent ? '<span class="lp-current-badge">← зараз</span>' : ''}
+              ${plan.level} — ${t('cefr.' + plan.level)}
+              ${isCurrent ? `<span class="lp-current-badge">${t('lp.currentNow')}</span>` : ''}
             </div>
-            <div class="lp-level-skills">${plan.skills.slice(0, 2).join(' · ')}</div>
+            <div class="lp-level-skills">${plan.skills.slice(0, 2).map(skillName).join(' · ')}</div>
           </div>
           <div class="lp-level-stat">
             <div class="lp-stat-num" style="color:${meta.color}">${s.known}/${s.total}</div>
             <div class="lp-stat-pct">${s.pct}%</div>
           </div>
-          ${!isComplete ? `<button class="lp-learn-btn" data-lp-level="${plan.level}" style="border-color:${meta.color};color:${meta.color}">Вчити →</button>` : ''}
+          ${!isComplete ? `<button class="lp-learn-btn" data-lp-level="${plan.level}" style="border-color:${meta.color};color:${meta.color}">${t('lp.learnArrow')}</button>` : ''}
         </div>
         <div class="lp-progress-bar">
           <div class="lp-progress-fill" style="width:${s.pct}%;background:${meta.color};"></div>
@@ -230,7 +231,7 @@ export function renderLearningPath(): void {
         ${completionHtml}
         <div class="lp-level-details">
           ${skillsHtml}
-          <span class="lp-days-est">~${days} днів (${paceLabel})</span>
+          <span class="lp-days-est">~${days} ${t('lp.daysApprox')} (${paceLabel})</span>
         </div>
       </div>
     `;
@@ -241,16 +242,16 @@ export function renderLearningPath(): void {
   const totalWords  = Object.values(stats).reduce((s, v) => s + v.total, 0);
   const overallPct  = Math.round(totalKnown / totalWords * 100);
   const paceDisplay = pace !== null && pace > 0
-    ? `⚡ ${pace} слів/день`
-    : '📈 Починай вчити — побачиш свій темп';
+    ? `⚡ ${pace} ${t('lp.wordsPerDayFull')}`
+    : `📈 ${t('lp.startLearning')}`;
 
   el.innerHTML = `
     <div class="lp-hero">
       <div class="lp-hero-left">
-        <div class="lp-hero-level">${lv.name}</div>
+        <div class="lp-hero-level">${levelName(lv.name)}</div>
         <div class="lp-hero-stats">
-          <span>📚 ${totalKnown} / ${totalWords} слів</span>
-          <span>📊 ${overallPct}% завершено</span>
+          <span>📚 ${totalKnown} / ${totalWords} ${t('lp.wordsCount')}</span>
+          <span>📊 ${overallPct}% ${t('lp.completedPct')}</span>
           <span class="lp-pace-display">${paceDisplay}</span>
         </div>
         <div class="lp-hero-bar">
@@ -258,16 +259,16 @@ export function renderLearningPath(): void {
         </div>
       </div>
       <div class="lp-hero-focus">
-        <div class="lp-focus-label">Поточний фокус</div>
+        <div class="lp-focus-label">${t('lp.currentFocus')}</div>
         <div class="lp-focus-level" style="color:${CEFR_META[currentLevel].color}">${currentLevel}</div>
-        <div class="lp-focus-desc">${CEFR_META[currentLevel].desc}</div>
+        <div class="lp-focus-desc">${t('cefr.' + currentLevel)}</div>
       </div>
     </div>
 
     ${dailyChallengeHtml}
 
     <div class="lp-section">
-      <div class="lp-section-title">📊 Прогрес за рівнями CEFR</div>
+      <div class="lp-section-title">${t('lp.cefrProgress')}</div>
       <div class="lp-levels-list">${progressHtml}</div>
     </div>
   `;
@@ -294,3 +295,4 @@ export function openLearningPath(): void {
   renderLearningPath();
 }
 window.openLearningPath = openLearningPath;
+window.renderLearningPath = renderLearningPath;
