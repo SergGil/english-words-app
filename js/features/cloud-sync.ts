@@ -1,5 +1,6 @@
 // English Words App — js/features/cloud-sync.ts
 // Firebase Realtime Database sync via REST API (no SDK)
+import { t } from './i18n.ts';
 export {};
 
 const DB_URL      = 'https://english-words-trainer-557e8-default-rtdb.europe-west1.firebasedatabase.app';
@@ -65,11 +66,11 @@ async function saveToCloud(): Promise<void> {
 
 async function loadFromCloud(raw: string): Promise<void> {
   const key = raw.replace(/[-\s]/g, '').toUpperCase();
-  if (key.length < 12) throw new Error('Ключ занадто короткий');
+  if (key.length < 12) throw new Error(t('settings.cloudKeyTooShort'));
   const res = await fetch(DB_URL + '/sync/' + key + '.json');
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const data = await res.json() as Record<string, string> | null;
-  if (!data || !data._ts) throw new Error('Дані не знайдено');
+  if (!data || !data._ts) throw new Error(t('settings.cloudDataNotFound'));
   // Restore fixed keys
   for (const k of BACKUP_KEYS) {
     if (data[k]) localStorage.setItem(k, data[k]);
@@ -93,11 +94,11 @@ function _fmtLast(): string {
   if (!ts) return '';
   const diff = Date.now() - ts;
   const mins = Math.floor(diff / 60000);
-  if (mins < 1)  return 'щойно';
-  if (mins < 60) return mins + ' хв тому';
+  if (mins < 1)  return t('settings.cloudJustNow');
+  if (mins < 60) return mins + ' ' + t('settings.cloudMinAgo');
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24)  return hrs + ' год тому';
-  return Math.floor(hrs / 24) + ' дн тому';
+  if (hrs < 24)  return hrs + ' ' + t('settings.cloudHourAgo');
+  return Math.floor(hrs / 24) + ' ' + t('settings.cloudDayAgo');
 }
 
 async function _autoSave(): Promise<void> {
@@ -105,10 +106,10 @@ async function _autoSave(): Promise<void> {
     await saveToCloud();
     localStorage.setItem(LAST_LS, String(Date.now()));
     const el = document.getElementById('cs-last');
-    if (el) el.textContent = 'Авто: ' + _fmtLast();
+    if (el) el.textContent = t('settings.cloudAutoPrefix') + ' ' + _fmtLast();
   } catch (err) {
     const el = document.getElementById('cs-last');
-    if (el) el.textContent = '⚠️ Помилка синхронізації';
+    if (el) el.textContent = t('settings.cloudSyncError');
     console.warn('[cloud-sync] auto-save failed:', err);
   }
 }
@@ -131,7 +132,7 @@ function _initUI(): void {
 
   // Last sync label
   const lastEl = document.getElementById('cs-last');
-  if (lastEl && _fmtLast()) lastEl.textContent = 'Авто: ' + _fmtLast();
+  if (lastEl && _fmtLast()) lastEl.textContent = t('settings.cloudAutoPrefix') + ' ' + _fmtLast();
 
   // Restore interval dropdown to saved value
   const sel = document.getElementById('cs-interval') as HTMLSelectElement | null;
@@ -150,8 +151,8 @@ function _initUI(): void {
       .then(() => {
         const btn = document.getElementById('cs-copy')!;
         const orig = btn.textContent;
-        btn.textContent = '✅ Скопійовано';
-        setTimeout(() => { btn.textContent = orig ?? '📋 Копія'; }, 2000);
+        btn.textContent = t('settings.cloudCopied');
+        setTimeout(() => { btn.textContent = orig ?? t('settings.cloudCopy'); }, 2000);
       })
       .catch(() => prompt('Твій ключ:', _fmt(_getKey())));
   });
@@ -160,12 +161,12 @@ function _initUI(): void {
   const saveBtn = document.getElementById('cs-save') as HTMLButtonElement | null;
   saveBtn?.addEventListener('click', async () => {
     if (saveBtn) saveBtn.disabled = true;
-    setMsg('Збереження...', 'var(--text3)');
+    setMsg(t('settings.cloudSaving'), 'var(--text3)');
     try {
       await saveToCloud();
       localStorage.setItem(LAST_LS, String(Date.now()));
-      if (lastEl) lastEl.textContent = 'Авто: ' + _fmtLast();
-      setMsg('✅ Збережено!', '#27ae60');
+      if (lastEl) lastEl.textContent = t('settings.cloudAutoPrefix') + ' ' + _fmtLast();
+      setMsg(t('settings.cloudSaved'), '#27ae60');
     } catch (e) {
       setMsg('❌ ' + (e as Error).message, '#e74c3c');
     } finally {
@@ -178,7 +179,7 @@ function _initUI(): void {
     const min = parseInt(sel.value);
     localStorage.setItem(INTERVAL_LS, String(min));
     _startAutoSync();
-    setMsg(min ? 'Авто-збереження увімкнено' : 'Авто-збереження вимкнено', min ? '#27ae60' : 'var(--text3)');
+    setMsg(min ? t('settings.cloudAutoOn') : t('settings.cloudAutoOff'), min ? '#27ae60' : 'var(--text3)');
     setTimeout(() => setMsg('', ''), 2500);
   });
 
@@ -194,14 +195,14 @@ function _initUI(): void {
   // Restore button
   const restoreBtn = document.getElementById('cs-restore') as HTMLButtonElement | null;
   restoreBtn?.addEventListener('click', async () => {
-    if (!inp?.value.trim()) { setMsg('Введи ключ синхронізації', '#e74c3c'); return; }
-    if (!confirm('Поточний прогрес буде замінено даними з хмари. Продовжити?')) return;
+    if (!inp?.value.trim()) { setMsg(t('settings.cloudEnterKey'), '#e74c3c'); return; }
+    if (!confirm(t('settings.cloudRestoreConfirm'))) return;
     if (restoreBtn) restoreBtn.disabled = true;
     if (inp) inp.disabled = true;
-    setMsg('Завантаження...', 'var(--text3)');
+    setMsg(t('settings.cloudLoading'), 'var(--text3)');
     try {
       await loadFromCloud(inp.value);
-      setMsg('✅ Успішно! Перезавантаження...', '#27ae60');
+      setMsg(t('settings.cloudRestoreSuccess'), '#27ae60');
       setTimeout(() => location.reload(), 1200);
     } catch (e) {
       setMsg('❌ ' + (e as Error).message, '#e74c3c');
@@ -210,6 +211,10 @@ function _initUI(): void {
     }
   });
 }
+window._refreshCloudSyncUI = (): void => {
+  const lastEl = document.getElementById('cs-last');
+  if (lastEl && _fmtLast()) lastEl.textContent = t('settings.cloudAutoPrefix') + ' ' + _fmtLast();
+};
 
 // Start auto-sync and bind UI
 _startAutoSync();

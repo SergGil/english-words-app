@@ -1,6 +1,7 @@
 // English Words App — js/features/voice.ts
 // Web Speech API voice picker: EN + UA
 import { synth } from '../core/srs.ts';
+import { t } from './i18n.ts';
 
 let _enURI = localStorage.getItem('ew_ws_voice')    ?? '';
 let _ukURI = localStorage.getItem('ew_ws_uk_voice') ?? '';
@@ -110,7 +111,7 @@ function _makeCard(v: SpeechSynthesisVoice, activeURI: string, onSelect: (uri: s
   });
   const sub = document.createElement('div');
   sub.style.cssText = 'font-size:.65rem;color:var(--text3);';
-  sub.textContent = v.lang + (v.localService ? ' · офлайн' : ' · онлайн');
+  sub.textContent = v.lang + ' · ' + (v.localService ? t('settings.voiceOffline') : t('settings.voiceOnline'));
   btn.append(top, sub);
   btn.addEventListener('click', () => onSelect(v.voiceURI));
   return btn;
@@ -122,7 +123,7 @@ function _renderVoices(): void {
   container.innerHTML = '';
   const enVoices = _sortVoices(_enVoices()), ukVoices = _sortVoices(_ukVoices());
   if (!enVoices.length && !ukVoices.length) {
-    container.innerHTML = '<span style="font-size:.78rem;color:var(--text3);">Голоси не знайдено. Спробуйте оновити сторінку.</span>'; return;
+    container.innerHTML = '<span style="font-size:.78rem;color:var(--text3);">' + t('settings.voicesNotFound') + '</span>'; return;
   }
   const addSection = (title: string, voices: SpeechSynthesisVoice[], activeURI: string, storageKey: string, testText: string): void => {
     if (!voices.length) return;
@@ -139,13 +140,13 @@ function _renderVoices(): void {
     })));
     container.appendChild(grid);
   };
-  addSection('🇬🇧 Англійські голоси (EN→UA картки)', enVoices, _enURI, 'ew_ws_voice', 'Hello there, general Kenobi');
+  addSection(t('settings.enVoicesTitle'), enVoices, _enURI, 'ew_ws_voice', 'Hello there, general Kenobi');
   if (ukVoices.length) {
-    addSection('🇺🇦 Українські голоси (UA→EN картки)', ukVoices, _ukURI, 'ew_ws_uk_voice', 'Привіт, як справи');
+    addSection(t('settings.ukVoicesTitle'), ukVoices, _ukURI, 'ew_ws_uk_voice', 'Привіт, як справи');
   } else {
     const noUk = document.createElement('div');
     noUk.style.cssText = 'margin-top:12px;padding:12px 14px;border:1.5px dashed rgba(255,255,255,.12);border-radius:12px;font-size:.78rem;color:var(--text2);line-height:1.6;';
-    noUk.innerHTML = '<b style="color:var(--text)">🇺🇦 Українські голоси не знайдено</b><br>Для озвучення UA→EN карток потрібно встановити Ukrainian TTS.<br><b>Windows:</b> Налаштування → Час і мова → Мовлення → "Polina" або "Ostap"';
+    noUk.innerHTML = `<b style="color:var(--text)">${t('settings.noUkVoicesTitle')}</b><br>${t('settings.noUkVoicesDesc')}`;
     container.appendChild(noUk);
   }
   if (!_enURI && enVoices.length) { _enURI = (enVoices.find(v => v.name.toLowerCase().includes('google')) ?? enVoices[0]).voiceURI; localStorage.setItem('ew_ws_voice', _enURI); }
@@ -187,7 +188,7 @@ document.getElementById('voices-reload-btn')?.addEventListener('click', () => {
     const msg = document.createElement('div');
     msg.className = 'voice-debug-msg'; msg.style.cssText = 'font-size:.72rem;color:var(--text3);margin-top:8px;padding:8px;background:rgba(255,255,255,.05);border-radius:8px;word-break:break-all;';
     const ukFound = all.filter(v => (v.lang ?? '').toLowerCase().includes('uk') || (v.name ?? '').toLowerCase().includes('ukra'));
-    msg.textContent = `Знайдено ${all.length} голосів. UA голоси: ${ukFound.map(v => `${v.name} (${v.lang})`).join(', ') || 'не знайдено'}`;
+    msg.textContent = `${t('settings.voicesFoundLabel')} ${all.length} ${t('settings.voicesLabel')} ${ukFound.map(v => `${v.name} (${v.lang})`).join(', ') || t('settings.notFound')}`;
     dbg.querySelector('.voice-debug-msg')?.remove(); dbg.appendChild(msg);
   }
   _forceReload();

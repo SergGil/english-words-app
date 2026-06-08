@@ -3,6 +3,7 @@ import { updateSrsLabel, updateSrsStats } from '../core/srs.ts';
 import { _imgCache, loadWikiImage } from '../core/images.ts';
 import { W } from '../../data/words.js';
 import { openPage } from './sidebar.ts';
+import { t } from './i18n.ts';
 
 type VoidFn = () => void;
 const _callWin = (name: string) => (window[name] as VoidFn | undefined)?.();
@@ -76,7 +77,7 @@ if (btnSW) {
     const isOn = document.body.classList.toggle('sw');
     localStorage.setItem('ew_sw', isOn ? '1' : '0');
     // SW has its own CSS variables — no need to force dark mode
-    btnSW.title = isOn ? 'Star Wars режим (ON) — натисни щоб вимкнути' : 'Star Wars режим';
+    btnSW.title = isOn ? t('settings.swTitleOn') : t('settings.swTitle');
   });
 }
 

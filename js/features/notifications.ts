@@ -1,5 +1,6 @@
 // English Words App — js/features/notifications.ts
 import { state } from '../../src/state.ts';
+import { t } from './i18n.ts';
 
 const KEY_ENABLED = 'ew_notif_enabled';
 const KEY_TIME    = 'ew_notif_time';    // "HH:MM"
@@ -27,16 +28,17 @@ function _updateUI(): void {
 
   if (permBtn) {
     if (granted)     { permBtn.style.display = 'none'; }
-    else if (denied) { permBtn.textContent = '🔒 Заблоковано'; permBtn.disabled = true; permBtn.style.opacity = '.5'; }
-    else             { permBtn.style.display = ''; permBtn.textContent = 'Дозволити'; permBtn.disabled = false; permBtn.style.opacity = ''; }
+    else if (denied) { permBtn.textContent = t('settings.notifBlockedShort'); permBtn.disabled = true; permBtn.style.opacity = '.5'; }
+    else             { permBtn.style.display = ''; permBtn.textContent = t('settings.notifAllow'); permBtn.disabled = false; permBtn.style.opacity = ''; }
   }
   if (!status) return;
-  if (!('Notification' in window))    { status.textContent = 'Браузер не підтримує сповіщення'; }
-  else if (denied)                    { status.textContent = '❌ Заблоковано — дозволь в браузері'; }
-  else if (on)                        { status.textContent = `✅ Нагадування о ${getTime()}`; }
-  else if (granted)                   { status.textContent = 'Дозвіл є, але сповіщення вимкнено'; }
-  else                                { status.textContent = 'Натисни "Дозволити" щоб отримувати нагадування'; }
+  if (!('Notification' in window))    { status.textContent = t('settings.notifNotSupported'); }
+  else if (denied)                    { status.textContent = t('settings.notifBlocked'); }
+  else if (on)                        { status.textContent = `${t('settings.notifReminderAt')} ${getTime()}`; }
+  else if (granted)                   { status.textContent = t('settings.notifGrantedOff'); }
+  else                                { status.textContent = t('settings.notifPromptToEnable'); }
 }
+window._refreshNotifUI = _updateUI;
 
 window.requestNotifPermission = (): void => {
   if (!('Notification' in window)) return;

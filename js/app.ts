@@ -1462,16 +1462,16 @@ function importProgress(code: string): boolean {
     if (barEl) barEl.style.width = pct + '%';
     if (statusEl) {
       if (_running) {
-        statusEl.textContent = 'Завантажується... ' + cached + '/' + total + ' (' + withImg + ' з фото)';
+        statusEl.textContent = t('settings.prefetchLoading') + ' ' + cached + '/' + total + ' (' + withImg + ' ' + t('settings.withPhotos') + ')';
         statusEl.style.color = 'var(--accent)';
       } else if (cached >= total) {
-        statusEl.textContent = '✅ Готово: ' + withImg + ' зображень з ' + total + ' слів';
+        statusEl.textContent = t('settings.prefetchDonePrefix') + ' ' + withImg + ' ' + t('settings.prefetchImagesOf') + ' ' + total + ' ' + wordsLabel(total);
         statusEl.style.color = '#27ae60';
       } else if (cached > 0) {
-        statusEl.textContent = 'Призупинено: ' + cached + '/' + total + ' (' + withImg + ' з фото)';
+        statusEl.textContent = t('settings.prefetchPaused') + ' ' + cached + '/' + total + ' (' + withImg + ' ' + t('settings.withPhotos') + ')';
         statusEl.style.color = 'var(--text3)';
       } else {
-        statusEl.textContent = 'Готово до завантаження (' + total + ' слів)';
+        statusEl.textContent = t('settings.prefetchReady') + ' (' + total + ' ' + wordsLabel(total) + ')';
         statusEl.style.color = 'var(--text3)';
       }
     }
@@ -1529,6 +1529,7 @@ function importProgress(code: string): boolean {
   });
 
   // Оновити prefetch UI при відкритті stats (вже мерджено з основним btn-stats listener)
+  window._refreshPrefetchUI = updateUI;
 })();
 
 // ── Pixabay ключ ──
@@ -1540,15 +1541,16 @@ function importProgress(code: string): boolean {
   function refreshStatus() {
     var k = _getPixabayKey();
     if (k) {
-      status.textContent = '✅ Ключ збережено. Нові слова отримають фото автоматично.';
+      status.textContent = t('settings.pixabayKeySaved');
       status.style.color = 'var(--accent)';
       inp!.value = k.slice(0, 6) + '••••••••••••••••••••••••••';
     } else {
-      status.textContent = 'Ключ не вказано — використовується лише Wikipedia.';
+      status.textContent = t('settings.pixabayNoKey');
       status.style.color = 'var(--text3)';
     }
   }
   refreshStatus();
+  window._refreshPixabayStatus = refreshStatus;
 
   saveBtn.addEventListener('click', function() {
     var val = inp!.value.trim();

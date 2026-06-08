@@ -505,23 +505,23 @@
   <div id="settings-overlay" class="page-overlay">
     <div class="page-inner">
       <div class="page-header">
-        <div class="page-title">⚙️ Налаштування</div>
+        <div class="page-title" data-i18n="settings.pageTitle">⚙️ Налаштування</div>
         <button class="page-close-btn" data-close-page>✕</button>
       </div>
 
       <!-- Теми / зовнішній вигляд -->
       <div class="settings-section">
-        <div class="settings-section-title">🎨 Теми</div>
-        <div class="settings-desc">Обери оформлення застосунку.</div>
+        <div class="settings-section-title" data-i18n="settings.themesTitle">🎨 Теми</div>
+        <div class="settings-desc" data-i18n="settings.themesDesc">Обери оформлення застосунку.</div>
         <div style="margin-top:8px;display:flex;flex-direction:column;gap:2px;">
           <div class="sb-toggle-row" id="set-theme" style="background:var(--bg);border-radius:10px;">
             <span class="sb-icon">🌙</span>
-            <span class="sb-label">Темна тема</span>
+            <span class="sb-label" data-i18n="settings.darkTheme">Темна тема</span>
             <span class="sb-toggle-pill" id="set-theme-pill"></span>
           </div>
           <div class="sb-toggle-row" id="set-sw" style="background:var(--bg);border-radius:10px;">
             <span class="sb-icon">⚔️</span>
-            <span class="sb-label">Star Wars</span>
+            <span class="sb-label" data-i18n="settings.starWars">Star Wars</span>
             <span class="sb-toggle-pill" id="set-sw-pill"></span>
           </div>
         </div>
@@ -530,35 +530,35 @@
       <!-- Голос -->
       <div class="settings-section">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <div class="settings-section-title" style="margin-bottom:0">🔊 Голос озвучення</div>
-          <button id="voices-reload-btn" class="backup-btn" style="padding:5px 12px;font-size:.75rem;flex-shrink:0;" title="Перезавантажити список голосів">🔄 Оновити список</button>
+          <div class="settings-section-title" style="margin-bottom:0" data-i18n="settings.voiceTitle">🔊 Голос озвучення</div>
+          <button id="voices-reload-btn" class="backup-btn" style="padding:5px 12px;font-size:.75rem;flex-shrink:0;" data-i18n="settings.voiceReload" data-i18n-title="settings.voiceReloadTitle" title="Перезавантажити список голосів">🔄 Оновити список</button>
         </div>
-        <div class="settings-desc" style="margin-top:4px;">Безкоштовно, без API ключа, миттєво. Аудіо кешується після першого відтворення.</div>
+        <div class="settings-desc" style="margin-top:4px;" data-i18n="settings.voiceDesc">Безкоштовно, без API ключа, миттєво. Аудіо кешується після першого відтворення.</div>
         <div id="fy-voices-list" style="margin-top:10px;"></div>
       </div>
 
       <!-- Зображення -->
       <div class="settings-section">
-        <div class="settings-section-title">🖼️ Зображення на картках</div>
-        <div class="settings-desc">Безкоштовний ключ Pixabay дає фото для ~90% слів. Отримай на <b>pixabay.com/api/docs</b>.</div>
+        <div class="settings-section-title" data-i18n="settings.imagesTitle">🖼️ Зображення на картках</div>
+        <div class="settings-desc"><span data-i18n="settings.imagesDesc1">Безкоштовний ключ Pixabay дає фото для ~90% слів.</span> <span data-i18n="settings.imagesDesc2">Отримай на</span> <b>pixabay.com/api/docs</b>.</div>
         <div style="display:flex;gap:6px;align-items:center;margin-top:8px;">
-          <input id="pixabay-key-input" type="text" placeholder="Вставте Pixabay API ключ..."
+          <input id="pixabay-key-input" type="text" placeholder="Вставте Pixabay API ключ..." data-i18n-placeholder="settings.pixabayPlaceholder"
             style="flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:9px;
                    font-size:.82rem;font-family:inherit;background:var(--bg);color:var(--text);outline:none;">
-          <button id="pixabay-key-save" class="backup-btn primary" style="flex-shrink:0;padding:8px 16px;">Зберегти</button>
+          <button id="pixabay-key-save" class="backup-btn primary" style="flex-shrink:0;padding:8px 16px;" data-i18n="settings.save">Зберегти</button>
         </div>
         <div id="pixabay-key-status" style="font-size:.73rem;margin-top:5px;color:var(--text3);"></div>
         <div style="margin-top:12px;">
-          <div class="settings-desc" style="margin-bottom:8px;">Завантаж URL зображень для всіх слів у фоні — після цього картинки з'являтимуться миттєво.</div>
+          <div class="settings-desc" style="margin-bottom:8px;" data-i18n="settings.prefetchDesc">Завантаж URL зображень для всіх слів у фоні — після цього картинки з'являтимуться миттєво.</div>
           <div style="height:5px;background:var(--border);border-radius:4px;margin-bottom:8px;overflow:hidden;">
             <div id="prefetch-bar" style="height:100%;background:var(--accent);border-radius:4px;transition:width .5s;width:0%"></div>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-            <span id="prefetch-status" style="font-size:.72rem;color:var(--text3);">Готово до завантаження</span>
+            <span id="prefetch-status" style="font-size:.72rem;color:var(--text3);" data-i18n="settings.prefetchReady">Готово до завантаження</span>
             <div style="display:flex;gap:6px;">
-              <button id="prefetch-start" class="backup-btn primary" style="padding:6px 12px;font-size:.75rem;">▶ Завантажити</button>
-              <button id="prefetch-stop"  class="backup-btn" style="display:none;padding:6px 12px;font-size:.75rem;">⏸ Пауза</button>
-              <button id="prefetch-clear" class="backup-btn" style="padding:6px 12px;font-size:.75rem;">🗑 Очистити</button>
+              <button id="prefetch-start" class="backup-btn primary" style="padding:6px 12px;font-size:.75rem;" data-i18n="settings.prefetchStart">▶ Завантажити</button>
+              <button id="prefetch-stop"  class="backup-btn" style="display:none;padding:6px 12px;font-size:.75rem;" data-i18n="settings.prefetchPause">⏸ Пауза</button>
+              <button id="prefetch-clear" class="backup-btn" style="padding:6px 12px;font-size:.75rem;" data-i18n="settings.prefetchClear">🗑 Очистити</button>
             </div>
           </div>
         </div>
@@ -566,101 +566,101 @@
 
       <!-- Збереження прогресу -->
       <div class="settings-section">
-        <div class="settings-section-title">💾 Збереження прогресу</div>
-        <div class="settings-desc">Експортуй прогрес перед оновленням файлу — щоб не втратити вивчені слова.</div>
+        <div class="settings-section-title" data-i18n="settings.backupTitle">💾 Збереження прогресу</div>
+        <div class="settings-desc" data-i18n="settings.backupDesc">Експортуй прогрес перед оновленням файлу — щоб не втратити вивчені слова.</div>
         <div class="backup-row" style="margin-top:10px;">
-          <button class="backup-btn primary" id="btn-export">📤 Експорт</button>
-          <button class="backup-btn" id="btn-import-open">📥 Імпорт</button>
+          <button class="backup-btn primary" id="btn-export" data-i18n="settings.export">📤 Експорт</button>
+          <button class="backup-btn" id="btn-import-open" data-i18n="settings.import">📥 Імпорт</button>
         </div>
         <div class="backup-row" style="margin-top:6px;">
-          <button class="backup-btn" id="btn-anki-export">🃏 Anki CSV</button>
-          <button class="backup-btn" id="btn-share">📤 Поділитись</button>
+          <button class="backup-btn" id="btn-anki-export" data-i18n="settings.ankiCsv">🃏 Anki CSV</button>
+          <button class="backup-btn" id="btn-share" data-i18n="settings.share">📤 Поділитись</button>
         </div>
         <div class="backup-row" style="margin-top:6px;">
-          <button class="backup-btn" id="btn-csv-export">📊 Google Sheets CSV</button>
-          <button class="backup-btn" id="btn-pdf-export">🖨️ PDF / Друк</button>
+          <button class="backup-btn" id="btn-csv-export" data-i18n="settings.sheetsCsv">📊 Google Sheets CSV</button>
+          <button class="backup-btn" id="btn-pdf-export" data-i18n="settings.pdfExport">🖨️ PDF / Друк</button>
         </div>
         <div class="backup-row" style="margin-top:6px;">
-          <button class="backup-btn" id="btn-csv-import" title="Імпорт власних слів з CSV файлу">📂 Імпорт CSV</button>
+          <button class="backup-btn" id="btn-csv-import" data-i18n="settings.csvImport" data-i18n-title="settings.csvImportTitle" title="Імпорт власних слів з CSV файлу">📂 Імпорт CSV</button>
           <input type="file" id="csv-import-file" accept=".csv,.txt" style="display:none;">
         </div>
         <div id="csv-import-hint" style="font-size:.7rem;color:var(--text3);margin-top:4px;display:none;">
-          Формат CSV: <code>english,translation</code> (одне слово на рядок)
+          <span data-i18n="settings.csvFormatLabel">Формат CSV:</span> <code>english,translation</code> <span data-i18n="settings.csvFormatHint">(одне слово на рядок)</span>
         </div>
         <div style="font-size:.72rem;color:var(--text3);margin-top:6px;">
-          <label for="export-filter" style="margin-right:6px;">Експортувати:</label>
+          <label for="export-filter" style="margin-right:6px;" data-i18n="settings.exportLabel">Експортувати:</label>
           <select id="export-filter" style="padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:.72rem;font-family:inherit;">
-            <option value="known">✓ Тільки вивчені</option>
-            <option value="unknown">🔴 Тільки невивчені</option>
-            <option value="all">📚 Всі слова</option>
-            <option value="custom">➕ Тільки власні</option>
+            <option value="known" data-i18n="settings.exportKnown">✓ Тільки вивчені</option>
+            <option value="unknown" data-i18n="settings.exportUnknown">🔴 Тільки невивчені</option>
+            <option value="all" data-i18n="settings.exportAll">📚 Всі слова</option>
+            <option value="custom" data-i18n="settings.exportCustom">➕ Тільки власні</option>
           </select>
         </div>
       </div>
 
       <!-- Сповіщення -->
       <div class="settings-section">
-        <div class="settings-section-title">🔔 Сповіщення</div>
-        <div class="settings-desc">Щоденне нагадування якщо ще не вчив сьогодні.</div>
+        <div class="settings-section-title" data-i18n="settings.notifTitle">🔔 Сповіщення</div>
+        <div class="settings-desc" data-i18n="settings.notifDesc">Щоденне нагадування якщо ще не вчив сьогодні.</div>
         <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
           <label class="notif-toggle-wrap">
             <input type="checkbox" id="notif-toggle">
             <span class="notif-toggle-pill-ui"></span>
           </label>
           <span id="notif-status" style="font-size:.78rem;color:var(--text2);">Вимкнено</span>
-          <button onclick="window.requestNotifPermission&&window.requestNotifPermission()" class="backup-btn" style="padding:5px 12px;font-size:.75rem;margin-left:auto;">Дозволити</button>
+          <button onclick="window.requestNotifPermission&&window.requestNotifPermission()" class="backup-btn" style="padding:5px 12px;font-size:.75rem;margin-left:auto;" data-i18n="settings.notifAllow">Дозволити</button>
         </div>
         <div id="notif-time-row" style="display:none;margin-top:10px;align-items:center;gap:10px;flex-wrap:wrap;">
-          <span style="font-size:.8rem;color:var(--text2);">⏰ Нагадувати щодня о</span>
+          <span style="font-size:.8rem;color:var(--text2);" data-i18n="settings.notifTimeLabel">⏰ Нагадувати щодня о</span>
           <input type="time" id="notif-time" value="20:00"
             style="padding:5px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:inherit;font-size:.85rem;outline:none;">
-          <span style="font-size:.75rem;color:var(--text3);">якщо не вчив сьогодні</span>
+          <span style="font-size:.75rem;color:var(--text3);" data-i18n="settings.notifTimeSuffix">якщо не вчив сьогодні</span>
         </div>
       </div>
 
       <!-- Скидання прогресу -->
       <!-- ── Cloud Sync ── -->
       <div class="settings-section" id="cs-section">
-        <div class="settings-section-title">☁️ Хмарний бекап</div>
+        <div class="settings-section-title" data-i18n="settings.cloudTitle">☁️ Хмарний бекап</div>
 
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
           <div id="cs-code" style="flex:1;font-family:monospace;font-size:.95rem;font-weight:700;color:var(--accent);background:rgba(255,255,255,.04);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;letter-spacing:.1em;text-align:center;">········</div>
-          <button id="cs-copy" style="padding:8px 12px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-size:.8rem;white-space:nowrap;">📋 Копія</button>
+          <button id="cs-copy" style="padding:8px 12px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-size:.8rem;white-space:nowrap;" data-i18n="settings.cloudCopy">📋 Копія</button>
         </div>
 
-        <button id="cs-save" style="width:100%;padding:10px;border-radius:12px;border:none;background:var(--accent);color:#0a1628;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:600;margin-bottom:10px;">⬆️ Зберегти в хмару</button>
+        <button id="cs-save" style="width:100%;padding:10px;border-radius:12px;border:none;background:var(--accent);color:#0a1628;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:600;margin-bottom:10px;" data-i18n="settings.cloudSave">⬆️ Зберегти в хмару</button>
 
         <div style="border-top:1px solid var(--border);margin:8px 0;padding-top:10px;">
-          <div style="font-size:.74rem;color:var(--text3);margin-bottom:7px;">🔄 Авто-збереження:</div>
+          <div style="font-size:.74rem;color:var(--text3);margin-bottom:7px;" data-i18n="settings.cloudAutoLabel">🔄 Авто-збереження:</div>
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
             <select id="cs-interval" style="flex:1;padding:9px 10px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-family:inherit;font-size:.85rem;cursor:pointer;outline:none;">
-              <option value="0">Вимк</option>
-              <option value="30">30 хв</option>
-              <option value="60">1 год</option>
-              <option value="360">6 год</option>
-              <option value="1440">Щодня</option>
+              <option value="0" data-i18n="settings.intervalOff">Вимк</option>
+              <option value="30" data-i18n="settings.interval30">30 хв</option>
+              <option value="60" data-i18n="settings.interval60">1 год</option>
+              <option value="360" data-i18n="settings.interval360">6 год</option>
+              <option value="1440" data-i18n="settings.intervalDaily">Щодня</option>
             </select>
             <span id="cs-last" style="font-size:.7rem;color:var(--text3);white-space:nowrap;"></span>
           </div>
         </div>
 
         <div style="border-top:1px solid var(--border);margin:4px 0 10px;padding-top:10px;">
-          <div style="font-size:.74rem;color:var(--text3);margin-bottom:7px;">Відновити на цьому пристрої:</div>
+          <div style="font-size:.74rem;color:var(--text3);margin-bottom:7px;" data-i18n="settings.cloudRestoreLabel">Відновити на цьому пристрої:</div>
           <div style="display:flex;gap:8px;">
             <input id="cs-inp" placeholder="XXXX-XXXX-XXXX" maxlength="14"
               style="flex:1;font-family:monospace;font-size:.88rem;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);outline:none;text-transform:uppercase;">
-            <button id="cs-restore" style="padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:.85rem;font-weight:600;white-space:nowrap;">⬇️ Відновити</button>
+            <button id="cs-restore" style="padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:.85rem;font-weight:600;white-space:nowrap;" data-i18n="settings.cloudRestore">⬇️ Відновити</button>
           </div>
         </div>
 
         <div id="cs-msg" style="font-size:.75rem;min-height:16px;text-align:center;margin-top:4px;"></div>
-        <div style="font-size:.7rem;color:var(--text3);margin-top:8px;text-align:center;line-height:1.5;">Збережи ключ — він потрібен для відновлення.<br>Дані доступні лише за ключем.</div>
+        <div style="font-size:.7rem;color:var(--text3);margin-top:8px;text-align:center;line-height:1.5;"><span data-i18n="settings.cloudHintLine1">Збережи ключ — він потрібен для відновлення.</span><br><span data-i18n="settings.cloudHintLine2">Дані доступні лише за ключем.</span></div>
       </div>
 
       <div class="settings-section settings-section-danger">
-        <div class="settings-section-title">⚠️ Небезпечна зона</div>
-        <div class="settings-desc">Незворотна дія — всі вивчені слова, серія днів та досягнення будуть видалені.</div>
-        <button id="btn-reset" class="settings-reset-btn" style="margin-top:12px;">↺ Скинути прогрес</button>
+        <div class="settings-section-title" data-i18n="settings.dangerTitle">⚠️ Небезпечна зона</div>
+        <div class="settings-desc" data-i18n="settings.dangerDesc">Незворотна дія — всі вивчені слова, серія днів та досягнення будуть видалені.</div>
+        <button id="btn-reset" class="settings-reset-btn" style="margin-top:12px;" data-i18n="settings.resetBtn">↺ Скинути прогрес</button>
       </div>
 
     </div>
