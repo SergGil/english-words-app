@@ -6,6 +6,7 @@ import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
 import { addCombo, breakCombo } from '../features/combo.ts';
 import { recordModeComplete, recordMistake, recordModeAnswer } from '../features/game.ts';
+import { t } from '../features/i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 const SIZE = 10;
@@ -61,13 +62,13 @@ function renderQ(): void {
   elInput.value = ''; elInput.className = ''; elInput.style.borderColor = '';
   elResult.textContent = ''; elHint.textContent = '';
   elSubmit.style.display = 'inline-block'; elNext.style.display = 'none';
-  elSub.textContent = `Питання ${wIdx + 1} з ${wDeck.length}`;
+  elSub.textContent = `${t('quiz.question')} ${wIdx + 1} ${t('common.of')} ${wDeck.length}`;
   elPbar.style.width = (wIdx / wDeck.length * 100) + '%';
   elOk.textContent = String(wOk); elFail.textContent = String(wFail);
-  elDir.textContent = 'Українська → Англійська';
+  elDir.textContent = t('quiz.uaToEn');
   elWord.textContent = w[1]; elIpa.textContent = '';
   // No speak button for UA word (user request)
-  elInput.placeholder = 'Enter English translation...';
+  elInput.placeholder = t('write.placeholder');
   setTimeout(() => { try { elInput.focus(); } catch (e) {} }, 60);
 }
 
@@ -81,14 +82,14 @@ function submit(): void {
   if (ok) {
     wOk++;
     elInput.style.borderColor = '#27ae60';
-    elResult.innerHTML = '<span style="color:#27ae60;font-size:1.05rem;">✓ Правильно!</span>';
+    elResult.innerHTML = `<span style="color:#27ae60;font-size:1.05rem;">${t('quiz.correctMsg')}</span>`;
     try { (window.playSound as PlaySound | undefined)?.('know'); addCombo(); } catch (e) {}
     recordModeAnswer('write', true);
   } else {
     wFail++; wWrong.push(w);
     elInput.style.borderColor = '#e74c3c';
     const shown = ans.split(/[;,\/]/)[0].trim();
-    elResult.innerHTML = `<span style="color:#e74c3c;">✗ Правильно: <b>${shown}</b></span>`;
+    elResult.innerHTML = `<span style="color:#e74c3c;">✗ ${t('write.correctAnswerPrefix')} <b>${shown}</b></span>`;
     try { breakCombo(); (window.playSound as PlaySound | undefined)?.('next'); } catch (e) {}
     recordMistake(ans);
     recordModeAnswer('write', false);
@@ -103,14 +104,14 @@ function showFinal(): void {
   recordModeComplete('write');
   const pct = Math.round(wOk / wDeck.length * 100);
   const em = pct===100?'🏆':pct>=80?'🎉':pct>=60?'👍':'💪';
-  const ti = pct===100?'Ідеально!':pct>=80?'Чудово!':pct>=60?'Непогано!':'Продовжуй вчити!';
+  const ti = pct===100?t('quiz.perfectTitle'):pct>=80?t('quiz.greatTitle'):pct>=60?t('quiz.goodTitle'):t('quiz.encourageTitle');
   document.getElementById('wf-emoji')!.textContent = em;
   document.getElementById('wf-title')!.textContent = ti;
-  document.getElementById('wf-desc')!.textContent  = `${wOk} з ${wDeck.length} (${pct}%)`;
-  elPbar.style.width = '100%'; elSub.textContent = 'Завершено';
+  document.getElementById('wf-desc')!.textContent  = `${wOk} ${t('common.of')} ${wDeck.length} (${pct}%)`;
+  elPbar.style.width = '100%'; elSub.textContent = t('write.completed');
   const wr = document.getElementById('write-restart-wrong')! as HTMLElement;
   wr.style.display = wWrong.length ? 'inline-block' : 'none';
-  if (wWrong.length) wr.textContent = `✗ Помилки (${wWrong.length})`;
+  if (wWrong.length) wr.textContent = `${t('write.mistakesBtn')} (${wWrong.length})`;
 }
 
 // ── Autocomplete ──────────────────────────────────────────────

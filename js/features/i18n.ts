@@ -215,6 +215,15 @@ const DICT: Record<string, Record<Lang, string>> = {
   'tempo.newRecord':  { ua: '🌟 Новий рекорд: {n} слів!', en: '🌟 New record: {n} words!' },
   'tempo.record':     { ua: '🏆 Рекорд: {n} слів',      en: '🏆 Record: {n} words' },
 
+  'write.title':      { ua: '✍️ Письмо',                en: '✍️ Write' },
+  'write.placeholder':{ ua: 'Введіть переклад англійською...', en: 'Enter English translation...' },
+  'write.checkBtn':   { ua: 'Перевірити',               en: 'Check' },
+  'write.next':       { ua: 'Далі →',                   en: 'Next →' },
+  'write.micTitle':   { ua: 'Голосове введення',        en: 'Voice input' },
+  'write.correctAnswerPrefix': { ua: 'Правильно:',      en: 'Correct:' },
+  'write.mistakesBtn':{ ua: '✗ Помилки',                en: '✗ Mistakes' },
+  'write.completed':  { ua: 'Завершено',                en: 'Completed' },
+
   'cefr.A1': { ua: 'Початківець',     en: 'Beginner' },
   'cefr.A2': { ua: 'Елементарний',    en: 'Elementary' },
   'cefr.B1': { ua: 'Середній',        en: 'Intermediate' },
