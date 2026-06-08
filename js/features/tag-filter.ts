@@ -2,6 +2,7 @@
 // ════════ TAG FILTER ════════
 import { state } from '../../src/state.ts';
 import { WORD_CATEGORIES, CATEGORY_LIST } from '../../data/categories.js';
+import { categoryName } from './i18n.ts';
 
 const selTag   = document.getElementById('sel-tag')   as HTMLSelectElement | null;
 const selRange = document.getElementById('sel-range') as HTMLSelectElement | null;
@@ -10,9 +11,17 @@ if (selTag) {
   // Populate options in defined order
   CATEGORY_LIST.forEach(cat => {
     const opt = document.createElement('option');
-    opt.value = cat; opt.textContent = cat;
+    opt.value = cat; opt.textContent = categoryName(cat);
     selTag.appendChild(opt);
   });
+
+  function _refreshTagOptions(): void {
+    Array.from(selTag!.options).forEach(opt => {
+      if (opt.value) opt.textContent = categoryName(opt.value);
+    });
+    _fitSelTag();
+  }
+  window._refreshTagOptions = _refreshTagOptions;
 
   function applyTagFilter(): void {
     const tag = selTag!.value;

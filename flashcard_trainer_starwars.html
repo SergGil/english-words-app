@@ -109,7 +109,7 @@
         <option value="mix">Мішаний</option>
       </select>
       <select id="sel-tag" title="Фільтр по темі">
-        <option value="">🏷️ Всі теми</option>
+        <option value="" data-i18n="cards.allTopics">🏷️ Всі теми</option>
       </select>
       <select id="sel-range">
         <option value="0">Всі слова (5542)</option>
@@ -205,7 +205,7 @@
 
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
-    <input type="text" id="search-input" placeholder="Пошук слова..." autocomplete="off" spellcheck="false">
+    <input type="text" id="search-input" placeholder="Пошук слова..." data-i18n-placeholder="cards.searchPlaceholder" autocomplete="off" spellcheck="false">
     <div class="search-results" id="search-results"></div>
   </div>
   <div style="display:none;" id="pbar-ring-wrap">
@@ -320,12 +320,12 @@
   </div>
 
   <div class="kbd-hint">
-    <kbd>Пробіл</kbd> далі &nbsp;
-    <kbd>Enter</kbd> знаю &nbsp;
-    <kbd>←</kbd><kbd>→</kbd> навігація &nbsp;
-    <kbd>F</kbd> переклад &nbsp;
-    <kbd>Ctrl+F</kbd> пошук &nbsp;
-    <kbd>?</kbd> <span style="cursor:pointer" id="btn-keys" title="Всі клавіші">всі клавіші</span>
+    <kbd data-i18n="kbd.space">Пробіл</kbd> <span data-i18n="kbd.next">далі</span> &nbsp;
+    <kbd>Enter</kbd> <span data-i18n="kbd.know">знаю</span> &nbsp;
+    <kbd>←</kbd><kbd>→</kbd> <span data-i18n="kbd.navigation">навігація</span> &nbsp;
+    <kbd>F</kbd> <span data-i18n="kbd.translation">переклад</span> &nbsp;
+    <kbd>Ctrl+F</kbd> <span data-i18n="kbd.search">пошук</span> &nbsp;
+    <kbd>?</kbd> <span style="cursor:pointer" id="btn-keys" data-i18n-title="kbd.allKeysTitle" data-i18n="kbd.allKeys" title="Всі клавіші">всі клавіші</span>
   </div>
 
 

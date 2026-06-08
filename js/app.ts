@@ -27,7 +27,7 @@ import { decodeIpa }                                    from './core/ui-helpers.
 import { getCefrLevel }                                 from '../data/cefr.ts';
 import { ACHIEVEMENTS }                                 from '../data/achievements.ts';
 import { ACH_EN, ACH_CAT_EN }                           from '../data/achievements-i18n.ts';
-import { t, getLang, levelName, wordsLabel }            from './features/i18n.ts';
+import { t, getLang, levelName, wordsLabel, categoryName } from './features/i18n.ts';
 
 function _isEnLang(): boolean { return localStorage.getItem('ew_lang') === 'en'; }
 function _achName(a: Achievement): string { return _isEnLang() ? (ACH_EN[a.id]?.name ?? a.name) : a.name; }
@@ -210,8 +210,8 @@ function render() {
     var catEl = document.getElementById('wcategory') as HTMLElement | null;
     if (catEl) {
       const cats = getCategoriesForWord(cw[0]);
-      catEl.textContent = cats[0] || '';
-      catEl.title = cats.join(', ');
+      catEl.textContent = cats[0] ? categoryName(cats[0]) : '';
+      catEl.title = cats.map(categoryName).join(', ');
       catEl.style.display = cats[0] ? '' : 'none';
     }
     var tr = $e('wtrans');
@@ -543,6 +543,30 @@ document.getElementById('modal-confirm')!.addEventListener('click', function(){
   document.getElementById('modal-overlay')!.style.display = 'none';
 });
 document.getElementById('sel-mode')!.addEventListener('change', function(){stopAuto();render();});
+
+// ══ Динамічне оновлення опцій фільтра "Всі слова" / блоків по 500 ══
+function _refreshRangeOptions(): void {
+  var sel = document.getElementById('sel-range') as HTMLSelectElement | null;
+  if (!sel) return;
+  var total = W.length;
+  var allOpt = sel.querySelector('option[value="0"]') as HTMLOptionElement | null;
+  if (allOpt) allOpt.textContent = t('cards.allWords') + ' (' + total + ')';
+  Array.prototype.slice.call(sel.querySelectorAll('option')).forEach(function(opt: HTMLOptionElement){
+    if (opt.value !== '0' && /^\d+$/.test(opt.value)) sel!.removeChild(opt);
+  });
+  var blocks = Math.ceil(total / 500);
+  for (var i = 1; i <= blocks; i++) {
+    var start = (i - 1) * 500 + 1;
+    var end = i === blocks ? total : i * 500;
+    var opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = start + '–' + end;
+    sel.appendChild(opt);
+  }
+}
+window._refreshRangeOptions = _refreshRangeOptions;
+try { _refreshRangeOptions(); } catch(e){}
+
 // ══ Єдиний sel-range обробник — замість 3 окремих ══
 document.getElementById('sel-range')!.addEventListener('change', function(){
   stopAuto();
@@ -627,7 +651,8 @@ document.getElementById('sel-range')!.addEventListener('change', function(){
     deck = buildStaleDeck(v === 'stale7' ? 7 : 30);
   } else {
     var n = parseInt(v);
-    _baseWords = n===0 ? W.slice() : W.slice((n-1)*500, n===11 ? W.length : n*500);
+    var _lastBlk = Math.ceil(W.length / 500);
+    _baseWords = n===0 ? W.slice() : W.slice((n-1)*500, n===_lastBlk ? W.length : n*500);
     deck = (_baseWords as unknown as WordEntry[]).slice();
     shuffle(deck);
     // Для звичайних режимів застосовуємо тег-фільтр

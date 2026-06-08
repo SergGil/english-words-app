@@ -27,6 +27,18 @@ const DICT: Record<string, Record<Lang, string>> = {
   'cards.hint':         { ua: 'Натисни на картку — побачиш переклад', en: 'Tap the card to see the translation' },
   'cards.example':      { ua: 'Приклад',                             en: 'Example' },
   'cards.quickQuiz':    { ua: '⚡ Quick Quiz — 5 питань',             en: '⚡ Quick Quiz — 5 questions' },
+  'cards.allTopics':    { ua: '🏷️ Всі теми',                         en: '🏷️ All topics' },
+  'cards.allWords':     { ua: 'Всі слова',                           en: 'All words' },
+  'cards.searchPlaceholder': { ua: 'Пошук слова...',                 en: 'Search a word...' },
+
+  'kbd.space':       { ua: 'Пробіл',     en: 'Space' },
+  'kbd.next':        { ua: 'далі',       en: 'next' },
+  'kbd.know':        { ua: 'знаю',       en: 'know' },
+  'kbd.navigation':  { ua: 'навігація',  en: 'navigation' },
+  'kbd.translation': { ua: 'переклад',   en: 'translation' },
+  'kbd.search':      { ua: 'пошук',      en: 'search' },
+  'kbd.allKeys':     { ua: 'всі клавіші', en: 'all shortcuts' },
+  'kbd.allKeysTitle':{ ua: 'Всі клавіші', en: 'All shortcuts' },
 
   'ach.pageTitle':    { ua: '🏆 Досягнення',                  en: '🏆 Achievements' },
   'ach.roadmapTitle': { ua: '🗺️ Шлях Джедая — всі рівні',     en: '🗺️ Path of the Jedi — all levels' },
@@ -113,6 +125,44 @@ export function levelName(name: string): string {
   return getLang() === 'en' ? (LEVEL_NAMES_EN[name] ?? name) : name;
 }
 
+const CATEGORY_NAMES_EN: Record<string, string> = {
+  '🐾 Тварини':                            '🐾 Animals',
+  '🐟 Морські істоти':                     '🐟 Sea creatures',
+  '🌿 Рослини & Квіти':                    '🌿 Plants & Flowers',
+  '🍎 Фрукти & Овочі':                     '🍎 Fruits & Vegetables',
+  '🍕 Їжа & Страви':                       '🍕 Food & Dishes',
+  '☕ Напої':                              '☕ Drinks',
+  '🏠 Дім & Меблі':                        '🏠 Home & Furniture',
+  '🔧 Інструменти & Предмети':             '🔧 Tools & Objects',
+  '👕 Одяг & Аксесуари':                   '👕 Clothing & Accessories',
+  '🚗 Транспорт':                          '🚗 Transport',
+  '🌍 Природа & Погода':                   '🌍 Nature & Weather',
+  '🏙️ Місто & Будівлі':                    '🏙️ City & Buildings',
+  '🏥 Здоров\'я & Медицина':               '🏥 Health & Medicine',
+  '💼 Робота & Бізнес':                    '💼 Work & Business',
+  '🎓 Освіта & Наука':                     '🎓 Education & Science',
+  '💻 Технології':                         '💻 Technology',
+  '🎭 Мистецтво & Розваги':                '🎭 Arts & Entertainment',
+  '⚽ Спорт':                              '⚽ Sports',
+  '✈️ Подорожі':                           '✈️ Travel',
+  '👨‍👩‍👧 Люди & Стосунки':                  '👨‍👩‍👧 People & Relationships',
+  '😊 Емоції & Характер':                  '😊 Emotions & Character',
+  '🕐 Час & Числа':                        '🕐 Time & Numbers',
+  '🍳 Кулінарія':                          '🍳 Cooking',
+  '💰 Гроші & Економіка':                  '💰 Money & Economy',
+  '⚖️ Право & Суспільство':                '⚖️ Law & Society',
+  '🔬 Наука & Природознавство':            '🔬 Science & Nature studies',
+  '🎨 Кольори & Форми':                    '🎨 Colors & Shapes',
+  '🗣️ Мова & Комунікація':                 '🗣️ Language & Communication',
+  '🔤 Загальна лексика':                   '🔤 General vocabulary',
+  '💬 Фрази, фразові дієслова & ідіоми':   '💬 Phrases, phrasal verbs & idioms',
+  '📦 Інше':                               '📦 Other',
+};
+
+export function categoryName(name: string): string {
+  return getLang() === 'en' ? (CATEGORY_NAMES_EN[name] ?? name) : name;
+}
+
 const MONTHS_UA = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
 const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DOWS_UA   = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
@@ -153,10 +203,22 @@ export function applyI18n(): void {
     const entry = key ? DICT[key] : undefined;
     if (entry) el.textContent = entry[lang];
   });
+  document.querySelectorAll<HTMLInputElement>('[data-i18n-placeholder]').forEach(el => {
+    const key = el.dataset.i18nPlaceholder;
+    const entry = key ? DICT[key] : undefined;
+    if (entry) el.placeholder = entry[lang];
+  });
+  document.querySelectorAll<HTMLElement>('[data-i18n-title]').forEach(el => {
+    const key = el.dataset.i18nTitle;
+    const entry = key ? DICT[key] : undefined;
+    if (entry) el.title = entry[lang];
+  });
   document.querySelectorAll<HTMLElement>('.lang-opt').forEach(btn => {
     btn.classList.toggle('lang-active', btn.dataset.lang === lang);
   });
   (window.renderLevelBadge as (() => void) | undefined)?.();
+  (window._refreshRangeOptions as (() => void) | undefined)?.();
+  (window._refreshTagOptions as (() => void) | undefined)?.();
   if (document.getElementById('ach-overlay')?.classList.contains('open')) {
     (window.renderAchievements as (() => void) | undefined)?.();
     (window.renderLevelsRoadmap as (() => void) | undefined)?.();
