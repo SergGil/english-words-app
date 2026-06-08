@@ -104,15 +104,20 @@ function _makeCard(v: SpeechSynthesisVoice, activeURI: string, onSelect: (uri: s
   const top = document.createElement('div');
   top.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:3px;';
   (['gender', 'accent', 'label'] as const).forEach((k, i) => {
-    const s = document.createElement('span');
     if (k === 'accent') {
-      s.textContent = info.accent;
-      s.style.cssText = 'font-size:.62rem;font-weight:700;letter-spacing:.04em;color:var(--text3);background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:1px 5px;line-height:1.3;';
-    } else if (i === 0) {
-      s.textContent = info.gender; s.style.fontSize = '1rem';
-    } else {
-      s.textContent = info.label; s.style.cssText = 'font-size:.82rem;font-weight:600;color:var(--text);';
+      const code = info.accent.toLowerCase();
+      const img = document.createElement('img');
+      img.src = `https://flagcdn.com/20x15/${code}.png`;
+      img.alt = info.accent;
+      img.width = 20; img.height = 15;
+      img.style.cssText = 'border-radius:2px;box-shadow:0 0 0 1px var(--border);vertical-align:middle;';
+      img.onerror = () => { img.replaceWith(document.createTextNode(info.accent)); };
+      top.appendChild(img);
+      return;
     }
+    const s = document.createElement('span');
+    if (i === 0) { s.textContent = info.gender; s.style.fontSize = '1rem'; }
+    else { s.textContent = info.label; s.style.cssText = 'font-size:.82rem;font-weight:600;color:var(--text);'; }
     top.appendChild(s);
   });
   const sub = document.createElement('div');
