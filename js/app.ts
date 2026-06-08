@@ -23,7 +23,7 @@ import { isBookmarked, getBookmarks, toggleBookmark }    from './features/bookma
 import { getNoteForWord, hasNote, openNoteModal }        from './features/notes.ts';
 import { isPronuncSupported, showPronuncResult,
          startPronunciationCheck, stopPronunciationCheck } from './features/pronunciation.ts';
-import { getSelectedUkVoice }                            from './features/voice.ts';
+import { getSelectedUkVoice, getSelectedEsVoice }        from './features/voice.ts';
 import { decodeIpa }                                    from './core/ui-helpers.ts';
 import { getCefrLevel }                                 from '../data/cefr.ts';
 import { ACHIEVEMENTS }                                 from '../data/achievements.ts';
@@ -149,6 +149,9 @@ function _speakWithLang(text: string, lang: string, btn: HTMLElement | null): vo
   if (langLow.startsWith('uk')) {
     match = getSelectedUkVoice();
     if (!match) match = voices.find(function(v){ return v.lang && v.lang.toLowerCase().startsWith('uk'); });
+  } else if (langLow.startsWith('es')) {
+    match = getSelectedEsVoice();
+    if (!match) match = voices.find(function(v){ return v.lang && v.lang.toLowerCase().startsWith('es'); });
   } else if (langLow.startsWith('en')) {
     match = getVoice();
     if (!match) match = voices.find(function(v){ return v.lang && v.lang.toLowerCase().startsWith('en'); });
@@ -446,13 +449,38 @@ document.getElementById('card')!.addEventListener('click', function(){
     try { updateCollocations(); } catch(e){}
   }
 });
-document.getElementById('speak-word')!.addEventListener('click', function(e){e.stopPropagation();if(cw)speak(cw[0],this);});
+document.getElementById('speak-word')!.addEventListener('click', function(e){
+  e.stopPropagation();
+  if (!cw) return;
+  var modeVal = (document.getElementById('sel-mode') as HTMLSelectElement)!.value;
+  if (modeVal === 'es-en' || modeVal === 'es-ua') {
+    var esEntry = _esEntry(cw[0]);
+    if (esEntry && getSelectedEsVoice()) { _speakWithLang(esEntry[0], 'es-ES', this); return; }
+  }
+  speak(cw[0],this);
+});
 document.getElementById('speak-ex')!.addEventListener('click', function(e){
   e.stopPropagation();
   if (!cw) return;
   var exEn = cw[2] || '';
   var exUa = cw[3] || '';
   var modeVal = (document.getElementById('sel-mode') as HTMLSelectElement)!.value;
+  if (ES_MODES.has(modeVal)) {
+    var esEntry = _esEntry(cw[0]);
+    var exEs = esEntry ? esEntry[1] : '';
+    var hasEsVoice = !!getSelectedEsVoice();
+    if (modeVal === 'es-en' || modeVal === 'es-ua') {
+      if (hasEsVoice && exEs) _speakWithLang(exEs, 'es-ES', this);
+      else speak(exEn, this); // fallback: читаємо англійський еквівалент
+    } else if (modeVal === 'ua-es') {
+      var hasUkVoice = !!getSelectedUkVoice();
+      if (hasUkVoice && exUa) _speakWithLang(exUa, 'uk-UA', this);
+      else speak(exEn, this);
+    } else { // en-es: фронт — англійський приклад
+      speak(exEn, this);
+    }
+    return;
+  }
   // UA→EN mode: спробувати UA голос, якщо немає — читати EN приклад
   if (modeVal === 'ua') {
     var hasUkVoice = !!getSelectedUkVoice();
