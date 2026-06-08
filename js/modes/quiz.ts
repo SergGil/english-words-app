@@ -6,6 +6,7 @@ import { W } from '../../data/words.js';
 import { addCombo, breakCombo } from '../features/combo.ts';
 import { recordModeComplete, recordMistake, recordModeAnswer } from '../features/game.ts';
 import { speakBtn, decodeIpa } from '../core/ui-helpers.ts';
+import { t, getLang } from '../features/i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 const QUIZ_SIZE = 10, QUICK_SIZE = 5, NUM_OPTIONS = 4;
@@ -65,10 +66,10 @@ function renderQuestion(): void {
   const question = isEnToUa ? w[0] : w[1];
   const answer   = isEnToUa ? w[1] : w[0];
   quizAnswered = false; elResult.textContent = ''; btnNext.style.display = 'none';
-  elSubtitle.textContent = `Питання ${quizIdx + 1} з ${quizDeck.length}`;
+  elSubtitle.textContent = `${t('quiz.question')} ${quizIdx + 1} ${t('common.of')} ${quizDeck.length}`;
   elPbar.style.width = (quizIdx / quizDeck.length * 100) + '%';
   elCorrect.textContent = String(quizCorrect); elWrong.textContent = String(quizWrong);
-  elDirLabel.textContent = isEnToUa ? 'Англійська → Українська' : 'Українська → Англійська';
+  elDirLabel.textContent = isEnToUa ? t('quiz.enToUa') : t('quiz.uaToEn');
   // Word: speak button only for EN words (inline, at end)
   elWord.textContent = question;
   if (isEnToUa) elWord.appendChild(speakBtn(question, 'en-US'));
@@ -100,12 +101,12 @@ function checkAnswer(btn: HTMLButtonElement, chosen: string, correct: string, wo
   quizAnswered = true;
   if (chosen === correct) {
     quizCorrect++; btn.classList.add('correct'); btn.innerHTML = '✓ ' + chosen;
-    elResult.innerHTML = '<span style="color:#27ae60">✓ Правильно!</span>';
+    elResult.innerHTML = `<span style="color:#27ae60">${t('quiz.correctMsg')}</span>`;
     try { addCombo(); } catch (e) {}
     recordModeAnswer('quiz', true);
   } else {
     quizWrong++; btn.classList.add('wrong'); btn.innerHTML = '✗ ' + chosen;
-    elResult.innerHTML = '<span style="color:#e74c3c">✗ Неправильно</span>';
+    elResult.innerHTML = `<span style="color:#e74c3c">${t('quiz.incorrectMsg')}</span>`;
     try { breakCombo(); } catch (e) {}
     quizWrongWords.push(wordObj);
     recordMistake(wordObj[0]);
@@ -137,15 +138,25 @@ function checkAnswer(btn: HTMLButtonElement, chosen: string, correct: string, wo
   }
   elCorrect.textContent = String(quizCorrect); elWrong.textContent = String(quizWrong);
   // Bug fix: last question → "Фініш 🏆"
-  btnNext.textContent = (quizIdx >= quizDeck.length - 1) ? '🏆 Фініш!' : 'Наступне →';
+  btnNext.textContent = (quizIdx >= quizDeck.length - 1) ? t('quiz.finish') : t('quiz.next');
   btnNext.style.display = 'inline-block';
 }
 
-// Ukrainian plural for "відповідь"
-function _answersUa(n: number): string {
-  if (n === 1) return '1 відповідь';
-  if (n >= 2 && n <= 4) return `${n} відповіді`;
-  return `${n} відповідей`;
+function _pluralUa(n: number, one: string, few: string, many: string): string {
+  const mod10 = n % 10, mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+  return many;
+}
+function _countLabel(n: number, one: string, few: string, many: string): string {
+  const word = getLang() === 'en' ? (n === 1 ? one : few) : _pluralUa(n, one, few, many);
+  return `${n} ${word}`;
+}
+function _answerCount(n: number): string {
+  return _countLabel(n, t('quiz.answer'), t('quiz.answers'), t('quiz.answersGen'));
+}
+function _mistakeCount(n: number): string {
+  return _countLabel(n, t('quiz.mistake'), t('quiz.mistakes'), t('quiz.mistakesGen'));
 }
 
 // Check if this is a "retry wrong answers" session
@@ -158,36 +169,37 @@ function showFinal(): void {
 
   let emoji: string, title: string, desc: string;
 
+  const scoreLine = `${_answerCount(quizCorrect)} ${t('common.of')} ${total} (${pct}%)`;
+
   if (_isRetrySession && pct === 100) {
     // Special message for perfect retry session
-    emoji = '🎯'; title = 'Помилки виправлено!';
+    emoji = '🎯'; title = t('quiz.fixedTitle');
     desc = total === 1
-      ? 'Слово засвоєно — чудова робота!'
-      : `Всі ${_answersUa(total)} в роботі над помилками — відмінно!`;
+      ? t('quiz.fixedDescSingle')
+      : t('quiz.fixedDescAll').replace('{n}', _answerCount(total));
   } else if (pct === 100) {
-    emoji = '🏆'; title = 'Ідеально!';
-    desc = total === 1 ? '1 відповідь — і одразу правильно!' : `Всі ${_answersUa(total)} правильно!`;
+    emoji = '🏆'; title = t('quiz.perfectTitle');
+    desc = total === 1 ? t('quiz.perfectDescSingle') : t('quiz.perfectDescAll').replace('{n}', _answerCount(total));
   } else if (pct >= 80) {
-    emoji = '🎉'; title = 'Чудово!';
-    desc = `${_answersUa(quizCorrect)} з ${total} (${pct}%)`;
+    emoji = '🎉'; title = t('quiz.greatTitle');
+    desc = scoreLine;
   } else if (pct >= 60) {
-    emoji = '👍'; title = 'Непогано!';
-    desc = `${_answersUa(quizCorrect)} з ${total} (${pct}%)`;
+    emoji = '👍'; title = t('quiz.goodTitle');
+    desc = scoreLine;
   } else if (pct >= 40) {
-    emoji = '📚'; title = 'Ще попрацюємо!';
-    desc = `${_answersUa(quizCorrect)} з ${total} (${pct}%). Повтори слова.`;
+    emoji = '📚'; title = t('quiz.keepTitle');
+    desc = `${scoreLine}. ${t('quiz.keepDescSuffix')}`;
   } else {
-    emoji = '💪'; title = 'Продовжуй вчити!';
-    desc = `${_answersUa(quizCorrect)} з ${total} (${pct}%). Не здавайся!`;
+    emoji = '💪'; title = t('quiz.encourageTitle');
+    desc = `${scoreLine}. ${t('quiz.encourageDescSuffix')}`;
   }
 
   elFinalEmoji.textContent = emoji; elFinalTitle.textContent = title; elFinalDesc.textContent = desc;
   btnRestartWrong.style.display = quizWrongWords.length ? 'inline-block' : 'none';
   if (quizWrongWords.length) {
-    const wn = quizWrongWords.length;
-    btnRestartWrong.textContent = `✗ Повторити ${wn === 1 ? '1 помилку' : wn < 5 ? wn + ' помилки' : wn + ' помилок'}`;
+    btnRestartWrong.textContent = `${t('quiz.restartWrongPrefix')} ${_mistakeCount(quizWrongWords.length)}`;
   }
-  elFinal.style.display = 'block'; elPbar.style.width = '100%'; elSubtitle.textContent = 'Тест завершено';
+  elFinal.style.display = 'block'; elPbar.style.width = '100%'; elSubtitle.textContent = t('quiz.completed');
   _isRetrySession = false;
   recordModeComplete('quiz');
 }
