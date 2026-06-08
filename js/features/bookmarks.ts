@@ -1,4 +1,6 @@
 ﻿// English Words App — js/features/bookmarks.ts
+import { t } from './i18n.ts';
+
 let _bm = new Set<string>();
 try {
   const arr = JSON.parse(localStorage.getItem('ew_bookmarks') ?? '[]') as string[];
@@ -20,7 +22,7 @@ export function toggleBookmark(w: string): boolean {
 const sel = document.getElementById('sel-range') as HTMLSelectElement | null;
 if (sel && !sel.querySelector('option[value="bookmarks"]')) {
   const opt = document.createElement('option');
-  opt.value = 'bookmarks'; opt.textContent = '⭐ Закладки';
+  opt.value = 'bookmarks'; opt.dataset.i18n = 'range.bookmarks'; opt.textContent = t('range.bookmarks');
   const srsOpt = sel.querySelector('option[value="srs"]');
   if (srsOpt) srsOpt.after(opt); else sel.appendChild(opt);
 }

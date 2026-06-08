@@ -272,7 +272,7 @@
       <div class="card-back-ex"     id="cb-ex"></div>
       <div class="card-back-exua"   id="cb-exua"></div>
       <div class="similar-section" id="cb-similar" style="display:none;">
-        <div class="similar-title">Схожі слова</div>
+        <div class="similar-title" data-i18n="cards.similarTitle">Схожі слова</div>
         <div class="similar-chips" id="cb-chips"></div>
       </div>
     </div>
@@ -283,33 +283,33 @@
   <!-- Actions bar — immediately after hint, before extra info -->
   <div class="actions-bar">
     <div class="actions-bar-center">
-      <button class="btn" id="btn-prev" title="Попередня картка"><span data-i18n="cards.back">← Назад</span></button>
-      <button class="btn btn-auto" id="btn-auto" title="Авто-режим">▶ Авто</button>
-      <button class="btn" id="btn-shuf" title="Перемішати" style="font-size:14px;">🔀</button>
-      <button class="btn" id="btn-search" title="Пошук по словнику (Ctrl+F)" style="font-size:14px;">🔍</button>
-      <button class="btn" id="btn-stats" title="Статистика" style="display:none"></button>
-      <button class="btn btn-achievements" id="btn-achievements" title="Досягнення" style="display:none"></button>
-      <button class="btn btn-modes-open" id="btn-modes-open" title="Режими навчання" style="display:none"></button>
-      <button class="btn" id="btn-next" title="Наступна картка"><span data-i18n="cards.forward">→ Далі</span></button>
+      <button class="btn" id="btn-prev" title="Попередня картка" data-i18n-title="cards.prevTitle"><span data-i18n="cards.back">← Назад</span></button>
+      <button class="btn btn-auto" id="btn-auto" title="Авто-режим" data-i18n-title="cards.autoTitle">▶ Авто</button>
+      <button class="btn" id="btn-shuf" title="Перемішати" data-i18n-title="cards.shuffleTitle" style="font-size:14px;">🔀</button>
+      <button class="btn" id="btn-search" title="Пошук по словнику (Ctrl+F)" data-i18n-title="cards.searchTitle" style="font-size:14px;">🔍</button>
+      <button class="btn" id="btn-stats" title="Статистика" data-i18n-title="cards.statsTitle" style="display:none"></button>
+      <button class="btn btn-achievements" id="btn-achievements" title="Досягнення" data-i18n-title="cards.achievementsTitle" style="display:none"></button>
+      <button class="btn btn-modes-open" id="btn-modes-open" title="Режими навчання" data-i18n-title="cards.modesTitle" style="display:none"></button>
+      <button class="btn" id="btn-next" title="Наступна картка" data-i18n-title="cards.nextTitle"><span data-i18n="cards.forward">→ Далі</span></button>
     </div>
   </div>
   <div style="margin-top:8px;text-align:center;">
     <button class="btn btn-know" id="btn-know" style="width:100%;max-width:360px;font-size:1.05rem;padding:14px 0;letter-spacing:.03em;"><span data-i18n="cards.know">✓ Знаю</span></button>
   </div>
   <div style="margin-top:6px;text-align:center;">
-    <button id="btn-quick-quiz" class="btn" title="5 питань з поточної колоди (Quick Quiz)"
+    <button id="btn-quick-quiz" class="btn" title="5 питань з поточної колоди (Quick Quiz)" data-i18n-title="cards.quickQuizTitle"
       style="width:100%;max-width:360px;font-size:.88rem;padding:9px 0;color:var(--accent);border-color:var(--accent);opacity:.85;"><span data-i18n="cards.quickQuiz">⚡ Quick Quiz — 5 питань</span></button>
   </div>
 
   <!-- Word Families — below action buttons -->
   <div class="similar-section" id="cb-families" style="display:none;margin:14px 0 0;">
-    <div class="similar-title">🌱 Сімейство слів</div>
+    <div class="similar-title" data-i18n="cards.familyTitle">🌱 Сімейство слів</div>
     <div class="similar-chips" id="cb-family-chips"></div>
   </div>
 
   <!-- Collocations — below Word Families -->
   <div class="similar-section" id="cb-collocations" style="display:none;margin:8px 0 0;">
-    <div class="similar-title">🔗 Сталі словосполучення</div>
+    <div class="similar-title" data-i18n="cards.collocationsTitle">🔗 Сталі словосполучення</div>
     <div id="cb-collocation-list" style="display:flex;flex-direction:column;gap:4px;"></div>
   </div>
 
@@ -1138,15 +1138,15 @@
       <div id="wd-srs" style="font-size:.78rem;color:var(--text3);margin-bottom:14px;display:flex;gap:12px;flex-wrap:wrap;"></div>
       <!-- Similar words -->
       <div id="wd-similar-wrap" style="display:none;margin-bottom:16px;">
-        <div style="font-size:.72rem;font-weight:700;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;">Схожі слова</div>
+        <div data-i18n="cards.similarTitle" style="font-size:.72rem;font-weight:700;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;">Схожі слова</div>
         <div id="wd-similar-chips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
       </div>
       <!-- Actions -->
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button id="wd-btn-know"   style="flex:1;min-width:120px;padding:11px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;font-family:inherit;font-size:.88rem;">✓ Знаю</button>
-        <button id="wd-btn-forget" style="padding:11px 16px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:inherit;font-size:.88rem;display:none;">✕ Забути</button>
-        <button id="wd-btn-bm"     style="padding:11px 14px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-size:1rem;" title="Закладка">⭐</button>
-        <button id="wd-btn-goto"   style="padding:11px 16px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--accent);font-weight:600;cursor:pointer;font-family:inherit;font-size:.88rem;">→ На картку</button>
+        <button id="wd-btn-know"   style="flex:1;min-width:120px;padding:11px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;font-family:inherit;font-size:.88rem;"><span data-i18n="cards.know">✓ Знаю</span></button>
+        <button id="wd-btn-forget" style="padding:11px 16px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:inherit;font-size:.88rem;display:none;"><span data-i18n="cards.forget">✕ Забути</span></button>
+        <button id="wd-btn-bm"     style="padding:11px 14px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-size:1rem;" title="Закладка" data-i18n-title="cards.bookmarkTitle">⭐</button>
+        <button id="wd-btn-goto"   style="padding:11px 16px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--accent);font-weight:600;cursor:pointer;font-family:inherit;font-size:.88rem;"><span data-i18n="cards.gotoCard">→ На картку</span></button>
       </div>
     </div>
   </div>
