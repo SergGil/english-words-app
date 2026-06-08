@@ -269,6 +269,17 @@ const DICT: Record<string, Record<Lang, string>> = {
   'catpairs.random':       { ua: '🎲 Випадково',           en: '🎲 Random' },
   'catpairs.randomDesc':   { ua: '6 пар з усіх тем',       en: '6 pairs from all topics' },
 
+  'bee.word':           { ua: 'Слово',                          en: 'Word' },
+  'bee.listenPrompt':   { ua: 'Прослухай та напиши слово:',     en: 'Listen and spell the word:' },
+  'bee.speakTitle':     { ua: 'Прослухати ще раз',              en: 'Listen again' },
+  'bee.inputPlaceholder': { ua: 'Введи слово англійською...',   en: 'Type the word in English...' },
+  'bee.emptyInput':     { ua: 'Введи слово!',                   en: 'Type a word!' },
+  'bee.hintBtn':        { ua: '💡 Підказка ({n})',              en: '💡 Hint ({n})' },
+  'bee.hintNone':       { ua: '💡 Більше немає',                en: '💡 No more hints' },
+  'bee.checkBtn':       { ua: 'Перевірити',                     en: 'Check' },
+  'bee.almostMsg':      { ua: '⚠️ Майже! Правильно: {w}',       en: '⚠️ Almost! Correct: {w}' },
+  'bee.wrongMsg':       { ua: '✗ Правильно: {w}',               en: '✗ Correct: {w}' },
+
   'cefr.A1': { ua: 'Початківець',     en: 'Beginner' },
   'cefr.A2': { ua: 'Елементарний',    en: 'Elementary' },
   'cefr.B1': { ua: 'Середній',        en: 'Intermediate' },

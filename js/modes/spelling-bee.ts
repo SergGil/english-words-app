@@ -7,6 +7,7 @@ import { lev } from '../core/distance.ts';
 import { addCombo, breakCombo } from '../features/combo.ts';
 import { recordModeComplete, recordModeAnswer, recordMistake } from '../features/game.ts';
 import type { SpeakFn } from '../core/ui-helpers.ts';
+import { t } from '../features/i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 const SIZE = 10;
@@ -64,12 +65,12 @@ function renderQ(): void {
   beeAnswered = false; beeHintsLeft = 3;
   elResult.textContent = ''; elNext.style.display = 'none';
   elHintText.textContent = ''; elHintText.style.display = 'none';
-  elSub.textContent = `Слово ${beeIdx+1} з ${SIZE}`;
+  elSub.textContent = `${t('bee.word')} ${beeIdx+1} ${t('common.of')} ${SIZE}`;
   elPbar.style.width = (beeIdx / SIZE * 100) + '%';
   elOk.textContent = String(beeOk); elFail.textContent = String(beeFail);
   elInput.value = ''; elInput.style.borderColor = ''; elInput.disabled = false;
   elHintBtn.disabled = false;
-  elHintBtn.textContent = `💡 Підказка (${beeHintsLeft})`;
+  elHintBtn.textContent = t('bee.hintBtn').replace('{n}', String(beeHintsLeft));
 
   // Show translation and IPA (the clues)
   elTransl.textContent = w[1];
@@ -82,7 +83,7 @@ function renderQ(): void {
 
   // Update speak button
   elSpeakBtn.onclick = () => _speak(w[0]);
-  elNext.textContent = beeIdx >= beeDeck.length-1 ? '🏆 Фініш!' : 'Наступне →';
+  elNext.textContent = beeIdx >= beeDeck.length-1 ? t('quiz.finish') : t('quiz.next');
 }
 
 function submit(): void {
@@ -93,8 +94,8 @@ function submit(): void {
   // Guard: never accept empty input
   if (!input) {
     elInput.style.borderColor = '#e74c3c';
-    elInput.placeholder = 'Введи слово!';
-    setTimeout(() => { elInput.placeholder = 'Введи слово англійською...'; elInput.style.borderColor = ''; }, 1500);
+    elInput.placeholder = t('bee.emptyInput');
+    setTimeout(() => { elInput.placeholder = t('bee.inputPlaceholder'); elInput.style.borderColor = ''; }, 1500);
     return;
   }
   const ok = input === answer || lev(input, answer) === 0;
@@ -107,16 +108,16 @@ function submit(): void {
 
   if (ok) {
     beeOk++;
-    elResult.innerHTML = `<span style="color:#27ae60">✓ Правильно!</span>`;
+    elResult.innerHTML = `<span style="color:#27ae60">${t('quiz.correctMsg')}</span>`;
     try { addCombo(); } catch(e){}
   } else if (close1) {
     // Accept near-miss with minor penalty
     beeOk++;
-    elResult.innerHTML = `<span style="color:#f39c12">⚠️ Майже! Правильно: <b>${w[0]}</b></span>`;
+    elResult.innerHTML = `<span style="color:#f39c12">${t('bee.almostMsg').replace('{w}', `<b>${w[0]}</b>`)}</span>`;
     try { addCombo(); } catch(e){}
   } else {
     beeFail++;
-    elResult.innerHTML = `<span style="color:#e74c3c">✗ Правильно: <b>${w[0]}</b></span>`;
+    elResult.innerHTML = `<span style="color:#e74c3c">${t('bee.wrongMsg').replace('{w}', `<b>${w[0]}</b>`)}</span>`;
     recordMistake(w[0]);
     try { breakCombo(); } catch(e){}
   }
@@ -131,9 +132,9 @@ function showFinal(): void {
   elScRow.style.display = 'none'; elFinal.style.display = 'block';
   const pct = Math.round(beeOk / SIZE * 100);
   document.getElementById('bee-final-emoji')!.textContent = pct===100?'🏆':pct>=80?'🎉':pct>=60?'👍':'💪';
-  document.getElementById('bee-final-title')!.textContent = pct===100?'Ідеально!':pct>=80?'Чудово!':pct>=60?'Непогано!':'Тренуйся!';
-  document.getElementById('bee-final-desc')!.textContent  = `${beeOk} з ${SIZE} (${pct}%)`;
-  elPbar.style.width = '100%'; elSub.textContent = 'Завершено';
+  document.getElementById('bee-final-title')!.textContent = pct===100?t('quiz.perfectTitle'):pct>=80?t('quiz.greatTitle'):pct>=60?t('quiz.goodTitle'):t('tempo.practiceTitle');
+  document.getElementById('bee-final-desc')!.textContent  = `${beeOk} ${t('common.of')} ${SIZE} (${pct}%)`;
+  elPbar.style.width = '100%'; elSub.textContent = t('write.completed');
   recordModeComplete('spelling');
 }
 
@@ -146,7 +147,7 @@ elHintBtn.addEventListener('click', () => {
   const hint = w[0].slice(0, revealCount) + '_'.repeat(Math.max(0, w[0].length - revealCount));
   elHintText.textContent = `💡 ${hint}`;
   elHintText.style.display = 'block';
-  elHintBtn.textContent = beeHintsLeft > 0 ? `💡 Підказка (${beeHintsLeft})` : '💡 Більше немає';
+  elHintBtn.textContent = beeHintsLeft > 0 ? t('bee.hintBtn').replace('{n}', String(beeHintsLeft)) : t('bee.hintNone');
   elHintBtn.disabled = beeHintsLeft <= 0;
 });
 
