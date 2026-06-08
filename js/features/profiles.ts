@@ -1,5 +1,6 @@
 // English Words App — js/features/profiles.ts
 // Multi-profile: sidebar dropdown + inline add form + edit
+import { t } from './i18n.ts';
 
 const LIST_KEY   = 'ew_profiles';
 const ACTIVE_KEY = 'ew_active_profile';
@@ -101,7 +102,7 @@ function _renderDropdown(): void {
     else btn.addEventListener('click', () => _switch(p.id));
 
     const editBtn = document.createElement('button');
-    editBtn.textContent = '✏️'; editBtn.title = 'Редагувати';
+    editBtn.textContent = '✏️'; editBtn.title = t('profile.editTooltip');
     editBtn.style.cssText = 'background:none;border:none;cursor:pointer;padding:2px 4px;font-size:.85rem;opacity:.5;border-radius:6px;flex-shrink:0;';
     editBtn.addEventListener('mouseenter', () => editBtn.style.opacity = '1');
     editBtn.addEventListener('mouseleave', () => editBtn.style.opacity = '.5');
@@ -110,7 +111,7 @@ function _renderDropdown(): void {
     });
 
     const del = document.createElement('button');
-    del.textContent = '×'; del.title = 'Видалити';
+    del.textContent = '×'; del.title = t('profile.deleteTooltip');
     del.style.cssText = 'background:none;border:none;cursor:pointer;padding:2px 5px;font-size:1rem;opacity:.35;border-radius:6px;flex-shrink:0;color:inherit;';
     del.addEventListener('mouseenter', () => { del.style.opacity = '1'; del.style.color = '#e74c3c'; });
     del.addEventListener('mouseleave', () => { del.style.opacity = '.35'; del.style.color = 'inherit'; });
@@ -163,16 +164,16 @@ function _getOrCreateEditOverlay(): HTMLElement {
   ovl.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:none;align-items:center;justify-content:center;padding:16px;';
   ovl.innerHTML = `
     <div style="background:var(--modal-bg,#fff);border-radius:18px;padding:22px 20px;max-width:320px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.25);">
-      <div style="font-size:.95rem;font-weight:700;margin-bottom:14px;color:var(--text);">✏️ Редагувати профіль</div>
-      <input id="prf-edit-name" type="text" maxlength="20" placeholder="Ім'я профіля..."
+      <div style="font-size:.95rem;font-weight:700;margin-bottom:14px;color:var(--text);">${t('profile.editTitle')}</div>
+      <input id="prf-edit-name" type="text" maxlength="20" placeholder="${t('profile.namePlaceholder')}"
         style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:.85rem;font-family:inherit;background:var(--bg);color:var(--text);outline:none;box-sizing:border-box;margin-bottom:10px;">
-      <div style="font-size:.72rem;color:var(--text3);margin-bottom:6px;">Аватар:</div>
+      <div style="font-size:.72rem;color:var(--text3);margin-bottom:6px;">${t('profile.avatarLabel')}</div>
       <div id="prf-edit-av-picker" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
         ${AVATARS.map(a => `<button class="prf-av-btn prf-edit-av" data-av="${a}" style="font-size:1.3rem;padding:4px 7px;border-radius:8px;border:2px solid var(--border);background:var(--modal-av-bg,rgba(0,0,0,.05));cursor:pointer;">${a}</button>`).join('')}
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;">
-        <button id="prf-edit-cancel" style="padding:8px 16px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;">Скасувати</button>
-        <button id="prf-edit-save" style="padding:8px 16px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-weight:600;">Зберегти</button>
+        <button id="prf-edit-cancel" style="padding:8px 16px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;">${t('profile.cancel')}</button>
+        <button id="prf-edit-save" style="padding:8px 16px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-weight:600;">${t('profile.save')}</button>
       </div>
     </div>`;
   document.body.appendChild(ovl);
@@ -203,8 +204,17 @@ function _getOrCreateEditOverlay(): HTMLElement {
 function _showEditModal(id: string, currentName: string, currentAvatar: string, _profiles: Profile[]): void {
   _editingId = id; _closeDropdown();
   const ovl = _getOrCreateEditOverlay();
+  const titleEl = ovl.querySelector<HTMLElement>(':scope > div > div:first-child');
+  if (titleEl) titleEl.textContent = t('profile.editTitle');
+  const avLabelEl = ovl.querySelector<HTMLElement>('#prf-edit-av-picker')?.previousElementSibling as HTMLElement | null;
+  if (avLabelEl) avLabelEl.textContent = t('profile.avatarLabel');
   const nameInp = ovl.querySelector<HTMLInputElement>('#prf-edit-name')!;
   nameInp.value = currentName;
+  nameInp.placeholder = t('profile.namePlaceholder');
+  const cancelBtn = ovl.querySelector<HTMLButtonElement>('#prf-edit-cancel');
+  if (cancelBtn) cancelBtn.textContent = t('profile.cancel');
+  const saveBtn = ovl.querySelector<HTMLButtonElement>('#prf-edit-save');
+  if (saveBtn) saveBtn.textContent = t('profile.save');
   ovl.querySelectorAll<HTMLButtonElement>('.prf-edit-av').forEach(btn => {
     const isSelected = btn.dataset.av === currentAvatar;
     btn.style.borderColor = isSelected ? 'var(--accent)' : 'var(--border)';

@@ -522,6 +522,18 @@ const DICT: Record<string, Record<Lang, string>> = {
   'custom.errBothFields':{ ua: 'Введіть обидва поля',                       en: 'Fill in both fields',                     es: 'Completa ambos campos' },
   'custom.errDuplicate': { ua: '⚠️ Слово "{w}" вже є у словнику',           en: '⚠️ The word "{w}" is already in the dictionary', es: '⚠️ La palabra "{w}" ya está en el diccionario' },
   'custom.errTooShort':  { ua: 'Слово занадто коротке',                     en: 'The word is too short',                   es: 'La palabra es demasiado corta' },
+
+  // ── Profiles ───────────────────────────────────────────────
+  'profile.editTitle':     { ua: '✏️ Редагувати профіль',     en: '✏️ Edit profile',     es: '✏️ Editar perfil' },
+  'profile.editTooltip':   { ua: 'Редагувати',                en: 'Edit',                es: 'Editar' },
+  'profile.deleteTooltip': { ua: 'Видалити',                  en: 'Delete',              es: 'Eliminar' },
+  'profile.namePlaceholder':    { ua: 'Ім\'я профіля...',         en: 'Profile name...',          es: 'Nombre del perfil...' },
+  'profile.newNamePlaceholder': { ua: 'Ім\'я нового профіля...',  en: 'New profile name...',      es: 'Nombre del nuevo perfil...' },
+  'profile.avatarLabel':   { ua: 'Аватар:',                   en: 'Avatar:',             es: 'Avatar:' },
+  'profile.cancel':        { ua: 'Скасувати',                 en: 'Cancel',              es: 'Cancelar' },
+  'profile.save':          { ua: 'Зберегти',                  en: 'Save',                es: 'Guardar' },
+  'profile.create':        { ua: '+ Створити',                en: '+ Create',            es: '+ Crear' },
+  'profile.createFull':    { ua: '+ Створити профіль',        en: '+ Create profile',    es: '+ Crear perfil' },
 };
 
 const LEVEL_NAMES_EN: Record<string, string> = {
