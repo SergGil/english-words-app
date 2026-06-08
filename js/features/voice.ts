@@ -9,38 +9,38 @@ let _ukURI = localStorage.getItem('ew_ws_uk_voice') ?? '';
 type VoiceMapEntry = { match: string; label: string; gender: string; accent: string };
 
 const VOICE_MAP: VoiceMapEntry[] = [
-  { match: 'Google US English',         label: 'Google Samantha',    gender: '👩', accent: '🇺🇸' },
-  { match: 'Google UK English Female',  label: 'Google Emma',        gender: '👩', accent: '🇬🇧' },
-  { match: 'Google UK English Male',    label: 'Google James',       gender: '👨', accent: '🇬🇧' },
-  { match: 'Google Australian English', label: 'Google Olivia',      gender: '👩', accent: '🇦🇺' },
-  { match: 'Microsoft David',   label: 'Microsoft David',   gender: '👨', accent: '🇺🇸' },
-  { match: 'Microsoft Mark',    label: 'Microsoft Mark',    gender: '👨', accent: '🇺🇸' },
-  { match: 'Microsoft Zira',    label: 'Microsoft Zira',    gender: '👩', accent: '🇺🇸' },
-  { match: 'Microsoft Jenny',   label: 'Microsoft Jenny',   gender: '👩', accent: '🇺🇸' },
-  { match: 'Microsoft Guy',     label: 'Microsoft Guy',     gender: '👨', accent: '🇺🇸' },
-  { match: 'Microsoft Aria',    label: 'Microsoft Aria',    gender: '👩', accent: '🇺🇸' },
-  { match: 'Microsoft Davis',   label: 'Microsoft Davis',   gender: '👨', accent: '🇺🇸' },
-  { match: 'Microsoft Ana',     label: 'Microsoft Ana',     gender: '👩', accent: '🇺🇸' },
-  { match: 'Microsoft Eric',    label: 'Microsoft Eric',    gender: '👨', accent: '🇺🇸' },
-  { match: 'Microsoft Ryan',    label: 'Microsoft Ryan',    gender: '👨', accent: '🇬🇧' },
-  { match: 'Microsoft Sonia',   label: 'Microsoft Sonia',   gender: '👩', accent: '🇬🇧' },
-  { match: 'Microsoft Libby',   label: 'Microsoft Libby',   gender: '👩', accent: '🇬🇧' },
-  { match: 'Microsoft Maisie',  label: 'Microsoft Maisie',  gender: '👩', accent: '🇬🇧' },
-  { match: 'Microsoft Natasha', label: 'Microsoft Natasha', gender: '👩', accent: '🇦🇺' },
-  { match: 'Microsoft William', label: 'Microsoft William', gender: '👨', accent: '🇦🇺' },
-  { match: 'Alex',      label: 'Apple Alex',      gender: '👨', accent: '🇺🇸' },
-  { match: 'Samantha',  label: 'Apple Samantha',  gender: '👩', accent: '🇺🇸' },
-  { match: 'Victoria',  label: 'Apple Victoria',  gender: '👩', accent: '🇺🇸' },
-  { match: 'Daniel',    label: 'Apple Daniel',    gender: '👨', accent: '🇬🇧' },
-  { match: 'Kate',      label: 'Apple Kate',      gender: '👩', accent: '🇬🇧' },
-  { match: 'Karen',     label: 'Apple Karen',     gender: '👩', accent: '🇦🇺' },
-  { match: 'Lee',       label: 'Apple Lee',       gender: '👨', accent: '🇦🇺' },
-  { match: 'Moira',     label: 'Apple Moira',     gender: '👩', accent: '🇮🇪' },
-  { match: 'Google українська',  label: 'Google Українська', gender: '👩', accent: '🇺🇦' },
-  { match: 'Google Ukrainian',   label: 'Google Ukrainian',  gender: '👩', accent: '🇺🇦' },
-  { match: 'Microsoft Ostap',    label: 'Microsoft Остап',   gender: '👨', accent: '🇺🇦' },
-  { match: 'Microsoft Polina',   label: 'Microsoft Поліна',  gender: '👩', accent: '🇺🇦' },
-  { match: 'Ukrainian',          label: 'Українська',        gender: '👩', accent: '🇺🇦' },
+  { match: 'Google US English',         label: 'Google Samantha',    gender: '👩', accent: 'US' },
+  { match: 'Google UK English Female',  label: 'Google Emma',        gender: '👩', accent: 'GB' },
+  { match: 'Google UK English Male',    label: 'Google James',       gender: '👨', accent: 'GB' },
+  { match: 'Google Australian English', label: 'Google Olivia',      gender: '👩', accent: 'AU' },
+  { match: 'Microsoft David',   label: 'Microsoft David',   gender: '👨', accent: 'US' },
+  { match: 'Microsoft Mark',    label: 'Microsoft Mark',    gender: '👨', accent: 'US' },
+  { match: 'Microsoft Zira',    label: 'Microsoft Zira',    gender: '👩', accent: 'US' },
+  { match: 'Microsoft Jenny',   label: 'Microsoft Jenny',   gender: '👩', accent: 'US' },
+  { match: 'Microsoft Guy',     label: 'Microsoft Guy',     gender: '👨', accent: 'US' },
+  { match: 'Microsoft Aria',    label: 'Microsoft Aria',    gender: '👩', accent: 'US' },
+  { match: 'Microsoft Davis',   label: 'Microsoft Davis',   gender: '👨', accent: 'US' },
+  { match: 'Microsoft Ana',     label: 'Microsoft Ana',     gender: '👩', accent: 'US' },
+  { match: 'Microsoft Eric',    label: 'Microsoft Eric',    gender: '👨', accent: 'US' },
+  { match: 'Microsoft Ryan',    label: 'Microsoft Ryan',    gender: '👨', accent: 'GB' },
+  { match: 'Microsoft Sonia',   label: 'Microsoft Sonia',   gender: '👩', accent: 'GB' },
+  { match: 'Microsoft Libby',   label: 'Microsoft Libby',   gender: '👩', accent: 'GB' },
+  { match: 'Microsoft Maisie',  label: 'Microsoft Maisie',  gender: '👩', accent: 'GB' },
+  { match: 'Microsoft Natasha', label: 'Microsoft Natasha', gender: '👩', accent: 'AU' },
+  { match: 'Microsoft William', label: 'Microsoft William', gender: '👨', accent: 'AU' },
+  { match: 'Alex',      label: 'Apple Alex',      gender: '👨', accent: 'US' },
+  { match: 'Samantha',  label: 'Apple Samantha',  gender: '👩', accent: 'US' },
+  { match: 'Victoria',  label: 'Apple Victoria',  gender: '👩', accent: 'US' },
+  { match: 'Daniel',    label: 'Apple Daniel',    gender: '👨', accent: 'GB' },
+  { match: 'Kate',      label: 'Apple Kate',      gender: '👩', accent: 'GB' },
+  { match: 'Karen',     label: 'Apple Karen',     gender: '👩', accent: 'AU' },
+  { match: 'Lee',       label: 'Apple Lee',       gender: '👨', accent: 'AU' },
+  { match: 'Moira',     label: 'Apple Moira',     gender: '👩', accent: 'IE' },
+  { match: 'Google українська',  label: 'Google Українська', gender: '👩', accent: 'UA' },
+  { match: 'Google Ukrainian',   label: 'Google Ukrainian',  gender: '👩', accent: 'UA' },
+  { match: 'Microsoft Ostap',    label: 'Microsoft Остап',   gender: '👨', accent: 'UA' },
+  { match: 'Microsoft Polina',   label: 'Microsoft Поліна',  gender: '👩', accent: 'UA' },
+  { match: 'Ukrainian',          label: 'Українська',        gender: '👩', accent: 'UA' },
 ];
 
 function _getLabel(voice: SpeechSynthesisVoice): VoiceMapEntry {
@@ -53,10 +53,10 @@ function _getLabel(voice: SpeechSynthesisVoice): VoiceMapEntry {
 
 function _langFlag(lang: string): string {
   if (!lang) return '🌐'; const l = lang.toLowerCase();
-  if (l.startsWith('uk')) return '🇺🇦';
-  if (l === 'en-gb' || l === 'en-ie') return '🇬🇧';
-  if (l === 'en-au') return '🇦🇺'; if (l === 'en-in') return '🇮🇳';
-  if (l.startsWith('en-us') || l.startsWith('en-ca')) return '🇺🇸';
+  if (l.startsWith('uk')) return 'UA';
+  if (l === 'en-gb' || l === 'en-ie') return 'GB';
+  if (l === 'en-au') return 'AU'; if (l === 'en-in') return 'IN';
+  if (l.startsWith('en-us') || l.startsWith('en-ca')) return 'US';
   if (l.startsWith('en')) return '🌍'; return '🌐';
 }
 
@@ -105,8 +105,14 @@ function _makeCard(v: SpeechSynthesisVoice, activeURI: string, onSelect: (uri: s
   top.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:3px;';
   (['gender', 'accent', 'label'] as const).forEach((k, i) => {
     const s = document.createElement('span');
-    if (i < 2) { s.textContent = info[k]; s.style.fontSize = i === 1 ? '.85rem' : '1rem'; }
-    else { s.textContent = info.label; s.style.cssText = 'font-size:.82rem;font-weight:600;color:var(--text);'; }
+    if (k === 'accent') {
+      s.textContent = info.accent;
+      s.style.cssText = 'font-size:.62rem;font-weight:700;letter-spacing:.04em;color:var(--text3);background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:1px 5px;line-height:1.3;';
+    } else if (i === 0) {
+      s.textContent = info.gender; s.style.fontSize = '1rem';
+    } else {
+      s.textContent = info.label; s.style.cssText = 'font-size:.82rem;font-weight:600;color:var(--text);';
+    }
     top.appendChild(s);
   });
   const sub = document.createElement('div');
