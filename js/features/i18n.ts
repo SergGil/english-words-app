@@ -30,6 +30,32 @@ const DICT: Record<string, Record<Lang, string>> = {
   'cards.allTopics':    { ua: '🏷️ Всі теми',                         en: '🏷️ All topics' },
   'cards.allWords':     { ua: 'Всі слова',                           en: 'All words' },
   'cards.searchPlaceholder': { ua: 'Пошук слова...',                 en: 'Search a word...' },
+  'cards.auto':         { ua: '▶ Авто',                              en: '▶ Auto' },
+  'cards.stop':         { ua: '⏹ Стоп',                              en: '⏹ Stop' },
+  'cards.pronounce':    { ua: 'Вимовити слово',                      en: 'Pronounce word' },
+  'cards.checkPron':    { ua: 'Перевір вимову',                      en: 'Check pronunciation' },
+  'cards.noteMnemonic': { ua: 'Нотатка/мнемоніка',                   en: 'Note/mnemonic' },
+  'cards.addBookmark':  { ua: 'Додати в закладки',                   en: 'Add to bookmarks' },
+  'cards.removeKnown':  { ua: 'Прибрати з вивчених',                 en: 'Remove from learned' },
+  'cards.wotdLabel':    { ua: '📖 Слово дня',                         en: '📖 Word of the day' },
+  'cards.wotdTitle':    { ua: 'Слово дня — натисни щоб перейти',     en: 'Word of the day — tap to go there' },
+  'cards.tagFilterTitle': { ua: 'Фільтр по темі',                    en: 'Filter by topic' },
+
+  'mode.mixed':         { ua: 'Мішаний',                             en: 'Mixed' },
+
+  'range.unlearned': { ua: '🔴 Тільки невивчені',     en: '🔴 Unlearned only' },
+  'range.srs':       { ua: '🔁 Spaced Repetition',    en: '🔁 Spaced Repetition' },
+  'range.weak':      { ua: '⚠️ Слабкі слова',         en: '⚠️ Weak words' },
+  'range.hard':      { ua: '🔴 Важкі слова',          en: '🔴 Hard words' },
+  'range.cefrGroup': { ua: '📊 Рівень CEFR',          en: '📊 CEFR level' },
+  'range.cefrA1':    { ua: '🟢 A1 — Початківець',      en: '🟢 A1 — Beginner' },
+  'range.cefrA2':    { ua: '🟩 A2 — Елементарний',     en: '🟩 A2 — Elementary' },
+  'range.cefrB1':    { ua: '🟡 B1 — Середній',         en: '🟡 B1 — Intermediate' },
+  'range.cefrB2':    { ua: '🟠 B2 — Вище середнього',  en: '🟠 B2 — Upper-intermediate' },
+  'range.cefrC1':    { ua: '🔴 C1 — Просунутий',       en: '🔴 C1 — Advanced' },
+  'range.cefrC2':    { ua: '🟣 C2 — Майстерний',       en: '🟣 C2 — Proficient' },
+  'range.stale7':    { ua: '🕰️ Не бачені 7 днів',     en: '🕰️ Not seen for 7 days' },
+  'range.stale30':   { ua: '🕰️ Не бачені 30 днів',    en: '🕰️ Not seen for 30 days' },
 
   'kbd.space':       { ua: 'Пробіл',     en: 'Space' },
   'kbd.next':        { ua: 'далі',       en: 'next' },
@@ -212,6 +238,11 @@ export function applyI18n(): void {
     const key = el.dataset.i18nTitle;
     const entry = key ? DICT[key] : undefined;
     if (entry) el.title = entry[lang];
+  });
+  document.querySelectorAll<HTMLOptGroupElement>('[data-i18n-label]').forEach(el => {
+    const key = el.dataset.i18nLabel;
+    const entry = key ? DICT[key] : undefined;
+    if (entry) el.label = entry[lang];
   });
   document.querySelectorAll<HTMLElement>('.lang-opt').forEach(btn => {
     btn.classList.toggle('lang-active', btn.dataset.lang === lang);

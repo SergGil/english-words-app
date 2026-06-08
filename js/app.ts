@@ -172,7 +172,7 @@ function getMode(): string {
 function stopAuto(): void {
   if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
   const btnAuto = document.getElementById('btn-auto');
-  if (btnAuto) btnAuto.textContent = '▶ Авто';
+  if (btnAuto) btnAuto.textContent = t('cards.auto');
 }
 
 // ── Card animation ────────────────────────────────────────────
@@ -502,7 +502,7 @@ document.getElementById('btn-next')!.addEventListener('click', function(e){
 document.getElementById('btn-auto')!.addEventListener('click', function(e){
   e.stopPropagation();
   if(autoTimer){stopAuto();}
-  else{this.textContent='⏹ Стоп';autoTimer=setInterval(function(){_animCard('next');idx=(idx+1)%deck.length;render();},4500);}
+  else{this.textContent=t('cards.stop');autoTimer=setInterval(function(){_animCard('next');idx=(idx+1)%deck.length;render();},4500);}
 });
 document.getElementById('btn-shuf')!.addEventListener('click', function(e){e.stopPropagation();stopAuto();shuffle(deck);idx=0;render();});
 document.getElementById('btn-reset')!.addEventListener('click', function(e){
