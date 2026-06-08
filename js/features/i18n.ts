@@ -296,6 +296,13 @@ const DICT: Record<string, Record<Lang, string>> = {
   'modal.imgClearWarn':  { ua: 'Всі завантажені фото будуть видалені з кешу. Зображення завантажуватимуться знову при перегляді карток.', en: 'All downloaded photos will be removed from the cache. Images will be re-downloaded as you browse cards.' },
   'modal.cancelAlt':     { ua: 'Скасувати',                                            en: 'Cancel' },
   'modal.clear':         { ua: 'Очистити',                                             en: 'Clear' },
+
+  // ── Idioms page ────────────────────────────────────────────
+  'idioms.pageTitle':  { ua: '💬 Ідіоми',                              en: '💬 Idioms' },
+  'idioms.tabEn':      { ua: 'Англійські ідіоми',                      en: 'English idioms' },
+  'idioms.tabUa':      { ua: 'Українські ідіоми → англійською',        en: 'Ukrainian idioms → English' },
+  'idioms.searchPlaceholder': { ua: '🔍 Пошук ідіоми...',              en: '🔍 Search an idiom...' },
+  'idioms.empty':      { ua: 'Нічого не знайдено 🤷',                  en: 'Nothing found 🤷' },
 };
 
 const LEVEL_NAMES_EN: Record<string, string> = {
@@ -451,6 +458,9 @@ export function applyI18n(): void {
   }
   if (document.getElementById('lp-overlay')?.classList.contains('open')) {
     (window.renderLearningPath as (() => void) | undefined)?.();
+  }
+  if (document.getElementById('idioms-overlay')?.classList.contains('open')) {
+    (window._refreshIdiomsUI as (() => void) | undefined)?.();
   }
   if (document.getElementById('settings-overlay')?.classList.contains('open')) {
     (window._refreshNotifUI as (() => void) | undefined)?.();

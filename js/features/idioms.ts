@@ -2,6 +2,7 @@
 // Idioms reference page: English idioms ↔ Ukrainian idioms with their English equivalents
 import { ENGLISH_IDIOMS, UKRAINIAN_IDIOMS } from '../../data/idioms.ts';
 import type { Idiom } from '../../data/idioms.ts';
+import { t } from './i18n.ts';
 
 const overlay  = document.getElementById('idioms-overlay')! as HTMLElement;
 const listEl   = document.getElementById('idioms-list')!    as HTMLElement;
@@ -37,7 +38,7 @@ function _render(): void {
     : source;
 
   if (!filtered.length) {
-    listEl.innerHTML = '<div class="idioms-empty">Нічого не знайдено 🤷</div>';
+    listEl.innerHTML = `<div class="idioms-empty">${t('idioms.empty')}</div>`;
     return;
   }
   listEl.innerHTML = filtered.map(_renderCard).join('');
@@ -59,6 +60,7 @@ export function openIdiomsContent(): void {
   _render();
 }
 window.openIdiomsContent = openIdiomsContent;
+window._refreshIdiomsUI = _render;
 
 export function openIdioms(): void {
   (window.openPage as ((p: string) => void) | undefined)?.('idioms');
