@@ -263,6 +263,12 @@ const DICT: Record<string, Record<Lang, string>> = {
   'pairs.newRecord':  { ua: '🌟 Новий рекорд!',         en: '🌟 New record!' },
   'pairs.again':      { ua: '🔄 Знову',                 en: '🔄 Again' },
 
+  'catpairs.themes':       { ua: '📦 Теми',                en: '📦 Topics' },
+  'catpairs.selectPrompt': { ua: 'Оберіть тему для гри',   en: 'Choose a topic to play' },
+  'catpairs.backToThemes': { ua: '← Теми',                 en: '← Topics' },
+  'catpairs.random':       { ua: '🎲 Випадково',           en: '🎲 Random' },
+  'catpairs.randomDesc':   { ua: '6 пар з усіх тем',       en: '6 pairs from all topics' },
+
   'cefr.A1': { ua: 'Початківець',     en: 'Beginner' },
   'cefr.A2': { ua: 'Елементарний',    en: 'Elementary' },
   'cefr.B1': { ua: 'Середній',        en: 'Intermediate' },

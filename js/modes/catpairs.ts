@@ -8,9 +8,10 @@ import { WORD_CATEGORIES, CATEGORY_LIST } from '../../data/categories.js';
 import { getGameData } from '../features/game.ts';
 import { W } from '../../data/words.js';
 import type { WordEntry } from '../../src/types.js';
-import { t } from '../features/i18n.ts';
+import { t, wordsLabel } from '../features/i18n.ts';
 
 const CP = 6;
+const RANDOM_KEY = '🎲 Випадково';
 type PairItem = { text: string; id: number };
 type PairSel  = { el: HTMLElement; id: number; side: string } | null;
 
@@ -29,7 +30,7 @@ const elGrid     = document.getElementById('cat-select-grid')!;
 
 type PlaySound = (s: string) => void;
 
-function fmt(ms: number): string { return (ms / 1000).toFixed(1) + 'с'; }
+function fmt(ms: number): string { return (ms / 1000).toFixed(1) + t('common.secSuffix'); }
 function getBest(k: string): number { return parseFloat(localStorage.getItem('ew_cp_' + k) ?? '0'); }
 function setBest(k: string, t: number): void { const b = getBest(k); if (!b || t < b) localStorage.setItem('ew_cp_' + k, t.toFixed(1)); }
 
@@ -48,7 +49,7 @@ function getCatWords(catName: string, catWords: string[]): WordEntry[] {
 
 function open(): void {
   buildSelectGrid(); selScreen.style.display = ''; gameScreen.style.display = 'none';
-  elTimer.style.display = 'none'; elTitle.textContent = '📦 Теми'; oOverlay.style.display = 'flex';
+  elTimer.style.display = 'none'; elTitle.textContent = t('catpairs.themes'); oOverlay.style.display = 'flex';
 }
 function close(): void { if (cpTick) clearInterval(cpTick); oOverlay.style.display = 'none'; }
 
@@ -59,14 +60,14 @@ function buildSelectGrid(): void {
     const btn = document.createElement('button');
     btn.className = 'cat-select-btn';
     const b = getBest(cat);
-    btn.innerHTML = `${cat}<span class="cat-count">${words.length} слів${b ? ` · 🏆${fmt(b * 1000)}` : ''}</span>`;
+    btn.innerHTML = `${cat}<span class="cat-count">${words.length} ${wordsLabel(words.length)}${b ? ` · 🏆${fmt(b * 1000)}` : ''}</span>`;
     if (words.length < 4) { btn.disabled = true; btn.style.opacity = '.4'; }
     btn.addEventListener('click', () => { if (words.length >= 4) startCatGame(cat, words); });
     elGrid.appendChild(btn);
   });
   const rnd = document.createElement('button');
   rnd.className = 'cat-select-btn';
-  rnd.innerHTML = '🎲 Випадково<span class="cat-count">6 пар з усіх тем</span>';
+  rnd.innerHTML = `${t('catpairs.random')}<span class="cat-count">${t('catpairs.randomDesc')}</span>`;
   rnd.addEventListener('click', () => {
     const wordIdx = (window as Window & { _wordIdx?: Map<string, number> })._wordIdx;
     if (!wordIdx) return;
@@ -74,7 +75,7 @@ function buildSelectGrid(): void {
     Object.values(WORD_CATEGORIES).flat().forEach(w => {
       if (wordIdx.has(w) && !seen.has(w)) { seen.add(w); all.push((W as unknown as WordEntry[])[wordIdx.get(w)!]); }
     });
-    startCatGame('🎲 Випадково', all);
+    startCatGame(RANDOM_KEY, all);
   });
   elGrid.appendChild(rnd);
 }
@@ -83,9 +84,9 @@ function startCatGame(catName: string, words: WordEntry[]): void {
   cpCatKey = catName; cpSel = null; cpMatched = 0; cpStart = null;
   if (cpTick) clearInterval(cpTick);
   cpDeck = _shuf(words.slice()).slice(0, Math.min(CP, words.length));
-  elTitle.textContent = catName;
-  elBest.textContent = getBest(catName) ? `🏆 Рекорд: ${fmt(getBest(catName) * 1000)}` : '';
-  elTimer.textContent = '0.0с'; elTimer.style.display = 'block'; elTimer.style.color = 'var(--accent)';
+  elTitle.textContent = catName === RANDOM_KEY ? t('catpairs.random') : catName;
+  elBest.textContent = getBest(catName) ? t('pairs.record').replace('{t}', fmt(getBest(catName) * 1000)) : '';
+  elTimer.textContent = '0.0' + t('common.secSuffix'); elTimer.style.display = 'block'; elTimer.style.color = 'var(--accent)';
   elFinal.style.display = 'none'; elBoard.style.display = '';
   selScreen.style.display = 'none'; gameScreen.style.display = ''; renderBoard();
 }
@@ -128,15 +129,15 @@ function onClick(btn: HTMLElement, item: PairItem, side: string): void {
 
 function finish(): void {
   if (cpTick) clearInterval(cpTick);
-  const ms = Date.now() - cpStart!, t = ms / 1000;
-  const b = getBest(cpCatKey), isNew = !b || t < b;
-  setBest(cpCatKey, t);
+  const ms = Date.now() - cpStart!, secs = ms / 1000;
+  const b = getBest(cpCatKey), isNew = !b || secs < b;
+  setBest(cpCatKey, secs);
   elBoard.style.display = 'none'; elFinal.style.display = 'block';
   elTimer.textContent = fmt(ms); elTimer.style.color = isNew ? '#e67e22' : 'var(--accent)';
   document.getElementById('cpf-emoji')!.textContent = isNew ? '🏆' : '🎉';
   document.getElementById('cpf-time')!.textContent  = fmt(ms);
-  document.getElementById('cpf-best')!.textContent  = isNew ? '🌟 Новий рекорд!' : `🏆 Рекорд: ${fmt(getBest(cpCatKey) * 1000)}`;
-  elBest.textContent = `🏆 Рекорд: ${fmt(getBest(cpCatKey) * 1000)}`;
+  document.getElementById('cpf-best')!.textContent  = isNew ? t('pairs.newRecord') : t('pairs.record').replace('{t}', fmt(getBest(cpCatKey) * 1000));
+  elBest.textContent = t('pairs.record').replace('{t}', fmt(getBest(cpCatKey) * 1000));
 }
 
 document.getElementById('btn-catpairs')?.addEventListener('click', open);
@@ -153,7 +154,7 @@ document.getElementById('catpairs-again')?.addEventListener('click', () => {
 document.getElementById('catpairs-change')?.addEventListener('click', () => {
   if (cpTick) clearInterval(cpTick);
   selScreen.style.display = ''; gameScreen.style.display = 'none';
-  elTimer.style.display = 'none'; elTitle.textContent = '📦 Теми'; buildSelectGrid();
+  elTimer.style.display = 'none'; elTitle.textContent = t('catpairs.themes'); buildSelectGrid();
 });
 oOverlay.addEventListener('click', (e: MouseEvent) => { if (e.target === oOverlay) close(); });
 document.addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Escape' && oOverlay.style.display === 'flex') close(); });
