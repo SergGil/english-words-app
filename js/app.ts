@@ -27,7 +27,7 @@ import { decodeIpa }                                    from './core/ui-helpers.
 import { getCefrLevel }                                 from '../data/cefr.ts';
 import { ACHIEVEMENTS }                                 from '../data/achievements.ts';
 import { ACH_EN, ACH_CAT_EN }                           from '../data/achievements-i18n.ts';
-import { t, getLang }                                   from './features/i18n.ts';
+import { t, getLang, levelName, wordsLabel }            from './features/i18n.ts';
 
 function _isEnLang(): boolean { return localStorage.getItem('ew_lang') === 'en'; }
 function _achName(a: Achievement): string { return _isEnLang() ? (ACH_EN[a.id]?.name ?? a.name) : a.name; }
@@ -950,7 +950,7 @@ function renderLevelBadge() {
   var n = known.size;
   var lv = getLevel(n);
   var badge = document.getElementById('level-badge');
-  if (badge) { badge.textContent = lv.name; badge!.style.background = lv.color + '22'; badge!.style.color = lv.color; }
+  if (badge) { badge.textContent = levelName(lv.name); badge!.style.background = lv.color + '22'; badge!.style.color = lv.color; }
   var numEl = document.getElementById('gb-level-num');
   var lvIdx = LEVELS.indexOf(lv) + 1;
   if (numEl) { numEl.textContent = String(lvIdx); numEl.style.color = lv.color; }
@@ -970,11 +970,11 @@ function renderLevelProgress() {
     var pct  = Math.round(cur / need * 100);
     fillEl.style.width = pct + '%';
     fillEl.style.background = 'linear-gradient(90deg, ' + lv.color + ', ' + (next.color || lv.color) + ')';
-    if (xpEl)   xpEl.textContent   = cur + ' / ' + need + ' слів';
-    if (nextEl) nextEl.textContent = next.name;
+    if (xpEl)   xpEl.textContent   = cur + ' / ' + need + ' ' + wordsLabel(need);
+    if (nextEl) nextEl.textContent = levelName(next.name);
   } else {
     fillEl.style.width = '100%';
-    if (xpEl)   xpEl.textContent   = '🏆 Максимум!';
+    if (xpEl)   xpEl.textContent   = t('levels.maxReached');
     if (nextEl) nextEl.textContent = '';
   }
   // Синхронізуємо кільце з прогресом рівня
@@ -1087,11 +1087,12 @@ function renderLevelsRoadmap() {
     var name = document.createElement('div');
     name.className = 'level-row-name';
     name.style.color = isCurrent ? lv.color : '';
-    name.textContent = lv.name; // повна назва з емодзі
+    name.textContent = levelName(lv.name); // повна назва з емодзі
 
     var range = document.createElement('div');
     range.className = 'level-row-range';
-    range.textContent = lv.min + (next ? '–' + (next.min - 1) : '+') + ' слів' + (isCurrent ? ' · ' + n + ' вивчено (' + pct + '%)' : '');
+    var wordsUnit = getLang() === 'en' ? 'words' : 'слів';
+    range.textContent = lv.min + (next ? '–' + (next.min - 1) : '+') + ' ' + wordsUnit + (isCurrent ? ' · ' + n + ' ' + t('levels.learned') + ' (' + pct + '%)' : '');
 
     info.appendChild(name);
     info.appendChild(range);

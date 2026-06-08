@@ -86,12 +86,32 @@ const DICT: Record<string, Record<Lang, string>> = {
   'cefr.C1': { ua: 'Просунутий',      en: 'Advanced' },
   'cefr.C2': { ua: 'Майстерний',      en: 'Proficient' },
 
+  'levels.maxReached': { ua: '🏆 Максимум!', en: '🏆 Max level!' },
+  'levels.learned':    { ua: 'вивчено',      en: 'learned' },
+
   'lb.loading':  { ua: '⏳ Завантаження...',                              en: '⏳ Loading...' },
   'lb.empty':    { ua: 'Поки немає учасників. Ти будеш першим!',         en: 'No participants yet. You’ll be the first!' },
   'lb.top20':    { ua: '🌍 Топ-20 гравців · оновлюється при відкритті',  en: '🌍 Top 20 players · refreshes on open' },
   'lb.yourRank': { ua: 'Твоя позиція',                                    en: 'Your rank' },
   'lb.you':      { ua: 'ти',                                              en: 'you' },
 };
+
+const LEVEL_NAMES_EN: Record<string, string> = {
+  '🌌 Цивільний':           '🌌 Civilian',
+  '✨ Чутливий до Сили':    '✨ Force-sensitive',
+  '🟡 Падаван':             '🟡 Padawan',
+  '🔵 Джедай-лицар':        '🔵 Jedi Knight',
+  '🟢 Майстер Джедай':      '🟢 Jedi Master',
+  '🟣 Член Ради':           '🟣 Council Member',
+  '🔴 Ситх-лорд':           '🔴 Sith Lord',
+  '⚡ Обраний':             '⚡ The Chosen One',
+  '🌠 Балансувальник Сили': '🌠 Force Balancer',
+  '🏆 Магістр Йода':        '🏆 Master Yoda',
+};
+
+export function levelName(name: string): string {
+  return getLang() === 'en' ? (LEVEL_NAMES_EN[name] ?? name) : name;
+}
 
 const MONTHS_UA = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
 const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -136,8 +156,10 @@ export function applyI18n(): void {
   document.querySelectorAll<HTMLElement>('.lang-opt').forEach(btn => {
     btn.classList.toggle('lang-active', btn.dataset.lang === lang);
   });
+  (window.renderLevelBadge as (() => void) | undefined)?.();
   if (document.getElementById('ach-overlay')?.classList.contains('open')) {
     (window.renderAchievements as (() => void) | undefined)?.();
+    (window.renderLevelsRoadmap as (() => void) | undefined)?.();
   }
   const statsOverlay = document.getElementById('stats-overlay') as HTMLElement | null;
   if (statsOverlay && statsOverlay.style.display === 'flex') {
