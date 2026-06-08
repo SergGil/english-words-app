@@ -5,6 +5,7 @@ import { W } from '../../data/words.js';
 import { getGameData, saveGameData, recordModeComplete } from '../features/game.ts';
 import { closePage, openPage } from '../features/sidebar.ts';
 import { speakBtn, decodeIpa } from '../core/ui-helpers.ts';
+import { t } from '../features/i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 const DC_SIZE = 10, DC_XP = 3;
@@ -76,7 +77,7 @@ if (overlay) {
     elPbar.style.width = (dcIdx / dcDeck.length * 100) + '%';
     elResult.textContent = '';
     elTimer.textContent = dcStarted ? dcTimeLeft + 's' : '⏱';
-    elTitle.textContent = `⚡ Місія дня — ${dcIdx + 1} / ${dcDeck.length}`;
+    elTitle.textContent = `${t('daily.missionTitle')} — ${dcIdx + 1} / ${dcDeck.length}`;
     const correct = w[1];
     let pool = (W as unknown as WordEntry[]).filter(x => x[1] !== correct);
     for (let i = pool.length - 1; i > 0; i--) {
@@ -90,7 +91,7 @@ if (overlay) {
       btn.addEventListener('click', () => {
         if (!dcStarted) _startTimer();
         const ok = opt === correct;
-        if (ok) { dcCorrect++; btn.classList.add('dc-opt-ok'); elResult.innerHTML = '<span style="color:#27ae60">✓ Правильно!</span>'; }
+        if (ok) { dcCorrect++; btn.classList.add('dc-opt-ok'); elResult.innerHTML = `<span style="color:#27ae60">${t('quiz.correctMsg')}</span>`; }
         else    { btn.classList.add('dc-opt-fail'); elResult.innerHTML = `<span style="color:#e74c3c">✗ ${correct}</span>`; }
         elOpts.querySelectorAll<HTMLButtonElement>('.dc-opt').forEach(b => { b.disabled = true; if (b.textContent === correct) b.classList.add('dc-opt-ok'); });
         setTimeout(() => { dcIdx++; _renderQ(); }, 900);
@@ -104,8 +105,8 @@ if (overlay) {
     const pct = Math.round(dcCorrect / DC_SIZE * 100);
     const xp  = dcCorrect * DC_XP * 10;
     elFinalEmoji.textContent = pct===100?'🏆':pct>=80?'🎉':pct>=60?'👍':'💪';
-    elFinalTitle.textContent = (pct===100?'Місія виконана!':pct>=80?'Відмінно!':pct>=60?'Непогано!':'Продовжуй тренуватись!') + ` — ${dcCorrect} / ${DC_SIZE} (${pct}%)`;
-    elFinalXP.textContent = `+${xp} XP за місію дня`;
+    elFinalTitle.textContent = (pct===100?t('daily.missionDone'):pct>=80?t('tempo.excellentTitle'):pct>=60?t('quiz.goodTitle'):t('daily.keepTraining')) + ` — ${dcCorrect} / ${DC_SIZE} (${pct}%)`;
+    elFinalXP.textContent = t('daily.xpLabel').replace('{xp}', String(xp));
     elFinal.style.display = 'block'; elOpts.innerHTML = '';
     try { const d = getGameData(); d.xp = (d.xp ?? 0) + xp; saveGameData(d); (window.renderLevelBadge as (() => void) | undefined)?.(); } catch (e) {}
     recordModeComplete('daily');

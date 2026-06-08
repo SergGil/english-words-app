@@ -296,6 +296,12 @@ const DICT: Record<string, Record<Lang, string>> = {
   'reading.epubNoChapters': { ua: 'Розділів не знайдено',       en: 'No chapters found' },
   'reading.epubLoaded':   { ua: '✅ Завантажено: {n} фрагментів', en: '✅ Loaded: {n} fragments' },
 
+  'daily.missionTitle': { ua: '⚡ Місія дня',                   en: '⚡ Daily Mission' },
+  'daily.restart':      { ua: '↺ Ще раз',                      en: '↺ Try again' },
+  'daily.missionDone':  { ua: 'Місія виконана!',               en: 'Mission accomplished!' },
+  'daily.keepTraining': { ua: 'Продовжуй тренуватись!',        en: 'Keep practicing!' },
+  'daily.xpLabel':      { ua: '+{xp} XP за місію дня',         en: '+{xp} XP for the daily mission' },
+
   'cefr.A1': { ua: 'Початківець',     en: 'Beginner' },
   'cefr.A2': { ua: 'Елементарний',    en: 'Elementary' },
   'cefr.B1': { ua: 'Середній',        en: 'Intermediate' },
