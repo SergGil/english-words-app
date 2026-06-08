@@ -239,6 +239,12 @@ const DICT: Record<string, Record<Lang, string>> = {
   'lesson.doneBtn':   { ua: '🏠 Завершити',             en: '🏠 Finish' },
   'lesson.scoreLine': { ua: '{total} з {max} правильно ({pct}%)', en: '{total} of {max} correct ({pct}%)' },
 
+  'listen.title':     { ua: '🔊 Слухання',              en: '🔊 Listening' },
+  'listen.word':      { ua: 'Слово',                    en: 'Word' },
+  'listen.playHint':  { ua: 'Натисни щоб почути слово', en: 'Click to hear the word' },
+  'listen.wrongPrefix': { ua: 'Це',                     en: 'This is' },
+  'listen.keepGoingTitle': { ua: 'Продовжуй!',          en: 'Keep going!' },
+
   'cefr.A1': { ua: 'Початківець',     en: 'Beginner' },
   'cefr.A2': { ua: 'Елементарний',    en: 'Elementary' },
   'cefr.B1': { ua: 'Середній',        en: 'Intermediate' },

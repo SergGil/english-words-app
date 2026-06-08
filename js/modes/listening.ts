@@ -5,6 +5,7 @@ import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
 import { addCombo, breakCombo } from '../features/combo.ts';
 import { recordModeComplete, recordMistake, recordModeAnswer } from '../features/game.ts';
+import { t } from '../features/i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 const SIZE = 10;
@@ -50,7 +51,7 @@ function renderQ(): void {
   if (lIdx >= lDeck.length) { showFinal(); return; }
   lWord = lDeck[lIdx]; lAnswered = false;
   elResult.textContent = ''; elNext.style.display = 'none';
-  elSub.textContent = 'Слово ' + (lIdx + 1) + ' з ' + lDeck.length;
+  elSub.textContent = `${t('listen.word')} ${lIdx + 1} ${t('common.of')} ${lDeck.length}`;
   elPbar.style.width = (lIdx / lDeck.length * 100) + '%';
   elOk.textContent = String(lOk); elFail.textContent = String(lFail);
 
@@ -75,19 +76,19 @@ function renderQ(): void {
       elOpts.querySelectorAll('.quiz-option').forEach(b => (b as HTMLButtonElement).disabled = true);
       if (opt === correct) {
         btn.classList.add('correct'); lOk++;
-        elResult.innerHTML = `<span style="color:#27ae60">✓ Правильно! — <b>${lWord![0]}</b></span>`;
+        elResult.innerHTML = `<span style="color:#27ae60">${t('quiz.correctMsg')} — <b>${lWord![0]}</b></span>`;
         try { addCombo(); (window.playSound as PlaySound | undefined)?.('know'); } catch (e) {}
         recordModeAnswer('listen', true);
       } else {
         btn.classList.add('wrong'); lFail++;
-        elResult.innerHTML = `<span style="color:#e74c3c">✗ Це <b>${lWord![0]}</b> — «${correct}»</span>`;
+        elResult.innerHTML = `<span style="color:#e74c3c">✗ ${t('listen.wrongPrefix')} <b>${lWord![0]}</b> — «${correct}»</span>`;
         elOpts.querySelectorAll<HTMLButtonElement>('.quiz-option').forEach(b => { if (b.dataset.answer === correct) b.classList.add('reveal'); });
         try { breakCombo(); (window.playSound as PlaySound | undefined)?.('next'); } catch (e) {}
         recordMistake(lWord![0]);
         recordModeAnswer('listen', false);
       }
       elOk.textContent = String(lOk); elFail.textContent = String(lFail);
-      elNext.textContent = (lIdx >= lDeck.length - 1) ? '🏆 Фініш!' : 'Далі →';
+      elNext.textContent = (lIdx >= lDeck.length - 1) ? t('quiz.finish') : t('write.next');
       elNext.style.display = 'inline-block';
     });
     elOpts.appendChild(btn);
@@ -101,9 +102,9 @@ function showFinal(): void {
   const pct = Math.round(lOk / lDeck.length * 100);
   const em = pct === 100 ? '🏆' : pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '💪';
   document.getElementById('listen-final-emoji')!.textContent = em;
-  document.getElementById('listen-final-title')!.textContent = pct === 100 ? 'Ідеально!' : pct >= 80 ? 'Чудово!' : pct >= 60 ? 'Непогано!' : 'Продовжуй!';
-  document.getElementById('listen-final-desc')!.textContent = `${lOk} з ${lDeck.length} (${pct}%)`;
-  elPbar.style.width = '100%'; elSub.textContent = 'Завершено';
+  document.getElementById('listen-final-title')!.textContent = pct === 100 ? t('quiz.perfectTitle') : pct >= 80 ? t('quiz.greatTitle') : pct >= 60 ? t('quiz.goodTitle') : t('listen.keepGoingTitle');
+  document.getElementById('listen-final-desc')!.textContent = `${lOk} ${t('common.of')} ${lDeck.length} (${pct}%)`;
+  elPbar.style.width = '100%'; elSub.textContent = t('write.completed');
 }
 
 elPlayBtn.addEventListener('click', playWord);
