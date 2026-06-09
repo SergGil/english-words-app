@@ -58,18 +58,23 @@ import { getSimilarWords, getSimilarWordsEs, invalidateSimilarCache } from './fe
 import { openWordDetail }                               from './features/word-detail.ts';
 import LZString from '../lib/lzstring.js';
 
-// Завантажуємо збережені слова з localStorage
-var savedKnown = _lzLoad('ew_known', []);
+// Runs fn and warns on error instead of silently swallowing it
+function _safe(fn: () => void): void {
+  try { fn(); } catch (e) { console.warn('[safe]', (e as Error).message ?? e); }
+}
 
-var srsData: Record<string, any> = _lzLoad('ew_srs', {});
+// Завантажуємо збережені слова з localStorage
+const savedKnown = _lzLoad('ew_known', []);
+
+let srsData: Record<string, any> = _lzLoad('ew_srs', {});
 // Міграція: старий формат (числа) → видаляємо
 Object.keys(srsData).forEach(function(k: string){ if(typeof srsData[k]==='number') delete srsData[k]; });
 
-var deck: WordEntry[] = W.slice() as unknown as WordEntry[];
-var idx = 0, known = new Set<string>(savedKnown as string[]), flipped = false;
-var knownEs = loadKnownEs();
+let deck: WordEntry[] = W.slice() as unknown as WordEntry[];
+let idx = 0, known = new Set<string>(savedKnown as string[]), flipped = false;
+let knownEs = loadKnownEs();
 function _activeKnown(): Set<string> { return ES_MODES.has(getMode()) ? knownEs : known; }
-var cw: WordEntry | null = null, autoTimer: ReturnType<typeof setTimeout> | null = null;
+let cw: WordEntry | null = null, autoTimer: ReturnType<typeof setTimeout> | null = null;
 
 // ── Sync local vars with state so srs.js and other ES modules
 //    read the SAME objects (mutation propagates both ways) ──────
@@ -78,8 +83,8 @@ state.srsData = srsData;  // Object — mutations propagate
 state.deck    = deck as unknown as WordEntry[];  // Array — reassigned, needs explicit sync
 window.deck   = deck; // keep in sync for legacy files
 
-var _baseWords = W.slice();
-var _activeTagSet = null; // тег-фільтр: null = вимкнений, Set = активний
+let _baseWords = W.slice();
+let _activeTagSet = null; // тег-фільтр: null = вимкнений, Set = активний
 
 // ── Expose module-scope vars as globals for legacy mode/feature files ──
 // (Phase 3 will remove these once all files use imports)
@@ -213,7 +218,7 @@ function _animCard(dir: 'next' | 'prev' | 'fade'): void {
 function render() {
   try {
     if (!deck || !deck.length) { console.error('render: deck empty'); return; }
-    if (synth) { try { synth.cancel(); } catch(e){} }
+    if (synth) { _safe(() => synth.cancel()); }
     cw = deck[idx % deck.length];
     if (!cw) { console.error('render: cw is null'); return; }
     flipped = false;
@@ -310,11 +315,11 @@ function render() {
     $e('cknown').textContent = String(_activeKnown().size);
     $e('pbar').style.width = (_activeKnown().size/W.length*100)+'%';
     // Note + Bookmark indicators
-    try {
+    _safe(() => {
       var _noteBtn = document.getElementById('btn-note');
       var _bmBtn   = document.getElementById('btn-bookmark');
       var _noteDisp= document.getElementById('card-note-display');
-      var _word0   = cw[0];
+      var _word0   = cw![0];
       if (_bmBtn) {
         var _isBm = isBookmarked(_word0);
         _bmBtn.textContent = _isBm ? '★' : '☆';
@@ -328,7 +333,7 @@ function render() {
       if (_noteBtn) {
         _noteBtn.style.opacity = (hasNote(_word0)) ? '1' : '0.5';
       }
-    } catch(e){}
+    });
     try {
       var illusEl = $e('illus');
       var _w = cw[0];
@@ -400,13 +405,12 @@ function render() {
     var cardEl = document.getElementById('card');
     if(_activeKnown().has(cw[0])){ cardEl!.classList.add('is-known'); } else { cardEl!.classList.remove('is-known'); }
     // SRS бейдж — показуємо завжди коли є дані
-    try {
+    _safe(() => {
       var srsEl = document.getElementById('srs-next');
       if (srsEl) {
-        var sd = (srsData as Record<string, {ef?: number; reps?: number; due?: string; interval?: number}>)[cw[0]];
+        var sd = (srsData as Record<string, {ef?: number; reps?: number; due?: string; interval?: number}>)[cw![0]];
         var rangeVal = (document.getElementById('sel-range') as HTMLSelectElement)!.value;
         if (!sd || !sd.due) {
-          // Нове слово — показуємо тільки в SRS/weak-режимі
           if (rangeVal === 'srs' || rangeVal === 'weak') {
             srsEl.textContent = '🆕 Нове';
             srsEl.className = 'srs-next new';
@@ -433,19 +437,16 @@ function render() {
           srsEl.style.display = '';
         }
       }
-    } catch(e){}
+    });
     // Оновити кільце
-    try {
-      var gd = getGameData();
-      updateRing(gd.goalCur||0, gd.goalMax||20);
-    } catch(e){}
+    _safe(() => { const gd = getGameData(); updateRing(gd.goalCur || 0, gd.goalMax || 20); });
   } catch(e) {
     console.error('render FAILED:', (e as Error).message);
   }
   // Predictive prefetch: наступні картки (без дублів для малих дек)
   _idle(function() {
     var _seen: Record<string, number> = {}, _limit = Math.min(4, deck.length - 1);
-    for (var _pi = 1; _pi <= _limit; _pi++) {
+    for (let _pi =1; _pi <= _limit; _pi++) {
       var _nw = deck[(idx + _pi) % deck.length];
       if (_nw && !_seen[_nw[0]] && !_imgCache.hasOwnProperty(_nw[0])) {
         _seen[_nw[0]] = 1;
@@ -460,9 +461,9 @@ document.getElementById('card')!.addEventListener('click', function(){
     flipped=true;
     document.getElementById('wtransl')!.className='transl show';
     document.getElementById('exua')!.className='ex-ua show';
-    try { updateSimilarWords(); } catch(e){}
-    try { updateWordFamilies(); } catch(e){}
-    try { updateCollocations(); } catch(e){}
+    _safe(() => updateSimilarWords());
+    _safe(() => updateWordFamilies());
+    _safe(() => updateCollocations());
   }
 });
 document.getElementById('speak-word')!.addEventListener('click', function(e){
@@ -544,20 +545,20 @@ document.getElementById('btn-know')!.addEventListener('click', function(e){
     if ((document.getElementById('sel-range') as HTMLSelectElement)!.value === 'srs') { sm2Update(cw[0], 4); } else { delete srsData[cw[0]]; }
     if (ES_MODES.has(getMode())) { saveKnownEs(knownEs); } else { saveKnown(known); }
     saveSRS(srsData);
-    try { playSound('know'); } catch(e){}
-    try { addCombo(); flashCard(true); } catch(e){}
+    _safe(() => playSound('know'));
+    _safe(() => { addCombo(); flashCard(true); });
     if(isNewlyKnown) {
       onWordLearned();
       // Конфеті — тільки при першому досягненні цілі за день
-      try {
-        var gd = getGameData();
-        if(gd.goalCur >= gd.goalMax && !gd.confettiShown) {
+      _safe(() => {
+        const gd = getGameData();
+        if (gd.goalCur >= gd.goalMax && !gd.confettiShown) {
           gd.confettiShown = TODAY;
           saveGameData(gd);
           launchConfetti();
-          playSound('goal');
+          _safe(() => playSound('goal'));
         }
-      } catch(e){}
+      });
     }
     var v = (document.getElementById('sel-range') as HTMLSelectElement)!.value;
     if (v === 'srs') { deck = buildSRSDeck(_baseWords as unknown as WordEntry[]); state.deck = deck; window.deck = deck; idx = 0; render(); return; }
@@ -571,8 +572,8 @@ document.getElementById('btn-know')!.addEventListener('click', function(e){
 });
 document.getElementById('btn-next')!.addEventListener('click', function(e){
   e.stopPropagation();
-  try { playSound('next'); } catch(e){}
-  try { breakCombo(); } catch(e){}
+  _safe(() => playSound('next'));
+  _safe(() => breakCombo());
   if(cw){
     var v = (document.getElementById('sel-range') as HTMLSelectElement)!.value;
     if (v === 'srs') {
@@ -604,9 +605,9 @@ document.getElementById('modal-confirm')!.addEventListener('click', function(){
   state.known = known; state.srsData = srsData; window.srsData = srsData;
   state._srsStatsDirty = true;
   saveKnown(known); saveKnownEs(knownEs); saveSRS(srsData);
-  try { localStorage.removeItem('ew_game'); } catch(e){}
-  try { localStorage.removeItem('ew_daily'); } catch(e){}
-  try { localStorage.removeItem('ew_ach'); } catch(e){}
+  _safe(() => localStorage.removeItem('ew_game'));
+  _safe(() => localStorage.removeItem('ew_daily'));
+  _safe(() => localStorage.removeItem('ew_ach'));
   state._gameCache  = null; // скидаємо in-memory кеш щоб getGameData() перечитав з localStorage
   state._dailyCache = null;
   // Скинути візуальний стан картки
@@ -619,14 +620,14 @@ document.getElementById('modal-confirm')!.addEventListener('click', function(){
   if(v==='srs'){ deck=buildSRSDeck(_baseWords as unknown as WordEntry[]); }
   else if(v==='unlearned'){ deck=buildUnlearnedDeck(_baseWords as unknown as WordEntry[]); }
   // Оновити UI
-  try { renderGameBar(); } catch(e){}
-  try { renderLevelBadge(); } catch(e){}
-  try { updateRing(0, (getGameData().goalMax||20)); } catch(e){}
-  try { render(); } catch(e){}
+  _safe(() => renderGameBar());
+  _safe(() => renderLevelBadge());
+  _safe(() => updateRing(0, getGameData().goalMax || 20));
+  _safe(() => render());
   document.getElementById('modal-overlay')!.style.display = 'none';
 });
 // ── ES pair modes: тимчасово звужуємо колоду до слів з іспанським перекладом ──
-var _esWords: WordEntry[] | null = null;
+let _esWords: WordEntry[] | null = null;
 function _getEsDeck(): WordEntry[] {
   if (!_esWords) _esWords = (W as unknown as WordEntry[]).filter(function(w){ return Object.prototype.hasOwnProperty.call(W_ES, w[0]); });
   return _esWords;
@@ -640,8 +641,8 @@ window._rebuildEsDeck = function(): void {
   if (!deck.length) deck = esDeck.slice();
   state.deck = deck; window.deck = deck; idx = 0; render();
 };
-var _preEsDeck: WordEntry[] | null = null;
-var _preEsIdx = 0;
+let _preEsDeck: WordEntry[] | null = null;
+let _preEsIdx = 0;
 document.getElementById('sel-mode')!.addEventListener('change', function(){
   stopAuto();
   var m = (this as HTMLSelectElement).value;
@@ -687,18 +688,18 @@ function _refreshRangeOptions(): void {
   Array.prototype.slice.call(sel.querySelectorAll('option')).forEach(function(opt: HTMLOptionElement){
     if (opt.value !== '0' && /^\d+$/.test(opt.value)) sel!.removeChild(opt);
   });
-  var blocks = Math.ceil(total / 500);
-  for (var i = 1; i <= blocks; i++) {
-    var start = (i - 1) * 500 + 1;
-    var end = i === blocks ? total : i * 500;
-    var opt = document.createElement('option');
+  const blocks = Math.ceil(total / 500);
+  for (let i = 1; i <= blocks; i++) {
+    const start = (i - 1) * 500 + 1;
+    const end   = i === blocks ? total : i * 500;
+    const opt = document.createElement('option');
     opt.value = String(i);
     opt.textContent = start + '–' + end;
     sel.appendChild(opt);
   }
 }
 window._refreshRangeOptions = _refreshRangeOptions;
-try { _refreshRangeOptions(); } catch(e){}
+_safe(() => _refreshRangeOptions());
 
 // ══ Єдиний sel-range обробник — замість 3 окремих ══
 document.getElementById('sel-range')!.addEventListener('change', function(){
@@ -805,7 +806,7 @@ document.getElementById('sel-range')!.addEventListener('change', function(){
 
 
 // ── Геймфікація: streak + денна ціль ──
-var TODAY = new Date().toISOString().slice(0,10);
+const TODAY = new Date().toISOString().slice(0,10);
 window.TODAY = TODAY; // legacy files (catpairs.js, srs.js, etc.) use this globally
 
 
@@ -830,8 +831,8 @@ function renderGameBar() {
   fill!.className = 'goal-fill' + (d.goalCur >= d.goalMax ? ' done' : '');
   var badge = document.getElementById('goal-done');
   badge!.style.display = d.goalCur >= d.goalMax ? 'inline' : 'none';
-  try { updateRing(d.goalCur||0, d.goalMax||20); } catch(e){}
-  try { renderLevelProgress(); } catch(e){}
+  _safe(() => updateRing(d.goalCur || 0, d.goalMax || 20));
+  _safe(() => renderLevelProgress());
 }
 
 // Запуск під час простою браузера (не блокує UI)
@@ -847,7 +848,7 @@ function onWordLearned() {
   renderGameBar();
   // Щоденна статистика
   recordDailyWord();
-  try { maybeSubmitScore(); } catch(e){}
+  _safe(() => maybeSubmitScore());
   // Лічильник сесії + XP за слово
   var gd2 = getGameData();
   gd2.sessionWords = (gd2.sessionWords || 0) + 1;
@@ -856,8 +857,8 @@ function onWordLearned() {
   saveGameData(gd2);
   // Рівень і досягнення — в idle щоб не блокувати UI
   _idle(function() {
-    try { renderLevelBadge(); } catch(e){}
-    try { checkAchievements(); } catch(e){}
+    _safe(() => renderLevelBadge());
+    _safe(() => checkAchievements());
   });
 }
 
@@ -871,7 +872,7 @@ function getBlockColor(pct: number): string {
   return '#bdc3c7';
 }
 
-var _statsRenderKey = '';
+let _statsRenderKey = '';
 function _renderStatsCore() {
   var gd = getGameData();
   const newKey = known.size + '|' + (gd.streak ?? 0) + '|' + (gd.goalCur ?? 0) + '|' + state.TODAY;
@@ -883,13 +884,13 @@ function _renderStatsCore() {
   document.getElementById('st-streak')!.textContent = String(gd.streak || 0);
 
   // Графік по днях — останні 14
-  var daily = getDailyStats();
-  var days = [];
-  for (var i = 13; i >= 0; i--) {
-    var d = new Date();
+  const daily = getDailyStats();
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date();
     d.setDate(d.getDate() - i);
-    var ds = d.toISOString().slice(0,10);
-    var lbl = (d.getDate()) + '/' + (d.getMonth()+1);
+    const ds  = d.toISOString().slice(0, 10);
+    const lbl = (d.getDate()) + '/' + (d.getMonth() + 1);
     days.push({ date: ds, label: lbl, val: daily[ds] || 0, isToday: ds === TODAY });
   }
 
@@ -911,14 +912,14 @@ function _renderStatsCore() {
   }
 
   // Блоки — 500 слів кожен (останній може бути більший)
-  var blockSize = 500;
-  var blocks = [];
-  for (var s = 0; s < W.length; s += blockSize) {
+  const blockSize = 500;
+  const blocks: {label:string;total:number;known:number;pct:number}[] = [];
+  for (let s = 0; s < W.length; s += blockSize) {
     // Якщо залишок менше blockSize — приєднуємо до поточного блоку
-    var end = s + blockSize;
+    let end = s + blockSize;
     if (end < W.length && W.length - end < blockSize) end = W.length;
-    var slice = W.slice(s, end);
-    var knownInBlock = slice.filter(function(w){ return known.has(w[0]); }).length;
+    const slice = W.slice(s, end);
+    const knownInBlock = slice.filter(function(w){ return known.has(w[0]); }).length;
     blocks.push({
       label: (s+1) + '–' + Math.min(end, W.length),
       total: slice.length,
@@ -1146,7 +1147,7 @@ function renderLevelProgress() {
     if (nextEl) nextEl.textContent = '';
   }
   // Синхронізуємо кільце з прогресом рівня
-  try { updateRing(0, 0); } catch(e){}
+  _safe(() => updateRing(0, 0));
 }
 
 // ── Режими: трекер завершень ─────────────────────────────────
@@ -1154,12 +1155,12 @@ window.recordModeComplete = function(mode: string) {
   var m = getModeStats();
   m[mode] = (m[mode] || 0) + 1;
   saveModeStats(m);
-  try { checkAchievements(); } catch(e){}
+  _safe(() => checkAchievements());
 };
 
 // ── Власні слова: трекер ─────────────────────────────────────
 window.recordCustomWordAdded = function() {
-  try { checkAchievements(); } catch(e){}
+  _safe(() => checkAchievements());
 };
 
 // ════════════════════════════════════════
@@ -1167,7 +1168,7 @@ window.recordCustomWordAdded = function() {
 // ════════════════════════════════════════
 // ACHIEVEMENTS imported from data/achievements.ts
 
-var _toastTimer: ReturnType<typeof setTimeout> | null = null;
+let _toastTimer: ReturnType<typeof setTimeout> | null = null;
 function showToast(ach: Achievement): void {
   var t = document.getElementById('achievement-toast')!
   document.getElementById('toast-icon')!.textContent = ach.icon;
@@ -1354,18 +1355,18 @@ document.getElementById('ach-popup-overlay')!.addEventListener('click', function
 
 // ── Єдина renderStats ──
 function renderSRSForecast() {
-  var container = document.getElementById('srs-forecast');
+  const container = document.getElementById('srs-forecast');
   if (!container) return;
-  var today = new Date(); today.setHours(0,0,0,0);
-  var counts = [];
-  for (var i = 0; i < 14; i++) {
-    var d = new Date(today); d.setDate(d.getDate() + i);
-    var dateStr = d.toISOString().slice(0,10);
-    var cnt = Object.values(srsData).filter(function(s: any){ return s.due === dateStr; }).length;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const counts: {date:string;cnt:number;label:string}[] = [];
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today); d.setDate(d.getDate() + i);
+    const dateStr = d.toISOString().slice(0, 10);
+    const cnt = Object.values(srsData).filter(function(s: any){ return s.due === dateStr; }).length;
     counts.push({ date: dateStr, cnt: cnt, label: i === 0 ? t('stats.todayCap') : i === 1 ? t('stats.tomorrow') : d.toLocaleDateString(getLang() === 'en' ? 'en' : 'uk',{day:'numeric',month:'short'}) });
   }
-  var maxCnt = Math.max.apply(null, counts.map(function(c){ return c.cnt; })) || 1;
-  var totalDue = counts.reduce(function(a,c){ return a+c.cnt; }, 0);
+  const maxCnt = Math.max.apply(null, counts.map(function(c){ return c.cnt; })) || 1;
+  const totalDue = counts.reduce(function(a,c){ return a+c.cnt; }, 0);
 
   var html = '<div style="font-size:.72rem;color:var(--text3);margin-bottom:8px;">' + t('stats.totalScheduled') + ': ' + totalDue + ' ' + t('stats.reviews') + '</div>';
   html += '<div class="srs-fc-bars">';
@@ -1551,28 +1552,28 @@ function importProgress(code: string): boolean {
 
     if (data.v === 1) {
       // v1 може містити LZ-стиснений рядок — спробуємо розпакувати
-      try { if (typeof LZString !== 'undefined') { var d = LZString.decompress(knownJson); if (d) knownJson = d; } } catch(e){}
-      try { if (typeof LZString !== 'undefined') { var d = LZString.decompress(srsJson);   if (d) srsJson   = d; } } catch(e){}
+      _safe(() => { if (typeof LZString !== 'undefined') { const _d = LZString.decompress(knownJson); if (_d) knownJson = _d; } });
+      _safe(() => { if (typeof LZString !== 'undefined') { const _d = LZString.decompress(srsJson);   if (_d) srsJson   = _d; } });
     }
 
     // Зберігаємо через _lzSave щоб прапорці LZ були виставлені коректно
-    if (knownJson) { try { _lzSave('ew_known', JSON.parse(knownJson)); } catch(e){} }
-    if (srsJson)   { try { _lzSave('ew_srs',   JSON.parse(srsJson));   } catch(e){} }
+    if (knownJson) { _safe(() => _lzSave('ew_known', JSON.parse(knownJson))); }
+    if (srsJson)   { _safe(() => _lzSave('ew_srs',   JSON.parse(srsJson)));  }
     if (data.game)  localStorage.setItem('ew_game',  data.game);
     if (data.daily) localStorage.setItem('ew_daily', data.daily);
     if (data.ach)   localStorage.setItem('ew_ach',   data.ach);
     if (data.theme) localStorage.setItem('ew_theme', data.theme);
 
     // Перезавантажуємо в пам'ять
-    try { known = new Set(JSON.parse(knownJson)); state.known = known; window.known = known; } catch(e){}
-    try {
+    _safe(() => { known = new Set(JSON.parse(knownJson)); state.known = known; window.known = known; });
+    _safe(() => {
       srsData = JSON.parse(srsJson);
       Object.keys(srsData).forEach(function(k){ if(typeof srsData[k]==='number') delete srsData[k]; });
       state.srsData = srsData; window.srsData = srsData;
-    } catch(e){}
+    });
     state._srsStatsDirty = true;
     state._gameCache = null; // скинути кеш гри
-    try { updateSrsUI(W as unknown as WordEntry[]); } catch(e){}
+    _safe(() => updateSrsUI(W as unknown as WordEntry[]));
     return true;
   } catch(e) {
     console.warn('Import failed:', (e as Error).message);
@@ -1772,10 +1773,10 @@ document.getElementById('import-confirm')!.addEventListener('click', function(){
   if(importProgress(code)) {
     document.getElementById('import-modal')!.className = '';
     // Оновити відображення
-    try { renderGameBar(); } catch(e){}
-    try { renderLevelBadge(); } catch(e){}
-    try { openStats(); } catch(e){}
-    try { render(); } catch(e){}
+    _safe(() => renderGameBar());
+    _safe(() => renderLevelBadge());
+    _safe(() => openStats());
+    _safe(() => render());
     // Показати успіх
     var btn = document.getElementById('btn-import-open')!;
     btn.textContent = t('modal.importedExcl');
@@ -1808,7 +1809,7 @@ document.getElementById('import-modal')!.addEventListener('click', function(e){
 
 
 // Патч flipCard — замість opacity показувати через 3D
-var _origFlipLogic_handled = false;
+const _origFlipLogic_handled = false;
 
 
 // ════════════════════════════════════════
@@ -1858,7 +1859,7 @@ function updateWordFamilies() {
   var family: string[] | undefined = WORD_FAMILIES[word];
   if (!family) {
     // Search if this word appears as a member of another family
-    for (var [base, members] of Object.entries(WORD_FAMILIES)) {
+    for (const [base, members] of Object.entries(WORD_FAMILIES)) {
       if (members.includes(word)) {
         family = [base, ...members.filter(m => m !== word)];
         break;

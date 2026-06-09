@@ -24,7 +24,9 @@ export function getGameData(): GameData {
   if (!d.goalMax) d.goalMax = 20;
   if (d.goalDate !== state.TODAY) { d.goalDate = state.TODAY; d.goalCur = 0; d.confettiShown = null; }
   if (!d.streakDate) { d.streakDate = null; d.streak = 0; }
-  return d;
+  // Return a shallow copy so callers can't accidentally mutate the cache
+  // without going through saveGameData(). Cache mutations above (date reset) are intentional.
+  return { ...d };
 }
 
 export function updateStreak(d: GameData): GameData {
