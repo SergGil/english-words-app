@@ -70,7 +70,8 @@ window.TODAY = TODAY; // legacy files (catpairs.js, srs.js, etc.) use this globa
 function _setDeck(d: WordEntry[]): void {
   deck = d;
   state.deck = d as unknown as WordEntry[];
-  window.deck = d;
+  // Note: do NOT assign window.deck here — the live getter already reflects `deck`,
+  // and assigning would re-trigger the setter → infinite recursion.
 }
 function _setIdx(i: number): void {
   idx = i;
@@ -97,7 +98,7 @@ function $e(id: string): HTMLElement { return $el[id] as HTMLElement; }
 const $el: Record<string, HTMLElement | null> = {};
 ['wnum','wlang','wword','wtrans','wtransl','exen','exua','cidx','cknown',
  'pbar','illus','card','srs-next','streak-num','goal-cur','goal-max','goal-fill',
- 'goal-done','ring-fill','ring-center','level-badge','cb-similar',
+ 'goal-done','level-badge','cb-similar',
  'cb-families','cb-collocations'].forEach(function(id: string) {
   $el[id] = document.getElementById(id);
 });

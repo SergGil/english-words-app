@@ -13,7 +13,7 @@ export function updateRing(_cur?: number, _max?: number): void {
   const fill = document.getElementById('ring-fill');
   if (fill) {
     fill.style.strokeDashoffset = String(circ * (1 - pct));
-    fill.className = 'ring-fill' + (pct >= 1 ? ' done' : '');
+    fill.setAttribute('class', 'ring-fill' + (pct >= 1 ? ' done' : ''));
     fill.style.stroke = lv.color || 'var(--accent)';
   }
   const center = document.getElementById('ring-center');
