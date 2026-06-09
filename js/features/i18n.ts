@@ -13,6 +13,7 @@ const DICT: Record<string, Record<Lang, string>> = {
   'nav.idioms':       { ua: 'Ідіоми',        en: 'Idioms',       es: 'Modismos' },
   'nav.duel':         { ua: 'Дуель',         en: 'Duel',         es: 'Duelo' },
   'nav.settings':     { ua: 'Налаштування',  en: 'Settings',     es: 'Ajustes' },
+  'nav.language':     { ua: '🌐 Мова',       en: '🌐 Language',  es: '🌐 Idioma' },
 
   'cards.cardLabel':    { ua: 'Картка',                              en: 'Card',                                es: 'Tarjeta' },
   'cards.learnedLabel': { ua: 'Вивчено',                             en: 'Learned',                             es: 'Aprendidas' },

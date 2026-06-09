@@ -71,6 +71,16 @@
     <button class="sb-btn" id="sb-settings"     ><span class="sb-icon">⚙️</span><span class="sb-label" data-i18n="nav.settings">Налаштування</span></button>
   </div>
 
+  <!-- Language switcher -->
+  <div class="sb-lang-section">
+    <div class="sb-lang-label" data-i18n="nav.language">🌐 Мова</div>
+    <div id="lang-toggle" class="lang-toggle" title="Мова меню / Menu language / Idioma del menú">
+      <button class="lang-opt" data-lang="ua">UA</button>
+      <button class="lang-opt" data-lang="en">EN</button>
+      <button class="lang-opt" data-lang="es">ES</button>
+    </div>
+  </div>
+
   <!-- Word of the day in sidebar -->
   <div id="wotd-box" class="wotd-box sb-wotd" style="display:none" title="Слово дня — натисни щоб перейти" data-i18n-title="cards.wotdTitle">
     <span class="wotd-lbl" data-i18n="cards.wotdLabel">📖 Слово дня</span>
@@ -92,11 +102,6 @@
       <div class="title-row">
         <div class="title">English Words</div>
         <button id="title-sw-toggle" class="title-sw-toggle" title="Зоряні Війни — швидке перемикання теми">⚔️</button>
-        <div id="lang-toggle" class="lang-toggle" title="Мова меню / Menu language / Idioma del menú">
-          <button class="lang-opt" data-lang="ua">UA</button>
-          <button class="lang-opt" data-lang="en">EN</button>
-          <button class="lang-opt" data-lang="es">ES</button>
-        </div>
       </div>
       <div class="subtitle"><span data-i18n="cards.cardLabel">Картка</span> <span id="cidx">1</span> · <span data-i18n="cards.learnedLabel">Вивчено</span>: <span id="cknown">0</span></div>
       <button id="profile-btn" class="profile-btn" style="display:none">🧑 <span>Гравець 1</span> ▾</button>
