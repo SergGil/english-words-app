@@ -2,10 +2,20 @@
 // Word Detail bottom-sheet modal: full word profile
 import { state } from '../../src/state.ts';
 import { decodeIpa, speakBtn, type SpeakFn } from '../core/ui-helpers.ts';
-import { getSimilarWords } from './similar-words.ts';
+import { getSimilarWords, getSimilarWordsEs } from './similar-words.ts';
 import { W } from '../../data/words.js';
+import { W_ES } from '../../data/words_es.js';
 import { isBookmarked, toggleBookmark } from './bookmarks.ts';
 import type { WordEntry } from '../../src/types.js';
+
+const ES_MODES = new Set(['en-es', 'es-en', 'es-ua', 'ua-es']);
+function _isEsMode(): boolean {
+  const m = (document.getElementById('sel-mode') as HTMLSelectElement | null)?.value ?? '';
+  return ES_MODES.has(m);
+}
+function _esEntry(word: string): [string, string] | null {
+  return ((W_ES as unknown as Record<string, [string, string]>)[word]) ?? null;
+}
 
 const overlay  = document.getElementById('wd-overlay')!   as HTMLElement;
 const panel    = document.getElementById('wd-panel')!      as HTMLElement;
@@ -42,8 +52,10 @@ export function openWordDetail(w: WordEntry): void {
     (window.speak as SpeakFn | undefined)?.(w[0], elSpeak);
   };
 
-  // Translation
-  elTransl.textContent = w[1];
+  // Translation — show Spanish when in ES mode, Ukrainian otherwise
+  const isEs = _isEsMode();
+  const esEntry = isEs ? _esEntry(w[0]) : null;
+  elTransl.textContent = esEntry ? esEntry[0] : w[1];
 
   // Examples
   if (enEx) {
@@ -79,16 +91,20 @@ export function openWordDetail(w: WordEntry): void {
   elBtnForget.style.display = isKnown ? '' : 'none';
   _updateBm(w[0]);
 
-  // Similar words
-  const similar = getSimilarWords(w[0], w[1], 5);
+  // Similar words — use ES index + Spanish labels when in ES mode
+  const similar = isEs
+    ? getSimilarWordsEs(w[0], esEntry?.[0] ?? w[1], 5)
+    : getSimilarWords(w[0], w[1], 5);
+  const esMap = W_ES as unknown as Record<string, [string, string]>;
   if (similar.length) {
     elSimWrap.style.display = 'block';
-    elSimChips.innerHTML = similar.map(s =>
-      `<div class="wd-chip" data-word="${s[0]}" style="cursor:pointer;padding:5px 10px;border-radius:20px;border:1.5px solid var(--border);font-size:.78rem;background:var(--bg);">` +
+    elSimChips.innerHTML = similar.map(s => {
+      const label = isEs ? (esMap[s[0]]?.[0] ?? s[1]) : s[1];
+      return `<div class="wd-chip" data-word="${s[0]}" style="cursor:pointer;padding:5px 10px;border-radius:20px;border:1.5px solid var(--border);font-size:.78rem;background:var(--bg);">` +
         `<span style="font-weight:600;color:var(--text);">${s[0]}</span>` +
-        `<span style="color:var(--text3);margin-left:5px;">${s[1]}</span>` +
-      `</div>`
-    ).join('');
+        `<span style="color:var(--text3);margin-left:5px;">${label}</span>` +
+      `</div>`;
+    }).join('');
     elSimChips.querySelectorAll<HTMLElement>('.wd-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         const found = (W as unknown as WordEntry[]).find(x => x[0] === chip.dataset.word);
