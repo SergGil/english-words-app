@@ -1,6 +1,6 @@
 ﻿// English Words App — js/app.ts
 import type { WordEntry, SRSData, GameData, ModeStats, Achievement, Level } from '../src/types.js';
-import { _lzLoad, _lzSave, saveKnown, saveSRS }    from './core/storage.ts';
+import { _lzLoad, _lzSave, saveKnown, saveSRS, saveKnownEs, loadKnownEs } from './core/storage.ts';
 import { W }                                       from '../data/words.js';
 import { W_ES }                                    from '../data/words_es.js';
 import { SVG, getIllus }                           from '../data/illustrations.js';
@@ -67,6 +67,8 @@ Object.keys(srsData).forEach(function(k: string){ if(typeof srsData[k]==='number
 
 var deck: WordEntry[] = W.slice() as unknown as WordEntry[];
 var idx = 0, known = new Set<string>(savedKnown as string[]), flipped = false;
+var knownEs = loadKnownEs();
+function _activeKnown(): Set<string> { return ES_MODES.has(getMode()) ? knownEs : known; }
 var cw: WordEntry | null = null, autoTimer: ReturnType<typeof setTimeout> | null = null;
 
 // ── Sync local vars with state so srs.js and other ES modules
@@ -305,8 +307,8 @@ function render() {
     if ($e('cb-families'))   $e('cb-families').style.display   = 'none';
     if ($e('cb-collocations')) $e('cb-collocations').style.display = 'none';
     $e('cidx').textContent = (idx%deck.length+1)+'/'+deck.length;
-    $e('cknown').textContent = String(known.size);
-    $e('pbar').style.width = (known.size/W.length*100)+'%';
+    $e('cknown').textContent = String(_activeKnown().size);
+    $e('pbar').style.width = (_activeKnown().size/W.length*100)+'%';
     // Note + Bookmark indicators
     try {
       var _noteBtn = document.getElementById('btn-note');
@@ -396,7 +398,7 @@ function render() {
       }
     } catch(e) { try { document.getElementById('illus')!.style.display='none'; }catch(e2){} }
     var cardEl = document.getElementById('card');
-    if(known.has(cw[0])){ cardEl!.classList.add('is-known'); } else { cardEl!.classList.remove('is-known'); }
+    if(_activeKnown().has(cw[0])){ cardEl!.classList.add('is-known'); } else { cardEl!.classList.remove('is-known'); }
     // SRS бейдж — показуємо завжди коли є дані
     try {
       var srsEl = document.getElementById('srs-next');
@@ -536,10 +538,12 @@ document.getElementById('btn-prev')!.addEventListener('click', function(e){e.sto
 document.getElementById('btn-know')!.addEventListener('click', function(e){
   e.stopPropagation();
   if(cw){
-    var isNewlyKnown = !known.has(cw[0]);
-    known.add(cw[0]);
+    var _ak = _activeKnown();
+    var isNewlyKnown = !_ak.has(cw[0]);
+    _ak.add(cw[0]);
     if ((document.getElementById('sel-range') as HTMLSelectElement)!.value === 'srs') { sm2Update(cw[0], 4); } else { delete srsData[cw[0]]; }
-    saveKnown(known); saveSRS(srsData);
+    if (ES_MODES.has(getMode())) { saveKnownEs(knownEs); } else { saveKnown(known); }
+    saveSRS(srsData);
     try { playSound('know'); } catch(e){}
     try { addCombo(); flashCard(true); } catch(e){}
     if(isNewlyKnown) {
@@ -596,10 +600,10 @@ document.getElementById('modal-cancel')!.addEventListener('click', function(){
 });
 document.getElementById('modal-confirm')!.addEventListener('click', function(){
   // Скидаємо все повністю
-  known.clear(); srsData = {};
+  known.clear(); knownEs.clear(); srsData = {};
   state.known = known; state.srsData = srsData;
   state._srsStatsDirty = true;
-  saveKnown(known); saveSRS(srsData);
+  saveKnown(known); saveKnownEs(knownEs); saveSRS(srsData);
   try { localStorage.removeItem('ew_game'); } catch(e){}
   try { localStorage.removeItem('ew_daily'); } catch(e){}
   try { localStorage.removeItem('ew_ach'); } catch(e){}
@@ -1907,7 +1911,7 @@ function updateSimilarWords() {
 
   section.style.display = 'block';
   chips.innerHTML = similar.map(function(w) {
-    var isKnown = known.has(w[0]);
+    var isKnown = _activeKnown().has(w[0]);
     var wEsEntry = isEsMode ? _esEntry(w[0]) : null;
     var displayWord   = wEsEntry ? wEsEntry[0] : w[0];
     var displayTransl = w[1];

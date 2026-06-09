@@ -62,6 +62,15 @@ export function loadKnown(): Set<string> {
   return new Set(arr);
 }
 
+export function saveKnownEs(known: Set<string>): void {
+  _lzSave('ew_known_es', [...known]);
+}
+
+export function loadKnownEs(): Set<string> {
+  const arr = _lzLoad<string[]>('ew_known_es', []);
+  return new Set(arr);
+}
+
 export function saveSRS(srsData: SRSData): void {
   _lzSave('ew_srs', srsData);
 }
