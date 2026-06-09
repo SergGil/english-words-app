@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   getLevel, getNextLevel, LEVELS,
   updateStreak, getDailyStats, saveDailyStats, recordDailyWord,
-  getModeStats, saveModeStats, recordModeComplete,
+  getModeStats, saveModeStats, recordModeComplete, invalidateModeStatsCache,
   getGameData, saveGameData, loadUnlocked, saveUnlocked,
 } from '../../js/features/game.ts';
 import { state } from '../../src/state.ts';
@@ -39,6 +39,7 @@ beforeEach(() => {
   lsMock.clear();
   state._dailyCache = null; // reset cache so recordDailyWord starts fresh
   state._gameCache  = null; // reset so getGameData re-reads from localStorage
+  invalidateModeStatsCache(); // reset mode stats cache so getModeStats re-reads from localStorage
   vi.useFakeTimers();
   vi.stubGlobal('localStorage', lsMock);
   setFakeDate('2024-06-15');
@@ -196,8 +197,8 @@ describe('recordDailyWord()', () => {
     recordDailyWord();
     state._dailyCache = null;
     const stats = getDailyStats();
-    // recordDailyWord uses getHours() (local time) — just verify any bucket was set
-    const hourKeys = Object.keys(stats).filter(k => /^h\d+$/.test(k));
+    // recordDailyWord uses TODAY + '_h' + getHours() format to prevent cross-day bleed
+    const hourKeys = Object.keys(stats).filter(k => /^\d{4}-\d{2}-\d{2}_h\d+$/.test(k));
     expect(hourKeys.length).toBeGreaterThanOrEqual(1);
     expect(stats[hourKeys[0]]).toBeGreaterThanOrEqual(1);
   });
