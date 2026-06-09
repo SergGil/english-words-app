@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { _lzSave, _lzLoad, saveKnown, loadKnown } from '../../js/core/storage.ts';
+import { _lzSave, _lzLoad, saveKnown, loadKnown, saveKnownEs, loadKnownEs } from '../../js/core/storage.ts';
 
 // ── localStorage mock ─────────────────────────────────────────
 const _store: Record<string, string> = {};
@@ -65,5 +65,41 @@ describe('saveKnown / loadKnown — round-trip fidelity', () => {
     const loaded2 = loadKnown();
     expect(loaded2.size).toBe(3);
     expect(loaded2.has('cherry')).toBe(true);
+  });
+});
+
+// ── ew_known vs ew_known_es independence ─────────────────────
+describe('ew_known and ew_known_es are stored at separate keys', () => {
+  it('uses key ew_known for EN/UA progress', () => {
+    saveKnown(new Set(['run', 'walk']));
+    expect(lsMock.getItem('ew_known')).not.toBeNull();
+  });
+
+  it('uses key ew_known_es for ES progress', () => {
+    saveKnownEs(new Set(['correr', 'caminar']));
+    expect(lsMock.getItem('ew_known_es')).not.toBeNull();
+  });
+
+  it('both sets coexist without colliding', () => {
+    saveKnown(new Set(['run', 'walk']));
+    saveKnownEs(new Set(['correr', 'caminar']));
+
+    const en = loadKnown();
+    const es = loadKnownEs();
+
+    expect(en.size).toBe(2);
+    expect(es.size).toBe(2);
+    expect(en.has('run')).toBe(true);
+    expect(es.has('correr')).toBe(true);
+    expect(en.has('correr')).toBe(false);
+    expect(es.has('run')).toBe(false);
+  });
+
+  it('overwriting ew_known does not affect ew_known_es', () => {
+    saveKnown(new Set(['a', 'b', 'c']));
+    saveKnownEs(new Set(['x', 'y']));
+    saveKnown(new Set(['only-one'])); // overwrite EN
+    expect(loadKnown().size).toBe(1);
+    expect(loadKnownEs().size).toBe(2); // ES unchanged
   });
 });

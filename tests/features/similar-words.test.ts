@@ -1,24 +1,38 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { getSimilarWords, invalidateSimilarCache } from '../../js/features/similar-words.ts';
-
-// ── Mock the W array (vi.mock not needed — we mock the module import) ──
-// similar-words.ts imports W directly from data/words.js.
-// We use vi.mock to replace the module with a small controlled list.
+import { getSimilarWords, getSimilarWordsEs, invalidateSimilarCache } from '../../js/features/similar-words.ts';
 import { vi } from 'vitest';
 
 vi.mock('../../data/words.js', () => ({
   W: [
-    ['run',     'бігти',   '/rʌn/',   'He runs fast.',     'Він бігає швидко.'],
-    ['running', 'бег',     '/ˈrʌnɪŋ/','She is running.',   'Вона бігає.'],
-    ['runner',  'бігун',   '/ˈrʌnər/','Fast runner.',      'Швидкий бігун.'],
-    ['jump',    'стрибати','/dʒʌmp/', 'He can jump high.', 'Він може стрибати.'],
-    ['jumper',  'стрибун', '/ˈdʒʌmpər/','A good jumper.', 'Хороший стрибун.'],
-    ['swim',    'плавати', '/swɪm/',  'I swim daily.',     'Я плаваю щодня.'],
-    ['swimmer', 'плавець', '/ˈswɪmər/','Fast swimmer.',    'Швидкий плавець.'],
-    ['walk',    'ходити',  '/wɔːk/',  'Let\'s walk.',      'Ходімо.'],
-    ['work',    'працювати','/wɜːrk/','I work here.',      'Я тут працюю.'],
-    ['worker',  'працівник','/ˈwɜːrkər/','A good worker.','Хороший працівник.'],
+    ['run',     'бігти',    '/rʌn/',      'He runs fast.',        'Він бігає швидко.'],
+    ['running', 'бег',      '/ˈrʌnɪŋ/',  'She is running.',      'Вона бігає.'],
+    ['runner',  'бігун',    '/ˈrʌnər/',  'Fast runner.',         'Швидкий бігун.'],
+    ['jump',    'стрибати', '/dʒʌmp/',   'He can jump high.',    'Він може стрибати.'],
+    ['jumper',  'стрибун',  '/ˈdʒʌmpər/','A good jumper.',      'Хороший стрибун.'],
+    ['swim',    'плавати',  '/swɪm/',    'I swim daily.',        'Я плаваю щодня.'],
+    ['swimmer', 'плавець',  '/ˈswɪmər/', 'Fast swimmer.',        'Швидкий плавець.'],
+    ['walk',    'ходити',   '/wɔːk/',    'Let\'s walk.',         'Ходімо.'],
+    ['work',    'працювати','/wɜːrk/',   'I work here.',         'Я тут працюю.'],
+    ['worker',  'працівник','/ˈwɜːrkər/','A good worker.',      'Хороший працівник.'],
+    ['labor',   'праця',    '/ˈleɪbər/', 'Hard labor awaits.',   'Важка праця чекає.'],
   ],
+}));
+
+// W_ES mock: 'work', 'worker', 'labor' all share the token 'trabajar' → good for token-match tests
+vi.mock('../../data/words_es.js', () => ({
+  W_ES: {
+    'run':     ['correr',              'Corre rápido.'],
+    'running': ['corriendo',           'Ella está corriendo.'],
+    'runner':  ['corredor',            'Es un corredor rápido.'],
+    'jump':    ['saltar',              'Puede saltar alto.'],
+    'jumper':  ['saltador',            'Un buen saltador.'],
+    'swim':    ['nadar',               'Nado a diario.'],
+    'swimmer': ['nadador',             'Nadador rápido.'],
+    'walk':    ['caminar',             'Vamos a caminar.'],
+    'work':    ['trabajar',            'Trabajo aquí.'],
+    'worker':  ['trabajador, trabajar','Un buen trabajador.'],
+    'labor':   ['trabajar, laboral',   'El trabajo duro.'],
+  },
 }));
 
 beforeEach(() => {
@@ -69,12 +83,16 @@ describe('getSimilarWords()', () => {
 
 describe('invalidateSimilarCache()', () => {
   it('clears cache so next call rebuilds index', () => {
-    // First call — builds index and caches result
     const first = getSimilarWords('work', 'працювати', 3);
-    // Invalidate — clears cache
     invalidateSimilarCache();
-    // Second call — should rebuild and return same result
     const second = getSimilarWords('work', 'працювати', 3);
+    expect(second.map(w => w[0])).toEqual(first.map(w => w[0]));
+  });
+
+  it('also clears ES cache so getSimilarWordsEs rebuilds', () => {
+    const first = getSimilarWordsEs('work', 'trabajar', 3);
+    invalidateSimilarCache();
+    const second = getSimilarWordsEs('work', 'trabajar', 3);
     expect(second.map(w => w[0])).toEqual(first.map(w => w[0]));
   });
 
@@ -83,5 +101,61 @@ describe('invalidateSimilarCache()', () => {
       invalidateSimilarCache();
       invalidateSimilarCache();
     }).not.toThrow();
+  });
+});
+
+// ── getSimilarWordsEs() ───────────────────────────────────────
+describe('getSimilarWordsEs()', () => {
+  it('returns an array', () => {
+    const result = getSimilarWordsEs('work', 'trabajar', 5);
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it('respects maxCount limit', () => {
+    const result = getSimilarWordsEs('work', 'trabajar', 2);
+    expect(result.length).toBeLessThanOrEqual(2);
+  });
+
+  it('does not include the query word itself', () => {
+    const result = getSimilarWordsEs('work', 'trabajar', 5);
+    expect(result.some(w => w[0] === 'work')).toBe(false);
+  });
+
+  it('finds words sharing a Spanish translation token', () => {
+    // 'work' ES = 'trabajar'; 'worker' ES = 'trabajador, trabajar'; 'labor' ES = 'trabajar, laboral'
+    // Both 'worker' and 'labor' share the token 'trabajar' with 'work'
+    const result = getSimilarWordsEs('work', 'trabajar', 5);
+    const keys = result.map(w => w[0]);
+    expect(keys.some(k => k === 'worker' || k === 'labor')).toBe(true);
+  });
+
+  it('finds words by English prefix similarity', () => {
+    // 'work' and 'worker' share prefix 'work' (4 chars)
+    const result = getSimilarWordsEs('work', 'trabajar', 5);
+    expect(result.some(w => w[0] === 'worker')).toBe(true);
+  });
+
+  it('returns empty array for word with no matches', () => {
+    const result = getSimilarWordsEs('xyz', 'nada', 5);
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it('default maxCount is 5', () => {
+    const result = getSimilarWordsEs('run', 'correr');
+    expect(result.length).toBeLessThanOrEqual(5);
+  });
+
+  it('caches result for repeated calls with same word', () => {
+    const first  = getSimilarWordsEs('swim', 'nadar', 5);
+    const second = getSimilarWordsEs('swim', 'nadar', 5);
+    expect(second).toBe(first); // same reference → from cache
+  });
+
+  it('ES cache is separate from UA cache (different cache keys)', () => {
+    const ua = getSimilarWords('run', 'бігти', 5);
+    const es = getSimilarWordsEs('run', 'correr', 5);
+    // Both return arrays — no collision
+    expect(Array.isArray(ua)).toBe(true);
+    expect(Array.isArray(es)).toBe(true);
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { _lzSave, _lzLoad, saveKnown, loadKnown, saveSRS, loadSRS } from '../../js/core/storage.ts';
+import { _lzSave, _lzLoad, saveKnown, loadKnown, saveKnownEs, loadKnownEs, saveSRS, loadSRS } from '../../js/core/storage.ts';
 
 // ── localStorage mock ─────────────────────────────────────────
 const _store: Record<string, string> = {};
@@ -102,6 +102,53 @@ describe('saveKnown() + loadKnown()', () => {
     saveKnown(new Set(words));
     const loaded = loadKnown();
     for (const w of words) expect(loaded.has(w)).toBe(true);
+  });
+});
+
+// ── saveKnownEs / loadKnownEs ─────────────────────────────────
+describe('saveKnownEs() + loadKnownEs()', () => {
+  it('round-trips a populated Set', () => {
+    const known = new Set(['hablar', 'correr', 'vivir']);
+    saveKnownEs(known);
+    const loaded = loadKnownEs();
+    expect(loaded.size).toBe(3);
+    expect(loaded.has('hablar')).toBe(true);
+    expect(loaded.has('correr')).toBe(true);
+    expect(loaded.has('vivir')).toBe(true);
+  });
+
+  it('round-trips an empty Set', () => {
+    saveKnownEs(new Set());
+    const loaded = loadKnownEs();
+    expect(loaded.size).toBe(0);
+  });
+
+  it('returns empty Set when nothing is stored', () => {
+    const loaded = loadKnownEs();
+    expect(loaded).toBeInstanceOf(Set);
+    expect(loaded.size).toBe(0);
+  });
+
+  it('is stored independently from ew_known', () => {
+    saveKnown(new Set(['apple', 'banana']));
+    saveKnownEs(new Set(['manzana', 'plátano']));
+
+    const en = loadKnown();
+    const es = loadKnownEs();
+
+    expect(en.has('apple')).toBe(true);
+    expect(en.has('manzana')).toBe(false);
+    expect(es.has('manzana')).toBe(true);
+    expect(es.has('apple')).toBe(false);
+  });
+
+  it('clearing ew_known does not affect ew_known_es', () => {
+    saveKnown(new Set(['apple']));
+    saveKnownEs(new Set(['manzana']));
+
+    saveKnown(new Set()); // clear EN known
+    expect(loadKnown().size).toBe(0);
+    expect(loadKnownEs().has('manzana')).toBe(true); // ES untouched
   });
 });
 
