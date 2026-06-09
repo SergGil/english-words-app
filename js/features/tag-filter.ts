@@ -35,7 +35,13 @@ if (selTag) {
         .filter(w => wordIdx ? wordIdx.has(w) : true);
       state._activeTagSet = new Set(words);
     }
-    selRange?.dispatchEvent(new Event('change'));
+    const selMode = document.getElementById('sel-mode') as HTMLSelectElement | null;
+    const ES_SET = new Set(['en-es', 'es-en', 'es-ua', 'ua-es']);
+    if (selMode && ES_SET.has(selMode.value)) {
+      (window as Window & { _rebuildEsDeck?: () => void })._rebuildEsDeck?.();
+    } else {
+      selRange?.dispatchEvent(new Event('change'));
+    }
   }
 
   function _fitSelTag(): void {

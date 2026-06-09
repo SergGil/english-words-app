@@ -631,6 +631,15 @@ function _getEsDeck(): WordEntry[] {
   if (!_esWords) _esWords = (W as unknown as WordEntry[]).filter(function(w){ return Object.prototype.hasOwnProperty.call(W_ES, w[0]); });
   return _esWords;
 }
+// Called by tag-filter.ts when a category is selected while in ES mode
+window._rebuildEsDeck = function(): void {
+  if (!ES_MODES.has(getMode())) return;
+  var esDeck = _getEsDeck();
+  var ats = state._activeTagSet as Set<string> | null;
+  deck = ats ? esDeck.filter(function(w){ return (ats as Set<string>).has(w[0]); }) : esDeck.slice();
+  if (!deck.length) deck = esDeck.slice();
+  state.deck = deck; window.deck = deck; idx = 0; render();
+};
 var _preEsDeck: WordEntry[] | null = null;
 var _preEsIdx = 0;
 document.getElementById('sel-mode')!.addEventListener('change', function(){
@@ -650,9 +659,13 @@ document.getElementById('sel-mode')!.addEventListener('change', function(){
       return;
     }
     _preEsDeck = deck; _preEsIdx = idx;
-    deck = esDeck; state.deck = deck; window.deck = deck; idx = 0;
+    // Apply active tag filter to ES deck if one is already set
+    var _atsEs = state._activeTagSet as Set<string> | null;
+    deck = _atsEs ? esDeck.filter(function(w){ return (_atsEs as Set<string>).has(w[0]); }) : esDeck.slice();
+    if (!deck.length) deck = esDeck.slice();
+    state.deck = deck; window.deck = deck; idx = 0;
     if (selRangeEl) selRangeEl.disabled = true;
-    if (selTagEl)   selTagEl.disabled   = true;
+    // sel-tag stays enabled — user can filter ES words by category
   } else if (!isEs && _preEsDeck) {
     // Виходимо з ES-режиму — повертаємо попередню колоду
     deck = _preEsDeck; state.deck = deck; window.deck = deck;
