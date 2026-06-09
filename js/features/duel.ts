@@ -226,7 +226,13 @@ const elSpeed     = () => $('dm-speed');
 const elTimerBar  = () => $('dm-timer-bar') as HTMLElement;
 const elTimerNum  = () => $('dm-timer-num');
 
-function _showLobby()    { elLobby().style.display=''; elCountdown().style.display='none'; elGame().style.display='none'; elResult().style.display='none'; }
+function _showLobby()    {
+  elLobby().style.display=''; elCountdown().style.display='none'; elGame().style.display='none'; elResult().style.display='none';
+  // Always reset waiting state so the create button is never stuck
+  const waiting=$('duel-waiting') as HTMLElement|null; if(waiting) waiting.style.display='none';
+  const joinRow=$('duel-join-row') as HTMLElement|null; if(joinRow) joinRow.style.display='';
+  const btn=$('duel-create-btn') as HTMLButtonElement|null; if(btn){ btn.disabled=false; btn.textContent=t('duel.create'); }
+}
 function _showCountdown(){ elLobby().style.display='none'; elCountdown().style.display=''; elGame().style.display='none'; elResult().style.display='none'; }
 function _showGame()     { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display=''; elResult().style.display='none'; }
 function _showResult()   { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display='none'; elResult().style.display=''; }
@@ -1466,10 +1472,11 @@ function _showConfirm(title: string, message: string, okLabel = 'Залишит�
 // ── Smart duel close button ────────────────────────────────────
 // If game/tournament/spectator is active → return to lobby; else → close page
 $('duel-page-close')?.addEventListener('click', async () => {
-  const gameVisible    = elGame().style.display !== 'none';
-  const tournVisible   = ($('duel-tournament') as HTMLElement|null)?.style.display !== 'none';
-  const spectVisible   = ($('duel-spectate') as HTMLElement|null)?.style.display !== 'none';
+  const gameVisible      = elGame().style.display !== 'none';
+  const tournVisible     = ($('duel-tournament') as HTMLElement|null)?.style.display !== 'none';
+  const spectVisible     = ($('duel-spectate') as HTMLElement|null)?.style.display !== 'none';
   const countdownVisible = elCountdown().style.display !== 'none';
+  const waitingVisible   = ($('duel-waiting') as HTMLElement|null)?.style.display === 'block';
 
   if (gameVisible || countdownVisible) {
     const ok = await _showConfirm(t('duel.confirm.leave.title'), t('duel.confirm.leave.msg'), t('duel.confirm.leave.ok'));
@@ -1477,6 +1484,10 @@ $('duel-page-close')?.addEventListener('click', async () => {
     _cancelRoom();
     _showLobby();
     renderDuel();
+  } else if (waitingVisible) {
+    // Waiting for opponent — cancel room and close
+    _cancelRoom();
+    (window.closePage as (() => void) | undefined)?.();
   } else if (tournVisible) {
     _cancelTournament();
   } else if (spectVisible) {
