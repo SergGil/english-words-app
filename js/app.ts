@@ -1900,8 +1900,9 @@ function updateSimilarWords() {
   var esEntry = isEsMode ? _esEntry(cw[0]) : null;
 
   var similar = (isEsMode && esEntry)
-    ? getSimilarWordsEs(cw[0], esEntry[0], 5)
+    ? getSimilarWordsEs(cw[0], esEntry[0], 10).filter(w => !!_esEntry(w[0]))
     : getSimilarWords(cw[0], cw[1], 5);
+  if (isEsMode) similar = similar.slice(0, 5);
   if (!similar.length) { section.style.display = 'none'; return; }
 
   section.style.display = 'block';
