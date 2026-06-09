@@ -4,18 +4,7 @@ import { W } from '../../data/words.js';
 import { W_ES } from '../../data/words_es.js';
 import { state } from '../../src/state.ts';
 import type { WordEntry } from '../../src/types.js';
-
-const ES_MODES = new Set(['en-es', 'es-en', 'es-ua', 'ua-es']);
-
-function _getMode(): string {
-  const m = (document.getElementById('sel-mode') as HTMLSelectElement | null)?.value ?? 'en';
-  if (m === 'mix') return Math.random() > 0.5 ? 'en' : 'ua';
-  return m || 'en';
-}
-
-function _esEntry(word: string): readonly [string, string] | null {
-  return (W_ES as unknown as Record<string, readonly [string, string]>)[word] ?? null;
-}
+import { ES_MODES, getMode as _getMode, esEntry as _esEntry } from './mode-utils.ts';
 
 function _getActiveKnown(): Set<string> {
   return ES_MODES.has(_getMode())

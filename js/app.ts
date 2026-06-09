@@ -31,15 +31,18 @@ import { t, getLang, levelName, wordsLabel, categoryName } from './features/i18n
 import { renderGameBar, renderLevelBadge, renderLevelProgress, renderLevelsRoadmap } from './features/render-game-bar.ts';
 import { checkAchievements, renderAchievements, showToast } from './features/render-achievements.ts';
 import { renderStats, openStats, closeStats, renderSRSForecast } from './features/stats.ts';
-import { WORD_FAMILIES, WORD_FAMILY_REVERSE }           from '../data/word-families.ts';
-import { searchCollocations }                          from '../data/collocations.ts';
 import { renderLeaderboard, maybeSubmitScore }         from './features/leaderboard.ts';
 import { playSound }                                    from './core/audio.ts';
 import { launchConfetti }                               from './core/confetti.ts';
 import { updateRing }                                   from './features/ring.ts';
 import { invalidateSimilarCache, updateSimilarWords } from './features/similar-words.ts';
 import { openWordDetail }                               from './features/word-detail.ts';
-import LZString from '../lib/lzstring.js';
+import { updateCollocations, updateWordFamilies }       from './features/word-context.ts';
+import './features/image-prefetch.ts';
+import { ES_MODES, getMode, esEntry as _esEntry }      from './features/mode-utils.ts';
+import './features/progress-io.ts';
+import './core/swipe.ts';
+import './core/pwa.ts';
 
 // Runs fn and warns on error instead of silently swallowing it
 function _safe(fn: () => void): void {
@@ -187,15 +190,6 @@ function _speakWithLang(text: string, lang: string, btn: HTMLElement | null): vo
   synth.speak(u);
 }
 
-const ES_MODES = new Set(['en-es', 'es-en', 'es-ua', 'ua-es']);
-function _esEntry(word: string): readonly [string, string] | null {
-  return (W_ES as unknown as Record<string, readonly [string, string]>)[word] ?? null;
-}
-function getMode(): string {
-  let m = (document.getElementById('sel-mode') as HTMLSelectElement | null)?.value ?? 'en';
-  if (m === 'mix') return Math.random() > 0.5 ? 'en' : 'ua';
-  return m || 'en';
-}
 function stopAuto(): void {
   if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
   const btnAuto = document.getElementById('btn-auto');
@@ -1048,7 +1042,8 @@ window._wordIdx              = _wordIdx;
 window._customWords          = _customWords;
 window.invalidateSimilarCache = invalidateSimilarCache;
 window.knownEs                = knownEs;
-window.exportProgress        = exportProgress;
+window.setKnown    = (s: Set<string>)          => { known = s; state.known = s; window.known = s; };
+window.setSrsData  = (d: Record<string, any>)  => { srsData = d; state.srsData = d; window.srsData = d; };
 window.updateRing            = updateRing;
 window.playSound             = playSound;
 window.recordModeComplete    = recordModeComplete;
@@ -1063,269 +1058,7 @@ window._speakWithLang        = _speakWithLang;
 
 // ════════════════════════════════════════
 // ЕКСПОРТ / ІМПОРТ ПРОГРЕСУ
-// ════════════════════════════════════════
-function exportProgress() {
-  // v:3 — adds custom words backup (ew_custom)
-  let data = {
-    v: 3,
-    known:  JSON.stringify([...known]),
-    srs:    JSON.stringify(srsData),
-    game:   localStorage.getItem('ew_game')   || '{}',
-    daily:  localStorage.getItem('ew_daily')  || '{}',
-    ach:    localStorage.getItem('ew_ach')    || '[]',
-    theme:  localStorage.getItem('ew_theme')  || '',
-    custom: localStorage.getItem('ew_custom') || '[]',
-  };
-  return btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-}
-
-function importProgress(code: string): boolean {
-  try {
-    let data = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
-    if (data.v !== 1 && data.v !== 2 && data.v !== 3) throw new Error('Невірний формат');
-
-    let knownJson = data.known, srsJson = data.srs;
-
-    if (data.v === 1) {
-      // v1 може містити LZ-стиснений рядок — спробуємо розпакувати
-      _safe(() => { if (typeof LZString !== 'undefined') { const _d = LZString.decompress(knownJson); if (_d) knownJson = _d; } });
-      _safe(() => { if (typeof LZString !== 'undefined') { const _d = LZString.decompress(srsJson);   if (_d) srsJson   = _d; } });
-    }
-
-    // Зберігаємо через _lzSave щоб прапорці LZ були виставлені коректно
-    if (knownJson) { _safe(() => _lzSave('ew_known', JSON.parse(knownJson))); }
-    if (srsJson)   { _safe(() => _lzSave('ew_srs',   JSON.parse(srsJson)));  }
-    if (data.game)   localStorage.setItem('ew_game',   data.game);
-    if (data.daily)  localStorage.setItem('ew_daily',  data.daily);
-    if (data.ach)    localStorage.setItem('ew_ach',    data.ach);
-    if (data.theme)  localStorage.setItem('ew_theme',  data.theme);
-    if (data.custom) localStorage.setItem('ew_custom', data.custom);
-
-    // Перезавантажуємо в пам'ять
-    _safe(() => { known = new Set(JSON.parse(knownJson)); state.known = known; window.known = known; });
-    _safe(() => {
-      srsData = JSON.parse(srsJson);
-      Object.keys(srsData).forEach(function(k){ if(typeof srsData[k]==='number') delete srsData[k]; });
-      state.srsData = srsData; window.srsData = srsData;
-    });
-    state._srsStatsDirty = true;
-    state._gameCache = null; // скинути кеш гри
-    _safe(() => updateSrsUI(W as unknown as WordEntry[]));
-    return true;
-  } catch(e) {
-    console.warn('Import failed:', (e as Error).message);
-    return false;
-  }
-}
-
-// ── Фоновий prefetch зображень ──
-(function(){
-  let _running = false;
-  let _timer: ReturnType<typeof setInterval> | null = null;
-  let _pos     = 0; // поточна позиція в W
-
-  let barEl    = document.getElementById('prefetch-bar');
-  let statusEl = document.getElementById('prefetch-status');
-  let btnStart = document.getElementById('prefetch-start');
-  let btnStop  = document.getElementById('prefetch-stop');
-  let btnClear = document.getElementById('prefetch-clear');
-
-  function cachedCount()  { return Object.keys(_imgCache).length; }
-  function withImageCount(){ return Object.keys(_imgCache).filter(function(k){ return _imgCache[k]; }).length; }
-
-  function updateUI() {
-    let cached = cachedCount();
-    let withImg = withImageCount();
-    let total = W.length;
-    let pct = Math.round(cached / total * 100);
-    if (barEl) barEl.style.width = pct + '%';
-    if (statusEl) {
-      if (_running) {
-        statusEl.textContent = t('settings.prefetchLoading') + ' ' + cached + '/' + total + ' (' + withImg + ' ' + t('settings.withPhotos') + ')';
-        statusEl.style.color = 'var(--accent)';
-      } else if (cached >= total) {
-        statusEl.textContent = t('settings.prefetchDonePrefix') + ' ' + withImg + ' ' + t('settings.prefetchImagesOf') + ' ' + total + ' ' + wordsLabel(total);
-        statusEl.style.color = '#27ae60';
-      } else if (cached > 0) {
-        statusEl.textContent = t('settings.prefetchPaused') + ' ' + cached + '/' + total + ' (' + withImg + ' ' + t('settings.withPhotos') + ')';
-        statusEl.style.color = 'var(--text3)';
-      } else {
-        statusEl.textContent = t('settings.prefetchReady') + ' (' + total + ' ' + wordsLabel(total) + ')';
-        statusEl.style.color = 'var(--text3)';
-      }
-    }
-    if (btnStart) btnStart.style.display = (_running || cached >= total) ? 'none' : '';
-    if (btnStop)  btnStop.style.display  = _running ? '' : 'none';
-    if (btnStart && cached >= total) btnStart.style.display = 'none';
-  }
-
-  function findNext() {
-    while (_pos < W.length && _imgCache.hasOwnProperty(W[_pos][0])) _pos++;
-    return _pos < W.length ? W[_pos][0] : null;
-  }
-
-  function fetchNext() {
-    if (!_running) return;
-    let word = findNext();
-    if (!word) {
-      // Всі слова оброблені
-      _running = false;
-      updateUI();
-      return;
-    }
-    _pos++;
-    loadWikiImage(word, function() {
-      updateUI();
-      // Затримка: 150мс з Pixabay, 400мс без (поважаємо Wikipedia)
-      let delay = _getPixabayKey() ? 150 : 400;
-      _timer = setTimeout(fetchNext, delay);
-    });
-  }
-
-  function start() {
-    if (_running) return;
-    _running = true;
-    _pos = 0; // скинути позицію для пошуку не-закешованих
-    updateUI();
-    fetchNext();
-  }
-
-  function stop() {
-    _running = false;
-    if(_timer) clearTimeout(_timer!);
-    updateUI();
-  }
-
-  if (btnStart) btnStart.addEventListener('click', start);
-  if (btnStop)  btnStop.addEventListener('click', stop);
-  if (btnClear) btnClear.addEventListener('click', function() {
-    (window._showImgClearConfirm as ((cb: () => void) => void))(function() {
-      stop();
-      resetImgCache(); // handles _imgCache, _imgCacheTs, IDB + localStorage
-      _pos = 0;
-      updateUI();
-    });
-  });
-
-  // Оновити prefetch UI при відкритті stats (вже мерджено з основним btn-stats listener)
-  window._refreshPrefetchUI = updateUI;
-})();
-
-// ── Pixabay ключ ──
-(function() {
-  let inp = document.getElementById('pixabay-key-input') as HTMLInputElement | null;
-  let saveBtn = document.getElementById('pixabay-key-save')!;
-  let status = document.getElementById('pixabay-key-status')!;
-
-  function refreshStatus() {
-    let k = _getPixabayKey();
-    if (k) {
-      status.textContent = t('settings.pixabayKeySaved');
-      status.style.color = 'var(--accent)';
-      inp!.value = k.slice(0, 6) + '••••••••••••••••••••••••••';
-    } else {
-      status.textContent = t('settings.pixabayNoKey');
-      status.style.color = 'var(--text3)';
-    }
-  }
-  refreshStatus();
-  window._refreshPixabayStatus = refreshStatus;
-
-  saveBtn.addEventListener('click', function() {
-    let val = inp!.value.trim();
-    // Якщо це замаскований рядок — не перезаписувати
-    if (val && !val.includes('•')) {
-      localStorage.setItem('ew_pixabay_key', val);
-      // Очистити кеш щоб слова перезавантажились з Pixabay
-      resetImgCache();
-    }
-    refreshStatus();
-  });
-
-  document.getElementById('stats-overlay')!.addEventListener('click', function() {
-    refreshStatus();
-  }, { once: false });
-})();
-
-document.getElementById('btn-export')!.addEventListener('click', function(){
-  closeStats();
-  let code = exportProgress();
-  let ta = (document.getElementById('export-textarea') as HTMLTextAreaElement);
-  ta.value = code;
-  document.getElementById('export-modal')!.style.display = 'flex';
-  setTimeout(function(){
-    ta.focus();
-    ta.select();
-    // Спробуємо скопіювати автоматично де можливо
-    try {
-      if(navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(code).then(function(){
-          document.getElementById('export-select-all')!.textContent = t('modal.copiedExcl');
-        }).catch(function(){ /* тихо — користувач скопіює вручну */ });
-      } else {
-        document.execCommand('copy');
-        document.getElementById('export-select-all')!.textContent = t('modal.copiedExcl');
-      }
-    } catch(e) {}
-  }, 100);
-});
-
-document.getElementById('export-select-all')!.addEventListener('click', function(){
-  let ta = (document.getElementById('export-textarea') as HTMLTextAreaElement);
-  ta.focus(); ta.select();
-  try {
-    if(navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(ta.value).then(function(){
-        document.getElementById('export-select-all')!.textContent = t('modal.copiedExcl');
-        setTimeout(function(){ document.getElementById('export-select-all')!.textContent = t('modal.selectAll'); }, 2000);
-      });
-    } else {
-      document.execCommand('copy');
-      document.getElementById('export-select-all')!.textContent = t('modal.copiedExcl');
-      setTimeout(function(){ document.getElementById('export-select-all')!.textContent = t('modal.selectAll'); }, 2000);
-    }
-  } catch(e) {}
-});
-
-document.getElementById('export-modal-close')!.addEventListener('click', function(){
-  document.getElementById('export-modal')!.style.display = 'none';
-  document.getElementById('export-select-all')!.textContent = t('modal.selectAll');
-});
-document.getElementById('export-modal')!.addEventListener('click', function(e){
-  if(e.target === this) { this.style.display='none'; }
-});
-
-document.getElementById('btn-import-open')!.addEventListener('click', function(){
-  (document.getElementById('import-textarea') as HTMLTextAreaElement).value = '';
-  document.getElementById('import-error')!.textContent = '';
-  closeStats();
-  document.getElementById('import-modal')!.className = 'open';
-});
-document.getElementById('import-cancel')!.addEventListener('click', function(){
-  document.getElementById('import-modal')!.className = '';
-});
-document.getElementById('import-confirm')!.addEventListener('click', function(){
-  let code = (document.getElementById('import-textarea') as HTMLTextAreaElement).value.trim();
-  if(!code) { document.getElementById('import-error')!.textContent = t('modal.importEmpty'); return; }
-  if(importProgress(code)) {
-    document.getElementById('import-modal')!.className = '';
-    // Оновити відображення
-    _safe(() => renderGameBar());
-    _safe(() => renderLevelBadge());
-    _safe(() => openStats());
-    _safe(() => render());
-    // Показати успіх
-    let btn = document.getElementById('btn-import-open')!;
-    btn.textContent = t('modal.importedExcl');
-    setTimeout(function(){ btn.textContent = t('settings.import'); }, 3000);
-  } else {
-    document.getElementById('import-error')!.textContent = t('modal.importInvalid');
-  }
-});
-document.getElementById('import-modal')!.addEventListener('click', function(e){
-  if(e.target === this) this.className = '';
-});
-
+// (exportProgress, importProgress + modal listeners moved to ./features/progress-io.ts)
 
 // ════════════════════════════════════════
 // ПРОГРЕС-КІЛЬЦЕ
@@ -1345,235 +1078,17 @@ document.getElementById('import-modal')!.addEventListener('click', function(e){
 // ════════════════════════════════════════
 
 
-// Патч flipCard — замість opacity показувати через 3D
-const _origFlipLogic_handled = false;
-
+// ════════════════════════════════════════
+// СХОЖІ СЛОВА / КОЛОКАЦІЇ / СІМЕЙСТВА
+// (updateCollocations, updateWordFamilies imported from ./features/word-context.ts)
+// (updateSimilarWords imported from ./features/similar-words.ts)
 
 // ════════════════════════════════════════
-// СХОЖІ СЛОВА
+// СВАЙПИ (moved to ./core/swipe.ts)
 // ════════════════════════════════════════
 
-// Схожість перекладу — спільні слова
-function translSimilarity(ta: string, tb: string): number {
-  let wa = ta.toLowerCase().split(/[\s,/]+/).filter(Boolean);
-  let wb = tb.toLowerCase().split(/[\s,/]+/).filter(Boolean);
-  let common = wa.filter(function(w){ return wb.indexOf(w) !== -1; });
-  return common.length;
-}
-
-// Індекс синонімів (будується один раз)
-// getSimilarWords imported from ./features/similar-words.ts
-
-function updateCollocations() {
-  if (!cw) return;
-  let section = document.getElementById('cb-collocations');
-  let list    = document.getElementById('cb-collocation-list');
-  if (!section || !list) return;
-
-  let colls = searchCollocations(cw[0]);
-  if (!colls.length) { section.style.display = 'none'; return; }
-
-  section.style.display = 'block';
-  // Highlight the keyword in each phrase and display as pill
-  list.innerHTML = colls.slice(0, 6).map(function(c) {
-    let wordLow = cw![0].toLowerCase();
-    let highlighted = c.phrase.replace(
-      new RegExp('\\b(' + wordLow + '\\w*)\\b', 'i'),
-      '<b>$1</b>'
-    );
-    return '<span class="colloc-pill">' + highlighted + '</span>';
-  }).join('');
-}
-
-function updateWordFamilies() {
-  if (!cw) return;
-  let section = document.getElementById('cb-families');
-  let chips   = document.getElementById('cb-family-chips');
-  if (!section || !chips) return;
-
-  let word = cw[0].toLowerCase();
-  // Find family: check if word IS a base, or look up reverse index for members
-  let family: string[] | undefined = WORD_FAMILIES[word];
-  if (!family) {
-    const base = WORD_FAMILY_REVERSE.get(word);
-    if (base) family = [base, ...WORD_FAMILIES[base].filter(m => m !== word)];
-  }
-
-  if (!family || family.length === 0) { section.style.display = 'none'; return; }
-
-  section.style.display = 'block';
-  chips.innerHTML = family.slice(0, 6).map(function(w) {
-    let wi = _wordIdx.get(w);
-    let entry = wi !== undefined ? W[wi] : null;
-    let transl = entry ? (entry as string[])[1] : '';
-    let isKnown = known.has(w);
-    return '<div class="sim-chip family-chip' + (isKnown ? ' known-chip' : '') + '" data-word="' + w + '">' +
-      '<span class="sc-word">' + w + '</span>' +
-      (transl ? '<span class="sc-transl">' + transl + '</span>' : '') +
-    '</div>';
-  }).join('');
-
-  chips.querySelectorAll('.family-chip').forEach(function(chip) {
-    chip.addEventListener('click', function(this: HTMLElement, e: Event) {
-      e.stopPropagation();
-      let targetWord = this.dataset.word;
-      let wi2 = _wordIdx.has(targetWord) ? _wordIdx.get(targetWord) : -1;
-      if (wi2 === undefined || wi2 === -1) return;
-      openWordDetail(W[wi2 as number] as unknown as WordEntry);
-    });
-  });
-}
-
-// updateSimilarWords — moved to js/features/similar-words.ts
-
 // ════════════════════════════════════════
-// СВАЙПИ
+// PWA (moved to ./core/pwa.ts)
 // ════════════════════════════════════════
-(function(){
-  let card = document.getElementById('card')!;
-  let shRight = document.getElementById('sh-right')!;
-  let shLeft  = document.getElementById('sh-left')!;
-  let shUp    = document.getElementById('sh-up')!;
-
-  let startX = 0, startY = 0, startTime = 0;
-  let isDragging = false;
-
-  let THRESHOLD = 60;   // мін. відстань для свайпу
-  let MAX_TIME = 400;   // мс
-
-  card.addEventListener('touchstart', function(e){
-    let t = e.touches[0];
-    startX = t.clientX;
-    startY = t.clientY;
-    startTime = Date.now();
-    isDragging = true;
-  }, { passive: true });
-
-  card.addEventListener('touchmove', function(e){
-    if(!isDragging) return;
-    let t = e.touches[0];
-    let dx = t.clientX - startX;
-    let dy = t.clientY - startY;
-    let absDx = Math.abs(dx);
-    let absDy = Math.abs(dy);
-
-    // Показати підказку напрямку
-    if(absDx > 20 && absDx > absDy) {
-      shRight.className = 'swipe-hint-right' + (dx > 0 ? ' show' : '');
-      shLeft.className  = 'swipe-hint-left'  + (dx < 0 ? ' show' : '');
-      shUp.className    = 'swipe-hint-up';
-      // Трохи рухаємо картку
-      card.style.transition = 'none';
-      card.style.transform = 'translateX(' + (dx * 0.25) + 'px) rotate(' + (dx * 0.02) + 'deg)';
-    } else if(absDy > 20 && absDy > absDx && dy < 0) {
-      shUp.className = 'swipe-hint-up show';
-      shRight.className = 'swipe-hint-right';
-      shLeft.className  = 'swipe-hint-left';
-      card.style.transition = 'none';
-      card.style.transform = 'translateY(' + (dy * 0.2) + 'px)';
-    }
-  }, { passive: true });
-
-  card.addEventListener('touchend', function(e){
-    if(!isDragging) return;
-    isDragging = false;
-
-    // Скинути іконки
-    shRight.className = 'swipe-hint-right';
-    shLeft.className  = 'swipe-hint-left';
-    shUp.className    = 'swipe-hint-up';
-
-    let t = e.changedTouches[0];
-    let dx = t.clientX - startX;
-    let dy = t.clientY - startY;
-    let dt = Date.now() - startTime;
-    let absDx = Math.abs(dx);
-    let absDy = Math.abs(dy);
-
-    // Скинути трансформацію
-    card.style.transition = '';
-    card.style.transform = '';
-
-    if(dt > MAX_TIME) return; // занадто повільно
-
-    if(absDx > THRESHOLD && absDx > absDy * 1.5) {
-      // Горизонтальний свайп
-      if(dx > 0) {
-        // → Вправо = Знаю
-        card.classList.add('swipe-right');
-        setTimeout(function(){
-          card.classList.remove('swipe-right');
-          document.getElementById('btn-know')!.click();
-        }, 220);
-      } else {
-        // ← Вліво = Далі
-        card.classList.add('swipe-left');
-        setTimeout(function(){
-          card.classList.remove('swipe-left');
-          document.getElementById('btn-next')!.click();
-        }, 220);
-      }
-    } else if(absDy > 40 && dy < 0 && absDy > absDx * 1.2) {
-      // ↑ Вгору = Показати переклад
-      if(!flipped){
-        card.classList.add('swipe-up');
-        setTimeout(function(){
-          card.classList.remove('swipe-up');
-          flipped = true;
-          document.getElementById('wtransl')!.className = 'transl show';
-          document.getElementById('exua')!.className = 'ex-ua show';
-        }, 200);
-      }
-    }
-  }, { passive: true });
-})();
-
-// ════════════════════════════════════════
-// PWA
-// ════════════════════════════════════════
-(function(){
-  let deferredPrompt: any = null;
-  let banner = document.getElementById('pwa-banner')!;
-
-  // Слухаємо beforeinstallprompt (Chrome/Android)
-  window.addEventListener('beforeinstallprompt', function(e){
-    e.preventDefault();
-    deferredPrompt = e;
-    // Показати банер якщо ще не встановлено і не відхилено
-    if(!localStorage.getItem('ew_pwa_dismissed')){
-      setTimeout(function(){ banner.className = 'show'; }, 2000);
-    }
-  });
-
-  document.getElementById('pwa-install')!.addEventListener('click', function(){
-    banner.className = '';
-    if(deferredPrompt){
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(function(r: any){
-        if(r.outcome === 'accepted') localStorage.setItem('ew_pwa_dismissed','1');
-        deferredPrompt = null;
-      });
-    }
-  });
-
-  document.getElementById('pwa-close')!.addEventListener('click', function(){
-    banner.className = '';
-    localStorage.setItem('ew_pwa_dismissed','1');
-  });
-
-  // iOS — підказка додати на головний екран
-  let isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  let isInStandalone = (navigator as any).standalone === true;
-  if(isIOS && !isInStandalone && !localStorage.getItem('ew_pwa_dismissed')){
-    setTimeout(function(){
-      const _pwaText = banner.querySelector<HTMLElement>('.pwa-text');
-      if (_pwaText) _pwaText.innerHTML = '<strong>Додай на головний екран</strong> · Натисни <strong>⬜ Поділитися</strong> → <strong>На екран «Додому»</strong>';
-      // Hide install button on iOS (no install prompt)
-      const installBtn = banner.querySelector<HTMLElement>('.pwa-install-btn');
-      if (installBtn) installBtn.style.display = 'none';
-      banner.className = 'show';
-    }, 2000);
-  }
-})();
 
 // ════════════════════════════════════════
