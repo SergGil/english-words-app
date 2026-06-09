@@ -2,12 +2,29 @@
 // Range selector: _refreshRangeOptions + sel-range change handler
 import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
-import { shuffle, buildSRSDeck, buildUnlearnedDeck } from '../core/srs.ts';
+import { shuffle, _shuf, buildSRSDeck, buildUnlearnedDeck } from '../core/srs.ts';
 import { getHardWords } from './game.ts';
 import { getBookmarks } from './bookmarks.ts';
 import { getCefrLevel } from '../../data/cefr.ts';
 import { t } from './i18n.ts';
 import type { WordEntry } from '../../src/types.js';
+
+export function buildStaleDeck(days: number): WordEntry[] {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  const cutoff = d.toISOString().slice(0, 10);
+  const result = (W as unknown as WordEntry[]).filter(function(w) {
+    const srs = (state.srsData as any)[w[0]];
+    if (!srs || !srs.due) return true;
+    const dt = new Date(srs.due);
+    dt.setDate(dt.getDate() - (srs.interval || 1));
+    return dt.toISOString().slice(0, 10) <= cutoff;
+  });
+  shuffle(result);
+  return result.length ? result : _shuf(W as unknown as WordEntry[]).slice(0, 50);
+}
+
+window.buildStaleDeck = buildStaleDeck;
 
 export function _refreshRangeOptions(): void {
   const sel = document.getElementById('sel-range') as HTMLSelectElement | null;
@@ -126,7 +143,7 @@ document.getElementById('sel-range')!.addEventListener('change', function() {
     return;
   } else if (v.startsWith('stale')) {
     (window as any).setBaseWords(W.slice());
-    deck = (window as any).buildStaleDeck(v === 'stale7' ? 7 : 30) as WordEntry[];
+    deck = buildStaleDeck(v === 'stale7' ? 7 : 30);
   } else {
     const n        = parseInt(v);
     const _lastBlk = Math.ceil(W.length / 500);

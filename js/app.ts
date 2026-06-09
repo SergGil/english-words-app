@@ -43,7 +43,9 @@ import { speak, _speakWeb, _speakWithLang, getVoice }  from './features/speech.t
 import './features/search-inline.ts';
 import './core/keyboard.ts';
 import './core/theme.ts';
-import './features/deck-filter.ts';
+import './features/card-actions.ts';
+import './features/goal-modal.ts';
+import { _refreshRangeOptions, buildStaleDeck } from './features/deck-filter.ts';
 import './features/deck-mode.ts';
 import './features/progress-io.ts';
 import './core/swipe.ts';
@@ -100,19 +102,6 @@ Object.defineProperty(window, 'idx',     { configurable: true, get: () => idx,  
 Object.defineProperty(window, 'flipped', { configurable: true, get: () => flipped, set: (v) => { flipped = v; state.flipped = v; } });
 Object.defineProperty(window, 'cw',      { configurable: true, get: () => cw });
 // window.TODAY is set further below when TODAY is defined
-
-// buildStaleDeck: слова що не переглядались довше N днів
-function buildStaleDeck(days: number): WordEntry[] {
-  let cutoff = (function(){ var d=new Date(); d.setDate(d.getDate()-days); return d.toISOString().slice(0,10); })();
-  let result = W.filter(function(w) {
-    let d = srsData[w[0]];
-    if (!d || !d.due) return true;
-    let lastDate = (function(){ var dt=new Date(d.due); dt.setDate(dt.getDate()-(d.interval||1)); return dt.toISOString().slice(0,10); })();
-    return lastDate <= cutoff;
-  });
-  shuffle(result);
-  return (result.length ? result : _shuf(W as unknown as WordEntry[]).slice(0, 50)) as WordEntry[];
-}
 
 // Helper: get cached element with null safety
 function $e(id: string): HTMLElement { return $el[id] as HTMLElement; }
@@ -403,175 +392,8 @@ function render() {
   });
 }
 
-document.getElementById('card')!.addEventListener('click', function(){
-  if(!flipped){
-    flipped=true;
-    document.getElementById('wtransl')!.className='transl show';
-    document.getElementById('exua')!.className='ex-ua show';
-    _safe(() => updateSimilarWords());
-    _safe(() => updateWordFamilies());
-    _safe(() => updateCollocations());
-  }
-});
-document.getElementById('speak-word')!.addEventListener('click', function(e){
-  e.stopPropagation();
-  if (!cw) return;
-  let modeVal = (document.getElementById('sel-mode') as HTMLSelectElement)!.value;
-  if (modeVal === 'es-en' || modeVal === 'es-ua') {
-    let esEntry = _esEntry(cw[0]);
-    if (esEntry && getSelectedEsVoice()) { _speakWithLang(esEntry[0], 'es-ES', this); return; }
-  }
-  speak(cw[0],this);
-});
-document.getElementById('speak-ex')!.addEventListener('click', function(e){
-  e.stopPropagation();
-  if (!cw) return;
-  let exEn = cw[2] || '';
-  let exUa = cw[3] || '';
-  let modeVal = (document.getElementById('sel-mode') as HTMLSelectElement)!.value;
-  if (ES_MODES.has(modeVal)) {
-    let esEntry = _esEntry(cw[0]);
-    let exEs = esEntry ? esEntry[1] : '';
-    let hasEsVoice = !!getSelectedEsVoice();
-    if (modeVal === 'es-en' || modeVal === 'es-ua') {
-      if (hasEsVoice && exEs) _speakWithLang(exEs, 'es-ES', this);
-      else speak(exEn, this); // fallback: читаємо англійський еквівалент
-    } else if (modeVal === 'ua-es') {
-      let hasUkVoice = !!getSelectedUkVoice();
-      if (hasUkVoice && exUa) _speakWithLang(exUa, 'uk-UA', this);
-      else speak(exEn, this);
-    } else { // en-es: фронт — англійський приклад
-      speak(exEn, this);
-    }
-    return;
-  }
-  // UA→EN mode: спробувати UA голос, якщо немає — читати EN приклад
-  if (modeVal === 'ua') {
-    let hasUkVoice = !!getSelectedUkVoice();
-    if (hasUkVoice && exUa) {
-      _speakWithLang(exUa, 'uk-UA', this);
-    } else {
-      speak(exEn, this); // fallback: читаємо англійський еквівалент
-    }
-  } else {
-    speak(exEn, this);
-  }
-});
-// ── Card action buttons ───────────────────────────────────────
-document.getElementById('btn-note')!.addEventListener('click', function(e){
-  e.stopPropagation();
-  if (cw && true) openNoteModal(cw[0]);
-});
-document.getElementById('btn-bookmark')!.addEventListener('click', function(e){
-  e.stopPropagation();
-  if (!cw) return;
-  let isNow = toggleBookmark(cw[0]);
-  this.textContent = isNow ? '★' : '☆';
-  this.style.color  = isNow ? '#f1c40f' : '';
-});
-document.getElementById('btn-mic')!.addEventListener('click', function(e){
-  e.stopPropagation();
-  if (!cw || false) return;
-  let btn = this;
-  startPronunciationCheck(cw[0], btn, function(status, score, spoken, target){
-    showPronuncResult(status, score, spoken ?? '', target ?? '');
-  });
-});
-// Show mic button only if Speech Recognition is supported
-if (isPronuncSupported()) {
-  document.getElementById('btn-mic')!.style.display = '';
-}
+// Card listeners → ./features/card-actions.ts
 
-document.getElementById('btn-prev')!.addEventListener('click', function(e){e.stopPropagation();stopAuto();idx=(idx-1+deck.length)%deck.length;_animCard('prev');render();});
-document.getElementById('btn-know')!.addEventListener('click', function(e){
-  e.stopPropagation();
-  if(cw){
-    let _ak = _activeKnown();
-    let isNewlyKnown = !_ak.has(cw[0]);
-    _ak.add(cw[0]);
-    if ((document.getElementById('sel-range') as HTMLSelectElement)!.value === 'srs') { sm2Update(cw[0], 4); } else { delete srsData[cw[0]]; }
-    if (ES_MODES.has(getMode())) { saveKnownEs(knownEs); } else { saveKnown(known); }
-    saveSRS(srsData);
-    _safe(() => playSound('know'));
-    _safe(() => { addCombo(); flashCard(true); });
-    if(isNewlyKnown) {
-      onWordLearned();
-      // Конфеті — тільки при першому досягненні цілі за день
-      _safe(() => {
-        const gd = getGameData();
-        if (gd.goalCur >= gd.goalMax && !gd.confettiShown) {
-          gd.confettiShown = TODAY;
-          saveGameData(gd);
-          launchConfetti();
-          _safe(() => playSound('goal'));
-        }
-      });
-    }
-    let v = (document.getElementById('sel-range') as HTMLSelectElement)!.value;
-    if (v === 'srs') { _setDeck(buildSRSDeck(_baseWords as unknown as WordEntry[])); idx = 0; render(); return; }
-    if (v === 'unlearned') {
-      _setDeck(buildUnlearnedDeck(_baseWords as unknown as WordEntry[])); if (!deck.length) { render(); return; }
-      idx = idx % deck.length; _animCard('fade'); render(); return;
-    }
-  }
-  _animCard('next'); idx=(idx+1)%deck.length; render();
-});
-document.getElementById('btn-next')!.addEventListener('click', function(e){
-  e.stopPropagation();
-  _safe(() => playSound('next'));
-  _safe(() => breakCombo());
-  if(cw){
-    let v = (document.getElementById('sel-range') as HTMLSelectElement)!.value;
-    if (v === 'srs') {
-      sm2Update(cw[0], 1);
-      saveSRS(srsData);
-    }
-  }
-  idx=(idx+1)%deck.length; render();
-});
-document.getElementById('btn-auto')!.addEventListener('click', function(e){
-  e.stopPropagation();
-  if(autoTimer){stopAuto();}
-  else{this.textContent=t('cards.stop');autoTimer=setInterval(function(){_animCard('next');idx=(idx+1)%deck.length;render();},4500);}
-});
-document.getElementById('btn-shuf')!.addEventListener('click', function(e){e.stopPropagation();stopAuto();shuffle(deck);idx=0;render();});
-document.getElementById('btn-reset')!.addEventListener('click', function(e){
-  e.stopPropagation();
-  let modesOverlay = document.getElementById('modes-overlay');
-  if (modesOverlay) modesOverlay.classList.remove('open');
-  let overlayEl = document.getElementById('modal-overlay')!;
-  overlayEl.style.display = 'flex';
-});
-document.getElementById('modal-cancel')!.addEventListener('click', function(){
-  document.getElementById('modal-overlay')!.style.display = 'none';
-});
-document.getElementById('modal-confirm')!.addEventListener('click', function(){
-  // Скидаємо все повністю
-  known.clear(); knownEs.clear(); srsData = {};
-  state.known = known; state.srsData = srsData; window.srsData = srsData;
-  state._srsStatsDirty = true;
-  saveKnown(known); saveKnownEs(knownEs); saveSRS(srsData);
-  _safe(() => localStorage.removeItem('ew_game'));
-  _safe(() => localStorage.removeItem('ew_daily'));
-  _safe(() => localStorage.removeItem('ew_ach'));
-  state._gameCache  = null; // скидаємо in-memory кеш щоб getGameData() перечитав з localStorage
-  state._dailyCache = null;
-  // Скинути візуальний стан картки
-  let cardEl = document.getElementById('card');
-  if (cardEl) {
-    cardEl!.classList.remove('is-known');
-  }
-  // Деку
-  let v = (document.getElementById('sel-range') as HTMLSelectElement)!.value;
-  if(v==='srs'){ deck=buildSRSDeck(state._baseWords as unknown as WordEntry[]); }
-  else if(v==='unlearned'){ deck=buildUnlearnedDeck(state._baseWords as unknown as WordEntry[]); }
-  // Оновити UI
-  _safe(() => renderGameBar());
-  _safe(() => renderLevelBadge());
-  _safe(() => updateRing(0, getGameData().goalMax || 20));
-  _safe(() => render());
-  document.getElementById('modal-overlay')!.style.display = 'none';
-});
 // ── ES pair modes ── (moved to ./features/deck-mode.ts)
 
 // ══ _refreshRangeOptions + sel-range listener ══ (moved to ./features/deck-filter.ts)
@@ -619,35 +441,7 @@ function onWordLearned() {
 
 // ── Кнопки відкрити/закрити статистику ──
 
-document.getElementById('goal-set-btn')!.addEventListener('click', function(e) {
-  e.stopPropagation();
-  let d = getGameData();
-  let inp = document.getElementById('goal-input') as HTMLInputElement;
-  inp!.value = String(d.goalMax || 20);
-  let modal = document.getElementById('goal-modal')!;
-  modal.style.display = 'flex';
-  setTimeout(function(){ inp!.focus(); inp!.select(); }, 50);
-});
-document.getElementById('goal-modal-cancel')!.addEventListener('click', function(){
-  document.getElementById('goal-modal')!.style.display = 'none';
-});
-document.getElementById('goal-modal-ok')!.addEventListener('click', function(){
-  let val = parseInt((document.getElementById('goal-input') as HTMLInputElement)!.value);
-  if (val >= 1 && val <= 500) {
-    let d = getGameData();
-    d.goalMax = val;
-    saveGameData(d);
-    renderGameBar();
-  }
-  document.getElementById('goal-modal')!.style.display = 'none';
-});
-document.getElementById('goal-input')!.addEventListener('keydown', function(e){
-  if(e.key === 'Enter') document.getElementById('goal-modal-ok')!.click();
-  if(e.key === 'Escape') document.getElementById('goal-modal')!.style.display = 'none';
-});
-document.getElementById('goal-modal')!.addEventListener('click', function(e){
-  if(e.target === this) this.style.display = 'none';
-});
+// Goal modal → ./features/goal-modal.ts
 
 
 // ── Безпечна ініціалізація ──
@@ -698,7 +492,6 @@ window.onWordLearned     = onWordLearned;
 // window.renderStats/openStats/closeStats/renderSRSForecast — set by stats.ts
 window.ACHIEVEMENTS        = ACHIEVEMENTS;
 window.openWordDetail      = openWordDetail;
-window.buildStaleDeck      = buildStaleDeck;
 // _srsStatsDirty, _gameCache, _dailyCache live in state — not duplicated on window
 // window.deck / window.idx / window.flipped / window.cw are live getters defined at top of file
 // ── Setters for module-scope primitives used by legacy files ──
@@ -713,6 +506,11 @@ window.invalidateSimilarCache = invalidateSimilarCache;
 window.knownEs                = knownEs;
 window.setKnown    = (s: Set<string>)          => { known = s; state.known = s; window.known = s; };
 window.setSrsData  = (d: Record<string, any>)  => { srsData = d; state.srsData = d; window.srsData = d; };
+window.animCard      = _animCard;
+window.isAutoRunning = () => !!autoTimer;
+window.startAuto     = () => {
+  autoTimer = setInterval(() => { _animCard('next'); idx = (idx + 1) % deck.length; render(); }, 4500);
+};
 window.updateRing            = updateRing;
 window.playSound             = playSound;
 window.recordModeComplete    = recordModeComplete;
