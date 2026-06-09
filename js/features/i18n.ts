@@ -961,6 +961,7 @@ export function applyI18n(): void {
   (window.renderGameBar as (() => void) | undefined)?.();
   (window._refreshRangeOptions as (() => void) | undefined)?.();
   (window._refreshTagOptions as (() => void) | undefined)?.();
+  (window.render as (() => void) | undefined)?.();
   if (document.getElementById('ach-overlay')?.classList.contains('open')) {
     (window.renderAchievements as (() => void) | undefined)?.();
     (window.renderLevelsRoadmap as (() => void) | undefined)?.();
