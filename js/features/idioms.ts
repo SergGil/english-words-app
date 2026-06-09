@@ -14,19 +14,38 @@ const tabEs    = document.getElementById('idioms-tab-es')!  as HTMLButtonElement
 let _tab: 'en' | 'ua' | 'es' = 'en';
 let _query = '';
 
+type SpeakFn = (text: string, lang: string, btn: HTMLElement | null) => void;
+function _speak(text: string, lang: string, btn: HTMLElement | null): void {
+  (window as Window & { _speakWithLang?: SpeakFn })._speakWithLang?.(text, lang, btn);
+}
+
+function _esc(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function _speakBtn(text: string, lang: string): string {
+  return `<button class="speak-btn idiom-speak" data-text="${_esc(text)}" data-lang="${lang}" title="🔊">🔊</button>`;
+}
+
+// ── Card render ───────────────────────────────────────────────
 function _renderCard(idiom: Idiom): string {
+  const phraseLang = _tab === 'ua' ? 'uk-UA' : _tab === 'es' ? 'es-ES' : 'en-US';
+  const trLang     = _tab === 'ua' ? 'en-US' : 'uk-UA';
+
   const meaningLine = idiom.meaningEn
     ? `<span class="idiom-meaning">— ${idiom.meaning}</span><span class="idiom-meaning-en"> / ${idiom.meaningEn}</span>`
     : `<span class="idiom-meaning">— ${idiom.meaning}</span>`;
+
   return `
     <div class="idiom-card">
       <div class="idiom-head">
         <span class="idiom-phrase">${idiom.emoji ?? ''} ${idiom.phrase}</span>
+        ${_speakBtn(idiom.phrase, phraseLang)}
         ${meaningLine}
       </div>
       <div class="idiom-example">
-        ${idiom.exampleSrc}<br>
-        <span class="idiom-ex-tr">${idiom.exampleTr}</span>
+        ${idiom.exampleSrc} ${_speakBtn(idiom.exampleSrc, phraseLang)}<br>
+        <span class="idiom-ex-tr">${idiom.exampleTr} ${_speakBtn(idiom.exampleTr, trLang)}</span>
       </div>
     </div>
   `;
@@ -56,6 +75,15 @@ function _setTab(tab: 'en' | 'ua' | 'es'): void {
   tabEs.classList.toggle('idioms-tab-active', tab === 'es');
   _render();
 }
+
+// ── Event delegation for speak buttons ───────────────────────
+listEl.addEventListener('click', (e: MouseEvent) => {
+  const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.idiom-speak');
+  if (!btn) return;
+  const text = btn.dataset.text ?? '';
+  const lang = btn.dataset.lang ?? 'en-US';
+  _speak(text, lang, btn);
+});
 
 tabEn.addEventListener('click', () => _setTab('en'));
 tabUa.addEventListener('click', () => _setTab('ua'));
