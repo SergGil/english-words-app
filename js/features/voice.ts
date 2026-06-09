@@ -100,6 +100,9 @@ function _findByURI(uri: string, voices: SpeechSynthesisVoice[]): SpeechSynthesi
   return voices.find(v => v.voiceURI === uri) ?? null;
 }
 
+export function getSelectedEnVoice(): SpeechSynthesisVoice | null {
+  return _findByURI(_enURI, _enVoices()) ?? _enVoices()[0] ?? null;
+}
 export function getSelectedUkVoice(): SpeechSynthesisVoice | null {
   return _findByURI(_ukURI, _ukVoices()) ?? _ukVoices()[0] ?? null;
 }
