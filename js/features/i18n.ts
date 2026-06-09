@@ -698,6 +698,7 @@ const DICT: Record<string, Record<Lang, string>> = {
   'idioms.pageTitle':  { ua: '💬 Ідіоми',                              en: '💬 Idioms',                              es: '💬 Modismos' },
   'idioms.tabEn':      { ua: 'Англійські ідіоми',                      en: 'English idioms',                        es: 'Modismos en inglés' },
   'idioms.tabUa':      { ua: 'Українські ідіоми → англійською',        en: 'Ukrainian idioms → English',            es: 'Modismos ucranianos → inglés' },
+  'idioms.tabEs':      { ua: 'Іспанські ідіоми',                       en: 'Spanish idioms',                        es: 'Modismos en español' },
   'idioms.searchPlaceholder': { ua: '🔍 Пошук ідіоми...',              en: '🔍 Search an idiom...',                 es: '🔍 Buscar un modismo...' },
   'idioms.empty':      { ua: 'Нічого не знайдено 🤷',                  en: 'Nothing found 🤷',                      es: 'No se encontró nada 🤷' },
 

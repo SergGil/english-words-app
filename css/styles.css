@@ -3445,6 +3445,7 @@ body.sw .idioms-tab-active { background: #00c8ff; border-color: #00c8ff; }
   font-size: .84rem; color: var(--accent); font-weight: 600;
 }
 body.sw .idiom-meaning { color: #00c8ff; }
+.idiom-meaning-en { font-size: .84rem; color: var(--text-muted); font-weight: 500; }
 .idiom-example {
   font-size: .82rem; line-height: 1.5; color: var(--text2);
   border-left: 3px solid var(--border); padding-left: 10px; margin-top: 6px;

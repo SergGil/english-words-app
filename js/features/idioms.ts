@@ -1,6 +1,6 @@
 // English Words App — js/features/idioms.ts
-// Idioms reference page: English idioms ↔ Ukrainian idioms with their English equivalents
-import { ENGLISH_IDIOMS, UKRAINIAN_IDIOMS } from '../../data/idioms.ts';
+// Idioms reference page: English, Ukrainian, and Spanish idioms
+import { ENGLISH_IDIOMS, UKRAINIAN_IDIOMS, SPANISH_IDIOMS } from '../../data/idioms.ts';
 import type { Idiom } from '../../data/idioms.ts';
 import { t } from './i18n.ts';
 
@@ -9,16 +9,20 @@ const listEl   = document.getElementById('idioms-list')!    as HTMLElement;
 const searchEl = document.getElementById('idioms-search')!  as HTMLInputElement;
 const tabEn    = document.getElementById('idioms-tab-en')!  as HTMLButtonElement;
 const tabUa    = document.getElementById('idioms-tab-ua')!  as HTMLButtonElement;
+const tabEs    = document.getElementById('idioms-tab-es')!  as HTMLButtonElement;
 
-let _tab: 'en' | 'ua' = 'en';
+let _tab: 'en' | 'ua' | 'es' = 'en';
 let _query = '';
 
 function _renderCard(idiom: Idiom): string {
+  const meaningLine = idiom.meaningEn
+    ? `<span class="idiom-meaning">— ${idiom.meaning}</span><span class="idiom-meaning-en"> / ${idiom.meaningEn}</span>`
+    : `<span class="idiom-meaning">— ${idiom.meaning}</span>`;
   return `
     <div class="idiom-card">
       <div class="idiom-head">
         <span class="idiom-phrase">${idiom.emoji ?? ''} ${idiom.phrase}</span>
-        <span class="idiom-meaning">— ${idiom.meaning}</span>
+        ${meaningLine}
       </div>
       <div class="idiom-example">
         ${idiom.exampleSrc}<br>
@@ -29,12 +33,13 @@ function _renderCard(idiom: Idiom): string {
 }
 
 function _render(): void {
-  const source = _tab === 'en' ? ENGLISH_IDIOMS : UKRAINIAN_IDIOMS;
+  const source = _tab === 'en' ? ENGLISH_IDIOMS : _tab === 'ua' ? UKRAINIAN_IDIOMS : SPANISH_IDIOMS;
   const q = _query.trim().toLowerCase();
   const filtered = q
     ? source.filter(i =>
         i.phrase.toLowerCase().includes(q) ||
-        i.meaning.toLowerCase().includes(q))
+        i.meaning.toLowerCase().includes(q) ||
+        (i.meaningEn?.toLowerCase().includes(q) ?? false))
     : source;
 
   if (!filtered.length) {
@@ -44,15 +49,17 @@ function _render(): void {
   listEl.innerHTML = filtered.map(_renderCard).join('');
 }
 
-function _setTab(tab: 'en' | 'ua'): void {
+function _setTab(tab: 'en' | 'ua' | 'es'): void {
   _tab = tab;
   tabEn.classList.toggle('idioms-tab-active', tab === 'en');
   tabUa.classList.toggle('idioms-tab-active', tab === 'ua');
+  tabEs.classList.toggle('idioms-tab-active', tab === 'es');
   _render();
 }
 
 tabEn.addEventListener('click', () => _setTab('en'));
 tabUa.addEventListener('click', () => _setTab('ua'));
+tabEs.addEventListener('click', () => _setTab('es'));
 searchEl.addEventListener('input', () => { _query = searchEl.value; _render(); });
 
 /** Called by sidebar openPage('idioms') to initialize content */
