@@ -10,7 +10,7 @@ import LZString from '../../lib/lzstring.js';
 import { _shuf } from '../core/srs.ts';
 import { lev } from '../core/distance.ts';
 import type { WordEntry } from '../../src/types.js';
-import { t } from './i18n.ts';
+import { t, categoryName } from './i18n.ts';
 
 // ── Constants ─────────────────────────────────────────────────
 const DB_URL    = 'https://english-words-trainer-557e8-default-rtdb.europe-west1.firebasedatabase.app';
@@ -256,7 +256,7 @@ function _renderCategoryPicker(): void {
   const el = $('duel-cat-picker'); if(!el) return;
   const cats = ['', ...CATEGORY_LIST];
   el.innerHTML = `<select style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;font-size:.83rem;outline:none;">
-    ${cats.map(c=>`<option value="${c}"${c===_selCategory?' selected':''}>${c||t('duel.allWords')}</option>`).join('')}
+    ${cats.map(c=>`<option value="${c}"${c===_selCategory?' selected':''}>${c?categoryName(c):t('duel.allWords')}</option>`).join('')}
   </select>`;
   el.querySelector('select')?.addEventListener('change',e=>{ _selCategory=(e.target as HTMLSelectElement).value; });
 }
