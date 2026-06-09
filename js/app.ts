@@ -54,7 +54,7 @@ import { renderLeaderboard, maybeSubmitScore }         from './features/leaderbo
 import { playSound }                                    from './core/audio.ts';
 import { launchConfetti }                               from './core/confetti.ts';
 import { updateRing }                                   from './features/ring.ts';
-import { getSimilarWords, invalidateSimilarCache }      from './features/similar-words.ts';
+import { getSimilarWords, getSimilarWordsEs, invalidateSimilarCache } from './features/similar-words.ts';
 import { openWordDetail }                               from './features/word-detail.ts';
 import LZString from '../lib/lzstring.js';
 
@@ -1895,15 +1895,24 @@ function updateSimilarWords() {
   var chips   = document.getElementById('cb-chips');
   if (!section || !chips) return;
 
-  var similar = getSimilarWords(cw[0], cw[1], 5);
+  var mode = getMode();
+  var isEsMode = ES_MODES.has(mode);
+  var esEntry = isEsMode ? _esEntry(cw[0]) : null;
+
+  var similar = (isEsMode && esEntry)
+    ? getSimilarWordsEs(cw[0], esEntry[0], 5)
+    : getSimilarWords(cw[0], cw[1], 5);
   if (!similar.length) { section.style.display = 'none'; return; }
 
   section.style.display = 'block';
   chips.innerHTML = similar.map(function(w) {
     var isKnown = known.has(w[0]);
+    var wEsEntry = isEsMode ? _esEntry(w[0]) : null;
+    var displayWord   = wEsEntry ? wEsEntry[0] : w[0];
+    var displayTransl = w[1];
     return '<div class="sim-chip' + (isKnown ? ' known-chip' : '') + '" data-word="' + w[0] + '">' +
-      '<span class="sc-word">' + w[0] + '</span>' +
-      '<span class="sc-transl">' + w[1] + '</span>' +
+      '<span class="sc-word">' + displayWord + '</span>' +
+      '<span class="sc-transl">' + displayTransl + '</span>' +
     '</div>';
   }).join('');
 
