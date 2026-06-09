@@ -15,9 +15,9 @@ import { shuffle, _shuf, addDays, sm2Update,
 import { addCombo, breakCombo, flashCard, getComboMult } from './features/combo.ts';
 import {
   getGameData, saveGameData, getDailyStats, saveDailyStats, recordDailyWord,
-  getModeStats, saveModeStats, loadUnlocked, saveUnlocked, updateStreak,
+  getModeStats, saveModeStats, updateStreak,
   LEVELS, getLevel, getNextLevel, recordModeComplete, recordCustomWordAdded, _idle,
-  registerCheckAchievements, getHardWords, getModeAccuracy,
+  getHardWords,
 } from './features/game.ts';
 import { isBookmarked, getBookmarks, toggleBookmark }    from './features/bookmarks.ts';
 import { getNoteForWord, hasNote, openNoteModal }        from './features/notes.ts';
@@ -27,27 +27,10 @@ import { getSelectedUkVoice, getSelectedEsVoice }        from './features/voice.
 import { decodeIpa }                                    from './core/ui-helpers.ts';
 import { getCefrLevel }                                 from '../data/cefr.ts';
 import { ACHIEVEMENTS }                                 from '../data/achievements.ts';
-import { ACH_EN, ACH_CAT_EN, ACH_ES, ACH_CAT_ES }       from '../data/achievements-i18n.ts';
 import { t, getLang, levelName, wordsLabel, categoryName } from './features/i18n.ts';
-
-function _achName(a: Achievement): string {
-  const l = getLang();
-  if (l === 'en') return ACH_EN[a.id]?.name ?? a.name;
-  if (l === 'es') return ACH_ES[a.id]?.name ?? a.name;
-  return a.name;
-}
-function _achHint(a: Achievement): string {
-  const l = getLang();
-  if (l === 'en') return ACH_EN[a.id]?.hint ?? a.hint;
-  if (l === 'es') return ACH_ES[a.id]?.hint ?? a.hint;
-  return a.hint;
-}
-function _achCat(cat: string): string {
-  const l = getLang();
-  if (l === 'en') return ACH_CAT_EN[cat] ?? cat;
-  if (l === 'es') return ACH_CAT_ES[cat] ?? cat;
-  return cat;
-}
+import { renderGameBar, renderLevelBadge, renderLevelProgress, renderLevelsRoadmap } from './features/render-game-bar.ts';
+import { checkAchievements, renderAchievements, showToast } from './features/render-achievements.ts';
+import { renderStats, openStats, closeStats, renderSRSForecast } from './features/stats.ts';
 import { WORD_FAMILIES, WORD_FAMILY_REVERSE }           from '../data/word-families.ts';
 import { searchCollocations }                          from '../data/collocations.ts';
 import { renderLeaderboard, maybeSubmitScore }         from './features/leaderboard.ts';
@@ -822,30 +805,6 @@ const TODAY = new Date().toISOString().slice(0,10);
 window.TODAY = TODAY; // legacy files (catpairs.js, srs.js, etc.) use this globally
 
 
-function renderGameBar() {
-  let d = getGameData();
-  let pct = Math.min(d.goalCur / d.goalMax * 100, 100);
-  document.getElementById('streak-num')!.textContent = String(d.streak || 0);
-  // Streak shields display
-  const shieldsEl = document.getElementById('shields-row');
-  if (shieldsEl) {
-    const n = d.shields ?? 0;
-    const shLabel = t(n > 1 ? 'gamebar.shields' : 'gamebar.shield');
-    shieldsEl.textContent = n > 0 ? '🛡️'.repeat(n) + ' ' + shLabel : '';
-    shieldsEl.title = n > 0
-      ? `${n} ${shLabel}: ${t('gamebar.shield.desc')}`
-      : t('gamebar.shield.none');
-  }
-  document.getElementById('goal-cur')!.textContent = String(d.goalCur || 0);
-  document.getElementById('goal-max')!.textContent = String(d.goalMax);
-  let fill = document.getElementById('goal-fill');
-  fill!.style.width = pct + '%';
-  fill!.className = 'goal-fill' + (d.goalCur >= d.goalMax ? ' done' : '');
-  let badge = document.getElementById('goal-done');
-  badge!.style.display = d.goalCur >= d.goalMax ? 'inline' : 'none';
-  _safe(() => updateRing(d.goalCur || 0, d.goalMax || 20));
-  _safe(() => renderLevelProgress());
-}
 
 // Запуск під час простою браузера (не блокує UI)
 function onWordLearned() {
@@ -877,104 +836,11 @@ function onWordLearned() {
 // getDailyStats — imported from ./features/game.ts
 
 // ── Рендер статистики ──
-function getBlockColor(pct: number): string {
-  if (pct >= 80) return '#27ae60';
-  if (pct >= 50) return '#f39c12';
-  if (pct >= 20) return '#3498db';
-  return '#bdc3c7';
-}
 
-let _statsRenderKey = '';
-let _chartDays = 14;
 
-function _renderChartBars() {
-  const daily = getDailyStats();
-  const days = [];
-  for (let i = _chartDays - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const ds  = d.toISOString().slice(0, 10);
-    const lbl = (d.getDate()) + '/' + (d.getMonth() + 1);
-    days.push({ date: ds, label: lbl, val: daily[ds] || 0, isToday: ds === TODAY });
-  }
-  let maxVal = Math.max.apply(null, days.map(function(d){return d.val;})) || 1;
-  let chartEl = document.getElementById('chart-bars');
-  let hasData = days.some(function(d){return d.val>0;});
-  if (!hasData) {
-    chartEl!.innerHTML = '<div class="chart-empty">' + t('stats.noData') + '</div>';
-  } else {
-    // For 30/90 days use smaller bars
-    let barH = _chartDays <= 14 ? 60 : (_chartDays <= 30 ? 40 : 24);
-    chartEl!.innerHTML = days.map(function(d) {
-      let h = Math.round((d.val / maxVal) * barH);
-      let showLabel = _chartDays <= 14 || d.isToday || d.date.endsWith('-01') || new Date(d.date).getDate() % (_chartDays <= 30 ? 5 : 15) === 0;
-      return '<div class="chart-col' + (_chartDays > 14 ? ' chart-col-sm' : '') + '">' +
-        (d.val > 0 ? '<div class="chart-val">'+ d.val +'</div>' : '<div class="chart-val" style="visibility:hidden">0</div>') +
-        '<div class="chart-bar-wrap"><div class="chart-bar'+(d.isToday?' today':'')+'" style="height:'+ h +'px"></div></div>' +
-        '<div class="chart-label">'+ (d.isToday ? t('stats.today') : (showLabel ? d.label : '')) +'</div>' +
-      '</div>';
-    }).join('');
-  }
-}
 
-function _renderStatsCore() {
-  let gd = getGameData();
-  const newKey = known.size + '|' + (gd.streak ?? 0) + '|' + (gd.goalCur ?? 0) + '|' + state.TODAY + '|' + _chartDays;
-  if (newKey === _statsRenderKey) return;
-  _statsRenderKey = newKey;
-  // Загальні цифри
-  document.getElementById('st-known')!.textContent = String(known.size);
-  document.getElementById('st-pct')!.textContent = Math.round(known.size/W.length*100) + '%';
-  document.getElementById('st-streak')!.textContent = String(gd.streak || 0);
-
-  _renderChartBars();
-
-  // Блоки — 500 слів кожен (останній може бути більший)
-  const blockSize = 500;
-  const blocks: {label:string;total:number;known:number;pct:number}[] = [];
-  for (let s = 0; s < W.length; s += blockSize) {
-    // Якщо залишок менше blockSize — приєднуємо до поточного блоку
-    let end = s + blockSize;
-    if (end < W.length && W.length - end < blockSize) end = W.length;
-    const slice = W.slice(s, end);
-    const knownInBlock = slice.filter(function(w){ return known.has(w[0]); }).length;
-    blocks.push({
-      label: (s+1) + '–' + Math.min(end, W.length),
-      total: slice.length,
-      known: knownInBlock,
-      pct: Math.round(knownInBlock / slice.length * 100)
-    });
-    if (end >= W.length) break;
-  }
-
-  let blocksEl = document.getElementById('blocks-list');
-  blocksEl!.innerHTML = blocks.map(function(b) {
-    let color = getBlockColor(b.pct);
-    return '<div class="block-row">' +
-      '<div class="block-label">'+ b.label +'</div>' +
-      '<div class="block-track"><div class="block-fill" style="width:'+ b.pct +'%;background:'+ color +';"></div></div>' +
-      '<div class="block-pct" style="color:'+ color +'">'+ b.pct +'%</div>' +
-    '</div>';
-  }).join('');
-}
 
 // ── Кнопки відкрити/закрити статистику ──
-function openStats() {
-  renderStats();
-  document.getElementById('stats-overlay')!.style.display = 'flex';
-}
-function closeStats() {
-  document.getElementById('stats-overlay')!.style.display = 'none';
-}
-document.getElementById('btn-stats')!.addEventListener('click', function(e){
-  e.stopPropagation();
-  openStats();
-  setTimeout(function(){ try { (window as any).updateUI?.(); } catch(e) {} }, 50);
-});
-document.getElementById('stats-close')!.addEventListener('click', closeStats);
-document.getElementById('stats-overlay')!.addEventListener('click', function(e){
-  if(e.target === this) closeStats();
-});
 
 document.getElementById('goal-set-btn')!.addEventListener('click', function(e) {
   e.stopPropagation();
@@ -1006,16 +872,6 @@ document.getElementById('goal-modal')!.addEventListener('click', function(e){
   if(e.target === this) this.style.display = 'none';
 });
 
-// ── Chart period buttons ──
-document.getElementById('chart-period-btns')?.addEventListener('click', function(e) {
-  const btn = (e.target as HTMLElement).closest('[data-days]') as HTMLElement | null;
-  if (!btn) return;
-  _chartDays = parseInt(btn.dataset.days ?? '14') || 14;
-  this.querySelectorAll('.chart-period-btn').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  _statsRenderKey = '';
-  _renderChartBars();
-});
 
 // ── Безпечна ініціалізація ──
 
@@ -1144,40 +1000,6 @@ document.addEventListener('keydown', function(e){
 
 
 // LEVELS, getLevel, getNextLevel — imported from ./features/game.ts
-function renderLevelBadge() {
-  let n = known.size;
-  let lv = getLevel(n);
-  let badge = document.getElementById('level-badge');
-  if (badge) { badge.textContent = levelName(lv.name); badge!.style.background = lv.color + '22'; badge!.style.color = lv.color; }
-  let numEl = document.getElementById('gb-level-num');
-  let lvIdx = LEVELS.indexOf(lv) + 1;
-  if (numEl) { numEl.textContent = String(lvIdx); numEl.style.color = lv.color; }
-  renderLevelProgress();
-}
-function renderLevelProgress() {
-  let n = known.size;
-  let lv   = getLevel(n);
-  let next = getNextLevel(n);
-  let fillEl = document.getElementById('gb-level-fill');
-  let xpEl   = document.getElementById('gb-level-xp');
-  let nextEl = document.getElementById('gb-level-next');
-  if (!fillEl) return;
-  if (next) {
-    let cur  = n - lv.min;
-    let need = next.min - lv.min;
-    let pct  = Math.round(cur / need * 100);
-    fillEl.style.width = pct + '%';
-    fillEl.style.background = 'linear-gradient(90deg, ' + lv.color + ', ' + (next.color || lv.color) + ')';
-    if (xpEl)   xpEl.textContent   = cur + ' / ' + need + ' ' + wordsLabel(need);
-    if (nextEl) nextEl.textContent = levelName(next.name);
-  } else {
-    fillEl.style.width = '100%';
-    if (xpEl)   xpEl.textContent   = t('levels.maxReached');
-    if (nextEl) nextEl.textContent = '';
-  }
-  // Синхронізуємо кільце з прогресом рівня
-  _safe(() => updateRing(0, 0));
-}
 
 // ── Режими: трекер завершень / власні слова — делеговано в game.ts ───────────
 
@@ -1186,309 +1008,14 @@ function renderLevelProgress() {
 // ════════════════════════════════════════
 // ACHIEVEMENTS imported from data/achievements.ts
 
-let _toastTimer: ReturnType<typeof setTimeout> | null = null;
-function showToast(ach: Achievement): void {
-  let t = document.getElementById('achievement-toast')!
-  document.getElementById('toast-icon')!.textContent = ach.icon;
-  document.getElementById('toast-name')!.textContent = _achName(ach);
-  document.getElementById('toast-desc')!.textContent = _achHint(ach);
-  if(_toastTimer) clearTimeout(_toastTimer);
-  // Спочатку скидаємо стан
-  t.style.display = 'none';
-  t.classList.remove('show');
-  // Невелика затримка щоб CSS transition спрацював
-  requestAnimationFrame(function(){
-    requestAnimationFrame(function(){
-      t.style.display = 'block';
-      requestAnimationFrame(function(){
-        t.classList.add('show');
-      });
-    });
-  });
-  _toastTimer = setTimeout(function(){
-    t.classList.remove('show');
-    setTimeout(function(){ t.style.display='none'; }, 350);
-  }, 3500);
-}
-
-function checkAchievements() {
-  let unlocked = loadUnlocked();
-  if (unlocked.length >= ACHIEVEMENTS.length) return;
-  let unlockedSet = new Set(unlocked);
-  let k = known.size;
-  let g = getGameData();
-  let m = getModeStats();
-  let c = (typeof _customWords !== 'undefined') ? _customWords.length : 0;
-  let newOnes: Achievement[] = [];
-  ACHIEVEMENTS.forEach(function(a){
-    if(!unlockedSet.has(a.id) && a.check(k, g, m, c)){
-      newOnes.push(a);
-      unlocked.push(a.id);
-    }
-  });
-  if(newOnes.length) {
-    saveUnlocked(unlocked);
-    // Показати тости послідовно
-    let i = 0;
-    function showNext(){
-      if(i < newOnes.length){
-        showToast(newOnes[i]);
-        i++;
-        if(i < newOnes.length) setTimeout(showNext, 4000);
-      }
-    }
-    showNext();
-  }
-}
 
 
-function renderLevelsRoadmap() {
-  let container = document.getElementById('levels-roadmap');
-  if (!container) return;
-  let n = known.size;
-  container!.innerHTML = '';
-  LEVELS.forEach(function(lv, i) {
-    let next = LEVELS[i + 1];
-    let isDone    = next ? n >= next.min : n >= lv.min;
-    let isCurrent = n >= lv.min && (!next || n < next.min);
-    let lvNum     = i + 1;
-    let pct       = next ? Math.min(100, Math.round(Math.max(0, n - lv.min) / (next.min - lv.min) * 100)) : 100;
 
-    let row = document.createElement('div');
-    row.className = 'level-row' + (isCurrent ? ' level-current' : '') + (isDone && !isCurrent ? ' level-done' : '');
 
-    let fillBar = document.createElement('div');
-    fillBar.className = 'level-row-fill';
-    fillBar.style.cssText = 'width:' + (isCurrent ? pct : isDone ? 100 : 0) + '%;background:' + lv.color + ';';
 
-    // Номер рівня — кружок з кольором
-    let icon = document.createElement('div');
-    icon.className = 'level-row-icon';
-    icon.style.cssText = 'width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;' +
-      'font-size:.72rem;font-weight:800;flex-shrink:0;border:2px solid ' + lv.color + ';color:' + lv.color + ';';
-    icon.textContent = String(lvNum);
 
-    let info = document.createElement('div');
-    info.className = 'level-row-info';
 
-    let name = document.createElement('div');
-    name.className = 'level-row-name';
-    name.style.color = isCurrent ? lv.color : '';
-    name.textContent = levelName(lv.name); // повна назва з емодзі
 
-    let range = document.createElement('div');
-    range.className = 'level-row-range';
-    let wordsUnit = wordsLabel(2);
-    range.textContent = lv.min + (next ? '–' + (next.min - 1) : '+') + ' ' + wordsUnit + (isCurrent ? ' · ' + n + ' ' + t('levels.learned') + ' (' + pct + '%)' : '');
-
-    info.appendChild(name);
-    info.appendChild(range);
-
-    let badge = document.createElement('div');
-    badge.className = 'level-row-badge';
-    badge!.style.color = lv.color;
-    badge!.style.borderColor = lv.color + '66';
-    badge.textContent = isDone && !isCurrent ? '✓' : isCurrent ? '▶' : '🔒';
-
-    row.appendChild(fillBar);
-    row.appendChild(icon);
-    row.appendChild(info);
-    row.appendChild(badge);
-    container!.appendChild(row);
-  });
-}
-
-function renderAchievements() {
-  let unlocked = new Set(loadUnlocked());
-  let grid = document.getElementById('achievements-grid');
-  let k = known.size;
-  let g = getGameData();
-  let m = getModeStats();
-  let c = (typeof _customWords !== 'undefined') ? _customWords.length : 0;
-
-  // Групуємо по категоріях
-  let cats: Record<string, Achievement[]> = {};
-  ACHIEVEMENTS.forEach(function(a){
-    if(!(cats as Record<string, Achievement[]>)[a.cat]) (cats as Record<string, Achievement[]>)[a.cat] = [];
-    (cats as Record<string, Achievement[]>)[a.cat].push(a);
-  });
-
-  let html2 = '';
-  Object.keys(cats).forEach(function(cat){
-    html2 += '<div class="ach-category">';
-    html2 += '<div class="ach-cat-title">' + _achCat(cat) + '</div>';
-    html2 += '<div class="ach-grid-inner">';
-    cats[cat].forEach(function(a: Achievement){
-      let isUnlocked = unlocked.has(a.id);
-      let prog = a.progress(k, g, m, c);
-      let pct = Math.round(prog.cur / prog.max * 100);
-      html2 += '<div class="ach-card ' + (isUnlocked ? 'unlocked' : 'locked') + '" data-id="' + a.id + '">' +
-        '<span class="ach-icon">' + a.icon + '</span>' +
-        '<div class="ach-name">' + _achName(a) + '</div>' +
-        '<div class="ach-progress-track"><div class="ach-progress-fill" style="width:' + pct + '%' + (isUnlocked?';background:#27ae60':'') + '"></div></div>' +
-        '<div class="ach-progress-label">' + (isUnlocked ? t('ach.done') : prog.cur + ' / ' + prog.max) + '</div>' +
-      '</div>';
-    });
-    html2 += '</div></div>';
-  });
-  grid!.innerHTML = html2;
-
-  // Клік на картку — показати попап
-  grid!.querySelectorAll('.ach-card').forEach(function(card){
-    card.addEventListener('click', function(this: HTMLElement, e: Event){
-      e.stopPropagation(); // prevent ach-overlay from closing
-      let id = (this as HTMLElement).dataset.id;
-      let a = ACHIEVEMENTS.find(function(x){ return x.id === id; });
-      if(!a) return;
-      let isUnlocked = unlocked.has(id ?? '');
-      let prog = a.progress(k, g, m, c);
-      let pct = Math.min(Math.round(prog.cur / prog.max * 100), 100);
-      document.getElementById('ap-icon')!.textContent = a.icon;
-      document.getElementById('ap-name')!.textContent = _achName(a);
-      document.getElementById('ap-cat')!.textContent = _achCat(a.cat);
-      document.getElementById('ap-hint')!.textContent = _achHint(a);
-      document.getElementById('ap-prog-label')!.textContent = prog.cur + ' / ' + prog.max;
-      document.getElementById('ap-prog-fill')!.style.width = pct + '%';
-      if(isUnlocked) {
-        document.getElementById('ap-prog-fill')!.style.background = '#27ae60';
-      } else {
-        document.getElementById('ap-prog-fill')!.style.background = '';
-      }
-      let statusEl = document.getElementById('ap-status')!;
-      statusEl.textContent = isUnlocked ? t('ach.unlocked') : t('ach.notYet');
-      statusEl.className = 'ach-popup-status ' + (isUnlocked ? 'done' : 'todo');
-      let overlay = document.getElementById('ach-popup-overlay')!;
-      overlay.className = 'open';
-    });
-  });
-}
-
-// Закрити попап
-document.getElementById('ap-close')!.addEventListener('click', function(){
-  document.getElementById('ach-popup-overlay')!.className = '';
-});
-document.getElementById('ach-popup-overlay')!.addEventListener('click', function(e){
-  if(e.target === this) this.className = '';
-});
-
-// ── Єдина renderStats ──
-function renderSRSForecast() {
-  const container = document.getElementById('srs-forecast');
-  if (!container) return;
-  const today = new Date(); today.setHours(0,0,0,0);
-  const counts: {date:string;cnt:number;label:string}[] = [];
-  for (let i = 0; i < 14; i++) {
-    const d = new Date(today); d.setDate(d.getDate() + i);
-    const dateStr = d.toISOString().slice(0, 10);
-    const cnt = Object.values(srsData).filter(function(s: any){ return s.due === dateStr; }).length;
-    counts.push({ date: dateStr, cnt: cnt, label: i === 0 ? t('stats.todayCap') : i === 1 ? t('stats.tomorrow') : d.toLocaleDateString(getLang() === 'en' ? 'en' : 'uk',{day:'numeric',month:'short'}) });
-  }
-  const maxCnt = Math.max.apply(null, counts.map(function(c){ return c.cnt; })) || 1;
-  const totalDue = counts.reduce(function(a,c){ return a+c.cnt; }, 0);
-
-  let html = '<div style="font-size:.72rem;color:var(--text3);margin-bottom:8px;">' + t('stats.totalScheduled') + ': ' + totalDue + ' ' + t('stats.reviews') + '</div>';
-  html += '<div class="srs-fc-bars">';
-  counts.forEach(function(c) {
-    let pct = Math.round(c.cnt / maxCnt * 100);
-    let isToday = c.label === t('stats.todayCap');
-    html += '<div class="srs-fc-col">' +
-      '<div class="srs-fc-bar-wrap"><div class="srs-fc-bar' + (isToday ? ' srs-fc-today' : '') + '" style="height:' + Math.max(pct,2) + '%"></div></div>' +
-      '<div class="srs-fc-cnt">' + (c.cnt || '') + '</div>' +
-      '<div class="srs-fc-lbl">' + c.label + '</div>' +
-    '</div>';
-  });
-  html += '</div>';
-  container!.innerHTML = html;
-}
-
-function _renderModeAccuracy(): void {
-  const el = document.getElementById('mode-accuracy-list');
-  if (!el) return;
-  const acc = getModeAccuracy();
-  const modes: { key: string; label: string; icon: string }[] = [
-    { key: 'quiz',   label: t('mode.quiz'),   icon: '🧠' },
-    { key: 'write',  label: t('mode.write'),  icon: '✍️' },
-    { key: 'listen', label: t('mode.listen'), icon: '🔊' },
-    { key: 'fib',    label: t('mode.fib'),    icon: '✏️' },
-    { key: 'lesson', label: t('mode.lesson'), icon: '📚' },
-    { key: 'tempo',  label: t('mode.tempo'),  icon: '⚡' },
-  ];
-  const mStats = getModeStats();
-  const rows = modes.map(m => {
-    const a = acc[m.key];
-    const sessions = mStats[m.key] ?? 0;
-    if (!a && sessions === 0) return '';
-    const total = (a?.ok ?? 0) + (a?.err ?? 0);
-    const pct = total > 0 ? Math.round((a!.ok / total) * 100) : null;
-    const barColor = pct === null ? 'var(--border)' : pct >= 80 ? '#27ae60' : pct >= 60 ? '#f39c12' : '#e74c3c';
-    const pctText = pct !== null ? `${pct}%` : '—';
-    const totalText = total > 0 ? `${a?.ok ?? 0}✓ ${a?.err ?? 0}✗` : '';
-    return `<div style="margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-        <span style="font-size:.82rem;font-weight:600;color:var(--text);">${m.icon} ${m.label}</span>
-        <span style="font-size:.75rem;color:var(--text2);">${totalText}${sessions ? ` · ${sessions} ${t('stats.sessionsAbbr')}` : ''}</span>
-        <span style="font-size:.82rem;font-weight:700;color:${barColor};min-width:36px;text-align:right;">${pctText}</span>
-      </div>
-      <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
-        <div style="height:100%;width:${pct ?? 0}%;background:${barColor};border-radius:3px;transition:width .4s;"></div>
-      </div>
-    </div>`;
-  }).filter(Boolean);
-  el.innerHTML = rows.length
-    ? rows.join('')
-    : `<div style="font-size:.8rem;color:var(--text3);text-align:center;padding:8px 0;">${t('stats.noModeData')}</div>`;
-}
-
-function _renderCefrStats(): void {
-  const el = document.getElementById('cefr-stats-list'); if (!el) return;
-  const levels: import('../data/cefr.ts').CefrLevel[] = ['A1','A2','B1','B2','C1','C2'];
-  const colors: Record<string, string> = { A1:'#27ae60', A2:'#2ecc71', B1:'#d4ac0d', B2:'#e67e22', C1:'#e74c3c', C2:'#8e44ad' };
-  const descs:  Record<string, string> = { A1: t('cefr.A1'), A2: t('cefr.A2'), B1: t('cefr.B1'), B2: t('cefr.B2'), C1: t('cefr.C1'), C2: t('cefr.C2') };
-
-  const stats: Record<string, {known:number; total:number}> = {};
-  levels.forEach(l => stats[l] = {known:0, total:0});
-  (W as unknown as import('../src/types.js').WordEntry[]).forEach(w => {
-    const lvl = getCefrLevel(w[0]);
-    stats[lvl].total++;
-    if (known.has(w[0])) stats[lvl].known++;
-  });
-
-  el.innerHTML = levels.map(l => {
-    const s = stats[l];
-    const pct = s.total > 0 ? Math.round(s.known / s.total * 100) : 0;
-    const c = colors[l];
-    return `<div style="margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-        <span style="font-size:.8rem;font-weight:700;">
-          <span style="background:${c}22;color:${c};border:1.5px solid ${c}44;border-radius:6px;padding:1px 6px;font-size:.72rem;margin-right:6px;">${l}</span>
-          ${descs[l]}
-        </span>
-        <span style="font-size:.75rem;color:var(--text2);">${s.known} / ${s.total} (${pct}%)</span>
-      </div>
-      <div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;">
-        <div style="height:100%;width:${pct}%;background:${c};border-radius:3px;transition:width .5s;"></div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function renderStats() {
-  try { _renderStatsCore(); }       catch(e){ console.error('renderStatsCore:', e); }
-  try { renderAchievements(); }     catch(e){ console.error('renderAchievements:', e); }
-  try { renderSRSForecast(); }      catch(e){ console.error('renderSRSForecast:', e); }
-  try { _renderModeAccuracy(); }    catch(e){ console.error('renderModeAccuracy:', e); }
-  try { _renderCefrStats(); }       catch(e){ console.error('renderCefrStats:', e); }
-  // Leaderboard — lazy load when stats opened
-  const lbEl = document.getElementById('lb-container');
-  if (lbEl && !lbEl.dataset.loaded) {
-    lbEl.dataset.loaded = '1';
-    renderLeaderboard(lbEl).catch(() => {});
-  }
-}
-document.getElementById('lb-refresh-btn')?.addEventListener('click', () => {
-  const lbEl = document.getElementById('lb-container');
-  if (lbEl) { lbEl.removeAttribute('data-loaded'); renderLeaderboard(lbEl).catch(()=>{}); }
-});
 
 // renderLevelBadge/checkAchievements вбудовано в основну onWordLearned нижче
 
@@ -1504,19 +1031,12 @@ window.getVoice          = getVoice;
 window.getGameData       = getGameData;
 window.saveGameData      = saveGameData;
 window.onWordLearned     = onWordLearned;
-window.checkAchievements = checkAchievements;
-registerCheckAchievements(checkAchievements); // typed registration for game.ts
-window.renderGameBar     = renderGameBar;
-window.renderLevelBadge  = renderLevelBadge;
-window.renderLevelsRoadmap = renderLevelsRoadmap;
-window.renderAchievements  = renderAchievements;
-window.renderStats         = renderStats;
+// window.checkAchievements/renderAchievements/showToast — set by render-achievements.ts
+// window.renderGameBar/renderLevelBadge/renderLevelsRoadmap/renderLevelProgress — set by render-game-bar.ts
+// window.renderStats/openStats/closeStats/renderSRSForecast — set by stats.ts
 window.ACHIEVEMENTS        = ACHIEVEMENTS;
 window.openWordDetail      = openWordDetail;
-window.showToast           = showToast;
 window.buildStaleDeck      = buildStaleDeck;
-window.openStats           = openStats;
-window.closeStats          = closeStats;
 // _srsStatsDirty, _gameCache, _dailyCache live in state — not duplicated on window
 // window.deck / window.idx / window.flipped / window.cw are live getters defined at top of file
 // ── Setters for module-scope primitives used by legacy files ──
@@ -1532,8 +1052,8 @@ window.updateRing            = updateRing;
 window.playSound             = playSound;
 window.recordModeComplete    = recordModeComplete;
 window.recordCustomWordAdded = recordCustomWordAdded;
-window.renderLevelProgress   = renderLevelProgress;
-window.renderSRSForecast     = renderSRSForecast;
+// window.renderLevelProgress — set by render-game-bar.ts
+// window.renderSRSForecast   — set by stats.ts
 window._speakWeb             = _speakWeb;
 window.speakWebFallback      = (window as Window & {speakWebFallback?: (t: string, b: HTMLElement | null) => void}).speakWebFallback;
 window._speakWithLang        = _speakWithLang;
