@@ -701,8 +701,6 @@ const DICT: Record<string, Record<Lang, string>> = {
   'idioms.tabEs':      { ua: 'Іспанські ідіоми',                       en: 'Spanish idioms',                        es: 'Modismos en español' },
   'idioms.searchPlaceholder': { ua: '🔍 Пошук ідіоми...',              en: '🔍 Search an idiom...',                 es: '🔍 Buscar un modismo...' },
   'idioms.empty':      { ua: 'Нічого не знайдено 🤷',                  en: 'Nothing found 🤷',                      es: 'No se encontró nada 🤷' },
-  'idioms.playAll':    { ua: '▶ Читати всі',                           en: '▶ Play all',                             es: '▶ Reproducir todo' },
-  'idioms.stopPlay':   { ua: '⏹ Зупинити',                            en: '⏹ Stop',                                es: '⏹ Detener' },
 
   // ── Custom words modal ─────────────────────────────────────
   'custom.title':        { ua: '➕ Власні слова',                          en: '➕ Custom words',                          es: '➕ Palabras propias' },
