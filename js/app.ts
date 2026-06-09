@@ -27,13 +27,27 @@ import { getSelectedUkVoice, getSelectedEsVoice }        from './features/voice.
 import { decodeIpa }                                    from './core/ui-helpers.ts';
 import { getCefrLevel }                                 from '../data/cefr.ts';
 import { ACHIEVEMENTS }                                 from '../data/achievements.ts';
-import { ACH_EN, ACH_CAT_EN }                           from '../data/achievements-i18n.ts';
+import { ACH_EN, ACH_CAT_EN, ACH_ES, ACH_CAT_ES }       from '../data/achievements-i18n.ts';
 import { t, getLang, levelName, wordsLabel, categoryName } from './features/i18n.ts';
 
-function _isEnLang(): boolean { return localStorage.getItem('ew_lang') === 'en'; }
-function _achName(a: Achievement): string { return _isEnLang() ? (ACH_EN[a.id]?.name ?? a.name) : a.name; }
-function _achHint(a: Achievement): string { return _isEnLang() ? (ACH_EN[a.id]?.hint ?? a.hint) : a.hint; }
-function _achCat(cat: string): string { return _isEnLang() ? (ACH_CAT_EN[cat] ?? cat) : cat; }
+function _achName(a: Achievement): string {
+  const l = getLang();
+  if (l === 'en') return ACH_EN[a.id]?.name ?? a.name;
+  if (l === 'es') return ACH_ES[a.id]?.name ?? a.name;
+  return a.name;
+}
+function _achHint(a: Achievement): string {
+  const l = getLang();
+  if (l === 'en') return ACH_EN[a.id]?.hint ?? a.hint;
+  if (l === 'es') return ACH_ES[a.id]?.hint ?? a.hint;
+  return a.hint;
+}
+function _achCat(cat: string): string {
+  const l = getLang();
+  if (l === 'en') return ACH_CAT_EN[cat] ?? cat;
+  if (l === 'es') return ACH_CAT_ES[cat] ?? cat;
+  return cat;
+}
 import { WORD_FAMILIES }                                from '../data/word-families.ts';
 import { searchCollocations }                          from '../data/collocations.ts';
 import { renderLeaderboard, maybeSubmitScore }         from './features/leaderboard.ts';
@@ -1218,7 +1232,7 @@ function renderLevelsRoadmap() {
 
     var range = document.createElement('div');
     range.className = 'level-row-range';
-    var wordsUnit = getLang() === 'en' ? 'words' : 'слів';
+    var wordsUnit = wordsLabel(2);
     range.textContent = lv.min + (next ? '–' + (next.min - 1) : '+') + ' ' + wordsUnit + (isCurrent ? ' · ' + n + ' ' + t('levels.learned') + ' (' + pct + '%)' : '');
 
     info.appendChild(name);
@@ -1266,7 +1280,7 @@ function renderAchievements() {
         '<span class="ach-icon">' + a.icon + '</span>' +
         '<div class="ach-name">' + _achName(a) + '</div>' +
         '<div class="ach-progress-track"><div class="ach-progress-fill" style="width:' + pct + '%' + (isUnlocked?';background:#27ae60':'') + '"></div></div>' +
-        '<div class="ach-progress-label">' + (isUnlocked ? (_isEnLang() ? '✓ Done' : '✓ Виконано') : prog.cur + ' / ' + prog.max) + '</div>' +
+        '<div class="ach-progress-label">' + (isUnlocked ? t('ach.done') : prog.cur + ' / ' + prog.max) + '</div>' +
       '</div>';
     });
     html2 += '</div></div>';
@@ -1295,9 +1309,7 @@ function renderAchievements() {
         document.getElementById('ap-prog-fill')!.style.background = '';
       }
       var statusEl = document.getElementById('ap-status')!;
-      statusEl.textContent = isUnlocked
-        ? (_isEnLang() ? '🏆 Achievement unlocked!' : '🏆 Досягнення розблоковано!')
-        : (_isEnLang() ? '🔒 Not yet completed'      : '🔒 Ще не виконано');
+      statusEl.textContent = isUnlocked ? t('ach.unlocked') : t('ach.notYet');
       statusEl.className = 'ach-popup-status ' + (isUnlocked ? 'done' : 'todo');
       var overlay = document.getElementById('ach-popup-overlay')!;
       overlay.className = 'open';

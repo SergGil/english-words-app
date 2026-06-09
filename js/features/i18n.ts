@@ -92,6 +92,9 @@ const DICT: Record<string, Record<Lang, string>> = {
   'ach.roadmapTitle': { ua: '🗺️ Шлях Джедая — всі рівні',     en: '🗺️ Path of the Jedi — all levels', es: '🗺️ Camino del Jedi — todos los niveles' },
   'ach.awardsTitle':  { ua: '🏅 Нагороди',                    en: '🏅 Awards',                        es: '🏅 Premios' },
   'ach.close':        { ua: 'Закрити',                        en: 'Close',                            es: 'Cerrar' },
+  'ach.done':         { ua: '✓ Виконано',                    en: '✓ Done',                           es: '✓ Completado' },
+  'ach.unlocked':     { ua: '🏆 Досягнення розблоковано!',   en: '🏆 Achievement unlocked!',         es: '🏆 ¡Logro desbloqueado!' },
+  'ach.notYet':       { ua: '🔒 Ще не виконано',             en: '🔒 Not yet completed',             es: '🔒 Aún no completado' },
 
   // Statistics page — section titles & static labels
   'stats.title':            { ua: '📊 Статистика',                          en: '📊 Statistics',                              es: '📊 Estadísticas' },
