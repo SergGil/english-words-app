@@ -1,48 +1,13 @@
-﻿var CACHE = 'ew-v15';
+﻿var CACHE = 'ew-v16';
 var STATIC = [
-  // Data
-  './data/words.js',
-  './data/illustrations.js',
-  // Styles
   './css/styles.css',
-  // Libraries
   './lib/lzstring.js',
   './lib/jszip.min.js',
-  './js/features/epub.js',
-  // Core JS
   './js/config.js',
-  './js/core/images.js',
-  './js/core/storage.js',
-  './js/core/srs.js',
-  './js/app.js',
-  // Modes
-  './js/modes/quiz.js',
-  './js/modes/write.js',
-  './js/modes/pairs.js',
-  './js/modes/fib.js',
-  './js/modes/listening.js',
-  './js/modes/catpairs.js',
-  './js/modes/lesson.js',
-  './js/modes/tempo.js',
-  // Features
-  './js/features/combo.js',
-  './js/features/custom.js',
-  './js/features/stats.js',
-  './js/features/swipe.js',
-  './js/features/tag-filter.js',
-  './js/features/keyboard.js',
-  './js/features/offline.js',
-  './js/features/export.js',
-  './js/features/voice.js',
-  './js/features/notes.js',
-  './js/features/bookmarks.js',
-  './js/features/notifications.js',
-  './js/features/pronunciation.js',
-  './js/features/duel.js',
-  './js/modes/daily-challenge.js',
-  './js/modes/reading.js',
-  './js/features/profiles.js',
-  './js/features/settings.js',
+  './data/words.js',
+  './data/words_es.js',
+  './data/illustrations.js',
+  './data/categories.js',
 ];
 
 self.addEventListener('install', function(e) {
