@@ -1,6 +1,6 @@
 // English Words App — js/app.ts
 import type { WordEntry } from '../src/types.js';
-import { _lzLoad, saveKnown, saveSRS, saveKnownEs, loadKnownEs } from './core/storage.ts';
+import { _lzLoad, loadKnownEs } from './core/storage.ts';
 import { W }                                       from '../data/words.js';
 import { getIllus }                                from '../data/illustrations.js';
 import { getCategoriesForWord }                    from '../data/categories.js';
@@ -93,7 +93,7 @@ Object.defineProperty(window, 'cw',      { configurable: true, get: () => cw });
 function $e(id: string): HTMLElement { return $el[id] as HTMLElement; }
 
 // Кеш DOM-елементів: уникаємо getElementById на кожен render()
-let $el: Record<string, HTMLElement | null> = {};
+const $el: Record<string, HTMLElement | null> = {};
 ['wnum','wlang','wword','wtrans','wtransl','exen','exua','cidx','cknown',
  'pbar','illus','card','srs-next','streak-num','goal-cur','goal-max','goal-fill',
  'goal-done','ring-fill','ring-center','level-badge','cb-similar',
@@ -102,7 +102,7 @@ let $el: Record<string, HTMLElement | null> = {};
 });
 
 // O(1) індекс: word → позиція у W (замість W.findIndex на кожній картці)
-let _wordIdx = new Map();
+const _wordIdx = new Map();
 W.forEach(function(w, i) { _wordIdx.set(w[0], i); });
 
 // ── Власні слова: завантажуємо і додаємо в W ──
