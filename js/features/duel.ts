@@ -385,6 +385,13 @@ function _runCountdown(cb: ()=>void): void {
   const numEl = $('dc-number');
   const oppEl = $('dc-opp-row');
   if (oppEl) oppEl.textContent = `${_oppAvatar} ${_oppName} vs ${_getMyAvatar()} ${_getMyName()}`;
+  // Show room code so p1 still has time to share it during countdown
+  const codeHint = $('dc-room-code-hint') as HTMLElement|null;
+  const codeVal  = $('dc-room-code-val')  as HTMLElement|null;
+  if (codeHint && codeVal) {
+    if (_roomId && _mySlot === 'p1') { codeVal.textContent = _roomId; codeHint.style.display = ''; }
+    else { codeHint.style.display = 'none'; }
+  }
   let n = 3;
   numEl.textContent = '3';
   const t = setInterval(()=>{
@@ -1485,8 +1492,9 @@ $('duel-page-close')?.addEventListener('click', async () => {
     _showLobby();
     renderDuel();
   } else if (waitingVisible) {
-    // Waiting for opponent — cancel room and close
+    // Waiting for opponent — cancel room, reset lobby state, then close
     _cancelRoom();
+    _showLobby();
     (window.closePage as (() => void) | undefined)?.();
   } else if (tournVisible) {
     _cancelTournament();
@@ -1496,7 +1504,8 @@ $('duel-page-close')?.addEventListener('click', async () => {
     _showLobby();
     renderDuel();
   } else {
-    // In lobby → close page entirely
+    // Result screen or plain lobby → reset state, then close
+    _showLobby();
     (window.closePage as (() => void) | undefined)?.();
   }
 });
