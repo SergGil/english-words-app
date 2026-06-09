@@ -2899,6 +2899,26 @@ body.sw .settings-section-danger { border-color: rgba(255,100,80,.25); }
   background: rgba(231,76,60,.1);
   border-color: #e74c3c;
 }
+.bug-form { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.bug-select, .bug-textarea {
+  width: 100%; box-sizing: border-box;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 10px 12px;
+  font-family: inherit; font-size: .85rem; color: var(--text);
+  outline: none; transition: border-color .15s;
+}
+.bug-select:focus, .bug-textarea:focus { border-color: var(--accent); }
+.bug-textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+.bug-textarea.bug-error { border-color: #e74c3c; }
+.bug-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.bug-send-btn {
+  padding: 10px 22px; border-radius: 10px;
+  border: 1.5px solid var(--accent); background: var(--accent);
+  color: #fff; font-family: inherit; font-size: .88rem;
+  font-weight: 600; cursor: pointer; transition: opacity .15s;
+}
+.bug-send-btn:hover { opacity: .85; }
+.bug-sent-note { font-size: .8rem; color: var(--text2); }
 
 /* ── Voice cards ── */
 #fy-voices-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
