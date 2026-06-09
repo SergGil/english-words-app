@@ -37,7 +37,7 @@ import { renderLeaderboard, maybeSubmitScore }         from './features/leaderbo
 import { playSound }                                    from './core/audio.ts';
 import { launchConfetti }                               from './core/confetti.ts';
 import { updateRing }                                   from './features/ring.ts';
-import { getSimilarWords, getSimilarWordsEs, invalidateSimilarCache } from './features/similar-words.ts';
+import { invalidateSimilarCache, updateSimilarWords } from './features/similar-words.ts';
 import { openWordDetail }                               from './features/word-detail.ts';
 import LZString from '../lib/lzstring.js';
 
@@ -1047,6 +1047,7 @@ window.setCw      = (v: WordEntry | null)    => _setCw(v);
 window._wordIdx              = _wordIdx;
 window._customWords          = _customWords;
 window.invalidateSimilarCache = invalidateSimilarCache;
+window.knownEs                = knownEs;
 window.exportProgress        = exportProgress;
 window.updateRing            = updateRing;
 window.playSound             = playSound;
@@ -1423,45 +1424,7 @@ function updateWordFamilies() {
   });
 }
 
-function updateSimilarWords() {
-  if (!cw) return;
-  let section = document.getElementById('cb-similar');
-  let chips   = document.getElementById('cb-chips');
-  if (!section || !chips) return;
-
-  let mode = getMode();
-  let isEsMode = ES_MODES.has(mode);
-  let esEntry = isEsMode ? _esEntry(cw[0]) : null;
-
-  let similar = (isEsMode && esEntry)
-    ? getSimilarWordsEs(cw[0], esEntry[0], 10).filter(w => !!_esEntry(w[0]))
-    : getSimilarWords(cw[0], cw[1], 5);
-  if (isEsMode) similar = similar.slice(0, 5);
-  if (!similar.length) { section.style.display = 'none'; return; }
-
-  section.style.display = 'block';
-  chips.innerHTML = similar.map(function(w) {
-    let isKnown = _activeKnown().has(w[0]);
-    let wEsEntry = isEsMode ? _esEntry(w[0]) : null;
-    let displayWord   = wEsEntry ? wEsEntry[0] : w[0];
-    let displayTransl = w[1];
-    return '<div class="sim-chip' + (isKnown ? ' known-chip' : '') + '" data-word="' + w[0] + '">' +
-      '<span class="sc-word">' + displayWord + '</span>' +
-      '<span class="sc-transl">' + displayTransl + '</span>' +
-    '</div>';
-  }).join('');
-
-  // Клік по чипу — відкрити Word Detail
-  chips.querySelectorAll('.sim-chip').forEach(function(chip) {
-    chip.addEventListener('click', function(this: HTMLElement, e: Event) {
-      e.stopPropagation();
-      let targetWord = this.dataset.word;
-      let wi = _wordIdx.has(targetWord) ? _wordIdx.get(targetWord) : -1;
-      if (wi === undefined || wi === -1) return;
-      openWordDetail(W[wi as number] as unknown as WordEntry);
-    });
-  });
-}
+// updateSimilarWords — moved to js/features/similar-words.ts
 
 // ════════════════════════════════════════
 // СВАЙПИ

@@ -2,7 +2,26 @@
 // Similar word suggestions: translation-token matching + prefix similarity
 import { W } from '../../data/words.js';
 import { W_ES } from '../../data/words_es.js';
+import { state } from '../../src/state.ts';
 import type { WordEntry } from '../../src/types.js';
+
+const ES_MODES = new Set(['en-es', 'es-en', 'es-ua', 'ua-es']);
+
+function _getMode(): string {
+  const m = (document.getElementById('sel-mode') as HTMLSelectElement | null)?.value ?? 'en';
+  if (m === 'mix') return Math.random() > 0.5 ? 'en' : 'ua';
+  return m || 'en';
+}
+
+function _esEntry(word: string): readonly [string, string] | null {
+  return (W_ES as unknown as Record<string, readonly [string, string]>)[word] ?? null;
+}
+
+function _getActiveKnown(): Set<string> {
+  return ES_MODES.has(_getMode())
+    ? ((window as any).knownEs as Set<string>) ?? state.known
+    : state.known;
+}
 
 const STOP = new Set(['бути','мати','стати','який','яка','яке','свій','своя','цей','ця','той','та','такий','одна','також','дуже','більш','менш','людина','великий','малий','новий','старий','добрий','поганий','перший','другий','інший','різний','можна','треба','або','чи','але','його','її','їх','він','вона','вони','цього','того','собою']);
 const STOP_ES = new Set(['ser','estar','tener','hacer','poder','para','como','pero','más','muy','bien','todo','cada','otro','esta','este','también','cuando','entre','sobre','hasta','desde','porque','aunque','donde','algo','alguien','mismo','parte','gran']);
@@ -121,3 +140,46 @@ export function getSimilarWordsEs(word: string, esTransl: string, maxCount = 5):
   _cache[cacheKey] = out;
   return out;
 }
+
+export function updateSimilarWords(): void {
+  const cw = state.cw as WordEntry | null;
+  if (!cw) return;
+  const section = document.getElementById('cb-similar');
+  const chips   = document.getElementById('cb-chips');
+  if (!section || !chips) return;
+
+  const mode    = _getMode();
+  const isEsMode = ES_MODES.has(mode);
+  const esEntry  = isEsMode ? _esEntry(cw[0]) : null;
+
+  let similar = (isEsMode && esEntry)
+    ? getSimilarWordsEs(cw[0], esEntry[0], 10).filter(w => !!_esEntry(w[0]))
+    : getSimilarWords(cw[0], cw[1], 5);
+  if (isEsMode) similar = similar.slice(0, 5);
+  if (!similar.length) { section.style.display = 'none'; return; }
+
+  section.style.display = 'block';
+  chips.innerHTML = similar.map(function(w) {
+    const isKnown   = _getActiveKnown().has(w[0]);
+    const wEsEntry  = isEsMode ? _esEntry(w[0]) : null;
+    const displayWord   = wEsEntry ? wEsEntry[0] : w[0];
+    const displayTransl = w[1];
+    return '<div class="sim-chip' + (isKnown ? ' known-chip' : '') + '" data-word="' + w[0] + '">' +
+      '<span class="sc-word">' + displayWord + '</span>' +
+      '<span class="sc-transl">' + displayTransl + '</span>' +
+    '</div>';
+  }).join('');
+
+  const wordIdx = (window as any)._wordIdx as Map<string, number> | undefined;
+  chips.querySelectorAll('.sim-chip').forEach(function(chip) {
+    chip.addEventListener('click', function(this: HTMLElement, e: Event) {
+      e.stopPropagation();
+      const targetWord = this.dataset.word ?? '';
+      const wi = wordIdx?.has(targetWord) ? wordIdx.get(targetWord) : -1;
+      if (wi === undefined || wi === -1) return;
+      (window as any).openWordDetail?.(W[wi as number] as unknown as WordEntry);
+    });
+  });
+}
+
+window.updateSimilarWords = updateSimilarWords;
