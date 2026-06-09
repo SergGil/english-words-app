@@ -2,7 +2,6 @@
 import type { WordEntry, SRSData, GameData, ModeStats, Achievement, Level } from '../src/types.js';
 import { _lzLoad, _lzSave, saveKnown, saveSRS, saveKnownEs, loadKnownEs } from './core/storage.ts';
 import { W }                                       from '../data/words.js';
-import { W_ES }                                    from '../data/words_es.js';
 import { SVG, getIllus }                           from '../data/illustrations.js';
 import { WORD_CATEGORIES, getCategoriesForWord }    from '../data/categories.js';
 import { loadWikiImage, _imgCache, _idb,
@@ -40,6 +39,12 @@ import { openWordDetail }                               from './features/word-de
 import { updateCollocations, updateWordFamilies }       from './features/word-context.ts';
 import './features/image-prefetch.ts';
 import { ES_MODES, getMode, esEntry as _esEntry }      from './features/mode-utils.ts';
+import { speak, _speakWeb, _speakWithLang, getVoice }  from './features/speech.ts';
+import './features/search-inline.ts';
+import './core/keyboard.ts';
+import './core/theme.ts';
+import './features/deck-filter.ts';
+import './features/deck-mode.ts';
 import './features/progress-io.ts';
 import './core/swipe.ts';
 import './core/pwa.ts';
@@ -67,6 +72,7 @@ state.known   = known;    // Set — mutations propagate
 state.srsData = srsData;  // Object — mutations propagate
 
 let _baseWords = W.slice();
+state._baseWords = _baseWords as unknown as WordEntry[]; // sync initial value
 let _activeTagSet = null; // тег-фільтр: null = вимкнений, Set = активний
 
 // ── Single-source helpers — replace triple-sync boilerplate ────────────────
@@ -137,58 +143,7 @@ _customWords.forEach(function(c) {
 
 // ── Кеш зображень {word: url | null} ──
 // ── IndexedDB для image cache (необмежений розмір) + localStorage fallback ──
-function getVoice() {
-  let v = synth.getVoices();
-  return v.find(function(x){return x.lang.startsWith('en-US')&&x.name.includes('Google');})||
-         v.find(function(x){return x.lang.startsWith('en-US');})||
-         v.find(function(x){return x.lang.startsWith('en');})||null;
-}
-function speak(text: string, btn: HTMLElement | null): void {
-  const _speakFakeYou = (window as Window & { speakFakeYou?: (t: string, b: HTMLElement | null) => boolean }).speakFakeYou;
-  if (_speakFakeYou?.(text, btn)) return;
-  _speakWeb(text, btn);
-}
-
-// Web Speech — викликається напряму або як fallback з ElevenLabs
-function _speakWeb(text: string, btn: HTMLElement | null): void {
-  _speakWithLang(text, 'en-US', btn);
-}
-window.speakWebFallback = _speakWeb;
-
-function _speakWithLang(text: string, lang: string, btn: HTMLElement | null): void {
-  if (!hasSpeech) return;
-  synth.cancel();
-  let clean = text.replace(/<[^>]+>/g,'').replace(/\s*\([^)]*\)/g,'').trim();
-  if (!clean) return;
-  let u = new SpeechSynthesisUtterance(clean);
-  u.lang  = lang || 'en-US';
-  u.rate  = 0.88;
-  u.pitch = 1;
-  let voices = synth.getVoices();
-  let langLow = u.lang.toLowerCase();
-  let match = null;
-
-  if (langLow.startsWith('uk')) {
-    match = getSelectedUkVoice();
-    if (!match) match = voices.find(function(v){ return v.lang && v.lang.toLowerCase().startsWith('uk'); });
-  } else if (langLow.startsWith('es')) {
-    match = getSelectedEsVoice();
-    if (!match) match = voices.find(function(v){ return v.lang && v.lang.toLowerCase().startsWith('es'); });
-  } else if (langLow.startsWith('en')) {
-    match = getVoice();
-    if (!match) match = voices.find(function(v){ return v.lang && v.lang.toLowerCase().startsWith('en'); });
-  } else {
-    match = voices.find(function(v){ return v.lang && v.lang.toLowerCase() === langLow; })
-         || voices.find(function(v){ return v.lang && v.lang.toLowerCase().startsWith(langLow.slice(0,2)); });
-  }
-  if (match) u.voice = match;
-  if (btn) {
-    btn.classList.add('on');
-    u.onend   = function(){ btn.classList.remove('on'); };
-    u.onerror = function(){ btn.classList.remove('on'); };
-  }
-  synth.speak(u);
-}
+// speak, _speakWeb, _speakWithLang, getVoice — imported from ./features/speech.ts
 
 function stopAuto(): void {
   if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
@@ -608,8 +563,8 @@ document.getElementById('modal-confirm')!.addEventListener('click', function(){
   }
   // Деку
   let v = (document.getElementById('sel-range') as HTMLSelectElement)!.value;
-  if(v==='srs'){ deck=buildSRSDeck(_baseWords as unknown as WordEntry[]); }
-  else if(v==='unlearned'){ deck=buildUnlearnedDeck(_baseWords as unknown as WordEntry[]); }
+  if(v==='srs'){ deck=buildSRSDeck(state._baseWords as unknown as WordEntry[]); }
+  else if(v==='unlearned'){ deck=buildUnlearnedDeck(state._baseWords as unknown as WordEntry[]); }
   // Оновити UI
   _safe(() => renderGameBar());
   _safe(() => renderLevelBadge());
@@ -617,181 +572,9 @@ document.getElementById('modal-confirm')!.addEventListener('click', function(){
   _safe(() => render());
   document.getElementById('modal-overlay')!.style.display = 'none';
 });
-// ── ES pair modes: тимчасово звужуємо колоду до слів з іспанським перекладом ──
-let _esWords: WordEntry[] | null = null;
-function _getEsDeck(): WordEntry[] {
-  if (!_esWords) _esWords = (W as unknown as WordEntry[]).filter(function(w){ return Object.prototype.hasOwnProperty.call(W_ES, w[0]); });
-  return _esWords;
-}
-// Called by tag-filter.ts when a category is selected while in ES mode
-window._rebuildEsDeck = function(): void {
-  if (!ES_MODES.has(getMode())) return;
-  let esDeck = _getEsDeck();
-  let ats = state._activeTagSet as Set<string> | null;
-  deck = ats ? esDeck.filter(function(w){ return (ats as Set<string>).has(w[0]); }) : esDeck.slice();
-  if (!deck.length) _setDeck(esDeck.slice()); idx = 0; render();
-};
-let _preEsDeck: WordEntry[] | null = null;
-let _preEsIdx = 0;
-document.getElementById('sel-mode')!.addEventListener('change', function(){
-  stopAuto();
-  let m = (this as HTMLSelectElement).value;
-  let isEs = ES_MODES.has(m);
-  let selRangeEl = document.getElementById('sel-range') as HTMLSelectElement | null;
-  let selTagEl   = document.getElementById('sel-tag')   as HTMLSelectElement | null;
-  if (isEs && !_preEsDeck) {
-    // Входимо в ES-режим — запам'ятовуємо поточну колоду й звужуємо до перекладених слів
-    let esDeck = _getEsDeck();
-    if (!esDeck.length) {
-      let _mtEs = document.getElementById('milestone-toast');
-      if (_mtEs) { _mtEs.textContent = 'Іспанських перекладів ще немає для цих слів'; _mtEs.className = 'milestone-toast'; void _mtEs.offsetWidth; _mtEs.className = 'milestone-toast show'; setTimeout(function(){ _mtEs!.className = 'milestone-toast'; }, 3500); }
-      (this as HTMLSelectElement).value = 'en';
-      render();
-      return;
-    }
-    _preEsDeck = deck; _preEsIdx = idx;
-    // Apply active tag filter to ES deck if one is already set
-    let _atsEs = state._activeTagSet as Set<string> | null;
-    deck = _atsEs ? esDeck.filter(function(w){ return (_atsEs as Set<string>).has(w[0]); }) : esDeck.slice();
-    if (!deck.length) _setDeck(esDeck.slice()); idx = 0;
-    if (selRangeEl) selRangeEl.disabled = true;
-    // sel-tag stays enabled — user can filter ES words by category
-  } else if (!isEs && _preEsDeck) {
-    // Виходимо з ES-режиму — повертаємо попередню колоду
-    _setDeck(_preEsDeck);
-    idx = deck.length ? _preEsIdx % deck.length : 0;
-    _preEsDeck = null;
-    if (selRangeEl) selRangeEl.disabled = false;
-    if (selTagEl)   selTagEl.disabled   = false;
-  }
-  render();
-});
+// ── ES pair modes ── (moved to ./features/deck-mode.ts)
 
-// ══ Динамічне оновлення опцій фільтра "Всі слова" / блоків по 500 ══
-function _refreshRangeOptions(): void {
-  let sel = document.getElementById('sel-range') as HTMLSelectElement | null;
-  if (!sel) return;
-  let total = W.length;
-  let allOpt = sel.querySelector('option[value="0"]') as HTMLOptionElement | null;
-  if (allOpt) allOpt.textContent = t('cards.allWords') + ' (' + total + ')';
-  Array.prototype.slice.call(sel.querySelectorAll('option')).forEach(function(opt: HTMLOptionElement){
-    if (opt.value !== '0' && /^\d+$/.test(opt.value)) sel!.removeChild(opt);
-  });
-  const blocks = Math.ceil(total / 500);
-  for (let i = 1; i <= blocks; i++) {
-    const start = (i - 1) * 500 + 1;
-    const end   = i === blocks ? total : i * 500;
-    const opt = document.createElement('option');
-    opt.value = String(i);
-    opt.textContent = start + '–' + end;
-    sel.appendChild(opt);
-  }
-}
-window._refreshRangeOptions = _refreshRangeOptions;
-_safe(() => _refreshRangeOptions());
-
-// ══ Єдиний sel-range обробник — замість 3 окремих ══
-document.getElementById('sel-range')!.addEventListener('change', function(){
-  stopAuto();
-  let v = (this as HTMLSelectElement).value;
-  let selTagEl = document.getElementById('sel-tag') as HTMLSelectElement | null;
-
-  // Для спеціальних режимів скидаємо тег-фільтр (він не застосовується)
-  if (v === 'srs' || v === 'unlearned' || v.startsWith('stale')) {
-    _activeTagSet = null;
-    state._activeTagSet = null;
-    if (selTagEl) selTagEl.value = '';
-  }
-
-  if (v === 'weak') {
-    _baseWords = W.slice();
-    let _srsAll = srsData as Record<string, {ef?: number; reps?: number}>;
-    // Priority 1: words with SRS data sorted by EF asc (lowest = hardest)
-    let _srsWeak = Object.entries(_srsAll)
-      .filter(function([, d]) { return d && typeof d.ef === 'number'; })
-      .sort(function([, a], [, b]) { return (a.ef ?? 2.5) - (b.ef ?? 2.5); })
-      .slice(0, 50);
-    if (_srsWeak.length >= 5) {
-      let _weakSet = new Set(_srsWeak.map(function([k]) { return k; }));
-      deck = (W as unknown as WordEntry[]).filter(function(w) { return _weakSet.has(w[0]); });
-    } else if (known.size > 0) {
-      // Fallback: known words in reversed order (most recently learned first) for review
-      let _knownArr = Array.from(known);
-      deck = _knownArr.slice().reverse()
-        .map(function(k) { return (W as unknown as WordEntry[]).find(function(w) { return w[0] === k; }); })
-        .filter(Boolean) as WordEntry[];
-      if (!deck.length) deck = buildUnlearnedDeck(_baseWords as unknown as WordEntry[]);
-      let _mtWeak = document.getElementById('milestone-toast');
-      if (_mtWeak) { _mtWeak.textContent = t('range.weakFallbackKnown'); _mtWeak.className = 'milestone-toast'; void _mtWeak.offsetWidth; _mtWeak.className = 'milestone-toast show'; setTimeout(function(){ _mtWeak!.className = 'milestone-toast'; }, 3500); }
-    } else {
-      deck = buildUnlearnedDeck(_baseWords as unknown as WordEntry[]);
-      let _mtWeak2 = document.getElementById('milestone-toast');
-      if (_mtWeak2) { _mtWeak2.textContent = t('range.weakFallbackNew'); _mtWeak2.className = 'milestone-toast'; void _mtWeak2.offsetWidth; _mtWeak2.className = 'milestone-toast show'; setTimeout(function(){ _mtWeak2!.className = 'milestone-toast'; }, 3500); }
-    }
-    state._activeTagSet = null;
-    if (selTagEl) selTagEl.value = '';
-    _setDeck(deck);
-    idx = 0; render(); return;
-  } else if (v === 'hard') {
-    _baseWords = W.slice();
-    let _hardWords = getHardWords(50);
-    let _hardSet = new Set(_hardWords);
-    deck = (W as unknown as WordEntry[]).filter(function(w) { return _hardSet.has(w[0]); });
-    if (!deck.length) {
-      let _mt = document.getElementById('milestone-toast');
-      if (_mt) { _mt.textContent = 'Важких слів ще немає — грай у режимах!'; _mt.className = 'milestone-toast'; void _mt.offsetWidth; _mt.className = 'milestone-toast show'; setTimeout(function(){ _mt!.className = 'milestone-toast'; }, 3500); }
-      deck = buildUnlearnedDeck(_baseWords as unknown as WordEntry[]);
-    }
-    else { deck.sort(function(a, b) { return (_hardWords.indexOf(b[0]) < _hardWords.indexOf(a[0]) ? 1 : -1); }); }
-    state._activeTagSet = null;
-    if (selTagEl) selTagEl.value = '';
-    _setDeck(deck);
-    idx = 0; render(); return;
-  } else if (v === 'bookmarks') {
-    _baseWords = W.slice();
-    let _bms = getBookmarks();
-    deck = (W as unknown as WordEntry[]).filter(function(w){ return _bms.has(w[0]); });
-    if (!deck.length) { deck = W.slice(0, 10) as unknown as WordEntry[]; alert('Закладок немає — додай ⭐ на картках'); }
-    shuffle(deck);
-  } else if (v === 'unlearned') {
-    _baseWords = W.slice();
-    deck = buildUnlearnedDeck(_baseWords as unknown as WordEntry[]); // патчений buildUnlearnedDeck враховує _activeTagSet
-  } else if (v === 'srs') {
-    _baseWords = W.slice();
-    deck = buildSRSDeck(_baseWords as unknown as WordEntry[]);       // патчений buildSRSDeck враховує _activeTagSet
-  } else if (v.startsWith('cefr-')) {
-    const cefrTarget = v.replace('cefr-', '') as import('../data/cefr.ts').CefrLevel;
-    _baseWords = W.slice();
-    deck = (W as unknown as WordEntry[]).filter(w => getCefrLevel(w[0]) === cefrTarget);
-    shuffle(deck);
-    if (!deck.length) {
-      let _mt2 = document.getElementById('milestone-toast');
-      if (_mt2) { _mt2.textContent = `Немає слів рівня ${cefrTarget} — додай більше слів!`; _mt2.className='milestone-toast';void _mt2.offsetWidth;_mt2.className='milestone-toast show';setTimeout(()=>{_mt2!.className='milestone-toast';},3500); }
-      deck = _baseWords as unknown as WordEntry[]; shuffle(deck);
-    }
-    state._activeTagSet = null;
-    if (selTagEl) selTagEl.value = '';
-    _setDeck(deck);
-    idx = 0; render(); return;
-  } else if (v.startsWith('stale')) {
-    _baseWords = W.slice();
-    deck = buildStaleDeck(v === 'stale7' ? 7 : 30);
-  } else {
-    let n = parseInt(v);
-    let _lastBlk = Math.ceil(W.length / 500);
-    _baseWords = n===0 ? W.slice() : W.slice((n-1)*500, n===_lastBlk ? W.length : n*500);
-    deck = (_baseWords as unknown as WordEntry[]).slice();
-    shuffle(deck);
-    // Для звичайних режимів застосовуємо тег-фільтр
-    let _ats = state._activeTagSet;
-    if (_ats) {
-      deck = deck.filter(function(w){ return (_ats as Set<string>).has(w[0]); });
-      if (!deck.length) deck = (_baseWords as unknown as WordEntry[]).filter(function(w){ return (_ats as Set<string>).has(w[0]); });
-      shuffle(deck);
-    }
-  }
-  _setDeck(deck); idx=0; render();
-});
+// ══ _refreshRangeOptions + sel-range listener ══ (moved to ./features/deck-filter.ts)
 
 
 // ── Геймфікація: streak + денна ціль ──
@@ -872,125 +655,11 @@ document.getElementById('goal-modal')!.addEventListener('click', function(e){
 try { renderGameBar(); } catch(e){ console.error((e as Error).message); }
 
 
-// ── Темна тема ──
-(function(){
-  let saved = localStorage.getItem('ew_theme');
-  if(saved === 'dark') { document.body.classList.add('dark'); document.getElementById('btn-theme')!.textContent = '☀️'; }
-})();
-document.getElementById('btn-theme')!.addEventListener('click', function(){
-  let isDark = document.body.classList.toggle('dark');
-  this.textContent = isDark ? '☀️' : '🌙';
-  localStorage.setItem('ew_theme', isDark ? 'dark' : 'light');
-});
+// ── Темна тема ── (moved to ./core/theme.ts)
 
-// ── Пошук ──
-(function(){
-  let inp = document.getElementById('search-input') as HTMLInputElement | null;
-  let box = document.getElementById('search-results')!;
+// ── Пошук ── (moved to ./features/search-inline.ts)
 
-  function goToWord(word: string): void {
-    // Знайти у поточній деці
-    let di = deck.findIndex(function(w){ return w[0].toLowerCase() === word.toLowerCase(); });
-    if(di === -1) {
-      // Якщо не в деці — знайти в W і перейти
-      let wLow = word.toLowerCase();
-      let wi = -1;
-      _wordIdx.forEach(function(i, k){ if(k.toLowerCase() === wLow) wi = i; });
-      if(wi === -1) return;
-      deck = W.slice() as unknown as WordEntry[]; shuffle(deck);
-      _setDeck(deck); di = deck.findIndex(function(w){ return w[0].toLowerCase() === wLow; });
-      (document.getElementById('sel-range') as HTMLSelectElement)!.value = '0';
-    }
-    idx = di; stopAuto(); render();
-    inp!.value = ''; box.className = 'search-results'; inp!.blur();
-  }
-
-  // Event delegation: click + touchend for iOS Safari compatibility
-  function _handleSearchSelect(e: Event): void {
-    let item = (e.target as Element).closest<HTMLElement>('.search-result-item');
-    if (item?.dataset.word) { e.preventDefault(); goToWord(item.dataset.word); }
-  }
-  box.addEventListener('click',    _handleSearchSelect);
-  box.addEventListener('touchend', _handleSearchSelect);
-
-  let _searchTimer: ReturnType<typeof setTimeout> | null = null;
-  inp!.addEventListener('input', function(){
-    let q = this.value.trim().toLowerCase();
-    if (!q) { box.className = 'search-results'; if (_searchTimer) clearTimeout(_searchTimer); return; }
-    if (_searchTimer) clearTimeout(_searchTimer);
-    _searchTimer = setTimeout(function() {
-      let hits = W.filter(function(w){
-        return w[0].toLowerCase().startsWith(q) || w[1].toLowerCase().includes(q);
-      }).slice(0, 8);
-      if (!hits.length) {
-        box.innerHTML = '<div class="search-no-results">Нічого не знайдено</div>';
-      } else {
-        box.innerHTML = hits.map(function(w){
-          let _isKnown = _activeKnown().has(w[0]);
-          return '<div class="search-result-item' + (_isKnown ? ' sr-known' : '') + '" data-word="'+w[0]+'">' +
-            '<span class="sr-word">'+w[0]+'</span>' +
-            '<span class="sr-transl">'+w[1]+'</span>' +
-            (_isKnown ? '<span class="sr-known-badge">✓</span>' : '') +
-          '</div>';
-        }).join('');
-      }
-      box.className = 'search-results open';
-    }, 180); // debounce 180ms
-  });
-
-  // Закрити при кліку поза
-  document.addEventListener('click', function(e){
-    if(!inp!.contains(e.target as Node) && !box.contains(e.target as Node)){
-      box.className = 'search-results';
-    }
-  });
-
-  // Навігація стрілками у результатах
-  inp!.addEventListener('keydown', function(e){
-    let items = box.querySelectorAll('.search-result-item');
-    let active = box.querySelector('.search-result-item.active');
-    if(e.key === 'ArrowDown'){
-      e.preventDefault();
-      let next = active ? (active as HTMLElement).nextElementSibling : items[0];
-      if(active) (active as HTMLElement).classList.remove('active');
-      if(next) (next as HTMLElement).classList.add('active');
-    } else if(e.key === 'ArrowUp'){
-      e.preventDefault();
-      let prev = active ? (active as HTMLElement).previousElementSibling : items[items.length-1];
-      if(active) (active as HTMLElement).classList.remove('active');
-      if(prev) (prev as HTMLElement).classList.add('active');
-    } else if(e.key === 'Enter' && active){
-      e.preventDefault(); goToWord((active as HTMLElement).dataset.word ?? '');
-    } else if(e.key === 'Escape'){
-      box.className = 'search-results'; this.blur();
-    }
-  });
-})();
-
-// ── Клавіатурні скорочення ──
-document.addEventListener('keydown', function(e){
-  // Не реагувати якщо фокус у полі вводу
-  if((document.activeElement as HTMLElement).tagName === 'INPUT' || (document.activeElement as HTMLElement).tagName === 'SELECT' || (document.activeElement as HTMLElement).tagName === 'TEXTAREA') return;
-  if((e.target as Element).closest('#modal-overlay')) return;
-
-  if(e.code === 'Space'){
-    e.preventDefault();
-    if(!flipped){ flipped=true; document.getElementById('wtransl')!.className='transl show'; document.getElementById('exua')!.className='ex-ua show'; }
-    else { document.getElementById('btn-next')!.click(); }
-  } else if(e.code === 'Enter'){
-    e.preventDefault();
-    document.getElementById('btn-know')!.click();
-  } else if(e.code === 'ArrowRight'){
-    e.preventDefault();
-    document.getElementById('btn-next')!.click();
-  } else if(e.code === 'ArrowLeft'){
-    e.preventDefault();
-    document.getElementById('btn-prev')!.click();
-  } else if(e.code === 'KeyF'){
-    e.preventDefault();
-    if(!flipped){ flipped=true; document.getElementById('wtransl')!.className='transl show'; document.getElementById('exua')!.className='ex-ua show'; }
-  }
-});
+// ── Клавіатурні скорочення ── (moved to ./core/keyboard.ts)
 
 
 // LEVELS, getLevel, getNextLevel — imported from ./features/game.ts
@@ -1018,10 +687,9 @@ renderLevelBadge();
 checkAchievements();
 
 // ── Phase 2: expose all functions/vars needed by legacy mode/feature files ──
-window.speak             = speak;
+// window.speak / window.getVoice / window._speakWeb / window.speakWebFallback / window._speakWithLang — set by speech.ts
 window.render            = render;
 window.stopAuto          = stopAuto;
-window.getVoice          = getVoice;
 window.getGameData       = getGameData;
 window.saveGameData      = saveGameData;
 window.onWordLearned     = onWordLearned;
@@ -1036,6 +704,7 @@ window.buildStaleDeck      = buildStaleDeck;
 // ── Setters for module-scope primitives used by legacy files ──
 window.setIdx     = (i: number)              => _setIdx(i);
 window.setDeck    = (d: WordEntry[])         => _setDeck(d);
+window.setBaseWords = (w: WordEntry[]) => { _baseWords = w as unknown as string[][]; state._baseWords = w; };
 window.setFlipped = (v: boolean)             => { flipped = v; state.flipped = v; };
 window.setCw      = (v: WordEntry | null)    => _setCw(v);
 window._wordIdx              = _wordIdx;
@@ -1050,9 +719,7 @@ window.recordModeComplete    = recordModeComplete;
 window.recordCustomWordAdded = recordCustomWordAdded;
 // window.renderLevelProgress — set by render-game-bar.ts
 // window.renderSRSForecast   — set by stats.ts
-window._speakWeb             = _speakWeb;
-window.speakWebFallback      = (window as Window & {speakWebFallback?: (t: string, b: HTMLElement | null) => void}).speakWebFallback;
-window._speakWithLang        = _speakWithLang;
+// window._speakWeb / window.speakWebFallback / window._speakWithLang — set by speech.ts
 
 
 
