@@ -9,7 +9,8 @@ const KEY_SHOWN   = 'ew_notif_shown';   // last date shown "YYYY-MM-DD"
 const isEnabled  = (): boolean => localStorage.getItem(KEY_ENABLED) === '1';
 const setEnabled = (v: boolean): void => { localStorage.setItem(KEY_ENABLED, v ? '1' : '0'); _updateUI(); };
 const getTime    = (): string => localStorage.getItem(KEY_TIME) ?? '20:00';
-const setTime    = (t: string): void => { localStorage.setItem(KEY_TIME, t); };
+// Bug fix 1: renamed param from `t` to `val` to avoid shadowing the i18n `t` import
+const setTime    = (val: string): void => { localStorage.setItem(KEY_TIME, val); };
 
 function _updateUI(): void {
   const tog      = document.getElementById('notif-toggle')   as HTMLInputElement | null;
@@ -49,38 +50,47 @@ window.requestNotifPermission = (): void => {
 };
 window.isNotifEnabled = isEnabled;
 
-function _notify(title: string, body: string): void {
-  if (!isEnabled() || Notification.permission !== 'granted') return;
-  try { new Notification(title, { body, icon: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 64 64\'%3E%3Crect width=\'64\' height=\'64\' rx=\'14\' fill=\'%230a1628\'/%3E%3Ctext x=\'50%25\' y=\'54%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'Arial Black,sans-serif\' font-weight=\'900\' font-size=\'28\' fill=\'%2300c8ff\'%3EEW%3C/text%3E%3C/svg%3E' }); } catch (e) {}
+// Bug fix 2: returns true if notification was actually fired
+function _notify(title: string, body: string): boolean {
+  if (!isEnabled() || Notification.permission !== 'granted') return false;
+  try {
+    new Notification(title, { body, icon: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 64 64\'%3E%3Crect width=\'64\' height=\'64\' rx=\'14\' fill=\'%230a1628\'/%3E%3Ctext x=\'50%25\' y=\'54%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'Arial Black,sans-serif\' font-weight=\'900\' font-size=\'28\' fill=\'%2300c8ff\'%3EEW%3C/text%3E%3C/svg%3E' });
+    return true;
+  } catch (e) { return false; }
 }
 
-function _studiedToday(): boolean {
+// Bug fix 3: accept today as param so it's always consistent with the caller's value
+function _studiedToday(today: string): boolean {
   try {
     const daily = JSON.parse(localStorage.getItem('ew_daily') ?? '{}') as Record<string, number>;
-    return (daily[state.TODAY] ?? 0) > 0;
+    return (daily[today] ?? 0) > 0;
   } catch (e) { return false; }
 }
 
 function _checkAndNotify(): void {
   if (!isEnabled() || Notification.permission !== 'granted') return;
+
+  // Bug fix 4: skip if tab is in focus — user is already in the app
+  if (!document.hidden) return;
+
   const today = new Date().toISOString().slice(0, 10);
   const lastShown = localStorage.getItem(KEY_SHOWN) ?? '';
-  if (lastShown === today) return; // already showed today
-  if (_studiedToday()) return;     // already studied today — no need to remind
+  if (lastShown === today) return;       // already showed today
+  if (_studiedToday(today)) return;      // already studied today — no need to remind
 
   const [hh, mm] = getTime().split(':').map(Number);
   const now = new Date();
   if (now.getHours() < hh || (now.getHours() === hh && now.getMinutes() < mm)) return; // not yet time
 
-  localStorage.setItem(KEY_SHOWN, today);
+  // Choose most relevant message; mark shown only after a successful notification
+  let shown = false;
 
-  // Choose most relevant message
   try {
     const gd = JSON.parse(localStorage.getItem('ew_game') ?? '{}') as { streak?: number; streakDate?: string };
     const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
     if ((gd.streak ?? 0) > 1 && gd.streakDate === yesterday) {
-      _notify('🔥 Серія під загрозою!', `${gd.streak} днів підряд — не зупиняйся сьогодні!`);
-      return;
+      shown = _notify('🔥 Серія під загрозою!', `${gd.streak} днів підряд — не зупиняйся сьогодні!`);
+      if (shown) { localStorage.setItem(KEY_SHOWN, today); return; }
     }
   } catch (e) {}
 
@@ -88,12 +98,14 @@ function _checkAndNotify(): void {
     const srs = JSON.parse(localStorage.getItem('ew_srs') ?? '{}') as Record<string, { due?: string }>;
     const due = Object.values(srs).filter(s => s.due && s.due <= today).length;
     if (due >= 3) {
-      _notify(`📚 ${due} слів чекають повторення`, 'Відкрий English Words і повтори їх!');
-      return;
+      shown = _notify(`📚 ${due} слів чекають повторення`, 'Відкрий English Words і повтори їх!');
+      if (shown) { localStorage.setItem(KEY_SHOWN, today); return; }
     }
   } catch (e) {}
 
-  _notify('📖 Час вчити слова!', 'Відкрий English Words — пара хвилин на слова і готово!');
+  shown = _notify('📖 Час вчити слова!', 'Відкрий English Words — пара хвилин на слова і готово!');
+  // Bug fix 2: KEY_SHOWN set only if notification actually fired
+  if (shown) localStorage.setItem(KEY_SHOWN, today);
 }
 
 // Check on startup (with small delay to let state initialize)

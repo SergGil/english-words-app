@@ -64,6 +64,13 @@ const DICT: Record<string, Record<Lang, string>> = {
   'cards.forget':       { ua: '✕ Забути',                            en: '✕ Forget',                            es: '✕ Olvidar' },
   'cards.bookmarkTitle':{ ua: 'Закладка',                            en: 'Bookmark',                            es: 'Marcador' },
   'cards.gotoCard':     { ua: '→ На картку',                         en: '→ Go to card',                        es: '→ Ir a la tarjeta' },
+
+  'note.title':         { ua: '📝 Нотатка',                           en: '📝 Note',                              es: '📝 Nota' },
+  'note.hint':          { ua: 'Запиши мнемоніку, асоціацію або власний приклад', en: 'Write a mnemonic, association or your own example', es: 'Escribe una mnemotecnia, asociación o tu propio ejemplo' },
+  'note.placeholder':   { ua: 'Наприклад: "abate" = "а батон убавився" — зменшуватись...', en: 'E.g.: "abate" sounds like "a bait" — to reduce/decrease...', es: 'Ej.: "abate" suena a "debate" — disminuir, reducir...' },
+  'note.delete':        { ua: '🗑 Видалити',                           en: '🗑 Delete',                            es: '🗑 Eliminar' },
+  'note.save':          { ua: '💾 Зберегти (Ctrl+↵)',                  en: '💾 Save (Ctrl+↵)',                     es: '💾 Guardar (Ctrl+↵)' },
+
   'range.bookmarks':    { ua: '⭐ Закладки',                          en: '⭐ Bookmarks',                         es: '⭐ Marcadores' },
 
   'mode.mixed':         { ua: 'Мішаний',                             en: 'Mixed',                               es: 'Mixto' },
