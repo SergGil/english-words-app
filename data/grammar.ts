@@ -72,7 +72,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: '-s Spelling Rules', text: 'he plays, she watches, it goes, he studies → after -s, -sh, -ch, -x, -o add -es; words ending in consonant + -y replace -y with -ies (study → studies)' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['The sun rises in the east.', 'Сонце сходить на сході.'],
               ['She doesn\'t eat meat.', 'Вона не їсть м\'ясо.'],
@@ -117,7 +117,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Stative verbs — NOT used in Continuous!', text: 'know, understand, believe, love, hate, want, need, seem, belong, contain, mean — these verbs describe states, not actions.' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['I am learning English now.', 'Я зараз вивчаю англійську.'],
               ['She isn\'t working today.', 'Вона сьогодні не працює.'],
@@ -162,7 +162,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: '-ed Spelling Rules', text: 'work → worked, play → played; stop → stopped (double final consonant); study → studied (replace -y → -ied)' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['I visited London last year.', 'Минулого року я відвідав Лондон.'],
               ['She didn\'t finish her homework.', 'Вона не закінчила домашнє завдання.'],
@@ -199,7 +199,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'While vs When', text: 'While → ongoing action: "While I was cooking, the phone rang."\nWhen → short action interrupts the ongoing one: "When she arrived, I was sleeping."' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['I was reading when he called.', 'Я читав, коли він подзвонив.'],
               ['They were playing all evening.', 'Вони грали весь вечір.'],
@@ -241,7 +241,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Present Perfect vs Past Simple', text: 'I have lost my keys. → I still haven\'t found them (result exists now)\nI lost my keys yesterday. → specific moment in the past (yesterday)' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['I have never tried sushi.', 'Я ніколи не пробував суші.'],
               ['She has just left the office.', 'Вона щойно пішла з офісу.'],
@@ -284,7 +284,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Time Markers' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['I think it will rain tomorrow.', 'Я думаю, завтра буде дощ.'],
               ['Will you help me?', 'Ти мені допоможеш?'],
@@ -324,7 +324,7 @@ export const GRAMMAR: GrammarCategory[] = [
             items: ['before', 'after', 'already', 'just', 'never', 'when', 'by the time', 'as soon as'],
             en: { title: 'Time Markers' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['By the time he arrived, we had finished.', 'На момент коли він прийшов, ми вже закінчили.'],
               ['She had never seen snow before.', 'Вона ніколи раніше не бачила снігу.'],
@@ -358,7 +358,7 @@ export const GRAMMAR: GrammarCategory[] = [
             items: ['for + тривалість (for 2 hours)', 'since + момент (since morning)', 'how long?', 'all day / all week', 'lately', 'recently'],
             en: { title: 'Time Markers', items: ['for + duration (for 2 hours)', 'since + point in time (since morning)', 'how long?', 'all day / all week', 'lately', 'recently'] },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['I have been learning French for 3 years.', 'Я вивчаю французьку вже 3 роки.'],
               ['She has been crying. Her eyes are red.', 'Вона плакала. Очі червоні. (видний результат)'],
@@ -401,7 +401,7 @@ export const GRAMMAR: GrammarCategory[] = [
               ['Example', '"I think it will rain."', '"Look at those clouds — it\'s going to rain!"'],
             ]},
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ["We're going to move to a new city.", 'Ми плануємо переїхати в нове місто.'],
               ["She's going to have a baby!", 'Вона чекає дитину!'],
@@ -433,7 +433,7 @@ export const GRAMMAR: GrammarCategory[] = [
             items: ['at this time tomorrow', 'at 8 pm tonight', 'this time next week', 'while', 'when'],
             en: { title: 'Time Markers' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['This time tomorrow I will be flying to London.', 'Завтра в цей час я буду летіти до Лондона.'],
               ["Don't call at 7 — I'll be having dinner.", 'Не телефонуй о 7 — я буду вечеряти.'],
@@ -465,7 +465,7 @@ export const GRAMMAR: GrammarCategory[] = [
             items: ['by + час/момент (by 5 pm)', 'by the time', 'before', 'in + тривалість (in 2 years)'],
             en: { title: 'Time Markers', items: ['by + time/moment (by 5 pm)', 'by the time', 'before', 'in + duration (in 2 years)'] },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['By Friday, I will have completed the project.', 'До п\'ятниці я завершу проєкт.'],
               ['She will have graduated by next summer.', 'Вона закінчить навчання до наступного літа.'],
@@ -505,7 +505,7 @@ export const GRAMMAR: GrammarCategory[] = [
             items: ['for + тривалість (for 2 hours)', 'since + момент (since morning)', 'how long?', 'all day / all week', 'before', 'when', 'by the time'],
             en: { title: 'Time Markers', items: ['for + duration (for 2 hours)', 'since + point in time (since morning)', 'how long?', 'all day / all week', 'before', 'when', 'by the time'] },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['I was exhausted because I had been running for an hour.', 'Я був виснажений, бо пробіг годину.'],
               ['She had been studying French for 5 years before she moved to Paris.', 'Вона вчила французьку 5 років до переїзду в Париж.'],
@@ -546,7 +546,7 @@ export const GRAMMAR: GrammarCategory[] = [
             text: 'Future Perfect Continuous — один з найрідших часів у щоденному мовленні. Найчастіше вживається для підкреслення тривалості дії до певного моменту в майбутньому.',
             en: { title: 'Rarely used', text: 'Future Perfect Continuous is one of the rarest tenses in everyday speech. Most commonly used to emphasise the duration of an action up to a specific moment in the future.' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['By December, I will have been learning English for 2 years.', 'До грудня я вивчатиму англійську вже 2 роки.'],
               ['When she retires, she will have been teaching for 30 years.', 'Коли вона вийде на пенсію, вона викладатиме вже 30 років.'],
@@ -613,7 +613,7 @@ export const GRAMMAR: GrammarCategory[] = [
             ]},
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['Can I have a coffee?', 'Можна мені кави? (одну)'],
               ['The coffee is cold.', 'Кава холодна. (та, що ми замовили)'],
@@ -686,7 +686,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Musical instruments — THE', text: 'THE is used with musical instruments:\nShe plays the piano / the guitar / the violin.\nBut: He plays drums (in a rock band, informal — no article).' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['Life is short. Enjoy every moment.', 'Життя коротке. (абстрактне — без артикля)'],
               ['She goes to school by bus.', 'Вона їздить до школи автобусом. (∅ + ∅)'],
@@ -762,7 +762,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Tip: plural & descriptive names → THE', text: 'If the name is plural or contains a descriptive word (Republic, Kingdom, States, Islands) — THE is usually required:\nthe United States, the Netherlands, the Philippines, the British Isles\n\nSingle name without a descriptor — usually no article:\nFrance, Italy, Japan, Sicily, Everest.' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['The Nile is the longest river in Africa.', 'Ніл — найдовша річка в Африці. (THE + річка)'],
               ['I have never been to Japan.', 'Я ніколи не був у Японії. (∅ + країна)'],
@@ -839,7 +839,7 @@ export const GRAMMAR: GrammarCategory[] = [
             ]},
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['She can speak three languages fluently.', 'Вона може говорити трьома мовами вільно.'],
               ['Could you turn down the music, please?', 'Міг би ти зменшити музику, будь ласка?'],
@@ -883,7 +883,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Were for all persons (2nd Conditional)', text: 'In 2nd Conditional, "were" is formally used for "I/he/she/it":\n"If I were you, I would apologize."\n"If she were here, she would know."' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['If you study hard, you will pass.', '(1st) Якщо будеш вчитись, здаси.'],
               ['If I were rich, I would travel.', '(2nd) Якби я був багатий, я б подорожував.'],
@@ -919,7 +919,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'By — who performed the action', text: '"The book was written by Tolkien." — "by" indicates the agent (doer of the action).' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['English is spoken worldwide.', 'Англійська мова вживається у всьому світі.'],
               ['The car was repaired yesterday.', 'Машину відремонтували вчора.'],
@@ -981,7 +981,7 @@ export const GRAMMAR: GrammarCategory[] = [
             text: 'say + (that): He said (that) he was tired.\ntell + object: He told me (that) he was tired.',
             en: { title: 'Say vs Tell', text: 'say + (that): He said (that) he was tired.\ntell + object: He told me (that) he was tired.' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['"I love Paris." → She said she loved Paris.', 'Вона сказала, що любить Париж.'],
               ['"We will come." → They said they would come.', 'Вони сказали, що прийдуть.'],
@@ -1100,7 +1100,7 @@ export const GRAMMAR: GrammarCategory[] = [
             text: 'A few friends came. → Кілька друзів прийшло. (позитивно — хтось є)\nFew friends came. → Мало хто з друзів прийшов. (негативно — майже ніхто)',
             en: { title: 'A few vs Few', text: 'A few friends came. → Some friends came. (positive — there are some)\nFew friends came. → Hardly any friends came. (negative — almost none)' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['I have a lot of work today.', 'У мене сьогодні багато роботи.'],
               ['There\'s a little milk left.', 'Залишилось трохи молока.'],
@@ -1170,7 +1170,7 @@ export const GRAMMAR: GrammarCategory[] = [
               ['the + comparative, the + comparative', 'the more... the more...', 'The more you read, the smarter you get.'],
             ]},
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['She is taller than her sister.', 'Вона вища за свою сестру.'],
               ['This is the most expensive hotel.', 'Це найдорожчий готель.'],
@@ -1244,7 +1244,7 @@ export const GRAMMAR: GrammarCategory[] = [
             text: 'Direct: Where does she live?\nIndirect: Could you tell me where she lives? (NO auxiliary!)\n\nDirect: Is he home?\nIndirect: I wonder if he is home.',
             en: { title: 'Indirect questions — affirmative word order!', text: 'Direct: Where does she live?\nIndirect: Could you tell me where she lives? (NO auxiliary!)\n\nDirect: Is he home?\nIndirect: I wonder if he is home.' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['What do you do for a living?', 'Чим ти займаєшся?'],
               ['Who told you that?', 'Хто тобі це сказав?'],
@@ -1320,7 +1320,7 @@ export const GRAMMAR: GrammarCategory[] = [
             text: 'in a car / in a taxi / in a helicopter (закрите, особисте)\non a bus / on a train / on a plane / on a boat (громадський / великий)',
             en: { title: 'in / at / on — transport', text: 'in a car / in a taxi / in a helicopter (enclosed, personal)\non a bus / on a train / on a plane / on a boat (public / large)' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['I was born in 1995, on a Friday.', 'Я народився у 1995, у п\'ятницю.'],
               ['The meeting is at 3 pm on Monday.', 'Зустріч о 15:00 в понеділок.'],
@@ -1814,7 +1814,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Each vs Every — subtle difference', text: 'EACH → we think of each individual separately: "Each student got a different task."\nEVERY → we think of the group as a whole: "Every student passed the exam."\n\nOnly EVERY with frequency: "every day / every week"\nOnly EACH with two: "each of the two candidates" (not "every of the two")' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['She finished third in the race.', 'Вона фінішувала третьою. (ordinal)'],
               ['Each child received a different gift.', 'Кожна дитина отримала різний подарунок. (окремо)'],
@@ -1871,7 +1871,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Common mistake — extra do/does/did' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['"Where are you going?" → He asked where I was going.', 'Він запитав, куди я йшов.'],
               ['"Do you speak French?" → She asked if I spoke French.', 'Вона запитала, чи я говорю французькою.'],
@@ -1986,7 +1986,7 @@ export const GRAMMAR: GrammarCategory[] = [
             text: 'Якщо відносний займенник є додатком (object), його можна опустити:\n"The book (that) I read was amazing." ✅\nЯкщо займенник є підметом (subject) — опустити не можна:\n"The man who called is here." ❌ "The man called is here."',
             en: { title: 'When can you omit the pronoun?', text: 'If the relative pronoun is an object, it can be omitted:\n"The book (that) I read was amazing." ✅\nIf it is the subject — it cannot be omitted:\n"The man who called is here." ❌ "The man called is here."' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['The student who got the highest mark is Maria.', 'Студентка, яка отримала найвищу оцінку — Марія. (defining)'],
               ['Shakespeare, who wrote Hamlet, was born in 1564.', 'Шекспір, який написав Гамлета, народився у 1564. (non-defining)'],
@@ -2035,7 +2035,7 @@ export const GRAMMAR: GrammarCategory[] = [
             text: 'would НЕ можна вжити зі stative verbs (know, love, have, believe):\n❌ "I would know him." → ✅ "I used to know him."\n❌ "We would have a dog." → ✅ "We used to have a dog."',
             en: { title: 'would is NOT used with stative verbs', text: 'would CANNOT be used with stative verbs (know, love, have, believe):\n❌ "I would know him." → ✅ "I used to know him."\n❌ "We would have a dog." → ✅ "We used to have a dog."' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['I used to be very shy.', 'Я колись був дуже сором\'язливим. (минула риса — більше немає)'],
               ['We would walk to school every day.', 'Ми щодня ходили до школи пішки. (повторна дія в минулому)'],
@@ -2204,7 +2204,7 @@ export const GRAMMAR: GrammarCategory[] = [
               ['room', 'room — space, area', 'a room — a room (in a house)'],
             ]},
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['I need some advice. / Can you give me a piece of advice?', 'Мені потрібна порада.'],
               ['The news was shocking. (не "were"!)', 'Новини були шокуючими.'],
@@ -2243,7 +2243,7 @@ export const GRAMMAR: GrammarCategory[] = [
             text: 'У живому мовленні рідко вживають більше 2-3 прикметників поспіль. Перелік з 7+ — лише для пояснення правила.',
             en: { title: 'In practice — no more than 3-4 adjectives', text: 'In natural speech, more than 2-3 adjectives in a row are rarely used. The list of 7+ is only for explaining the rule.' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['a lovely old French house', '✅ думка → вік → походження'],
               ['a big black leather bag', '✅ розмір → колір → матеріал'],
@@ -2321,7 +2321,7 @@ export const GRAMMAR: GrammarCategory[] = [
             text: 'late = пізно: "She arrived late."\nlately = нещодавно: "I haven\'t seen her lately."\n\nhard = сильно, наполегливо: "He works hard."\nhardly = ледве, майже ні: "I can hardly hear you."',
             en: { title: 'Note: late / lately, hard / hardly', text: 'late = late: "She arrived late."\nlately = recently: "I haven\'t seen her lately."\n\nhard = hard, intensely: "He works hard."\nhardly = barely, almost not: "I can hardly hear you."' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['She spoke so quietly that nobody heard her.', 'Вона говорила так тихо, що ніхто не почув.'],
               ['He is always on time.', 'Він завжди вчасно. (після be)'],
@@ -2377,7 +2377,7 @@ export const GRAMMAR: GrammarCategory[] = [
             text: 'SO + прикметник/прислівник: "so beautiful / so quickly"\nSUCH + іменникова група: "such a beautiful girl / such kind people"\n\n✅ She is so beautiful.\n✅ She is such a beautiful girl.',
             en: { title: 'So vs Such', text: 'SO + adjective/adverb: "so beautiful / so quickly"\nSUCH + noun phrase: "such a beautiful girl / such kind people"\n\n✅ She is so beautiful.\n✅ She is such a beautiful girl.' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['The coffee was too hot to drink.', 'Кава була надто гарячою, щоб пити.'],
               ["I don't have enough money to buy it.", 'У мене не вистачає грошей, щоб купити це.'],
@@ -2431,7 +2431,7 @@ export const GRAMMAR: GrammarCategory[] = [
                 ['Mixed 2nd→3rd', 'If I were more careful, I wouldn\'t have made that mistake. (now → past)'],
               ] },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['If she had taken the job, she would be living in Paris now.', 'Якби вона взяла ту роботу, зараз жила б у Парижі.'],
               ['If I spoke Spanish, I would have understood that conversation.', 'Якби я говорив іспанською, я б зрозумів ту розмову.'],
@@ -2466,7 +2466,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Replacing subordinate clauses',
               text: 'Because she was tired → Being tired, she went to bed.\nAfter he had eaten → Having eaten, he washed the dishes.\nWhen I arrived → Arriving at the station, I called a taxi.\nAs it was built in 1900 → Built in 1900, the bridge is historic.' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['Not knowing what to say, he left the room.', 'Не знаючи що сказати, він вийшов з кімнати.'],
               ['Having read the book, she recommended it to everyone.', 'Прочитавши книгу, вона порадила її всім.'],
@@ -2521,7 +2521,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'How inversion is formed',
               text: '1. The negative/restrictive word comes first\n2. Auxiliary verb (do/did/have/had/will/is etc.) — before the subject\n3. Main verb — after the subject\n\n"She had never seen it." → "Never had she seen it."' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['Never have I been so embarrassed in my life.', 'Ніколи в житті мені не було так незручно.'],
               ['Had I known about the problem, I would have fixed it.', 'Якби я знав про проблему, я б виправив її.'],
@@ -2579,7 +2579,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'All-cleft — a variant of Wh-cleft',
               text: '"All I want is some peace and quiet." (the only thing I need is...)\n"All she did was cry." (the only thing she did was cry)' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['It was the manager who made the decision.', 'Саме менеджер прийняв рішення. (не хтось інший)'],
               ['It was last year that they got married.', 'Саме минулого року вони одружились.'],
@@ -2659,7 +2659,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'British vs American English',
               text: 'The subjunctive is more common in American English.\nIn British English, "should" is often used instead:\n\nAm.E: "I suggest that he take the job."\nBr.E: "I suggest that he should take the job." (or "I suggest he takes the job.")' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['The committee demanded that the report be submitted immediately.', 'Комітет вимагав, щоб звіт було подано негайно.'],
               ['It\'s vital that every passenger wear a seatbelt.', 'Важливо, щоб кожен пасажир пристебнувся.'],
@@ -2721,7 +2721,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Logic of deductions',
               text: 'Certainty 100% → ordinary verbs: "She was tired."\nCertainty ~95% → must have / can\'t have\nCertainty ~50% → might have / may have\nCertainty ~30% → could have\n\n"The lights are off — she must have gone home." (logical deduction)\n"She can\'t have finished already — it\'s too early." (logical negation)' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['He\'s not answering — he must have fallen asleep.', 'Він не відповідає — мабуть, заснув.'],
               ['She can\'t have understood — her face was blank.', 'Вона не могла зрозуміти — у неї було порожнє обличчя.'],
@@ -2845,7 +2845,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Indefinite pronouns — always singular!',
               text: 'Everyone IS here. (not "are")\nSomebody HAS called. (not "have")\nEven when the meaning is plural — the verb is singular.\n\nBut a following pronoun can be plural (informal):\n"Everyone has their own opinion." ✅ (formally: his or her)' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['Nobody told me about the meeting.', 'Ніхто не сказав мені про зустріч.'],
               ['Is there anything I can do?', 'Чи є щось, що я можу зробити?'],
@@ -3120,7 +3120,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Emphatic do ≠ negation',
               text: 'Emphatic do is used ONLY in AFFIRMATIVE sentences.\n✅ "I DO agree." (stressed)\n❌ "I do not agree." (this is an ordinary negative, not emphatic)' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['"You don\'t believe me." "I DO believe you!"', '"Ти мені не віриш." "Я таки вірю!"'],
               ['He did make a good impression on everyone.', 'Він справді справив хороше враження на всіх.'],
@@ -3202,7 +3202,7 @@ export const GRAMMAR: GrammarCategory[] = [
                 ['might have been + V₃', 'possibly happened (passive)', 'He might have been informed already.'],
               ] },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['It is widely believed that the economy will recover.', 'Широко вважається, що економіка відновиться.'],
               ['The suspect is thought to have fled the country.', 'Підозрюваний, як вважають, втік з країни.'],
@@ -3296,7 +3296,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Hedging ≠ weakness',
               text: 'Hedging does not mean you are uncertain — it shows you are conscientious and honest in your claims.\n\nA researcher who writes "this may indicate" instead of "this proves" sounds MORE authoritative — because they do not overstate.' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['There tends to be a gap between theory and practice.', 'Зазвичай існує розрив між теорією і практикою.'],
               ['It would appear that the situation is improving.', 'Схоже, ситуація покращується.'],
@@ -3373,7 +3373,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Article + nominalisation',
               text: 'Nominalised nouns are often used with articles or possessives:\n"The announcement of the results..." (the + noun + of)\n"Their refusal to cooperate..." (possessive + noun + to)\n"A significant improvement in..." (a/an + adj + noun + in)' },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['The investigation into corruption took two years.', 'Розслідування корупції тривало два роки.'],
               ['Her understanding of the situation was impressive.', 'Її розуміння ситуації вражало.'],
@@ -3414,7 +3414,7 @@ export const GRAMMAR: GrammarCategory[] = [
               ] },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['There is a bank near here.', 'Поруч є банк.'],
               ['There are many people in the park.', 'У парку багато людей.'],
@@ -3488,7 +3488,7 @@ export const GRAMMAR: GrammarCategory[] = [
               ] },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['This is my book. That book is mine.', 'Це моя книга. Та книга — моя.'],
               ['Is this your jacket? — No, it\'s hers.', 'Це твоя куртка? — Ні, її.'],
@@ -3547,7 +3547,7 @@ export const GRAMMAR: GrammarCategory[] = [
             en: { title: 'Common tag questions' },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['It\'s a beautiful day, isn\'t it?', 'Чудовий день, чи не так?'],
               ['You don\'t like coffee, do you?', 'Ти не любиш каву, так?'],
@@ -3738,7 +3738,7 @@ export const GRAMMAR: GrammarCategory[] = [
               ] },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['It\'s important to drink enough water.', 'Важливо пити достатньо води.'],
               ['It\'s difficult to learn a new language.', 'Важко вивчити нову мову.'],
@@ -4141,7 +4141,7 @@ export const GRAMMAR: GrammarCategory[] = [
               ] },
           },
           {
-            type: 'examples', title: 'Приклади',
+            type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['This is my mother. Her name is Olena.', 'Це моя мама. Її звуть Олена.'],
               ['I\'ve got an older brother and a younger sister.', 'У мене є старший брат і молодша сестра.'],
@@ -4814,7 +4814,7 @@ export const GRAMMAR: GrammarCategory[] = [
                 ['series', 'a series / two series'],
               ] },
           },
-          { type: 'examples', title: 'Приклади',
+          { type: 'examples', title: 'Приклади', en: { title: 'Examples' },
             rows: [
               ['The children were playing in the garden.', 'Діти гралися в саду.'],
               ['There are two geese on the lake.', 'На озері два гусаки.'],
