@@ -18,6 +18,7 @@ export interface SRSEntry {
   reps:     number;  // Successful repetitions
   interval: number;  // Days until next review
   due:      string;  // Due date YYYY-MM-DD
+  lapses?:  number;  // Total count of "Don't know" presses
 }
 
 export type SRSData = Record<string, SRSEntry>;

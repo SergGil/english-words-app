@@ -240,21 +240,21 @@ export function renderWeakWords(): void {
   if (!el) return;
   const wordIdx = (window as Window & { _wordIdx?: Map<string, number> })._wordIdx;
   if (!wordIdx) return;
-  const words: { w: WordEntry; ef: number; reps: number }[] = [];
+  const words: { w: WordEntry; ef: number; reps: number; lapses: number }[] = [];
   Object.keys(state.srsData).forEach(key => {
-    const d = (state.srsData as Record<string, { ef?: number; reps?: number }>)[key];
+    const d = (state.srsData as Record<string, { ef?: number; reps?: number; lapses?: number }>)[key];
     if (d?.ef !== undefined && d.ef < 2.5) {
       const wi = wordIdx.get(key);
-      if (wi !== undefined) words.push({ w: (W as unknown as WordEntry[])[wi], ef: d.ef, reps: d.reps! });
+      if (wi !== undefined) words.push({ w: (W as unknown as WordEntry[])[wi], ef: d.ef, reps: d.reps!, lapses: d.lapses ?? 0 });
     }
   });
-  words.sort((a, b) => a.ef - b.ef);
+  words.sort((a, b) => b.lapses - a.lapses || a.ef - b.ef);
   const top = words.slice(0, 10);
   if (!top.length) { el.textContent = t('stats.noSrsData'); return; }
   el.innerHTML = top.map((item, i) =>
     `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);">` +
     `<span>${i+1}. <b>${item.w[0]}</b> — ${item.w[1]}</span>` +
-    `<span style="font-size:.72rem;color:#e74c3c;white-space:nowrap;margin-left:8px;">EF ${item.ef.toFixed(2)}</span></div>`
+    `<span style="font-size:.72rem;color:#e74c3c;white-space:nowrap;margin-left:8px;">EF ${item.ef.toFixed(2)} · ✗${item.lapses}</span></div>`
   ).join('');
 }
 window._renderWeakWords = renderWeakWords;

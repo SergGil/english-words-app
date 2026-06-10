@@ -29,12 +29,13 @@ export function sm2Update(word: string, quality: number): void {
   let ef       = d.ef       ?? 2.5;
   let reps     = d.reps     ?? 0;
   let interval = d.interval ?? 0;
+  let lapses   = d.lapses   ?? 0;
 
   if (quality >= 3) {
     interval = reps === 0 ? 1 : reps === 1 ? 6 : Math.round(interval * ef);
     reps++;
   } else {
-    reps = 0; interval = 1;
+    reps = 0; interval = 1; lapses++;
   }
   ef = Math.max(1.3, ef + 0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
 
@@ -43,6 +44,7 @@ export function sm2Update(word: string, quality: number): void {
     reps,
     interval,
     due:      addDays(TODAY, interval),
+    lapses,
   } satisfies SRSEntry;
 }
 
