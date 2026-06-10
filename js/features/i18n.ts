@@ -21,6 +21,7 @@ const DICT: Record<string, Record<Lang, string>> = {
   'cards.dailyGoal':    { ua: 'Ціль на сьогодні',                    en: 'Today’s goal',                        es: 'Meta de hoy' },
   'cards.goalDone':     { ua: '🎉 Ціль досягнута!',                   en: '🎉 Goal reached!',                     es: '🎉 ¡Meta alcanzada!' },
   'cards.know':         { ua: '✓ Знаю',                              en: '✓ Know',                              es: '✓ Lo sé' },
+  'cards.dontKnow':     { ua: '✗ Не знаю',                          en: '✗ Don\'t know',                       es: '✗ No lo sé' },
   'cards.next':         { ua: 'Далі →',                              en: 'Next →',                              es: 'Siguiente →' },
   'cards.forward':      { ua: '→ Далі',                              en: '→ Next',                              es: '→ Siguiente' },
   'cards.back':         { ua: '← Назад',                             en: '← Back',                              es: '← Atrás' },

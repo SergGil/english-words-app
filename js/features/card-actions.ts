@@ -175,10 +175,23 @@ document.getElementById('btn-next')!.addEventListener('click', function(e) {
   e.stopPropagation();
   _safe(() => playSound('next'));
   _safe(() => breakCombo());
+  const deckLen = ((window as any).deck as WordEntry[]).length;
+  (window as any).setIdx(((window as any).idx + 1) % deckLen);
+  (window as any).render?.();
+});
+
+document.getElementById('btn-dontknow')!.addEventListener('click', function(e) {
+  e.stopPropagation();
   const cw = (window as any).cw as WordEntry | null;
   if (cw) {
-    const rangeVal = (document.getElementById('sel-range') as HTMLSelectElement)!.value;
-    if (rangeVal === 'srs') { sm2Update(cw[0], 1); saveSRS(state.srsData); }
+    sm2Update(cw[0], 1);
+    saveSRS(state.srsData);
+    _safe(() => playSound('next'));
+    _safe(() => breakCombo());
+    (window as any).setDeck(buildSRSDeck(state._baseWords as unknown as WordEntry[]));
+    (window as any).setIdx(0);
+    (window as any).render?.();
+    return;
   }
   const deckLen = ((window as any).deck as WordEntry[]).length;
   (window as any).setIdx(((window as any).idx + 1) % deckLen);

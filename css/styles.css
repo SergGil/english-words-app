@@ -297,6 +297,8 @@
   .btn:active { transform: scale(.97); }
   .btn-know { border-color: var(--accent); color: var(--accent); }
   .btn-know:hover { background: #EBF3EE; }
+  .btn-dontknow { border-color: #e74c3c; color: #e74c3c; }
+  .btn-dontknow:hover { background: #FBEAE8; }
   .btn-auto { border-color: #7B5EA7; color: #7B5EA7; }
   .btn-auto:hover { background: #F3EEF9; }
 
@@ -411,6 +413,8 @@
   body.dark .btn:hover { background: var(--border); }
   body.dark .btn-know { border-color: var(--accent); color: var(--accent); }
   body.dark .btn-know:hover { background: rgba(78,204,163,.12); }
+  body.dark .btn-dontknow { border-color: #e74c3c; color: #e74c3c; }
+  body.dark .btn-dontknow:hover { background: rgba(231,76,60,.12); }
   body.dark .btn-auto { border-color: #9b59b6; color: #9b59b6; }
   body.dark input#search-input { background: var(--card); color: var(--text); border-color: var(--border); }
   body.dark .search-results { background: var(--card); border-color: var(--border); }
@@ -1829,6 +1833,14 @@ body.sw .btn-know {
 body.sw .btn-know:hover {
   background: rgba(57,211,83,0.1) !important;
   box-shadow: 0 0 15px rgba(57,211,83,0.3) !important;
+}
+body.sw .btn-dontknow {
+  border-color: rgba(255,69,58,0.5) !important;
+  color: #ff453a !important;
+}
+body.sw .btn-dontknow:hover {
+  background: rgba(255,69,58,0.1) !important;
+  box-shadow: 0 0 15px rgba(255,69,58,0.3) !important;
 }
 
 /* ── Пошук ── */

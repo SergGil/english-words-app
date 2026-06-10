@@ -307,6 +307,13 @@ function render() {
     const cardEl = $e('card');
     if (_activeKnown().has(cw[0])) { cardEl!.classList.add('is-known'); } else { cardEl!.classList.remove('is-known'); }
     _safe(() => renderSrsBadge(cw![0]));
+    _safe(() => {
+      const dontKnowEl = document.getElementById('btn-dontknow') as HTMLElement | null;
+      if (dontKnowEl) {
+        const rangeVal = (document.getElementById('sel-range') as HTMLSelectElement)!.value;
+        dontKnowEl.style.display = rangeVal === 'srs' ? '' : 'none';
+      }
+    });
     _safe(() => { const gd = getGameData(); updateRing(gd.goalCur || 0, gd.goalMax || 20); });
   } catch(e) {
     console.error('render FAILED:', (e as Error).message);

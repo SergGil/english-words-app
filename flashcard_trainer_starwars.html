@@ -303,8 +303,9 @@
       <button class="btn" id="btn-next" title="Наступна картка" data-i18n-title="cards.nextTitle"><span data-i18n="cards.forward">→ Далі</span></button>
     </div>
   </div>
-  <div style="margin-top:8px;text-align:center;">
-    <button class="btn btn-know" id="btn-know" style="width:100%;max-width:360px;font-size:1.05rem;padding:14px 0;letter-spacing:.03em;"><span data-i18n="cards.know">✓ Знаю</span></button>
+  <div style="margin-top:8px;text-align:center;display:flex;gap:8px;justify-content:center;max-width:360px;margin-left:auto;margin-right:auto;">
+    <button class="btn btn-know" id="btn-know" style="flex:1;font-size:1.05rem;padding:14px 0;letter-spacing:.03em;"><span data-i18n="cards.know">✓ Знаю</span></button>
+    <button class="btn btn-dontknow" id="btn-dontknow" style="display:none;flex:1;font-size:1.05rem;padding:14px 0;letter-spacing:.03em;"><span data-i18n="cards.dontKnow">✗ Не знаю</span></button>
   </div>
   <div style="margin-top:6px;text-align:center;">
     <button id="btn-quick-quiz" class="btn" title="5 питань з поточної колоди (Quick Quiz)" data-i18n-title="cards.quickQuizTitle"
