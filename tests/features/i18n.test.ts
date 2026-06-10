@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { t, tLang, getLang, wordsLabel } from '../../js/features/i18n.ts';
+import { t, tLang, getLang, wordsLabel, pluralLabel } from '../../js/features/i18n.ts';
 
 describe('i18n', () => {
   beforeEach(() => {
@@ -38,5 +38,27 @@ describe('i18n', () => {
     expect(wordsLabel(21)).toBe('слово');
     expect(wordsLabel(22)).toBe('слова');
     expect(wordsLabel(25)).toBe('слів');
+  });
+
+  it('pluralLabel applies Ukrainian one/few/many plural rules for other counters', () => {
+    expect(pluralLabel('common_day', 1)).toBe('день');
+    expect(pluralLabel('common_day', 2)).toBe('дні');
+    expect(pluralLabel('common_day', 5)).toBe('днів');
+    expect(pluralLabel('common_rep', 1)).toBe('повторення');
+    expect(pluralLabel('common_rep', 2)).toBe('повторення');
+    expect(pluralLabel('common_rep', 5)).toBe('повторень');
+    expect(pluralLabel('common_chapter', 1)).toBe('розділ');
+    expect(pluralLabel('common_chapter', 2)).toBe('розділи');
+    expect(pluralLabel('common_chapter', 5)).toBe('розділів');
+    expect(pluralLabel('common_fragment', 1)).toBe('фрагмент');
+    expect(pluralLabel('common_fragment', 2)).toBe('фрагменти');
+    expect(pluralLabel('common_fragment', 5)).toBe('фрагментів');
+  });
+
+  it('renders full counter strings via t() with n + unit interpolation', () => {
+    expect(t('wd.repsCount', { n: 1, unit: pluralLabel('common_rep', 1) })).toBe('1 повторення');
+    expect(t('wd.repsCount', { n: 5, unit: pluralLabel('common_rep', 5) })).toBe('5 повторень');
+    expect(tLang('stats.perDayCount', 'en', { n: 1, unit: tLang('common_day', 'en', { count: 1 }) })).toBe('(last 1 day)');
+    expect(tLang('stats.perDayCount', 'en', { n: 7, unit: tLang('common_day', 'en', { count: 7 }) })).toBe('(last 7 days)');
   });
 });

@@ -1,5 +1,5 @@
 // English Words App — js/features/notifications.ts
-import { t } from './i18n.ts';
+import { t, pluralLabel } from './i18n.ts';
 
 const KEY_ENABLED = 'ew_notif_enabled';
 const KEY_TIME    = 'ew_notif_time';    // "HH:MM"
@@ -91,7 +91,7 @@ function _checkAndNotify(): void {
     const gd = JSON.parse(localStorage.getItem('ew_game') ?? '{}') as { streak?: number; streakDate?: string };
     const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
     if ((gd.streak ?? 0) > 1 && gd.streakDate === yesterday) {
-      shown = _notify(t('notif.streak.title'), t('notif.streak.body', { n: gd.streak ?? 0 }));
+      shown = _notify(t('notif.streak.title'), t('notif.streak.body', { n: gd.streak ?? 0, unit: pluralLabel('common_day', gd.streak ?? 0) }));
       if (shown) { localStorage.setItem(KEY_SHOWN, today); return; }
     }
   } catch (e) {}

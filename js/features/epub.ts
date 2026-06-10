@@ -1,6 +1,6 @@
 // English Words App — js/features/epub.ts
 // EPUB import for Reading mode
-import { t } from './i18n.ts';
+import { t, pluralLabel } from './i18n.ts';
 
 type ProgressFn = (msg: string, pct: number) => void;
 type DoneFn = (chapters: string[] | null, err: string | null) => void;
@@ -49,7 +49,7 @@ function _processOpf(zip: JSZipType, opfDir: string, opfXml: string, onProgress:
     .filter(id => { const mt = manifest[id].mt; return !mt || mt.includes('html') || mt.includes('xhtml') || mt === ''; });
   if (!spineItems.length) spineItems = Object.keys(manifest).filter(id => manifest[id].href.match(/\.(html|xhtml|htm)$/i));
   if (!spineItems.length) return Promise.reject(new Error(t('epub.noChapters')));
-  onProgress(t('epub.readingChapters', { n: spineItems.length }), 35);
+  onProgress(t('epub.readingChapters', { n: spineItems.length, unit: pluralLabel('common_chapter', spineItems.length) }), 35);
   const allTexts: string[] = [];
   return spineItems.reduce((promise, id, i) =>
     promise.then(() => {

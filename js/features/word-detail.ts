@@ -7,7 +7,7 @@ import { W } from '../../data/words.js';
 import { W_ES } from '../../data/words_es.js';
 import { isBookmarked, toggleBookmark } from './bookmarks.ts';
 import { ES_MODES, esEntry as _esEntry } from './mode-utils.ts';
-import { t } from './i18n.ts';
+import { t, pluralLabel } from './i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 function _isEsMode(): boolean {
@@ -81,7 +81,7 @@ export function openWordDetail(w: WordEntry): void {
     const color = daysUntil <= 0 ? '#e74c3c' : daysUntil <= 3 ? '#f39c12' : 'var(--text3)';
     chips.push(`<span style="color:${color};">🔁 ${label}</span>`);
   }
-  if (srsEntry?.reps) chips.push(`<span>📝 ${t('wd.repsCount', { n: srsEntry.reps })}</span>`);
+  if (srsEntry?.reps) chips.push(`<span>📝 ${t('wd.repsCount', { n: srsEntry.reps, unit: pluralLabel('common_rep', srsEntry.reps) })}</span>`);
   elSrs.innerHTML = chips.join('');
 
   // Action buttons state

@@ -220,15 +220,19 @@ function setLang(lang: Lang): void {
 }
 
 export function t(key: string, params?: Record<string, string | number>): string {
-  return i18next.exists(key) ? i18next.t(key, params) : key;
+  return i18next.exists(key, params) ? i18next.t(key, params) : key;
 }
 
 export function tLang(key: string, lang: Lang, params?: Record<string, string | number>): string {
-  return i18next.exists(key) ? i18next.getFixedT(lang)(key, params) : key;
+  return i18next.exists(key, { ...params, lng: lang }) ? i18next.getFixedT(lang)(key, params) : key;
 }
 
 export function wordsLabel(n: number): string {
   return i18next.t('common_word', { count: n });
+}
+
+export function pluralLabel(base: string, n: number): string {
+  return i18next.t(base, { count: n });
 }
 
 export function monthNames(): string[] {

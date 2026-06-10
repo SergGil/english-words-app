@@ -6,7 +6,7 @@ import { W } from '../../data/words.js';
 import { loadEpub } from '../features/epub.ts';
 import { decodeIpa } from '../core/ui-helpers.ts';
 import { closePage, openPage } from '../features/sidebar.ts';
-import { t } from '../features/i18n.ts';
+import { t, pluralLabel } from '../features/i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 type TextEntry = { title: string; text: string; level: string };
@@ -177,7 +177,7 @@ if (overlay) {
         }
         _epubBook = { title: bookTitle, chapters: chunks.map(text => ({ text, title: bookTitle, level: 'epub' })) };
         _currentTextIdx = 0;
-        if (epubProg) { epubProg.textContent = t('reading.epubLoaded', { n: chunks.length }); setTimeout(() => { epubProg!.style.display = 'none'; }, 2500); }
+        if (epubProg) { epubProg.textContent = t('reading.epubLoaded', { n: chunks.length, unit: pluralLabel('common_fragment', chunks.length) }); setTimeout(() => { epubProg!.style.display = 'none'; }, 2500); }
         _renderText();
       }
     );

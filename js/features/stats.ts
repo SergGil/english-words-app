@@ -2,7 +2,7 @@
 // ════════ HEATMAP + HOURLY STATS + CHART + RENDER STATS ════════
 import { state } from '../../src/state.ts';
 import { getDailyStats, getGameData, getModeStats, getModeAccuracy } from './game.ts';
-import { t, getLang, wordsLabel, monthNames, dowNames } from './i18n.ts';
+import { t, getLang, wordsLabel, pluralLabel, monthNames, dowNames } from './i18n.ts';
 import { W } from '../../data/words.js';
 import { getCefrLevel } from '../../data/cefr.ts';
 import { renderLeaderboard } from './leaderboard.ts';
@@ -162,7 +162,7 @@ export function _renderChartBars(): void {
   }
   const maxVal = Math.max(...days.map(d => d.val)) || 1;
   const labelEl = document.getElementById('chart-period-label');
-  if (labelEl) labelEl.textContent = t('stats.perDayCount', { n: _chartDays });
+  if (labelEl) labelEl.textContent = t('stats.perDayCount', { n: _chartDays, unit: pluralLabel('common_day', _chartDays) });
   const chartEl = document.getElementById('chart-bars');
   const hasData = days.some(d => d.val > 0);
   if (!hasData) {
