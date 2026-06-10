@@ -96,6 +96,7 @@ const DICT: Record<string, Record<Lang, string>> = {
   'range.stale30':   { ua: '🕰️ Не бачені 30 днів',    en: '🕰️ Not seen for 30 days',    es: '🕰️ No vistas hace 30 días' },
   'range.weakFallbackKnown': { ua: 'Мало даних SRS — показуємо нещодавно вивчені слова', en: 'Not enough SRS data — showing recently learned words', es: 'Pocos datos SRS — mostrando palabras aprendidas' },
   'range.weakFallbackNew':   { ua: 'Мало даних SRS — показуємо нові слова для вивчення',  en: 'Not enough SRS data — showing new words to learn',   es: 'Pocos datos SRS — mostrando palabras nuevas' },
+  'range.noBookmarks':       { ua: 'Закладок немає — додай ⭐ на картках',                en: 'No bookmarks yet — add ⭐ on cards',                  es: 'Sin marcadores — añade ⭐ en las tarjetas' },
 
   'kbd.space':       { ua: 'Пробіл',     en: 'Space',      es: 'Espacio' },
   'kbd.next':        { ua: 'далі',       en: 'next',       es: 'siguiente' },

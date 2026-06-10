@@ -116,7 +116,7 @@ document.getElementById('sel-range')!.addEventListener('change', function() {
   } else if (v === 'bookmarks') {
     const _bms = getBookmarks();
     deck = (W as unknown as WordEntry[]).filter(w => _bms.has(w[0]));
-    if (!deck.length) { deck = (W as unknown as WordEntry[]).slice(0, 10); alert('Закладок немає — додай ⭐ на картках'); }
+    if (!deck.length) { deck = (W as unknown as WordEntry[]).slice(0, 10); _showToast(t('range.noBookmarks')); }
     shuffle(deck);
     (window as any).setBaseWords(W.slice());
   } else if (v === 'unlearned') {
