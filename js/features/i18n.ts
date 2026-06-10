@@ -325,6 +325,7 @@ const DICT: Record<string, Record<Lang, string>> = {
   'lesson.completedExcl': { ua: 'Завершено!',           en: 'Completed!',                           es: '¡Completado!' },
   'lesson.doneBtn':   { ua: '🏠 Завершити',             en: '🏠 Finish',                            es: '🏠 Terminar' },
   'lesson.scoreLine': { ua: '{total} з {max} правильно ({pct}%)', en: '{total} of {max} correct ({pct}%)', es: '{total} de {max} correctas ({pct}%)' },
+  'lesson.comboSuffix': { ua: ' (×{n} КОМБО!)',         en: ' (×{n} COMBO!)',                       es: ' (×{n} COMBO!)' },
 
   'listen.title':     { ua: '🔊 Слухання',              en: '🔊 Listening',                         es: '🔊 Audio' },
   'listen.word':      { ua: 'Слово',                    en: 'Word',                                 es: 'Palabra' },

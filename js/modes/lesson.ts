@@ -210,7 +210,7 @@ function showFinal(): void {
   document.getElementById('lf-score')!.textContent = t('lesson.scoreLine')
     .replace('{total}', String(total)).replace('{max}', String(max)).replace('{pct}', String(pct));
   const mult = getComboMult(), xp = total * 5 * mult;
-  document.getElementById('lf-xp')!.textContent = `+${xp} XP${mult > 1 ? ` (×${mult} COMBO!)` : ''}`;
+  document.getElementById('lf-xp')!.textContent = `+${xp} XP${mult > 1 ? t('lesson.comboSuffix').replace('{n}', String(mult)) : ''}`;
   if (pct >= 80) try { (window.playSound as PlaySound | undefined)?.('goal'); } catch (e) {}
 }
 
