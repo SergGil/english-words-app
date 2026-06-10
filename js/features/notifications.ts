@@ -91,7 +91,7 @@ function _checkAndNotify(): void {
     const gd = JSON.parse(localStorage.getItem('ew_game') ?? '{}') as { streak?: number; streakDate?: string };
     const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
     if ((gd.streak ?? 0) > 1 && gd.streakDate === yesterday) {
-      shown = _notify(t('notif.streak.title'), t('notif.streak.body').replace('{n}', String(gd.streak)));
+      shown = _notify(t('notif.streak.title'), t('notif.streak.body', { n: gd.streak ?? 0 }));
       if (shown) { localStorage.setItem(KEY_SHOWN, today); return; }
     }
   } catch (e) {}
@@ -100,7 +100,7 @@ function _checkAndNotify(): void {
     const srs = JSON.parse(localStorage.getItem('ew_srs') ?? '{}') as Record<string, { due?: string }>;
     const due = Object.values(srs).filter(s => s.due && s.due <= today).length;
     if (due >= 3) {
-      shown = _notify(t('notif.due.title').replace('{n}', String(due)), t('notif.due.body'));
+      shown = _notify(t('notif.due.title', { n: due }), t('notif.due.body'));
       if (shown) { localStorage.setItem(KEY_SHOWN, today); return; }
     }
   } catch (e) {}

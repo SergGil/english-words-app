@@ -66,7 +66,7 @@ document.getElementById('cw-save')?.addEventListener('click', () => {
   const enLow = en.toLowerCase();
   let dupEn = false;
   _wi()?.forEach((_, key) => { if (key.toLowerCase() === enLow) dupEn = true; });
-  if (dupEn) { errEl.textContent = t('custom.errDuplicate').replace('{w}', en); return; }
+  if (dupEn) { errEl.textContent = t('custom.errDuplicate', { w: en }); return; }
   if (en.length < 2) { errEl.textContent = t('custom.errTooShort'); return; }
   const safeExEn = _sanitize(exEn), safeExUa = _sanitize(exUa);
   const entry = [en, ua, safeExEn || en + '.', safeExUa || ua + '.', ''] as unknown as (typeof W)[number];
@@ -223,8 +223,8 @@ csvFileInput?.addEventListener('change', async () => {
   // Show result
   const toast = document.getElementById('milestone-toast');
   const msg = added > 0
-    ? t('csv.imported').replace('{n}', String(added)) + (skipped > 0 ? t('csv.skippedSuffix').replace('{n}', String(skipped)) : '') + '!'
-    : t('csv.noNewWords').replace('{n}', String(skipped));
+    ? t('csv.imported', { n: added }) + (skipped > 0 ? t('csv.skippedSuffix', { n: skipped }) : '') + '!'
+    : t('csv.noNewWords', { n: skipped });
   if (toast) {
     toast.textContent = msg; toast.className = 'milestone-toast';
     void toast.offsetWidth; toast.className = 'milestone-toast show';

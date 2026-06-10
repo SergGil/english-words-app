@@ -65,7 +65,7 @@ function renderQ(): void {
   elOk.textContent = String(beeOk); elFail.textContent = String(beeFail);
   elInput.value = ''; elInput.style.borderColor = ''; elInput.disabled = false;
   elHintBtn.disabled = false;
-  elHintBtn.textContent = t('bee.hintBtn').replace('{n}', String(beeHintsLeft));
+  elHintBtn.textContent = t('bee.hintBtn', { n: beeHintsLeft });
 
   // Show translation and IPA (the clues)
   elTransl.textContent = w[1];
@@ -108,11 +108,11 @@ function submit(): void {
   } else if (close1) {
     // Accept near-miss with minor penalty
     beeOk++;
-    elResult.innerHTML = `<span style="color:#f39c12">${t('bee.almostMsg').replace('{w}', `<b>${w[0]}</b>`)}</span>`;
+    elResult.innerHTML = `<span style="color:#f39c12">${t('bee.almostMsg', { w: `<b>${w[0]}</b>` })}</span>`;
     try { addCombo(); } catch(e){}
   } else {
     beeFail++;
-    elResult.innerHTML = `<span style="color:#e74c3c">${t('bee.wrongMsg').replace('{w}', `<b>${w[0]}</b>`)}</span>`;
+    elResult.innerHTML = `<span style="color:#e74c3c">${t('bee.wrongMsg', { w: `<b>${w[0]}</b>` })}</span>`;
     recordMistake(w[0]);
     try { breakCombo(); } catch(e){}
   }
@@ -142,7 +142,7 @@ elHintBtn.addEventListener('click', () => {
   const hint = w[0].slice(0, revealCount) + '_'.repeat(Math.max(0, w[0].length - revealCount));
   elHintText.textContent = `💡 ${hint}`;
   elHintText.style.display = 'block';
-  elHintBtn.textContent = beeHintsLeft > 0 ? t('bee.hintBtn').replace('{n}', String(beeHintsLeft)) : t('bee.hintNone');
+  elHintBtn.textContent = beeHintsLeft > 0 ? t('bee.hintBtn', { n: beeHintsLeft }) : t('bee.hintNone');
   elHintBtn.disabled = beeHintsLeft <= 0;
 });
 

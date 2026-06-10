@@ -92,7 +92,7 @@ export function showPronuncResult(
   const msgs: Record<string, [string, string, string, string]> = {
     perfect:     ['🏆', t('pron.perfect.title'),     t('pron.perfect.sub'),         '#27ae60'],
     good:        ['✅', t('pron.good.title'),        t('pron.good.sub'),            '#2980b9'],
-    okay:        ['👍', t('pron.okay.title'),        t('pron.okay.sub').replace('{s}', spoken), '#e67e22'],
+    okay:        ['👍', t('pron.okay.title'),        t('pron.okay.sub', { s: spoken }), '#e67e22'],
     try_again:   ['🔁', t('pron.tryAgain.title'),    `"${spoken ?? '?'}" → "${target}"`, '#e74c3c'],
     unsupported: ['🎤', t('pron.unsupported.title'), t('pron.unsupported.sub'),     '#888'],
     error:       ['⚠️', t('pron.error.title'),       t('pron.error.sub'),           '#e74c3c'],

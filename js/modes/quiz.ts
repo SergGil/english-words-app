@@ -176,10 +176,10 @@ function showFinal(): void {
     emoji = '🎯'; title = t('quiz.fixedTitle');
     desc = total === 1
       ? t('quiz.fixedDescSingle')
-      : t('quiz.fixedDescAll').replace('{n}', _answerCount(total));
+      : t('quiz.fixedDescAll', { n: _answerCount(total) });
   } else if (pct === 100) {
     emoji = '🏆'; title = t('quiz.perfectTitle');
-    desc = total === 1 ? t('quiz.perfectDescSingle') : t('quiz.perfectDescAll').replace('{n}', _answerCount(total));
+    desc = total === 1 ? t('quiz.perfectDescSingle') : t('quiz.perfectDescAll', { n: _answerCount(total) });
   } else if (pct >= 80) {
     emoji = '🎉'; title = t('quiz.greatTitle');
     desc = scoreLine;

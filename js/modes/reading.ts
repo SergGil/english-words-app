@@ -99,7 +99,7 @@ if (overlay) {
   function _renderText(): void {
     const texts = _activeTexts(), entry = texts[_currentTextIdx];
     if (!entry) return;
-    elTitle.textContent = _epubBook ? `${_epubBook.title} — ${t('reading.chapterLabel').replace('{n}', String(_currentTextIdx + 1))}` : entry.title;
+    elTitle.textContent = _epubBook ? `${_epubBook.title} — ${t('reading.chapterLabel', { n: _currentTextIdx + 1 })}` : entry.title;
     elLevel.textContent = _epubBook ? 'epub' : entry.level;
     const chunks = entry.text.split(/(\s+|[,\.!?;:'"()\-—]+)/);
     let knownCount = 0, unknownCount = 0;
@@ -111,7 +111,7 @@ if (overlay) {
       if (isKnown) { knownCount++; return `<span class="rd-word rd-known" data-word="${w[0]}">${chunk}</span>`; }
       unknownCount++; return `<span class="rd-word rd-unknown" data-word="${w[0]}">${chunk}</span>`;
     }).join('');
-    if (elStats) elStats.textContent = t('reading.statsLine').replace('{k}', String(knownCount)).replace('{u}', String(unknownCount));
+    if (elStats) elStats.textContent = t('reading.statsLine', { k: knownCount, u: unknownCount });
     elText.querySelectorAll<HTMLElement>('.rd-word').forEach(span => {
       span.addEventListener('click', (e: MouseEvent) => {
         e.stopPropagation();
@@ -177,7 +177,7 @@ if (overlay) {
         }
         _epubBook = { title: bookTitle, chapters: chunks.map(text => ({ text, title: bookTitle, level: 'epub' })) };
         _currentTextIdx = 0;
-        if (epubProg) { epubProg.textContent = t('reading.epubLoaded').replace('{n}', String(chunks.length)); setTimeout(() => { epubProg!.style.display = 'none'; }, 2500); }
+        if (epubProg) { epubProg.textContent = t('reading.epubLoaded', { n: chunks.length }); setTimeout(() => { epubProg!.style.display = 'none'; }, 2500); }
         _renderText();
       }
     );

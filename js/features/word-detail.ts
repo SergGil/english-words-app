@@ -77,11 +77,11 @@ export function openWordDetail(w: WordEntry): void {
   if (isKnown) chips.push(`<span style="color:#27ae60;font-weight:600;">${t('wd.learned')}</span>`);
   if (srsEntry?.due) {
     const daysUntil = Math.ceil((new Date(srsEntry.due).getTime() - Date.now()) / 86_400_000);
-    const label = daysUntil <= 0 ? t('wd.reviewNow') : daysUntil === 1 ? t('wd.tomorrow') : t('wd.inDays').replace('{n}', String(daysUntil));
+    const label = daysUntil <= 0 ? t('wd.reviewNow') : daysUntil === 1 ? t('wd.tomorrow') : t('wd.inDays', { n: daysUntil });
     const color = daysUntil <= 0 ? '#e74c3c' : daysUntil <= 3 ? '#f39c12' : 'var(--text3)';
     chips.push(`<span style="color:${color};">🔁 ${label}</span>`);
   }
-  if (srsEntry?.reps) chips.push(`<span>📝 ${t('wd.repsCount').replace('{n}', String(srsEntry.reps))}</span>`);
+  if (srsEntry?.reps) chips.push(`<span>📝 ${t('wd.repsCount', { n: srsEntry.reps })}</span>`);
   elSrs.innerHTML = chips.join('');
 
   // Action buttons state

@@ -104,7 +104,7 @@ if (overlay) {
     const xp  = dcCorrect * DC_XP * 10;
     elFinalEmoji.textContent = pct===100?'🏆':pct>=80?'🎉':pct>=60?'👍':'💪';
     elFinalTitle.textContent = (pct===100?t('daily.missionDone'):pct>=80?t('tempo.excellentTitle'):pct>=60?t('quiz.goodTitle'):t('daily.keepTraining')) + ` — ${dcCorrect} / ${DC_SIZE} (${pct}%)`;
-    elFinalXP.textContent = t('daily.xpLabel').replace('{xp}', String(xp));
+    elFinalXP.textContent = t('daily.xpLabel', { xp });
     elFinal.style.display = 'block'; elOpts.innerHTML = '';
     try { const d = getGameData(); d.xp = (d.xp ?? 0) + xp; saveGameData(d); (window.renderLevelBadge as (() => void) | undefined)?.(); } catch (e) {}
     recordModeComplete('daily');

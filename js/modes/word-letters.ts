@@ -152,7 +152,7 @@ function renderRound(): void {
   elDone.style.display = '';
   elDone.textContent = wlIdx >= wlRounds.length-1 ? t('quiz.finish') : t('letters.doneBtn');
   elHintBtn.disabled = false;
-  elHintBtn.textContent = t('letters.hintBtn').replace('{n}', String(wlHintsLeft));
+  elHintBtn.textContent = t('letters.hintBtn', { n: wlHintsLeft });
   elSubmit.disabled = false; elClearBtn.disabled = false;
   elLetters.style.display = ''; elGuess.style.display = ''; elFoundList.style.display = '';
   elBaseBox.style.display = ''; elActionsRow.style.display = '';
@@ -260,7 +260,7 @@ function hint(): void {
   wlHintsShown.add(remaining[0]);
   elHintText.textContent = `💡 ${Array.from(wlHintsShown).map(w => w.toUpperCase()).join('  ')}`;
   elHintText.style.display = 'block';
-  elHintBtn.textContent = wlHintsLeft > 0 ? t('letters.hintBtn').replace('{n}', String(wlHintsLeft)) : t('letters.hintNone');
+  elHintBtn.textContent = wlHintsLeft > 0 ? t('letters.hintBtn', { n: wlHintsLeft }) : t('letters.hintNone');
   elHintBtn.disabled = wlHintsLeft <= 0;
 }
 

@@ -85,7 +85,7 @@ function startCatGame(catName: string, words: WordEntry[]): void {
   if (cpTick) clearInterval(cpTick);
   cpDeck = _shuf(words.slice()).slice(0, Math.min(CP, words.length));
   elTitle.textContent = catName === RANDOM_KEY ? t('catpairs.random') : categoryName(catName);
-  elBest.textContent = getBest(catName) ? t('pairs.record').replace('{t}', fmt(getBest(catName) * 1000)) : '';
+  elBest.textContent = getBest(catName) ? t('pairs.record', { t: fmt(getBest(catName) * 1000) }) : '';
   elTimer.textContent = '0.0' + t('common.secSuffix'); elTimer.style.display = 'block'; elTimer.style.color = 'var(--accent)';
   elFinal.style.display = 'none'; elBoard.style.display = '';
   selScreen.style.display = 'none'; gameScreen.style.display = ''; renderBoard();
@@ -136,8 +136,8 @@ function finish(): void {
   elTimer.textContent = fmt(ms); elTimer.style.color = isNew ? '#e67e22' : 'var(--accent)';
   document.getElementById('cpf-emoji')!.textContent = isNew ? '🏆' : '🎉';
   document.getElementById('cpf-time')!.textContent  = fmt(ms);
-  document.getElementById('cpf-best')!.textContent  = isNew ? t('pairs.newRecord') : t('pairs.record').replace('{t}', fmt(getBest(cpCatKey) * 1000));
-  elBest.textContent = t('pairs.record').replace('{t}', fmt(getBest(cpCatKey) * 1000));
+  document.getElementById('cpf-best')!.textContent  = isNew ? t('pairs.newRecord') : t('pairs.record', { t: fmt(getBest(cpCatKey) * 1000) });
+  elBest.textContent = t('pairs.record', { t: fmt(getBest(cpCatKey) * 1000) });
 }
 
 document.getElementById('btn-catpairs')?.addEventListener('click', open);

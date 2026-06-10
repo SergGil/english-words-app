@@ -49,7 +49,7 @@ function _processOpf(zip: JSZipType, opfDir: string, opfXml: string, onProgress:
     .filter(id => { const mt = manifest[id].mt; return !mt || mt.includes('html') || mt.includes('xhtml') || mt === ''; });
   if (!spineItems.length) spineItems = Object.keys(manifest).filter(id => manifest[id].href.match(/\.(html|xhtml|htm)$/i));
   if (!spineItems.length) return Promise.reject(new Error(t('epub.noChapters')));
-  onProgress(t('epub.readingChapters').replace('{n}', String(spineItems.length)), 35);
+  onProgress(t('epub.readingChapters', { n: spineItems.length }), 35);
   const allTexts: string[] = [];
   return spineItems.reduce((promise, id, i) =>
     promise.then(() => {
@@ -59,7 +59,7 @@ function _processOpf(zip: JSZipType, opfDir: string, opfXml: string, onProgress:
       return chapterFile.async('text').then((html: string) => {
         const text = _extractText(html);
         if (text.length > 150) allTexts.push(text);
-        onProgress(t('epub.chapterProgress').replace('{i}', String(i + 1)).replace('{n}', String(spineItems.length)), 35 + Math.round((i / spineItems.length) * 50));
+        onProgress(t('epub.chapterProgress', { i: i + 1, n: spineItems.length }), 35 + Math.round((i / spineItems.length) * 50));
       });
     }), Promise.resolve()
   ).then(() => { onProgress(t('epub.processingText'), 90); return _chunksFromTexts(allTexts); });

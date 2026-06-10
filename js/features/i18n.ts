@@ -194,6 +194,7 @@ i18next.init({
   fallbackLng: 'ua',
   keySeparator: false,
   nsSeparator: false,
+  interpolation: { escapeValue: false },
   resources: {
     ua: { translation: ua },
     en: { translation: en },
@@ -211,12 +212,12 @@ function setLang(lang: Lang): void {
   applyI18n();
 }
 
-export function t(key: string): string {
-  return i18next.exists(key) ? i18next.t(key) : key;
+export function t(key: string, params?: Record<string, string | number>): string {
+  return i18next.exists(key) ? i18next.t(key, params) : key;
 }
 
-export function tLang(key: string, lang: Lang): string {
-  return i18next.exists(key) ? i18next.getFixedT(lang)(key) : key;
+export function tLang(key: string, lang: Lang, params?: Record<string, string | number>): string {
+  return i18next.exists(key) ? i18next.getFixedT(lang)(key, params) : key;
 }
 
 export function wordsLabel(n: number): string {

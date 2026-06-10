@@ -140,7 +140,7 @@ document.getElementById('sel-range')!.addEventListener('change', function() {
     deck = (W as unknown as WordEntry[]).filter(w => getCefrLevel(w[0]) === cefrTarget);
     shuffle(deck);
     if (!deck.length) {
-      _showToast(t('range.noCefrWords').replace('{l}', cefrTarget));
+      _showToast(t('range.noCefrWords', { l: cefrTarget }));
       deck = (W as unknown as WordEntry[]).slice();
       shuffle(deck);
     }

@@ -122,7 +122,7 @@ function _showOnboarding(): void {
   const LEVELS = [
     { emoji: '🔁', name: t('ob.level.srs.name'),       words: t('ob.level.srs.words'),       range: 'srs', hint: t('ob.level.srs.hint') },
     { emoji: '🔴', name: t('ob.level.unlearned.name'), words: t('ob.level.unlearned.words'), range: 'unlearned', hint: t('ob.level.unlearned.hint') },
-    { emoji: '🏆', name: t('ob.level.all.name').replace('{n}', wordCount), words: t('ob.level.all.words'), range: '0', hint: t('ob.level.all.hint') },
+    { emoji: '🏆', name: t('ob.level.all.name', { n: wordCount }), words: t('ob.level.all.words'), range: '0', hint: t('ob.level.all.hint') },
     { emoji: '📅', name: t('ob.level.daily.name'),     words: t('ob.level.daily.words'),     range: 'daily', hint: t('ob.level.daily.hint') },
   ];
 

@@ -31,7 +31,7 @@ function open(): void {
   pTimer.textContent = '0.0' + t('common.secSuffix'); pTimer.style.color = 'var(--accent)';
   pFinal.style.display = 'none'; pBoard.style.display = '';
   const b = getBest();
-  pBest.textContent = b ? t('pairs.record').replace('{t}', fmt(b * 1000)) : '';
+  pBest.textContent = b ? t('pairs.record', { t: fmt(b * 1000) }) : '';
   renderBoard();
   pOverlay.style.display = 'flex';
 }
@@ -108,8 +108,8 @@ function finish(): void {
   pTimer.textContent = fmt(ms); pTimer.style.color = isNew ? '#e67e22' : 'var(--accent)';
   document.getElementById('pf-emoji')!.textContent = isNew ? '🏆' : '🎉';
   document.getElementById('pf-time')!.textContent  = fmt(ms);
-  document.getElementById('pf-best')!.textContent  = isNew ? t('pairs.newRecord') : t('pairs.record').replace('{t}', fmt(getBest() * 1000));
-  pBest.textContent = t('pairs.record').replace('{t}', fmt(getBest() * 1000));
+  document.getElementById('pf-best')!.textContent  = isNew ? t('pairs.newRecord') : t('pairs.record', { t: fmt(getBest() * 1000) });
+  pBest.textContent = t('pairs.record', { t: fmt(getBest() * 1000) });
 }
 
 document.getElementById('btn-pairs')?.addEventListener('click', open);

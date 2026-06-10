@@ -207,10 +207,9 @@ function showFinal(): void {
   document.getElementById('lf-stars')!.textContent = pct >= 95 ? '⭐⭐⭐' : pct >= 65 ? '⭐⭐' : '⭐';
   const emoji = pct === 100 ? '🏆' : pct >= 65 ? '🎉' : '💪';
   document.getElementById('lf-title')!.textContent = emoji + ' ' + (pct===100?t('quiz.perfectTitle'):pct>=65?t('quiz.greatTitle'):t('quiz.keepTitle'));
-  document.getElementById('lf-score')!.textContent = t('lesson.scoreLine')
-    .replace('{total}', String(total)).replace('{max}', String(max)).replace('{pct}', String(pct));
+  document.getElementById('lf-score')!.textContent = t('lesson.scoreLine', { total, max, pct });
   const mult = getComboMult(), xp = total * 5 * mult;
-  document.getElementById('lf-xp')!.textContent = `+${xp} XP${mult > 1 ? t('lesson.comboSuffix').replace('{n}', String(mult)) : ''}`;
+  document.getElementById('lf-xp')!.textContent = `+${xp} XP${mult > 1 ? t('lesson.comboSuffix', { n: mult }) : ''}`;
   if (pct >= 80) try { (window.playSound as PlaySound | undefined)?.('goal'); } catch (e) {}
 }
 

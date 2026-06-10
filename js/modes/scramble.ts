@@ -88,7 +88,7 @@ function renderQ(): void {
   elPbar.style.width = (scrIdx / SIZE * 100) + '%';
   elOk.textContent = String(scrOk); elFail.textContent = String(scrFail);
   elHintBtn.disabled = false;
-  elHintBtn.textContent = t('scramble.hintBtn').replace('{n}', String(scrHintsLeft));
+  elHintBtn.textContent = t('scramble.hintBtn', { n: scrHintsLeft });
   elShuffleBtn.disabled = false; elClearBtn.disabled = false;
 
   elTransl.textContent = w[1];
@@ -224,7 +224,7 @@ elHintBtn.addEventListener('click', () => {
   if (idx === -1) return;
   scrHintsLeft--;
   select(idx);
-  elHintBtn.textContent = scrHintsLeft > 0 ? t('scramble.hintBtn').replace('{n}', String(scrHintsLeft)) : t('scramble.hintNone');
+  elHintBtn.textContent = scrHintsLeft > 0 ? t('scramble.hintBtn', { n: scrHintsLeft }) : t('scramble.hintNone');
   elHintBtn.disabled = scrHintsLeft <= 0 || scrAnswered;
 });
 

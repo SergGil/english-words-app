@@ -47,7 +47,7 @@ document.querySelectorAll<HTMLButtonElement>('.tempo-time-btn').forEach(btn => {
 
 function updateBestLabel(): void {
   const b = getBest(selectedSec);
-  tBest.textContent = b > 0 ? t('tempo.bestRecord').replace('{n}', String(b)).replace('{s}', String(selectedSec)) : '';
+  tBest.textContent = b > 0 ? t('tempo.bestRecord', { n: b, s: selectedSec }) : '';
 }
 
 document.getElementById('btn-tempo')?.addEventListener('click', () => {
@@ -151,8 +151,8 @@ function endTempo(): void {
   recordModeComplete('tempo');
   tResScore.textContent = `✓ ${score} ${t('quiz.correctLbl')}  ✗ ${miss} ${t('quiz.mistakesGen')}  (${pct}%)`;
   tResBest.textContent = isNew && score > 0
-    ? t('tempo.newRecord').replace('{n}', String(score))
-    : (getBest(selectedSec) > 0 ? t('tempo.record').replace('{n}', String(getBest(selectedSec))) : '');
+    ? t('tempo.newRecord', { n: score })
+    : (getBest(selectedSec) > 0 ? t('tempo.record', { n: getBest(selectedSec) }) : '');
 }
 
 document.addEventListener('keydown', (e: KeyboardEvent) => {
