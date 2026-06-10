@@ -1,5 +1,6 @@
 // English Words App — js/features/epub.ts
 // EPUB import for Reading mode
+import { t } from './i18n.ts';
 
 type ProgressFn = (msg: string, pct: number) => void;
 type DoneFn = (chapters: string[] | null, err: string | null) => void;
@@ -7,31 +8,31 @@ type JSZipType = any;
 
 export function loadEpub(file: File, onProgress: ProgressFn, onDone: DoneFn): void {
   const JSZip = (window as Window & { JSZip?: JSZipType }).JSZip;
-  if (!JSZip) { onDone(null, 'JSZip не завантажено'); return; }
-  if (!file)  { onDone(null, 'Файл не обрано'); return; }
-  onProgress('Відкриваємо epub…', 5);
+  if (!JSZip) { onDone(null, t('epub.noJsZip')); return; }
+  if (!file)  { onDone(null, t('epub.noFile')); return; }
+  onProgress(t('epub.opening'), 5);
   (JSZip.loadAsync(file) as Promise<JSZipType>).then((zip: JSZipType) => {
-    onProgress('Читаємо структуру…', 15);
+    onProgress(t('epub.readingStruct'), 15);
     return _parseEpub(zip, onProgress);
   }).then((chapters: string[]) => {
     onDone(chapters, null);
   }).catch((err: Error) => {
-    onDone(null, 'Помилка: ' + (err.message ?? String(err)));
+    onDone(null, t('epub.error') + (err.message ?? String(err)));
   });
 }
 window.loadEpub = loadEpub;
 
 function _parseEpub(zip: JSZipType, onProgress: ProgressFn): Promise<string[]> {
   const containerFile = zip.file('META-INF/container.xml');
-  if (!containerFile) return Promise.reject(new Error('Не знайдено META-INF/container.xml'));
+  if (!containerFile) return Promise.reject(new Error(t('epub.noContainer')));
   return containerFile.async('text').then((containerXml: string) => {
     const opfMatch = containerXml.match(/full-path="([^"]+)"/);
-    if (!opfMatch) return Promise.reject(new Error('OPF файл не знайдено'));
+    if (!opfMatch) return Promise.reject(new Error(t('epub.noOpf')));
     const opfPath = opfMatch[1];
     const opfDir  = opfPath.includes('/') ? opfPath.substring(0, opfPath.lastIndexOf('/') + 1) : '';
-    onProgress('Читаємо зміст книги…', 25);
+    onProgress(t('epub.readingToc'), 25);
     const opfFile = zip.file(opfPath);
-    if (!opfFile) return Promise.reject(new Error('OPF файл не відкрито: ' + opfPath));
+    if (!opfFile) return Promise.reject(new Error(t('epub.opfNotOpened') + opfPath));
     return opfFile.async('text').then((opfXml: string) => _processOpf(zip, opfDir, opfXml, onProgress));
   });
 }
@@ -47,8 +48,8 @@ function _processOpf(zip: JSZipType, opfDir: string, opfXml: string, onProgress:
     .map(ref => ref.getAttribute('idref') ?? '').filter(id => id && manifest[id])
     .filter(id => { const mt = manifest[id].mt; return !mt || mt.includes('html') || mt.includes('xhtml') || mt === ''; });
   if (!spineItems.length) spineItems = Object.keys(manifest).filter(id => manifest[id].href.match(/\.(html|xhtml|htm)$/i));
-  if (!spineItems.length) return Promise.reject(new Error('Немає розділів у книзі'));
-  onProgress('Читаємо ' + spineItems.length + ' розділів…', 35);
+  if (!spineItems.length) return Promise.reject(new Error(t('epub.noChapters')));
+  onProgress(t('epub.readingChapters').replace('{n}', String(spineItems.length)), 35);
   const allTexts: string[] = [];
   return spineItems.reduce((promise, id, i) =>
     promise.then(() => {
@@ -58,10 +59,10 @@ function _processOpf(zip: JSZipType, opfDir: string, opfXml: string, onProgress:
       return chapterFile.async('text').then((html: string) => {
         const text = _extractText(html);
         if (text.length > 150) allTexts.push(text);
-        onProgress('Розділ ' + (i + 1) + ' / ' + spineItems.length, 35 + Math.round((i / spineItems.length) * 50));
+        onProgress(t('epub.chapterProgress').replace('{i}', String(i + 1)).replace('{n}', String(spineItems.length)), 35 + Math.round((i / spineItems.length) * 50));
       });
     }), Promise.resolve()
-  ).then(() => { onProgress('Обробляємо текст…', 90); return _chunksFromTexts(allTexts); });
+  ).then(() => { onProgress(t('epub.processingText'), 90); return _chunksFromTexts(allTexts); });
 }
 
 function _extractText(html: string): string {
