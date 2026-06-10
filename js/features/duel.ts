@@ -207,6 +207,7 @@ function _loadSession():{roomId:string;slot:'p1'|'p2';mode:DuelMode;idx:number;s
 
 // ── Deck building ─────────────────────────────────────────────
 function _dateLocale(): string { return getLang()==='en'?'en':getLang()==='es'?'es':'uk'; }
+function _secUnit(): string { return getLang()==='ua'?'с':'s'; }
 function _genCode(): string { return Array.from(crypto.getRandomValues(new Uint8Array(6)),v=>CHARS[v%CHARS.length]).join(''); }
 function _fmtCode(c:string): string { return c.slice(0,3)+'-'+c.slice(3); }
 function _rng(seed:number):()=>number{ let s=seed; return()=>{s=(s*1664525+1013904223)&0x7FFFFFFF;return s/0x7FFFFFFF;}; }
@@ -324,7 +325,7 @@ function _renderOptionsRow(): void {
         ${t('duel.format')}
         <select id="duel-bestof-sel" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.8rem;font-family:inherit;outline:none;">
           <option value="1"${_selBestOf===1?' selected':''}>${t('duel.oneRound')}</option>
-          <option value="3"${_selBestOf===3?' selected':''}>Best of 3</option>
+          <option value="3"${_selBestOf===3?' selected':''}>${t('duel.bestOf3')}</option>
         </select>
       </label>
       <label style="display:flex;align-items:center;gap:5px;">
@@ -464,7 +465,7 @@ async function createRoom(): Promise<void> {
     const mInfo=DUEL_MODES.find(m=>m.id===_selMode)!;
     const catLabel=_selCategory?` · ${_selCategory.split(' ')[0]}`:'';
     const diff=DIFFICULTIES.find(d=>d.id===_selDifficulty); const diffLabel=diff?(diff.id==='mixed'?t('duel.diff.mixed'):diff.label):'';
-    if(modeEl) modeEl.textContent=`${mInfo.icon} ${t('duel.mode.'+mInfo.id)}${catLabel} · ${diffLabel}${_selBestOf===3?' · Best of 3':''}`;
+    if(modeEl) modeEl.textContent=`${mInfo.icon} ${t('duel.mode.'+mInfo.id)}${catLabel} · ${diffLabel}${_selBestOf===3?' · '+t('duel.bestOf3'):''}`;
     elMsg().style.display='none';
     $('duel-waiting').style.display='block';
     $('duel-join-row').style.display='none';
@@ -662,7 +663,7 @@ function _startOpponentPoll(): void {
       if(freezeUntil && freezeUntil > Date.now() && !_answered && _mode==='tempo'){
         if(!_freezeTimer){
           const remaining = Math.ceil((freezeUntil-Date.now())/1000);
-          elFeedback().innerHTML=`<span style="color:#5dade2">${t('duel.frozen')} ${remaining}s!</span>`;
+          elFeedback().innerHTML=`<span style="color:#5dade2">${t('duel.frozen')} ${remaining}${_secUnit()}!</span>`;
           if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
           _freezeTimer=setTimeout(()=>{
             _freezeTimer=null; elFeedback().textContent='';
@@ -793,7 +794,7 @@ async function _answerChoice(btn:HTMLButtonElement,chosen:string,correct:string,
   }
   elMyScore().textContent=String(_myScore);
   elFeedback().innerHTML=feedbackHtml;
-  elSpeed().textContent=ok?`⚡ ${(ms/1000).toFixed(1)}с`:'';
+  elSpeed().textContent=ok?`⚡ ${(ms/1000).toFixed(1)}${_secUnit()}`:'';
   _renderPowerups();
   _quizIdx++; await _pushScore();
   setTimeout(()=>{if(_quizIdx<ROOM_SIZE)_renderQuestion();else _finishMyGame();},ok?600:1200);
@@ -823,7 +824,7 @@ function _submitWrite(): void {
   }
   elMyScore().textContent=String(_myScore);
   elFeedback().innerHTML=feedbackHtml;
-  elSpeed().textContent=ok?`⚡ ${(ms/1000).toFixed(1)}с`:'';
+  elSpeed().textContent=ok?`⚡ ${(ms/1000).toFixed(1)}${_secUnit()}`:'';
   _renderPowerups();
   _quizIdx++; _pushScore();
   const nb=$('dm-next-btn') as HTMLButtonElement|null;
@@ -1209,7 +1210,7 @@ function _tournRoundName(round:number, totalRounds:number): string {
 
 async function createTournament(size:4|8): Promise<void> {
   const btn=$(`tourn-create-${size}`) as HTMLButtonElement;
-  btn.disabled=true; btn.textContent='Створення...';
+  btn.disabled=true; btn.textContent=t('duel.creating');
   try {
     _tournId=_genCode();
     const tourn: Tournament = {
@@ -1517,7 +1518,7 @@ $('sb-duel')?.addEventListener('click',()=>{
 });
 
 // ── Styled confirm dialog (replaces browser confirm()) ────────
-function _showConfirm(title: string, message: string, okLabel = 'Залишити'): Promise<boolean> {
+function _showConfirm(title: string, message: string, okLabel: string): Promise<boolean> {
   return new Promise(resolve => {
     const overlay = document.getElementById('confirm-overlay') as HTMLElement|null;
     if (!overlay) { resolve(window.confirm(message)); return; }

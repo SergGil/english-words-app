@@ -663,6 +663,7 @@ const DICT: Record<string, Record<Lang, string>> = {
   'duel.difficulty':      { ua: 'Складність (CEFR рівень слів):',    en: 'Difficulty (CEFR word level):',         es: 'Dificultad (nivel CEFR):' },
   'duel.format':          { ua: 'Формат:',                           en: 'Format:',                              es: 'Formato:' },
   'duel.oneRound':        { ua: 'Один раунд',                        en: 'Single round',                         es: 'Una ronda' },
+  'duel.bestOf3':         { ua: 'До 2 перемог із 3',                 en: 'Best of 3',                             es: 'Al mejor de 3' },
   'duel.hints':           { ua: 'Підказок',                          en: 'Hints',                                es: 'Pistas' },
   'duel.hintsUnlimited':  { ua: '∞ Без ліміту',                      en: '∞ Unlimited',                          es: '∞ Sin límite' },
   'duel.hints3':          { ua: '3 підказки',                        en: '3 hints',                              es: '3 pistas' },
