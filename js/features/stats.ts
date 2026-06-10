@@ -113,7 +113,7 @@ function renderForgettingCurve(): void {
   let ef = d.ef, interval = d.interval ?? 1;
   const future = [interval];
   for (let i = 0; i < 4; i++) { interval = Math.round(interval * ef); future.push(interval); }
-  const dayUnit = getLang() === 'en' ? 'd' : 'д';
+  const dayUnit = getLang() === 'ua' ? 'д' : 'd';
   el.title = t('stats.intervals') + ': ' + future.map(v => v + dayUnit).join(' → ');
 }
 
@@ -234,7 +234,7 @@ export function renderSRSForecast(): void {
       date: dateStr, cnt,
       label: i === 0 ? t('stats.todayCap')
            : i === 1 ? t('stats.tomorrow')
-           : d.toLocaleDateString(getLang() === 'en' ? 'en' : 'uk', { day: 'numeric', month: 'short' }),
+           : d.toLocaleDateString(getLang() === 'en' ? 'en' : getLang() === 'es' ? 'es' : 'uk', { day: 'numeric', month: 'short' }),
     });
   }
   const maxCnt  = Math.max(...counts.map(c => c.cnt)) || 1;
