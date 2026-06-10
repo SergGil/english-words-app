@@ -1,6 +1,6 @@
 // English Words App — js/features/offline.ts
 // Online/offline detection + beautiful status banner + graceful degradation
-export {};
+import { t } from './i18n.ts';
 
 let _online = navigator.onLine;
 let _banner: HTMLElement | null = null;
@@ -26,7 +26,7 @@ function _showOffline(): void {
   const b = _getOrCreateBanner();
   b.style.background = '#c0392b';
   b.style.color = '#fff';
-  b.innerHTML = '📡 Немає підключення · Застосунок працює в офлайн режимі';
+  b.innerHTML = t('offline.banner');
   requestAnimationFrame(() => {
     b.style.transform = 'translateY(0)';
     b.style.opacity = '1';
@@ -37,7 +37,7 @@ function _showOnline(): void {
   const b = _getOrCreateBanner();
   b.style.background = '#27ae60';
   b.style.color = '#fff';
-  b.innerHTML = '✅ Підключення відновлено';
+  b.innerHTML = t('offline.restored');
   requestAnimationFrame(() => {
     b.style.transform = 'translateY(0)';
     b.style.opacity = '1';
@@ -71,6 +71,6 @@ window._offlineSvg = (_word: string): string =>
   `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <rect width="100" height="100" rx="10" fill="#1a2a3a"/>
     <text x="50" y="38" text-anchor="middle" font-size="30" fill="#3a5a7a">📡</text>
-    <text x="50" y="58" text-anchor="middle" font-size="9" fill="#5a7a9a" font-family="sans-serif">Офлайн</text>
-    <text x="50" y="72" text-anchor="middle" font-size="8" fill="#4a6a8a" font-family="sans-serif">зображення недоступне</text>
+    <text x="50" y="58" text-anchor="middle" font-size="9" fill="#5a7a9a" font-family="sans-serif">${t('offline.image.label')}</text>
+    <text x="50" y="72" text-anchor="middle" font-size="8" fill="#4a6a8a" font-family="sans-serif">${t('offline.image.unavailable')}</text>
   </svg>`;
