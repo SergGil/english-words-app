@@ -1,17 +1,6 @@
-﻿var CACHE = 'ew-v16';
-var STATIC = [
-  './css/styles.css',
-  './lib/lzstring.js',
-  './lib/jszip.min.js',
-  './js/config.js',
-  './data/words.js',
-  './data/words_es.js',
-  './data/illustrations.js',
-  './data/categories.js',
-];
+﻿var CACHE = 'ew-v17';
 
 self.addEventListener('install', function(e) {
-  e.waitUntil(caches.open(CACHE).then(function(c) { return c.addAll(STATIC); }).catch(function(){}));
   self.skipWaiting();
 });
 
