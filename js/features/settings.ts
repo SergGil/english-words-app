@@ -4,6 +4,7 @@ import { _imgCache, loadWikiImage } from '../core/images.ts';
 import { W } from '../../data/words.js';
 import { openPage } from './sidebar.ts';
 import { t } from './i18n.ts';
+import type { WordEntry } from '../../src/types.js';
 
 type VoidFn = () => void;
 const _callWin = (name: string) => (window[name] as VoidFn | undefined)?.();
@@ -55,7 +56,6 @@ document.addEventListener('visibilitychange', () => {
 
 // ── Initial renders ────────────────────────────────────────────
 try { _callWin('renderLevelBadge'); } catch (e) { console.error(e); }
-import type { WordEntry } from '../../src/types.js';
 try { updateSrsLabel(W as unknown as WordEntry[]); } catch (e) { console.error(e); }
 try { updateSrsStats(W as unknown as WordEntry[]); } catch (e) { console.error(e); }
 try { _callWin('checkAchievements'); } catch (e) { console.error(e); }
