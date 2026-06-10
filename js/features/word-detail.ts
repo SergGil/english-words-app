@@ -6,15 +6,13 @@ import { getSimilarWords, getSimilarWordsEs } from './similar-words.ts';
 import { W } from '../../data/words.js';
 import { W_ES } from '../../data/words_es.js';
 import { isBookmarked, toggleBookmark } from './bookmarks.ts';
+import { ES_MODES, esEntry as _esEntry } from './mode-utils.ts';
+import { t } from './i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
-const ES_MODES = new Set(['en-es', 'es-en', 'es-ua', 'ua-es']);
 function _isEsMode(): boolean {
   const m = (document.getElementById('sel-mode') as HTMLSelectElement | null)?.value ?? '';
   return ES_MODES.has(m);
-}
-function _esEntry(word: string): [string, string] | null {
-  return ((W_ES as unknown as Record<string, [string, string]>)[word]) ?? null;
 }
 
 const overlay  = document.getElementById('wd-overlay')!   as HTMLElement;
@@ -76,14 +74,14 @@ export function openWordDetail(w: WordEntry): void {
   const srsEntry = (state.srsData as Record<string, { due?: string; ef?: number; reps?: number }>)[w[0]];
   const isKnown  = state.known.has(w[0]);
   const chips: string[] = [];
-  if (isKnown) chips.push(`<span style="color:#27ae60;font-weight:600;">✓ Вивчено</span>`);
+  if (isKnown) chips.push(`<span style="color:#27ae60;font-weight:600;">${t('wd.learned')}</span>`);
   if (srsEntry?.due) {
     const daysUntil = Math.ceil((new Date(srsEntry.due).getTime() - Date.now()) / 86_400_000);
-    const label = daysUntil <= 0 ? 'Повторити зараз' : daysUntil === 1 ? 'Завтра' : `Через ${daysUntil} дн.`;
+    const label = daysUntil <= 0 ? t('wd.reviewNow') : daysUntil === 1 ? t('wd.tomorrow') : t('wd.inDays').replace('{n}', String(daysUntil));
     const color = daysUntil <= 0 ? '#e74c3c' : daysUntil <= 3 ? '#f39c12' : 'var(--text3)';
     chips.push(`<span style="color:${color};">🔁 ${label}</span>`);
   }
-  if (srsEntry?.reps) chips.push(`<span>📝 ${srsEntry.reps} повторень</span>`);
+  if (srsEntry?.reps) chips.push(`<span>📝 ${t('wd.repsCount').replace('{n}', String(srsEntry.reps))}</span>`);
   elSrs.innerHTML = chips.join('');
 
   // Action buttons state
@@ -139,7 +137,7 @@ elBtnKnow.addEventListener('click', () => {
   state.known.add(_current[0]);
   elBtnKnow.style.display   = 'none';
   elBtnForget.style.display = '';
-  elSrs.innerHTML = `<span style="color:#27ae60;font-weight:600;">✓ Вивчено</span>`;
+  elSrs.innerHTML = `<span style="color:#27ae60;font-weight:600;">${t('wd.learned')}</span>`;
 });
 
 elBtnForget.addEventListener('click', () => {
