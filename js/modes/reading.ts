@@ -4,6 +4,7 @@ import { state } from '../../src/state.ts';
 import { saveKnown } from '../core/storage.ts';
 import { W } from '../../data/words.js';
 import { loadEpub } from '../features/epub.ts';
+import { decodeIpa } from '../core/ui-helpers.ts';
 import { closePage, openPage } from '../features/sidebar.ts';
 import { t } from '../features/i18n.ts';
 import type { WordEntry } from '../../src/types.js';
@@ -124,9 +125,7 @@ if (overlay) {
 
   function _showPopup(w: WordEntry): void {
     elWord.textContent = w[0]; elTrans.textContent = w[1];
-    let ipa = (w[4] ?? '').replace(/\\u([0-9a-fA-F]{4})/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
-    if (ipa && ipa[0] !== '[' && ipa[0] !== '/') ipa = '[' + ipa + ']';
-    elIpa.textContent = ipa;
+    elIpa.textContent = decodeIpa(w[4] ?? '');
     elPopup.style.display = 'block';
     const isKnown = state.known.has(w[0]);
     const knowBtn = document.getElementById('rd-popup-know') as HTMLButtonElement | null;
