@@ -149,7 +149,7 @@ function _pluralUa(n: number, one: string, few: string, many: string): string {
   return many;
 }
 function _countLabel(n: number, one: string, few: string, many: string): string {
-  const word = getLang() === 'en' ? (n === 1 ? one : few) : _pluralUa(n, one, few, many);
+  const word = getLang() === 'ua' ? _pluralUa(n, one, few, many) : (n === 1 ? one : few);
   return `${n} ${word}`;
 }
 function _answerCount(n: number): string {
