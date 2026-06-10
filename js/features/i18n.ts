@@ -161,6 +161,7 @@ const DICT: Record<string, Record<Lang, string>> = {
   'mode.fib':    { ua: 'Речення', en: 'Sentences', es: 'Frases' },
   'mode.lesson': { ua: 'Урок',    en: 'Lesson',    es: 'Lección' },
   'mode.tempo':  { ua: 'Темп',    en: 'Tempo',     es: 'Ritmo' },
+  'mode.scramble': { ua: 'Анаграма', en: 'Scramble', es: 'Anagrama' },
 
   // Modes picker overlay — header & cards
   'modesPg.header':       { ua: '🎮 Режим навчання',         en: '🎮 Learning mode',          es: '🎮 Modo de aprendizaje' },
@@ -192,6 +193,8 @@ const DICT: Record<string, Record<Lang, string>> = {
   'modesPg.beeDesc':      { ua: 'Почуй і напиши',            en: 'Listen and spell',          es: 'Escucha y escribe' },
   'modesPg.storyName':    { ua: 'Читання+',                  en: 'Reading+',                  es: 'Lectura+' },
   'modesPg.storyDesc':    { ua: 'Текст зі словами',          en: 'Text with words',           es: 'Texto con palabras' },
+  'modesPg.scrambleName': { ua: 'Анаграма',                  en: 'Scramble',                  es: 'Anagrama' },
+  'modesPg.scrambleDesc': { ua: 'Збери слово',               en: 'Build the word',            es: 'Forma la palabra' },
 
   // Quiz mode
   'quiz.title':       { ua: '🧠 Тест',                  en: '🧠 Quiz',                            es: '🧠 Test' },
@@ -304,6 +307,14 @@ const DICT: Record<string, Record<Lang, string>> = {
   'bee.checkBtn':       { ua: 'Перевірити',                     en: 'Check',                        es: 'Comprobar' },
   'bee.almostMsg':      { ua: '⚠️ Майже! Правильно: {w}',       en: '⚠️ Almost! Correct: {w}',      es: '⚠️ ¡Casi! Correcto: {w}' },
   'bee.wrongMsg':       { ua: '✗ Правильно: {w}',               en: '✗ Correct: {w}',               es: '✗ Correcto: {w}' },
+
+  'scramble.word':       { ua: 'Слово',                         en: 'Word',                          es: 'Palabra' },
+  'scramble.prompt':     { ua: 'Зберіть слово з літер:',        en: 'Build the word from the letters:', es: 'Forma la palabra con las letras:' },
+  'scramble.shuffleBtn': { ua: '🔀 Перемішати',                 en: '🔀 Shuffle',                    es: '🔀 Mezclar' },
+  'scramble.clearBtn':   { ua: '⌫ Очистити',                    en: '⌫ Clear',                       es: '⌫ Borrar' },
+  'scramble.hintBtn':    { ua: '💡 Підказка ({n})',             en: '💡 Hint ({n})',                 es: '💡 Pista ({n})' },
+  'scramble.hintNone':   { ua: '💡 Більше немає',               en: '💡 No more hints',              es: '💡 No hay más pistas' },
+  'scramble.wrongMsg':   { ua: '✗ Спробуй ще раз',              en: '✗ Try again',                   es: '✗ Inténtalo de nuevo' },
 
   'story.pickerDesc':   { ua: 'Оберіть текст для читання. Слова зі словника будуть підсвічені — натисни щоб побачити переклад.', en: 'Choose a text to read. Words from your dictionary are highlighted — click to see the translation.', es: 'Elige un texto para leer. Las palabras de tu diccionario se resaltan — toca para ver la traducción.' },
   'story.levelLabel':   { ua: 'Рівень {lvl}',                   en: 'Level {lvl}',                                  es: 'Nivel {lvl}' },

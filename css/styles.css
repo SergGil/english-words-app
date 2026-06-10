@@ -1338,6 +1338,38 @@
     #quiz-question-wrap .quiz-word-text { font-size: 1.5rem !important; }
   }
 
+  /* ── Scramble: letter tiles ── */
+  .scr-tile {
+    min-width: 38px;
+    height: 42px;
+    padding: 0 4px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform .1s, background .15s, border-color .15s;
+  }
+  .scr-tile:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--accent); }
+  .scr-tile:disabled { cursor: default; opacity: .85; }
+  .scr-tile-placed {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .scr-tile-empty {
+    min-width: 38px;
+    height: 42px;
+    border-radius: 8px;
+    border: 2px dashed var(--border);
+    background: transparent;
+    box-sizing: border-box;
+  }
+  body.sw .scr-tile-placed { background: var(--accent); border-color: var(--accent); color: #000; }
+
   /* ── SRS статистика (game-bar → пошук) ── */
   .srs-stats-bar {
     display: flex;

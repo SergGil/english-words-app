@@ -50,6 +50,7 @@ await import('../js/modes/context.ts');
 await import('../js/modes/spelling-bee.ts');
 await import('../js/features/leaderboard.ts');
 await import('../js/modes/story.ts');
+await import('../js/modes/scramble.ts');
 
 await import('../lib/jszip.min.js');
 await import('../js/features/epub.ts');
