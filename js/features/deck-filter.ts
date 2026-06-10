@@ -73,7 +73,7 @@ document.getElementById('sel-range')!.addEventListener('change', function() {
   if (v === 'weak') {
     const _srsAll  = state.srsData as Record<string, { ef?: number; reps?: number }>;
     const _srsWeak = Object.entries(_srsAll)
-      .filter(([, d]) => d && typeof d.ef === 'number')
+      .filter(([, d]) => d && typeof d.ef === 'number' && d.ef < 2.5)
       .sort(([, a], [, b]) => (a.ef ?? 2.5) - (b.ef ?? 2.5))
       .slice(0, 50);
     if (_srsWeak.length >= 5) {
