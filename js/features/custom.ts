@@ -24,6 +24,11 @@ function _wi(): WordIdx | undefined {
   return (window as Window & { _wordIdx?: WordIdx })._wordIdx;
 }
 
+// Sanitize HTML to prevent XSS when example sentences are inserted via innerHTML
+function _sanitize(s: string): string {
+  return s.replace(/[<>"'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'})[c] ?? c);
+}
+
 function openModal(): void {
   enInp.value = ''; uaInp.value = ''; exEnInp.value = ''; exUaInp.value = ''; errEl.textContent = '';
   renderList(); modal.className = 'open';
@@ -63,9 +68,7 @@ document.getElementById('cw-save')?.addEventListener('click', () => {
   _wi()?.forEach((_, key) => { if (key.toLowerCase() === enLow) dupEn = true; });
   if (dupEn) { errEl.textContent = t('custom.errDuplicate').replace('{w}', en); return; }
   if (en.length < 2) { errEl.textContent = t('custom.errTooShort'); return; }
-  // Sanitize HTML to prevent XSS when example sentences are inserted via innerHTML
-  const sanitize = (s: string) => s.replace(/[<>"'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'})[c] ?? c);
-  const safeExEn = sanitize(exEn), safeExUa = sanitize(exUa);
+  const safeExEn = _sanitize(exEn), safeExUa = _sanitize(exUa);
   const entry = [en, ua, safeExEn || en + '.', safeExUa || ua + '.', ''] as unknown as (typeof W)[number];
   (W as unknown as typeof entry[]).push(entry);
   _wi()?.set(en, W.length - 1);
@@ -125,7 +128,7 @@ document.getElementById('btn-anki-export')?.addEventListener('click', () => {
 // ── PDF Export via window.print ───────────────────────────────
 document.getElementById('btn-pdf-export')?.addEventListener('click', () => {
   const src = _exportSrc();
-  if (!src.length) { alert('Немає слів для експорту. Змініть фільтр.'); return; }
+  if (!src.length) { alert(t('export.noWordsAlert')); return; }
   const rows = src.map((w, i) => {
     if (!w) return '';
     const ww = w as string[];
@@ -140,12 +143,15 @@ document.getElementById('btn-pdf-export')?.addEventListener('click', () => {
     </tr>`;
   }).join('');
   const filter = (document.getElementById('export-filter') as HTMLSelectElement)?.value ?? 'known';
-  const filterLabel: Record<string,string> = { known:'вивчені', unknown:'невивчені', all:'всі', custom:'власні' };
+  const filterLabel: Record<string,string> = {
+    known: t('export.filter.known'), unknown: t('export.filter.unknown'),
+    all: t('export.filter.all'), custom: t('export.filter.custom'),
+  };
   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>English Words — ${filterLabel[filter]||''}</title>
   <style>body{font-family:Arial,sans-serif;font-size:13px;margin:20px;}h1{font-size:16px;margin-bottom:16px;}table{border-collapse:collapse;width:100%;}th{background:#f0f0f0;padding:6px 10px;border:1px solid #ddd;text-align:left;}td{vertical-align:top;}@media print{@page{margin:1.5cm;size:A4;}}</style>
   </head><body>
-  <h1>📚 English Words — ${filterLabel[filter]||''} (${src.length} слів)</h1>
-  <table><thead><tr><th>#</th><th>Слово / IPA</th><th>Переклад</th><th>Приклад</th></tr></thead><tbody>${rows}</tbody></table>
+  <h1>📚 English Words — ${filterLabel[filter]||''} (${src.length} ${t('export.pdf.wordsSuffix')})</h1>
+  <table><thead><tr><th>#</th><th>${t('export.pdf.wordCol')}</th><th>${t('export.pdf.translCol')}</th><th>${t('export.pdf.exampleCol')}</th></tr></thead><tbody>${rows}</tbody></table>
   <script>window.onload=()=>window.print();<\/script></body></html>`;
   const w = window.open('', '_blank');
   if (w) { w.document.write(html); w.document.close(); }
@@ -155,16 +161,16 @@ document.getElementById('btn-pdf-export')?.addEventListener('click', () => {
 document.getElementById('btn-share')?.addEventListener('click', () => {
   const code = (window.exportProgress as (() => string) | undefined)?.() ?? '';
   if (navigator.share) {
-    navigator.share({ title: 'English Words — мій прогрес', text: code }).catch(() => {});
+    navigator.share({ title: t('share.title'), text: code }).catch(() => {});
   } else {
     try {
       navigator.clipboard.writeText(code).then(() => {
         const btn = document.getElementById('btn-share')!;
         const orig = btn.textContent;
-        btn.textContent = '✅ Скопійовано!';
+        btn.textContent = t('share.copied');
         setTimeout(() => { btn.textContent = orig; }, 2000);
       });
-    } catch (e) { prompt('Скопіюй цей код:', code); }
+    } catch (e) { prompt(t('share.copyPrompt'), code); }
   }
 });
 
@@ -193,16 +199,14 @@ csvFileInput?.addEventListener('change', async () => {
     const [en, ua, exEn = '', exUa = ''] = parts;
     if (!en || !ua || en.length < 1 || ua.length < 1) { skipped++; continue; }
     // Skip if already exists
-    if (wi?.has(en.toLowerCase())) { skipped++; continue; }
-    // Sanitize
-    const sanitize = (s: string) => s.replace(/[<>"'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'})[c] ?? c);
-    const safeExEn = sanitize(exEn), safeExUa = sanitize(exUa);
+    if (wi?.has(en)) { skipped++; continue; }
+    const safeExEn = _sanitize(exEn), safeExUa = _sanitize(exUa);
     // Add to W
     const { W } = window as Window & { W?: (string | undefined)[][] };
     if (W) {
       const entry = [en, ua, safeExEn || en + '.', safeExUa || ua + '.', ''];
       W.push(entry);
-      wi?.set(en.toLowerCase(), W.length - 1);
+      wi?.set(en, W.length - 1);
     }
     cw.push({ en, ua, ex_en: safeExEn, ex_ua: safeExUa });
     added++;
@@ -219,8 +223,8 @@ csvFileInput?.addEventListener('change', async () => {
   // Show result
   const toast = document.getElementById('milestone-toast');
   const msg = added > 0
-    ? `✅ Імпортовано ${added} слів${skipped > 0 ? ` (пропущено ${skipped})` : ''}!`
-    : `⚠️ Не знайдено нових слів (пропущено ${skipped})`;
+    ? t('csv.imported').replace('{n}', String(added)) + (skipped > 0 ? t('csv.skippedSuffix').replace('{n}', String(skipped)) : '') + '!'
+    : t('csv.noNewWords').replace('{n}', String(skipped));
   if (toast) {
     toast.textContent = msg; toast.className = 'milestone-toast';
     void toast.offsetWidth; toast.className = 'milestone-toast show';
