@@ -16,14 +16,19 @@ document.getElementById('goal-modal-cancel')!.addEventListener('click', function
 });
 
 document.getElementById('goal-modal-ok')!.addEventListener('click', function() {
-  const val = parseInt((document.getElementById('goal-input') as HTMLInputElement).value);
+  const inp = document.getElementById('goal-input') as HTMLInputElement;
+  const val = parseInt(inp.value);
   if (val >= 1 && val <= 500) {
     const d = getGameData();
     d.goalMax = val;
     saveGameData(d);
     (window as any).renderGameBar?.();
+    document.getElementById('goal-modal')!.style.display = 'none';
+  } else {
+    inp.focus();
+    inp.classList.add('shake');
+    setTimeout(() => inp.classList.remove('shake'), 400);
   }
-  document.getElementById('goal-modal')!.style.display = 'none';
 });
 
 document.getElementById('goal-input')!.addEventListener('keydown', function(e) {
