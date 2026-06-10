@@ -4,6 +4,7 @@ import { W } from '../../data/words.js';
 import { state } from '../../src/state.ts';
 import { decodeIpa } from '../core/ui-helpers.ts';
 import { openWordDetail } from './word-detail.ts';
+import { t } from './i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 const overlay   = document.getElementById('search-overlay')!      as HTMLElement;
@@ -59,13 +60,14 @@ function _render(hits: WordEntry[]): void {
         `</div>` +
         `<div style="font-size:.85rem;color:var(--text2);margin-top:2px;">${w[1]}</div>` +
       `</div>` +
-      `<button class="sr-detail-btn" title="Детальна картка" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--text3);padding:4px 6px;flex-shrink:0;">📋</button>` +
+      `<button class="sr-detail-btn" title="${t('search.detailCard')}" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--text3);padding:4px 6px;flex-shrink:0;">📋</button>` +
       `<span class="sr-goto-badge" style="font-size:.7rem;padding:2px 7px;border-radius:20px;white-space:nowrap;cursor:pointer;` +
         (inDeck
           ? `background:rgba(var(--accent-rgb,0,200,255),.12);color:var(--accent);`
           : `background:var(--bg2);color:var(--text3);`) +
-        `">${inDeck ? '✓ у колоді' : '→ до картки'}</span>`;
+        `">${inDeck ? t('search.inDeck') : t('search.goToCard')}</span>`;
 
+    row.tabIndex = 0;
     row.addEventListener('mouseover', () => { row.style.background = 'var(--bg2)'; });
     row.addEventListener('mouseout', () => { row.style.background = ''; });
     // Main row click → open word detail
@@ -154,8 +156,6 @@ results.addEventListener('keydown', (e: KeyboardEvent) => {
   }
   if (e.key === 'Enter' && idx !== -1) rows[idx].click();
 });
-
-results.querySelectorAll<HTMLElement>('.search-row').forEach(r => { r.tabIndex = 0; });
 
 openBtn.addEventListener('click', openSearch);
 closeBtn.addEventListener('click', closeSearch);
