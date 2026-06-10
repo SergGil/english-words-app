@@ -35,7 +35,7 @@
     setTimeout(function() {
       const _pwaText = banner.querySelector<HTMLElement>('.pwa-text');
       if (_pwaText) _pwaText.innerHTML = '<strong>Додай на головний екран</strong> · Натисни <strong>⬜ Поділитися</strong> → <strong>На екран «Додому»</strong>';
-      const installBtn = banner.querySelector<HTMLElement>('.pwa-install-btn');
+      const installBtn = document.getElementById('pwa-install');
       if (installBtn) installBtn.style.display = 'none';
       banner.className = 'show';
     }, 2000);

@@ -93,9 +93,6 @@ function _renderSrsUI({ due, newCards, total }: typeof _srsStatsCache): void {
   }
 }
 
-export const updateSrsLabel = updateSrsUI;
-export const updateSrsStats = updateSrsUI;
-
 // ── Deck builders ─────────────────────────────────────────────
 function _applyTagFilter(words: WordEntry[]): WordEntry[] {
   const ts = state._activeTagSet as Set<string> | null;

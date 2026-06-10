@@ -1,5 +1,5 @@
 // English Words App — js/features/settings.ts
-import { updateSrsLabel, updateSrsStats } from '../core/srs.ts';
+import { updateSrsUI } from '../core/srs.ts';
 import { _imgCache, loadWikiImage } from '../core/images.ts';
 import { W } from '../../data/words.js';
 import { openPage } from './sidebar.ts';
@@ -56,8 +56,7 @@ document.addEventListener('visibilitychange', () => {
 
 // ── Initial renders ────────────────────────────────────────────
 try { _callWin('renderLevelBadge'); } catch (e) { console.error(e); }
-try { updateSrsLabel(W as unknown as WordEntry[]); } catch (e) { console.error(e); }
-try { updateSrsStats(W as unknown as WordEntry[]); } catch (e) { console.error(e); }
+try { updateSrsUI(W as unknown as WordEntry[]); } catch (e) { console.error(e); }
 try { _callWin('checkAchievements'); } catch (e) { console.error(e); }
 try { _callWin('render'); } catch (e) { console.error('render ERR:', e); }
 setTimeout(() => {
