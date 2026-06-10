@@ -202,6 +202,13 @@ i18next.init({
   },
 });
 
+// 'ua' isn't a valid Intl.PluralRules locale — borrow Ukrainian (uk) plural
+// categories (one/few/many/other) so wordsLabel() pluralizes correctly.
+const pluralResolver = i18next.services.pluralResolver;
+const baseGetRule = pluralResolver.getRule.bind(pluralResolver);
+pluralResolver.getRule = (code: string, options?: object) =>
+  baseGetRule(code === 'ua' ? 'uk' : code, options);
+
 export function getLang(): Lang {
   return i18next.language as Lang;
 }
@@ -221,10 +228,7 @@ export function tLang(key: string, lang: Lang, params?: Record<string, string | 
 }
 
 export function wordsLabel(n: number): string {
-  const lang = getLang();
-  if (lang === 'en') return n === 1 ? 'word' : 'words';
-  if (lang === 'es') return n === 1 ? 'palabra' : 'palabras';
-  return 'слів';
+  return i18next.t('common_word', { count: n });
 }
 
 export function monthNames(): string[] {

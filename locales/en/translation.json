@@ -816,5 +816,7 @@
   "ob.level.daily.hint": "Daily challenge",
   "ob.skip": "Skip",
   "ob.next": "Next →",
-  "ob.start": "🚀 Start learning!"
+  "ob.start": "🚀 Start learning!",
+  "common_word_one": "word",
+  "common_word_other": "words"
 }

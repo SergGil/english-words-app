@@ -816,5 +816,7 @@
   "ob.level.daily.hint": "Desafío diario",
   "ob.skip": "Omitir",
   "ob.next": "Siguiente →",
-  "ob.start": "🚀 ¡Empezar a aprender!"
+  "ob.start": "🚀 ¡Empezar a aprender!",
+  "common_word_one": "palabra",
+  "common_word_other": "palabras"
 }

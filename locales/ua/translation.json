@@ -816,5 +816,9 @@
   "ob.level.daily.hint": "Щоденний челендж",
   "ob.skip": "Пропустити",
   "ob.next": "Далі →",
-  "ob.start": "🚀 Почати навчання!"
+  "ob.start": "🚀 Почати навчання!",
+  "common_word_one": "слово",
+  "common_word_few": "слова",
+  "common_word_many": "слів",
+  "common_word_other": "слів"
 }
