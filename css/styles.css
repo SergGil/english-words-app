@@ -693,13 +693,13 @@
   #achievement-toast {
     display: none;
     position: fixed;
-    bottom: 24px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%) translateY(20px);
+    transform: translate(-50%,-50%) scale(.92);
     background: #1a1a2e;
     color: #fff;
     border-radius: 14px;
-    padding: 12px 20px;
+    padding: 18px 24px;
     z-index: 2000;
     box-shadow: 0 8px 32px rgba(0,0,0,.3);
     text-align: center;
@@ -711,7 +711,7 @@
   }
   #achievement-toast.show {
     display: block;
-    transform: translateX(-50%) translateY(0);
+    transform: translate(-50%,-50%) scale(1);
     opacity: 1;
   }
   .toast-icon { font-size: 1.8rem; display: block; margin-bottom: 4px; }
