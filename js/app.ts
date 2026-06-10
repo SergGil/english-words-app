@@ -16,7 +16,7 @@ import { getNoteForWord, hasNote }                 from './features/notes.ts';
 import { decodeIpa }                               from './core/ui-helpers.ts';
 import { getCefrLevel }                            from '../data/cefr.ts';
 import { ACHIEVEMENTS }                            from '../data/achievements.ts';
-import { t, categoryName }                         from './features/i18n.ts';
+import { t, tLang, categoryName, type Lang }       from './features/i18n.ts';
 import { renderGameBar, renderLevelBadge }         from './features/render-game-bar.ts';
 import { checkAchievements }                       from './features/render-achievements.ts';
 import { maybeSubmitScore }                        from './features/leaderboard.ts';
@@ -278,8 +278,9 @@ function render() {
     const posEl = document.getElementById('wpos') as HTMLElement | null;
     if (posEl) {
       const posCode = cw[5] || '';
-      posEl.textContent = (FRONT_LANG === 'EN' && posCode) ? t('pos.' + posCode) : '';
-      posEl.style.display = (FRONT_LANG === 'EN' && posCode) ? 'block' : 'none';
+      const posLang: Lang = FRONT_LANG === 'EN' ? 'en' : FRONT_LANG === 'UA' ? 'ua' : 'es';
+      posEl.textContent = posCode ? tLang('pos.' + posCode, posLang) : '';
+      posEl.style.display = posCode ? 'block' : 'none';
     }
     const translEl = $e('wtransl');
     translEl.textContent = backWord;

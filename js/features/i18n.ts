@@ -1,7 +1,7 @@
 // English Words App — js/features/i18n.ts
 // Minimal i18n: translates sidebar menu labels (UA ⇄ EN), persisted via localStorage
 
-type Lang = 'ua' | 'en' | 'es';
+export type Lang = 'ua' | 'en' | 'es';
 
 const DICT: Record<string, Record<Lang, string>> = {
   'nav.cards':        { ua: 'Картки',        en: 'Cards',        es: 'Tarjetas' },
@@ -983,6 +983,11 @@ function setLang(lang: Lang): void {
 export function t(key: string): string {
   const entry = DICT[key];
   return entry ? entry[getLang()] : key;
+}
+
+export function tLang(key: string, lang: Lang): string {
+  const entry = DICT[key];
+  return entry ? entry[lang] : key;
 }
 
 export function wordsLabel(n: number): string {
