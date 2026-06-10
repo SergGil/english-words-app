@@ -861,7 +861,6 @@ const DICT: Record<string, Record<Lang, string>> = {
   'profile.cancel':        { ua: 'Скасувати',                 en: 'Cancel',              es: 'Cancelar' },
   'profile.save':          { ua: 'Зберегти',                  en: 'Save',                es: 'Guardar' },
   'profile.create':        { ua: '+ Створити',                en: '+ Create',            es: '+ Crear' },
-  'profile.createFull':    { ua: '+ Створити профіль',        en: '+ Create profile',    es: '+ Crear perfil' },
 
   // ── Onboarding ─────────────────────────────────────────────
   'ob.slide1.title': { ua: 'Ласкаво просимо!', en: 'Welcome!', es: '¡Bienvenido!' },

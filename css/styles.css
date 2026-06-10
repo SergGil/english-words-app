@@ -2332,50 +2332,6 @@ body.sw .el-voice-btn.el-active { box-shadow: 0 0 12px rgba(0,200,255,0.3); bord
 body.sw .profile-btn { border-color: rgba(0,200,255,0.3); color: #aad4e8; }
 body.sw .profile-btn:hover { border-color: #00c8ff; color: #fff; }
 
-#profiles-overlay { display: none; }
-#profiles-overlay.open { display: flex; }
-
-.profiles-panel {
-  background: var(--card);
-  border-radius: 18px;
-  width: 100%;
-  max-width: 420px;
-  max-height: 88vh;
-  overflow-y: auto;
-  box-shadow: 0 12px 48px rgba(0,0,0,.3);
-  animation: slideUpPanel .22s cubic-bezier(.175,.885,.32,1.275);
-}
-.profiles-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 20px 14px;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text);
-  border-bottom: 1px solid var(--border);
-}
-.profiles-close-btn {
-  background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text3); line-height: 1;
-}
-
-/* Profile list */
-.profiles-list { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
-
-.prf-name { font-size: .92rem; font-weight: 700; color: var(--text); display: block; }
-
-.prf-del {
-  background: none; border: none; font-size: 1.1rem; cursor: pointer;
-  color: var(--text3); padding: 4px 6px; border-radius: 6px; transition: all .12s; flex-shrink: 0;
-}
-.prf-del:hover { background: rgba(231,76,60,.12); color: #e74c3c; }
-
-/* Add form */
-.profiles-add {
-  padding: 14px 18px 20px;
-  border-top: 1px solid var(--border);
-  margin-top: 4px;
-}
 .prf-av-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .prf-av-btn {
   width: 36px; height: 36px;
@@ -2988,7 +2944,6 @@ body.sw .settings-section-danger { border-color: rgba(231,76,60,0.3); background
 
 /* ── SW Modals ── */
 body.sw .prf-delete-panel,
-body.sw .profiles-panel,
 body.sw .import-panel {
   background: #090f1e;
   border: 1px solid rgba(0,200,255,0.2);
@@ -2996,7 +2951,6 @@ body.sw .import-panel {
 }
 body.sw .prf-delete-title { color: #e8f4ff; }
 body.sw .prf-delete-warn  { color: rgba(200,230,255,0.5); }
-body.sw .profiles-header  { border-color: rgba(0,200,255,0.15); color: #00c8ff; font-family:'Orbitron',monospace; }
 
 /* ── SW Achievement toast ── */
 body.sw #achievement-toast {
@@ -3536,10 +3490,6 @@ body.sw .idiom-meaning { color: #00c8ff; }
   .duel-sv    { font-size: 1rem; }
   .duel-sl    { font-size: .6rem; }
 
-  /* Profile modal */
-  .profiles-panel { padding: 16px 14px; border-radius: 18px 18px 0 0; }
-  .profiles-list  { max-height: 40vh; }
-
   /* Page inner: compact */
   .page-inner { padding: 14px 14px; }
   .page-title  { font-size: 1rem; }
@@ -3590,7 +3540,6 @@ body.sw .idiom-meaning { color: #00c8ff; }
   .btn { min-height: 38px; }
 
   /* Modal width consistency */
-  .profiles-panel { max-width: 480px; }
   .import-panel   { max-width: 420px; }
 
   /* Search dropdown */
