@@ -1,4 +1,6 @@
 // English Words App — js/features/pronunciation.ts
+import { t } from './i18n.ts';
+
 type SpeechRecognitionCtor = new () => SpeechRecognition;
 const _w = window as Window & { SpeechRecognition?: SpeechRecognitionCtor; webkitSpeechRecognition?: SpeechRecognitionCtor };
 const SR: SpeechRecognitionCtor | null = _w.SpeechRecognition ?? _w.webkitSpeechRecognition ?? null;
@@ -8,14 +10,29 @@ let _isListening = false;
 
 export function isPronuncSupported(): boolean { return !!SR; }
 
+function _levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length;
+  const dp: number[] = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    let prev = dp[0];
+    dp[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const tmp = dp[j];
+      dp[j] = a[i - 1] === b[j - 1]
+        ? prev
+        : 1 + Math.min(prev, dp[j], dp[j - 1]);
+      prev = tmp;
+    }
+  }
+  return dp[n];
+}
+
 function _similarity(a: string, b: string): number {
   a = a.toLowerCase().trim(); b = b.toLowerCase().trim();
   if (a === b) return 1;
   const len = Math.max(a.length, b.length);
   if (!len) return 1;
-  let dist = 0;
-  for (let i = 0; i < len; i++) { if (a[i] !== b[i]) dist++; }
-  return Math.max(0, 1 - dist / len);
+  return Math.max(0, 1 - _levenshtein(a, b) / len);
 }
 
 function _stop(btn: HTMLElement | null): void {
@@ -73,12 +90,12 @@ export function showPronuncResult(
   status: string, score: number, spoken: string, target: string
 ): void {
   const msgs: Record<string, [string, string, string, string]> = {
-    perfect:     ['🏆', 'Ідеально!',        'Вимова як у носія',            '#27ae60'],
-    good:        ['✅', 'Добре!',            'Майже ідеально',               '#2980b9'],
-    okay:        ['👍', 'Непогано',          `Ти: "${spoken}"`,              '#e67e22'],
-    try_again:   ['🔁', 'Спробуй знову',     `"${spoken ?? '?'}" → "${target}"`, '#e74c3c'],
-    unsupported: ['🎤', 'Не підтримується',  'Спробуй Chrome',               '#888'],
-    error:       ['⚠️', 'Помилка',           'Перевір мікрофон',             '#e74c3c'],
+    perfect:     ['🏆', t('pron.perfect.title'),     t('pron.perfect.sub'),         '#27ae60'],
+    good:        ['✅', t('pron.good.title'),        t('pron.good.sub'),            '#2980b9'],
+    okay:        ['👍', t('pron.okay.title'),        t('pron.okay.sub').replace('{s}', spoken), '#e67e22'],
+    try_again:   ['🔁', t('pron.tryAgain.title'),    `"${spoken ?? '?'}" → "${target}"`, '#e74c3c'],
+    unsupported: ['🎤', t('pron.unsupported.title'), t('pron.unsupported.sub'),     '#888'],
+    error:       ['⚠️', t('pron.error.title'),       t('pron.error.sub'),           '#e74c3c'],
   };
   const [emoji, title, subtitle, color] = msgs[status] ?? msgs.error;
   const pct = Math.round(score * 100);
