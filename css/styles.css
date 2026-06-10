@@ -2700,7 +2700,7 @@ body.sw .hamburger { border-color: rgba(0,200,255,.3); }
   position: fixed !important;
   left: var(--sb-width) !important; right: 0 !important; top: 0 !important; bottom: 0 !important;
   background: var(--bg) !important;
-  z-index: 600 !important;
+  z-index: 660 !important;
   padding: 20px 16px !important;
   display: flex !important;
   align-items: flex-start !important;
