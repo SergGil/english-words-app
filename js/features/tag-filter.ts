@@ -3,6 +3,7 @@
 import { state } from '../../src/state.ts';
 import { WORD_CATEGORIES, CATEGORY_LIST } from '../../data/categories.js';
 import { categoryName } from './i18n.ts';
+import { ES_MODES } from './mode-utils.ts';
 
 const selTag   = document.getElementById('sel-tag')   as HTMLSelectElement | null;
 const selRange = document.getElementById('sel-range') as HTMLSelectElement | null;
@@ -36,8 +37,7 @@ if (selTag) {
       state._activeTagSet = new Set(words);
     }
     const selMode = document.getElementById('sel-mode') as HTMLSelectElement | null;
-    const ES_SET = new Set(['en-es', 'es-en', 'es-ua', 'ua-es']);
-    if (selMode && ES_SET.has(selMode.value)) {
+    if (selMode && ES_MODES.has(selMode.value)) {
       (window as Window & { _rebuildEsDeck?: () => void })._rebuildEsDeck?.();
     } else {
       selRange?.dispatchEvent(new Event('change'));
