@@ -394,7 +394,7 @@ function _runCountdown(cb: ()=>void): void {
   }
   let n = 3;
   numEl.textContent = '3';
-  const t = setInterval(()=>{
+  const _timer = setInterval(()=>{
     n--;
     if (n > 0) {
       numEl.textContent = String(n);
@@ -403,7 +403,7 @@ function _runCountdown(cb: ()=>void): void {
     } else if (n === 0) {
       numEl.textContent = '⚡';
     } else {
-      clearInterval(t); cb();
+      clearInterval(_timer); cb();
     }
   }, 1000);
 }
@@ -763,7 +763,7 @@ function _submitWrite(): void {
 }
 
 function _useHint(): void {
-  if(_hintsLeft<=0||!_answered===false) return; // only before answering
+  if(_hintsLeft<=0||_answered) return; // only before answering
   const w=_quizDeck[_quizIdx]; if(!w) return;
   if(_hintsLeft<999) _hintsLeft--;
   _updateHintUI();
@@ -805,9 +805,9 @@ function _showFinish(room:RoomData):void{
   if(_finished) return;
   _finished=true;
   // Tournament hook: if we're in a tournament match, report result and return to bracket
-  const hook=(window as Window&{_tournFinishHook?:(r:RoomData)=>void})._tournFinishHook;
+  const hook=_tournFinishHook;
   if(hook&&_tournId){
-    (window as Window&{_tournFinishHook?:(r:RoomData)=>void})._tournFinishHook=undefined;
+    _tournFinishHook=null;
     hook(room);
     setTimeout(()=>{ _showTournament(); const t=_tournData; if(t) _renderTournBracket(t); },800);
     return;
@@ -1002,7 +1002,7 @@ async function createAsyncChallenge(): Promise<void> {
   try {
     // Clear any stale tournament state so _showFinish doesn't route to tournament path
     _tournId=''; _tournData=null;
-    (window as Window & {_tournFinishHook?:unknown})._tournFinishHook=undefined;
+    _tournFinishHook=null;
     const code=_genCode();
     const seed=Date.now();
     const challenge: AsyncDuel = {
@@ -1111,6 +1111,7 @@ let _tournId    = '';
 let _tournSlot  = -1;
 let _tournData: Tournament | null = null;
 let _tournPoll: ReturnType<typeof setInterval> | null = null;
+let _tournFinishHook: ((r:RoomData)=>void) | null = null;
 
 function _showTournament() { elLobby().style.display='none'; ($('duel-tournament') as HTMLElement).style.display=''; }
 function _hideTournament() { ($('duel-tournament') as HTMLElement).style.display='none'; }
@@ -1173,6 +1174,10 @@ async function joinTournament(): Promise<void> {
     // Find first free slot
     const mySlot=Array.from({length:tourn.size},(_,i)=>i).find(i=>!tourn.players[i]);
     if(mySlot===undefined) throw new Error(t('duel.tourn.err.noSlot'));
+    // Re-check the slot is still free right before claiming it, to narrow the race
+    // window where two players pick the same slot at nearly the same time.
+    const fresh=await _fbGet(`/tournaments/${code}/players/${mySlot}`);
+    if(fresh) throw new Error(t('duel.tourn.err.noSlot'));
     await _fbPatch(`/tournaments/${code}/players/${mySlot}`,{name:_getMyName(),avatar:_getMyAvatar()});
     _tournId=code; _tournSlot=mySlot; _tournData=tourn;
     _showTournament();
@@ -1294,31 +1299,30 @@ function _renderTournBracket(tourn:Tournament): void {
   }
 }
 
-async function _startTournMatch(t:Tournament, round:number, matchIdx:number): Promise<void> {
-  const match=t.bracket[round][matchIdx];
+async function _startTournMatch(tourn:Tournament, round:number, matchIdx:number): Promise<void> {
+  const match=tourn.bracket[round][matchIdx];
   // Create a duel room for this match
   _roomId=_genCode(); _mySlot=match.p1===_tournSlot?'p1':'p2';
   const seed=Date.now();
   const room:RoomData={
-    seed, mode:t.mode, category:t.category, difficulty:t.difficulty,
+    seed, mode:tourn.mode, category:tourn.category, difficulty:tourn.difficulty,
     bestOf:1, maxHints:3, powerupsEnabled:false,
     createdAt:Date.now(), started:false, finished:false,
     series:{p1wins:0,p2wins:0,round:1},
-    p1:{name:t.players[match.p1].name,avatar:t.players[match.p1].avatar,score:0,idx:0,done:false,hintsLeft:3,powerups:{double:0,skip:0,freeze:0}},
+    p1:{name:tourn.players[match.p1].name,avatar:tourn.players[match.p1].avatar,score:0,idx:0,done:false,hintsLeft:3,powerups:{double:0,skip:0,freeze:0}},
     p2:null,
   };
   await _fbSet(`/duel_rooms/${_roomId}`,room);
   // Save room ID to tournament match
   const matchPath=`/tournaments/${_tournId}/bracket/${round}/${matchIdx}`;
   await _fbPatch(matchPath,{roomId:_roomId});
-  _oppName=t.players[match.p1===_tournSlot?match.p2:match.p1].name;
-  _oppAvatar=t.players[match.p1===_tournSlot?match.p2:match.p1].avatar;
-  _quizDeck=_buildDeck(seed,t.category,t.difficulty);
+  _oppName=tourn.players[match.p1===_tournSlot?match.p2:match.p1].name;
+  _oppAvatar=tourn.players[match.p1===_tournSlot?match.p2:match.p1].avatar;
+  _quizDeck=_buildDeck(seed,tourn.category,tourn.difficulty);
   _hideTournament();
-  _initGame(t.mode,3,1,{p1wins:0,p2wins:0,round:1},false);
+  _initGame(tourn.mode,3,1,{p1wins:0,p2wins:0,round:1},false);
   // After game finishes, save result to tournament
-  const origFinish=_showFinish.bind(null);
-  (window as Window & {_tournFinishHook?:(r:RoomData)=>void})._tournFinishHook=async(roomData:RoomData)=>{
+  _tournFinishHook=async(roomData:RoomData)=>{
     const me=roomData[_mySlot] as PlayerData;
     const opp=(roomData[_mySlot==='p1'?'p2':'p1']) as PlayerData;
     const myScore=me.score, oppScore=opp?.score??0;
@@ -1349,7 +1353,9 @@ async function _joinTournMatch(roomId:string): Promise<void> {
   }catch(e){}
 }
 
-// Guard: prevents both p1 and p2 from calling _advanceTournament simultaneously
+// Guard: prevents this client from calling _advanceTournament concurrently with itself.
+// Both players' clients may still call this independently, but they compute the same
+// deterministic bracket update from the same room data, so duplicate writes are harmless.
 let _advanceLock = false;
 
 async function _advanceTournament(): Promise<void> {
