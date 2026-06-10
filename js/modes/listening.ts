@@ -36,9 +36,8 @@ function build(): void {
 
 function playWord(): void {
   if (!lWord) return;
-  elPlayBtn.classList.add('speaking');
   try { (window.speak as Speak | undefined)?.(lWord[0], elPlayBtn as HTMLElement); }
-  catch (e) { elPlayBtn.classList.remove('speaking'); }
+  catch (e) { elPlayBtn.classList.remove('on'); }
 }
 
 function open(): void { build(); elFinal.style.display = 'none'; elScRow.style.display = 'flex'; oOverlay.style.display = 'flex'; renderQ(); }

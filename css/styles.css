@@ -1542,7 +1542,7 @@
     transition:transform .15s, background .15s; box-shadow:0 2px 12px rgba(0,0,0,.1);
   }
   .listen-play-btn:hover { background:var(--accent); }
-  .listen-play-btn.speaking { animation:listenPulse .7s ease-in-out infinite alternate; }
+  .listen-play-btn.on { animation:listenPulse .7s ease-in-out infinite alternate; }
   @keyframes listenPulse { from{transform:scale(1);box-shadow:0 0 0 0 rgba(78,204,163,.5)} to{transform:scale(1.07);box-shadow:0 0 0 12px rgba(78,204,163,0)} }
 
   /* ── Category matching ── */
