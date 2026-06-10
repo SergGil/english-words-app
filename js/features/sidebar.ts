@@ -96,6 +96,15 @@ export function openPage(page: string): void {
 }
 window.openPage = openPage;
 
+// Mode-game overlays (quiz, write, story, etc.) sit far above the page
+// overlays (z-index 9100+) and are toggled via style.display rather than
+// classes — close them too so they don't bleed through when switching pages.
+const MODE_OVERLAY_IDS = [
+  'bee-overlay', 'scr-overlay', 'wl-overlay', 'story-mode-overlay', 'ctx-overlay',
+  'fib-overlay', 'listen-overlay', 'catpairs-overlay', 'lesson-overlay',
+  'write-overlay', 'pairs-overlay', 'tempo-overlay',
+];
+
 export function closePage(): void {
   _activePage = null;
   _setSidebarActive(null);
@@ -111,6 +120,10 @@ export function closePage(): void {
   document.getElementById('grammar-overlay')?.classList.remove('open');
   document.getElementById('idioms-overlay')?.classList.remove('open');
   document.getElementById('lp-overlay')?.classList.remove('open');
+  for (const id of MODE_OVERLAY_IDS) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  }
 }
 window.closePage = closePage;
 
