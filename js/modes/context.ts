@@ -151,7 +151,7 @@ document.getElementById('ctx-close')?.addEventListener('click', close);
 document.getElementById('ctx-exit')?.addEventListener('click', close);
 overlay.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) close(); });
 elNext.addEventListener('click', () => { ctxIdx++; renderQ(); });
-document.getElementById('ctx-restart')?.addEventListener('click', () => { build(); renderQ(); });
+document.getElementById('ctx-restart')?.addEventListener('click', () => { elFinal.style.display = 'none'; elScRow.style.display = 'flex'; build(); renderQ(); });
 document.addEventListener('keydown', (e: KeyboardEvent) => {
   if (overlay.style.display !== 'flex') return;
   if (e.key === 'Escape') close();
