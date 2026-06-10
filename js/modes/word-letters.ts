@@ -107,9 +107,12 @@ function renderRound(): void {
   elFoundCnt.textContent = '0';
   elResult.textContent = '';
   elHintText.textContent = ''; elHintText.style.display = 'none';
+  elDone.style.display = '';
   elDone.textContent = wlIdx >= wlRounds.length-1 ? t('quiz.finish') : t('letters.doneBtn');
   elHintBtn.disabled = false;
   elHintBtn.textContent = t('letters.hintBtn').replace('{n}', String(wlHintsLeft));
+  elSubmit.disabled = false; elClearBtn.disabled = false;
+  elLetters.style.display = ''; elGuess.style.display = ''; elFoundList.style.display = '';
 
   renderTiles();
   renderFound();
@@ -172,6 +175,7 @@ function clearGuess(): void {
 }
 
 function submitGuess(): void {
+  if (wlIdx >= wlRounds.length) return;
   const r = wlRounds[wlIdx];
   const word = wlGuess.map(idx => wlTiles[idx].ch).join('');
   if (word.length < 3) {
@@ -199,7 +203,7 @@ function submitGuess(): void {
 }
 
 function hint(): void {
-  if (wlHintsLeft <= 0) return;
+  if (wlIdx >= wlRounds.length || wlHintsLeft <= 0) return;
   const r = wlRounds[wlIdx];
   const remaining = r.possible.filter(w => !wlFound.has(w)).sort((a, b) => a.length - b.length);
   if (!remaining.length) return;
@@ -212,6 +216,9 @@ function hint(): void {
 
 function showFinal(): void {
   elScoreRow.style.display = 'none'; elFinal.style.display = 'block';
+  elLetters.style.display = 'none'; elGuess.style.display = 'none'; elFoundList.style.display = 'none';
+  elHintText.style.display = 'none'; elResult.textContent = '';
+  elHintBtn.disabled = true; elClearBtn.disabled = true; elSubmit.disabled = true; elDone.style.display = 'none';
   const pct = wlPossibleTotal > 0 ? Math.round(wlFoundTotal / wlPossibleTotal * 100) : 0;
   document.getElementById('wl-final-emoji')!.textContent = pct===100?'🏆':pct>=70?'🎉':pct>=40?'👍':'💪';
   document.getElementById('wl-final-title')!.textContent = pct===100?t('quiz.perfectTitle'):pct>=70?t('quiz.greatTitle'):pct>=40?t('quiz.goodTitle'):t('tempo.practiceTitle');
