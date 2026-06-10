@@ -116,7 +116,17 @@ document.getElementById('sel-range')!.addEventListener('change', function() {
   } else if (v === 'bookmarks') {
     const _bms = getBookmarks();
     deck = (W as unknown as WordEntry[]).filter(w => _bms.has(w[0]));
-    if (!deck.length) { deck = (W as unknown as WordEntry[]).slice(0, 10); _showToast(t('range.noBookmarks')); }
+    if (!deck.length) {
+      _showToast(t('range.noBookmarks'));
+      (this as HTMLSelectElement).value = '0';
+      (window as any).setBaseWords(W.slice());
+      deck = (W as unknown as WordEntry[]).slice();
+      shuffle(deck);
+      (window as any).setDeck(deck);
+      (window as any).setIdx(0);
+      (window as any).render?.();
+      return;
+    }
     shuffle(deck);
     (window as any).setBaseWords(W.slice());
   } else if (v === 'unlearned') {
