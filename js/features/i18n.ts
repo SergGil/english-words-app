@@ -329,6 +329,7 @@ const DICT: Record<string, Record<Lang, string>> = {
   'letters.alreadyMsg':  { ua: '⚠️ Вже знайдено',                en: '⚠️ Already found',               es: '⚠️ Ya encontrado' },
   'letters.wrongMsg':    { ua: '✗ Такого слова немає',           en: '✗ Not a word',                   es: '✗ No es una palabra' },
   'letters.tooShort':    { ua: 'Мінімум 3 літери',               en: 'At least 3 letters',             es: 'Mínimo 3 letras' },
+  'letters.timeUp':      { ua: '⏱ Час вийшов!',                  en: '⏱ Time\'s up!',                  es: '⏱ ¡Se acabó el tiempo!' },
 
   'story.pickerDesc':   { ua: 'Оберіть текст для читання. Слова зі словника будуть підсвічені — натисни щоб побачити переклад.', en: 'Choose a text to read. Words from your dictionary are highlighted — click to see the translation.', es: 'Elige un texto para leer. Las palabras de tu diccionario se resaltan — toca para ver la traducción.' },
   'story.levelLabel':   { ua: 'Рівень {lvl}',                   en: 'Level {lvl}',                                  es: 'Nivel {lvl}' },

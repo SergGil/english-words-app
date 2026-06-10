@@ -25,6 +25,8 @@ let wlTiles: Tile[] = [];
 let wlGuess: number[] = [];
 let wlTileOrder: number[] = [];
 let wlHintsLeft = 3;
+let wlTimer: ReturnType<typeof setInterval> | null = null;
+let wlTimeLeft = 0;
 
 // ── DOM ───────────────────────────────────────────────────────
 const overlay    = document.getElementById('wl-overlay')!  as HTMLElement;
@@ -43,6 +45,7 @@ const elSubmit   = document.getElementById('wl-submit')!   as HTMLButtonElement;
 const elDone     = document.getElementById('wl-done')!     as HTMLElement;
 const elFinal    = document.getElementById('wl-final')!    as HTMLElement;
 const elScoreRow = document.getElementById('wl-score-row')! as HTMLElement;
+const elTimer    = document.getElementById('wl-timer')!    as HTMLElement;
 
 function letterCounts(word: string): Record<string, number> {
   const c: Record<string, number> = {};
@@ -84,13 +87,48 @@ function build(): void {
   wlPossibleTotal = wlRounds.reduce((s, r) => s + r.possible.length, 0);
 }
 
+function roundDuration(r: RoundData): number {
+  return Math.min(90, 20 + r.possible.length * 3);
+}
+
+function stopTimer(): void {
+  if (wlTimer !== null) { clearInterval(wlTimer); wlTimer = null; }
+}
+
+function updateTimerDisplay(): void {
+  const m = Math.floor(wlTimeLeft / 60);
+  const s = wlTimeLeft % 60;
+  elTimer.textContent = `⏱ ${m}:${String(s).padStart(2, '0')}`;
+  elTimer.style.color = wlTimeLeft <= 10 ? '#e74c3c' : 'var(--accent)';
+}
+
+function startTimer(seconds: number): void {
+  stopTimer();
+  wlTimeLeft = seconds;
+  updateTimerDisplay();
+  wlTimer = setInterval(() => {
+    wlTimeLeft--;
+    updateTimerDisplay();
+    if (wlTimeLeft <= 0) {
+      stopTimer();
+      timeUp();
+    }
+  }, 1000);
+}
+
+function timeUp(): void {
+  elResult.innerHTML = `<span style="color:#e74c3c">${t('letters.timeUp')}</span>`;
+  elHintBtn.disabled = true; elClearBtn.disabled = true; elSubmit.disabled = true;
+  setTimeout(() => { wlIdx++; renderRound(); }, 1200);
+}
+
 function open(): void {
   build();
   elFinal.style.display = 'none'; elScoreRow.style.display = 'flex';
   overlay.style.display = 'flex';
   renderRound();
 }
-function close(): void { overlay.style.display = 'none'; }
+function close(): void { stopTimer(); overlay.style.display = 'none'; }
 
 function renderRound(): void {
   if (wlIdx >= wlRounds.length) { showFinal(); return; }
@@ -116,6 +154,7 @@ function renderRound(): void {
 
   renderTiles();
   renderFound();
+  startTimer(roundDuration(r));
 }
 
 function renderTiles(): void {
@@ -215,6 +254,7 @@ function hint(): void {
 }
 
 function showFinal(): void {
+  stopTimer();
   elScoreRow.style.display = 'none'; elFinal.style.display = 'block';
   elLetters.style.display = 'none'; elGuess.style.display = 'none'; elFoundList.style.display = 'none';
   elHintText.style.display = 'none'; elResult.textContent = '';
@@ -230,7 +270,7 @@ function showFinal(): void {
 elHintBtn.addEventListener('click', hint);
 elClearBtn.addEventListener('click', clearGuess);
 elSubmit.addEventListener('click', submitGuess);
-elDone.addEventListener('click', () => { wlIdx++; renderRound(); });
+elDone.addEventListener('click', () => { stopTimer(); wlIdx++; renderRound(); });
 document.getElementById('btn-letters')?.addEventListener('click', open);
 document.getElementById('wl-close')?.addEventListener('click', close);
 document.getElementById('wl-exit')?.addEventListener('click', close);
