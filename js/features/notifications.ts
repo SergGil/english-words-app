@@ -1,5 +1,4 @@
 // English Words App — js/features/notifications.ts
-import { state } from '../../src/state.ts';
 import { t } from './i18n.ts';
 
 const KEY_ENABLED = 'ew_notif_enabled';
@@ -92,7 +91,7 @@ function _checkAndNotify(): void {
     const gd = JSON.parse(localStorage.getItem('ew_game') ?? '{}') as { streak?: number; streakDate?: string };
     const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
     if ((gd.streak ?? 0) > 1 && gd.streakDate === yesterday) {
-      shown = _notify('🔥 Серія під загрозою!', `${gd.streak} днів підряд — не зупиняйся сьогодні!`);
+      shown = _notify(t('notif.streak.title'), t('notif.streak.body').replace('{n}', String(gd.streak)));
       if (shown) { localStorage.setItem(KEY_SHOWN, today); return; }
     }
   } catch (e) {}
@@ -101,12 +100,12 @@ function _checkAndNotify(): void {
     const srs = JSON.parse(localStorage.getItem('ew_srs') ?? '{}') as Record<string, { due?: string }>;
     const due = Object.values(srs).filter(s => s.due && s.due <= today).length;
     if (due >= 3) {
-      shown = _notify(`📚 ${due} слів чекають повторення`, 'Відкрий English Words і повтори їх!');
+      shown = _notify(t('notif.due.title').replace('{n}', String(due)), t('notif.due.body'));
       if (shown) { localStorage.setItem(KEY_SHOWN, today); return; }
     }
   } catch (e) {}
 
-  shown = _notify('📖 Час вчити слова!', 'Відкрий English Words — пара хвилин на слова і готово!');
+  shown = _notify(t('notif.daily.title'), t('notif.daily.body'));
   // Bug fix 2: KEY_SHOWN set only if notification actually fired
   if (shown) localStorage.setItem(KEY_SHOWN, today);
 }
