@@ -47,6 +47,7 @@ const DICT: Record<string, Record<Lang, string>> = {
   'gamebar.shields':     { ua: 'щити',                               en: 'shields',                             es: 'escudos' },
   'gamebar.shield.desc': { ua: 'захистить стрік при пропуску дня',  en: 'protects your streak if you miss a day', es: 'protege tu racha si fallas un día' },
   'gamebar.shield.none': { ua: 'Щитів немає. Отримай за 7 днів поспіль.', en: 'No shields. Earn one with a 7-day streak.', es: 'Sin escudos. Gana uno con una racha de 7 días.' },
+  'search.noResults':   { ua: 'Нічого не знайдено',            en: 'Nothing found',                    es: 'No se encontró nada' },
   'epub.noJsZip':       { ua: 'JSZip не завантажено',          en: 'JSZip not loaded',                 es: 'JSZip no se ha cargado' },
   'epub.noFile':        { ua: 'Файл не обрано',                en: 'No file selected',                 es: 'No se ha seleccionado ningún archivo' },
   'epub.opening':       { ua: 'Відкриваємо epub…',             en: 'Opening epub…',                    es: 'Abriendo epub…' },

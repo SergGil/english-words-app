@@ -4,6 +4,7 @@ import { W } from '../../data/words.js';
 import { state } from '../../src/state.ts';
 import { shuffle } from '../core/srs.ts';
 import { ES_MODES, getMode } from './mode-utils.ts';
+import { t } from './i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 function _activeKnown(): Set<string> {
@@ -56,7 +57,7 @@ function _activeKnown(): Set<string> {
         w[0].toLowerCase().startsWith(q) || w[1].toLowerCase().includes(q)
       ).slice(0, 8);
       if (!hits.length) {
-        box.innerHTML = '<div class="search-no-results">Нічого не знайдено</div>';
+        box.innerHTML = '<div class="search-no-results">' + t('search.noResults') + '</div>';
       } else {
         box.innerHTML = hits.map(w => {
           const _isKnown = _activeKnown().has(w[0]);
