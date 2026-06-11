@@ -6,29 +6,8 @@ import {
   getGameData, getModeStats, loadUnlocked, saveUnlocked,
   registerCheckAchievements,
 } from './game.ts';
-import { t, getLang } from './i18n.ts';
-import { ACH_EN, ACH_CAT_EN, ACH_ES, ACH_CAT_ES } from '../../data/achievements-i18n.ts';
+import { t, achName as _achName, achHint as _achHint, achCatName as _achCat } from './i18n.ts';
 import type { Achievement } from '../../src/types.js';
-
-// ── i18n helpers ──────────────────────────────────────────────
-function _achName(a: Achievement): string {
-  const l = getLang();
-  if (l === 'en') return ACH_EN[a.id]?.name ?? a.name;
-  if (l === 'es') return ACH_ES[a.id]?.name ?? a.name;
-  return a.name;
-}
-function _achHint(a: Achievement): string {
-  const l = getLang();
-  if (l === 'en') return ACH_EN[a.id]?.hint ?? a.hint;
-  if (l === 'es') return ACH_ES[a.id]?.hint ?? a.hint;
-  return a.hint;
-}
-function _achCat(cat: string): string {
-  const l = getLang();
-  if (l === 'en') return ACH_CAT_EN[cat] ?? cat;
-  if (l === 'es') return ACH_CAT_ES[cat] ?? cat;
-  return cat;
-}
 
 // ── Toast ─────────────────────────────────────────────────────
 let _toastTimer: ReturnType<typeof setTimeout> | null = null;

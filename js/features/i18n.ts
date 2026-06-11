@@ -5,182 +5,19 @@ import i18next from 'i18next';
 import ua from '../../locales/ua/translation.json';
 import en from '../../locales/en/translation.json';
 import es from '../../locales/es/translation.json';
+import uaDates from '../../locales/ua/dates.json';
+import enDates from '../../locales/en/dates.json';
+import esDates from '../../locales/es/dates.json';
+import enLevels from '../../locales/en/levels.json';
+import esLevels from '../../locales/es/levels.json';
+import enCategories from '../../locales/en/categories.json';
+import esCategories from '../../locales/es/categories.json';
+import enSkills from '../../locales/en/skills.json';
+import esSkills from '../../locales/es/skills.json';
+import enAchievements from '../../locales/en/achievements.json';
+import esAchievements from '../../locales/es/achievements.json';
 
 export type Lang = 'ua' | 'en' | 'es';
-
-const LEVEL_NAMES_EN: Record<string, string> = {
-  '🌌 Цивільний':           '🌌 Civilian',
-  '✨ Чутливий до Сили':    '✨ Force-sensitive',
-  '🟡 Падаван':             '🟡 Padawan',
-  '🔵 Джедай-лицар':        '🔵 Jedi Knight',
-  '🟢 Майстер Джедай':      '🟢 Jedi Master',
-  '🟣 Член Ради':           '🟣 Council Member',
-  '🔴 Ситх-лорд':           '🔴 Sith Lord',
-  '⚡ Обраний':             '⚡ The Chosen One',
-  '🌠 Балансувальник Сили': '🌠 Force Balancer',
-  '🏆 Магістр Йода':        '🏆 Master Yoda',
-};
-
-const LEVEL_NAMES_ES: Record<string, string> = {
-  '🌌 Цивільний':           '🌌 Civil',
-  '✨ Чутливий до Сили':    '✨ Sensible a la Fuerza',
-  '🟡 Падаван':             '🟡 Padawan',
-  '🔵 Джедай-лицар':        '🔵 Caballero Jedi',
-  '🟢 Майстер Джедай':      '🟢 Maestro Jedi',
-  '🟣 Член Ради':           '🟣 Miembro del Consejo',
-  '🔴 Ситх-лорд':           '🔴 Señor Sith',
-  '⚡ Обраний':             '⚡ El Elegido',
-  '🌠 Балансувальник Сили': '🌠 Equilibrador de la Fuerza',
-  '🏆 Магістр Йода':        '🏆 Maestro Yoda',
-};
-
-export function levelName(name: string): string {
-  const lang = getLang();
-  if (lang === 'en') return LEVEL_NAMES_EN[name] ?? name;
-  if (lang === 'es') return LEVEL_NAMES_ES[name] ?? name;
-  return name;
-}
-
-const CATEGORY_NAMES_EN: Record<string, string> = {
-  '🐾 Тварини':                            '🐾 Animals',
-  '🐟 Морські істоти':                     '🐟 Sea creatures',
-  '🌿 Рослини & Квіти':                    '🌿 Plants & Flowers',
-  '🍎 Фрукти & Овочі':                     '🍎 Fruits & Vegetables',
-  '🍕 Їжа & Страви':                       '🍕 Food & Dishes',
-  '☕ Напої':                              '☕ Drinks',
-  '🏠 Дім & Меблі':                        '🏠 Home & Furniture',
-  '🔧 Інструменти & Предмети':             '🔧 Tools & Objects',
-  '👕 Одяг & Аксесуари':                   '👕 Clothing & Accessories',
-  '🚗 Транспорт':                          '🚗 Transport',
-  '🌍 Природа & Погода':                   '🌍 Nature & Weather',
-  '🏙️ Місто & Будівлі':                    '🏙️ City & Buildings',
-  '🏥 Здоров\'я & Медицина':               '🏥 Health & Medicine',
-  '💼 Робота & Бізнес':                    '💼 Work & Business',
-  '🎓 Освіта & Наука':                     '🎓 Education & Science',
-  '💻 Технології':                         '💻 Technology',
-  '🎭 Мистецтво & Розваги':                '🎭 Arts & Entertainment',
-  '⚽ Спорт':                              '⚽ Sports',
-  '✈️ Подорожі':                           '✈️ Travel',
-  '👨‍👩‍👧 Люди & Стосунки':                  '👨‍👩‍👧 People & Relationships',
-  '😊 Емоції & Характер':                  '😊 Emotions & Character',
-  '🕐 Час & Числа':                        '🕐 Time & Numbers',
-  '🍳 Кулінарія':                          '🍳 Cooking',
-  '💰 Гроші & Економіка':                  '💰 Money & Economy',
-  '⚖️ Право & Суспільство':                '⚖️ Law & Society',
-  '🔬 Наука & Природознавство':            '🔬 Science & Nature studies',
-  '🎨 Кольори & Форми':                    '🎨 Colors & Shapes',
-  '🗣️ Мова & Комунікація':                 '🗣️ Language & Communication',
-  '🔤 Загальна лексика':                   '🔤 General vocabulary',
-  '💬 Фрази, фразові дієслова & ідіоми':   '💬 Phrases, phrasal verbs & idioms',
-};
-
-const CATEGORY_NAMES_ES: Record<string, string> = {
-  '🐾 Тварини':                            '🐾 Animales',
-  '🐟 Морські істоти':                     '🐟 Criaturas marinas',
-  '🌿 Рослини & Квіти':                    '🌿 Plantas y flores',
-  '🍎 Фрукти & Овочі':                     '🍎 Frutas y verduras',
-  '🍕 Їжа & Страви':                       '🍕 Comida y platos',
-  '☕ Напої':                              '☕ Bebidas',
-  '🏠 Дім & Меблі':                        '🏠 Casa y muebles',
-  '🔧 Інструменти & Предмети':             '🔧 Herramientas y objetos',
-  '👕 Одяг & Аксесуари':                   '👕 Ropa y accesorios',
-  '🚗 Транспорт':                          '🚗 Transporte',
-  '🌍 Природа & Погода':                   '🌍 Naturaleza y clima',
-  '🏙️ Місто & Будівлі':                    '🏙️ Ciudad y edificios',
-  '🏥 Здоров\'я & Медицина':               '🏥 Salud y medicina',
-  '💼 Робота & Бізнес':                    '💼 Trabajo y negocios',
-  '🎓 Освіта & Наука':                     '🎓 Educación y ciencia',
-  '💻 Технології':                         '💻 Tecnología',
-  '🎭 Мистецтво & Розваги':                '🎭 Arte y entretenimiento',
-  '⚽ Спорт':                              '⚽ Deportes',
-  '✈️ Подорожі':                           '✈️ Viajes',
-  '👨‍👩‍👧 Люди & Стосунки':                  '👨‍👩‍👧 Personas y relaciones',
-  '😊 Емоції & Характер':                  '😊 Emociones y carácter',
-  '🕐 Час & Числа':                        '🕐 Tiempo y números',
-  '🍳 Кулінарія':                          '🍳 Cocina',
-  '💰 Гроші & Економіка':                  '💰 Dinero y economía',
-  '⚖️ Право & Суспільство':                '⚖️ Derecho y sociedad',
-  '🔬 Наука & Природознавство':            '🔬 Ciencia y naturaleza',
-  '🎨 Кольори & Форми':                    '🎨 Colores y formas',
-  '🗣️ Мова & Комунікація':                 '🗣️ Idioma y comunicación',
-  '🔤 Загальна лексика':                   '🔤 Vocabulario general',
-  '💬 Фрази, фразові дієслова & ідіоми':   '💬 Frases, verbos compuestos y modismos',
-};
-
-export function categoryName(name: string): string {
-  const lang = getLang();
-  if (lang === 'en') return CATEGORY_NAMES_EN[name] ?? name;
-  if (lang === 'es') return CATEGORY_NAMES_ES[name] ?? name;
-  return name;
-}
-
-const SKILL_NAMES_EN: Record<string, string> = {
-  'Базове вітання':        'Basic greetings',
-  'Числа і кольори':       'Numbers and colors',
-  'Сім\'я та тіло':        'Family and body',
-  'Повсякденні дії':       'Everyday actions',
-  'Опис людей/місць':      'Describing people/places',
-  'Магазини і ціни':       'Shops and prices',
-  'Подорожі':              'Travel',
-  'Минулі події':          'Past events',
-  'Розмова про роботу':    'Talking about work',
-  'Новини та медіа':       'News and media',
-  'Вирішення проблем':     'Problem solving',
-  'Плани на майбутнє':     'Future plans',
-  'Академічні тексти':     'Academic texts',
-  'Бізнес комунікація':    'Business communication',
-  'Складні аргументи':     'Complex arguments',
-  'Фільми без субтитрів':  'Movies without subtitles',
-  'Наукові статті':        'Scientific articles',
-  'Переговори':            'Negotiations',
-  'Нюанси та ідіоми':      'Nuances and idioms',
-  'Публічні виступи':      'Public speaking',
-  'Художня проза':         'Literary prose',
-  'Академічний стиль':     'Academic style',
-  'Повне розуміння':       'Full comprehension',
-  'Рівень носія':          'Native-like level',
-};
-
-const SKILL_NAMES_ES: Record<string, string> = {
-  'Базове вітання':        'Saludos básicos',
-  'Числа і кольори':       'Números y colores',
-  'Сім\'я та тіло':        'Familia y cuerpo',
-  'Повсякденні дії':       'Acciones cotidianas',
-  'Опис людей/місць':      'Describir personas/lugares',
-  'Магазини і ціни':       'Tiendas y precios',
-  'Подорожі':              'Viajes',
-  'Минулі події':          'Eventos pasados',
-  'Розмова про роботу':    'Hablar sobre el trabajo',
-  'Новини та медіа':       'Noticias y medios',
-  'Вирішення проблем':     'Resolución de problemas',
-  'Плани на майбутнє':     'Planes futuros',
-  'Академічні тексти':     'Textos académicos',
-  'Бізнес комунікація':    'Comunicación empresarial',
-  'Складні аргументи':     'Argumentos complejos',
-  'Фільми без субтитрів':  'Películas sin subtítulos',
-  'Наукові статті':        'Artículos científicos',
-  'Переговори':            'Negociaciones',
-  'Нюанси та ідіоми':      'Matices y modismos',
-  'Публічні виступи':      'Hablar en público',
-  'Художня проза':         'Prosa literaria',
-  'Академічний стиль':     'Estilo académico',
-  'Повне розуміння':       'Comprensión total',
-  'Рівень носія':          'Nivel nativo',
-};
-
-export function skillName(name: string): string {
-  const lang = getLang();
-  if (lang === 'en') return SKILL_NAMES_EN[name] ?? name;
-  if (lang === 'es') return SKILL_NAMES_ES[name] ?? name;
-  return name;
-}
-
-const MONTHS_UA = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
-const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const DOWS_UA   = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
-const DOWS_EN   = ['Mo','Tu','We','Th','Fr','Sa','Su'];
-const DOWS_ES   = ['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
 
 const LANG_KEY = 'ew_lang';
 
@@ -194,11 +31,12 @@ i18next.init({
   fallbackLng: 'ua',
   keySeparator: false,
   nsSeparator: false,
+  ns: ['translation', 'dates', 'levels', 'categories', 'skills', 'achievements'],
   interpolation: { escapeValue: false },
   resources: {
-    ua: { translation: ua },
-    en: { translation: en },
-    es: { translation: es },
+    ua: { translation: ua, dates: uaDates },
+    en: { translation: en, dates: enDates, levels: enLevels, categories: enCategories, skills: enSkills, achievements: enAchievements },
+    es: { translation: es, dates: esDates, levels: esLevels, categories: esCategories, skills: esSkills, achievements: esAchievements },
   },
 });
 
@@ -237,12 +75,36 @@ export function pluralLabel(base: string, n: number): string {
 
 export function monthNames(): string[] {
   const lang = getLang();
-  return lang === 'en' ? MONTHS_EN : lang === 'es' ? MONTHS_ES : MONTHS_UA;
+  return (i18next.getResource(lang, 'dates', 'months') as string[] | undefined) ?? uaDates.months;
 }
 
 export function dowNames(): string[] {
   const lang = getLang();
-  return lang === 'en' ? DOWS_EN : lang === 'es' ? DOWS_ES : DOWS_UA;
+  return (i18next.getResource(lang, 'dates', 'dows') as string[] | undefined) ?? uaDates.dows;
+}
+
+export function levelName(name: string): string {
+  return i18next.t(name, { ns: 'levels', defaultValue: name });
+}
+
+export function categoryName(name: string): string {
+  return i18next.t(name, { ns: 'categories', defaultValue: name });
+}
+
+export function skillName(name: string): string {
+  return i18next.t(name, { ns: 'skills', defaultValue: name });
+}
+
+export function achName(a: { id: string; name: string }): string {
+  return i18next.t(`${a.id}_name`, { ns: 'achievements', defaultValue: a.name });
+}
+
+export function achHint(a: { id: string; hint: string }): string {
+  return i18next.t(`${a.id}_hint`, { ns: 'achievements', defaultValue: a.hint });
+}
+
+export function achCatName(cat: string): string {
+  return i18next.t(cat, { ns: 'achievements', defaultValue: cat });
 }
 
 export function applyI18n(): void {
