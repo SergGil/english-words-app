@@ -724,6 +724,7 @@ function _renderQuestion(): void {
   else if(_mode==='anagram') _renderAnagramQ(w);
   else if(_mode==='letters') _renderLettersQ(w);
   else _renderChoiceQ(w);
+  _renderPowerups();
   if(_mode==='tempo') _startTempoTimer(w);
 }
 
