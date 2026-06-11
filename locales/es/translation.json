@@ -612,6 +612,8 @@
   "duel.timeout": "⏰ ¡Se acabó el tiempo!",
   "duel.doublePts": "🎯 ¡+2 puntos!",
   "duel.waiting": "⏳ Esperando al oponente…",
+  "duel.correctCount": "Correctas",
+  "duel.wrongCount": "Incorrectas",
   "duel.chat": "💬 Chat",
   "duel.chatPlaceholder": "Mensaje…",
   "duel.send": "Enviar",

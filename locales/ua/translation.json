@@ -612,6 +612,8 @@
   "duel.timeout": "⏰ Час вийшов!",
   "duel.doublePts": "🎯 +2 очки!",
   "duel.waiting": "⏳ Чекаємо суперника…",
+  "duel.correctCount": "Правильно",
+  "duel.wrongCount": "Неправильно",
   "duel.chat": "💬 Чат",
   "duel.chatPlaceholder": "Повідомлення…",
   "duel.send": "Надіслати",

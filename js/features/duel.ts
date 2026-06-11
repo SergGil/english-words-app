@@ -174,6 +174,8 @@ let _pollTimer: ReturnType<typeof setInterval> | null = null;
 let _quizDeck: WordEntry[] = [];
 let _quizIdx   = 0;
 let _myScore   = 0;
+let _myCorrect = 0;
+let _myWrong   = 0;
 let _answered  = false;
 let _mode:     DuelMode   = 'quiz';
 let _tempoTimer: ReturnType<typeof setInterval> | null = null;
@@ -528,7 +530,7 @@ function _startWaitPoll(): void {
 
 function _initGame(mode:DuelMode,maxHints:number,bestOf:BestOf,series:SeriesData,powerupsEnabled=false): void {
   _mode=mode; _bestOf=bestOf; _series={...series};
-  _quizIdx=0; _myScore=0; _answered=false; _finished=false;
+  _quizIdx=0; _myScore=0; _myCorrect=0; _myWrong=0; _answered=false; _finished=false;
   _hintsLeft = maxHints === 0 ? 999 : maxHints;
   _powerupsEnabled = powerupsEnabled;
   _myPowerups = powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0};
@@ -794,6 +796,7 @@ function _startTempoTimer(w:WordEntry): void {
         _answered=true;
         elOpts().querySelectorAll<HTMLButtonElement>('.quiz-option').forEach(b=>b.disabled=true);
         elFeedback().innerHTML=`<span style="color:#e74c3c">${t('duel.timeout')}</span>`;
+        _myWrong++;
         _quizIdx++; _pushScore();
         setTimeout(()=>_renderQuestion(),1000);
       }
@@ -815,10 +818,11 @@ async function _answerChoice(btn:HTMLButtonElement,chosen:string,correct:string,
   if(ok){
     const wasDouble = _doubleActive;
     const pts = wasDouble ? 2 : 1;
-    _myScore += pts;
+    _myScore += pts; _myCorrect++;
     if(wasDouble){ _doubleActive=false; feedbackHtml=`<span style="color:#f39c12">${t('duel.doublePts')}</span>`; }
     else { feedbackHtml=`<span style="color:#27ae60">${t('duel.correct')}</span>`; }
   } else {
+    _myWrong++;
     feedbackHtml=`<span style="color:#e74c3c">✗ ${correct}</span>`;
   }
   elMyScore().textContent=String(_myScore);
@@ -845,10 +849,11 @@ function _submitWrite(): void {
   let feedbackHtml='';
   if(ok){
     const wasDouble=_doubleActive;
-    _myScore += wasDouble?2:1;
+    _myScore += wasDouble?2:1; _myCorrect++;
     if(wasDouble){ _doubleActive=false; feedbackHtml=`<span style="color:#f39c12">${t('duel.doublePts')}</span>`; }
     else feedbackHtml=`<span style="color:#27ae60">${t('duel.correct')}</span>`;
   } else {
+    _myWrong++;
     feedbackHtml=`<span style="color:#e74c3c">✗ ${w[0]}</span>`;
   }
   elMyScore().textContent=String(_myScore);
@@ -892,6 +897,10 @@ async function _finishMyGame():Promise<void>{
       clearInterval(_pollTimer!); _pollTimer=null;
       _showFinish({...room,[_mySlot]:{...room[_mySlot],score:_myScore,done:true}} as RoomData);
     } else {
+      elQuestion().innerHTML=`<div style="display:flex;gap:24px;justify-content:center;align-items:center;">`+
+        `<div style="text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#27ae60;">${_myCorrect}</div><div style="font-size:.78rem;color:var(--text3);">${t('duel.correctCount')}</div></div>`+
+        `<div style="text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#e74c3c;">${_myWrong}</div><div style="font-size:.78rem;color:var(--text3);">${t('duel.wrongCount')}</div></div>`+
+      `</div>`;
       elFeedback().textContent=t('duel.waiting');
       elOpts().innerHTML=''; elOpts().style.display='none';
       const ir=$('dm-input-row') as HTMLElement|null; if(ir) ir.style.display='none';
