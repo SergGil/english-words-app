@@ -5,25 +5,31 @@ import i18next from 'i18next';
 import ua from '../../locales/ua/translation.json';
 import en from '../../locales/en/translation.json';
 import es from '../../locales/es/translation.json';
+import fr from '../../locales/fr/translation.json';
 import uaDates from '../../locales/ua/dates.json';
 import enDates from '../../locales/en/dates.json';
 import esDates from '../../locales/es/dates.json';
+import frDates from '../../locales/fr/dates.json';
 import enLevels from '../../locales/en/levels.json';
 import esLevels from '../../locales/es/levels.json';
+import frLevels from '../../locales/fr/levels.json';
 import enCategories from '../../locales/en/categories.json';
 import esCategories from '../../locales/es/categories.json';
+import frCategories from '../../locales/fr/categories.json';
 import enSkills from '../../locales/en/skills.json';
 import esSkills from '../../locales/es/skills.json';
+import frSkills from '../../locales/fr/skills.json';
 import enAchievements from '../../locales/en/achievements.json';
 import esAchievements from '../../locales/es/achievements.json';
+import frAchievements from '../../locales/fr/achievements.json';
 
-export type Lang = 'ua' | 'en' | 'es';
+export type Lang = 'ua' | 'en' | 'es' | 'fr';
 
 const LANG_KEY = 'ew_lang';
 
 function storedLang(): Lang {
   const v = localStorage.getItem(LANG_KEY);
-  return v === 'en' ? 'en' : v === 'es' ? 'es' : 'ua';
+  return v === 'en' ? 'en' : v === 'es' ? 'es' : v === 'fr' ? 'fr' : 'ua';
 }
 
 i18next.init({
@@ -37,6 +43,7 @@ i18next.init({
     ua: { translation: ua, dates: uaDates },
     en: { translation: en, dates: enDates, levels: enLevels, categories: enCategories, skills: enSkills, achievements: enAchievements },
     es: { translation: es, dates: esDates, levels: esLevels, categories: esCategories, skills: esSkills, achievements: esAchievements },
+    fr: { translation: fr, dates: frDates, levels: frLevels, categories: frCategories, skills: frSkills, achievements: frAchievements },
   },
 });
 
@@ -166,7 +173,7 @@ export function applyI18n(): void {
 
 document.querySelectorAll<HTMLElement>('.lang-opt').forEach(btn => {
   btn.addEventListener('click', () => {
-    const lang = btn.dataset.lang === 'en' ? 'en' : btn.dataset.lang === 'es' ? 'es' : 'ua';
+    const lang = btn.dataset.lang === 'en' ? 'en' : btn.dataset.lang === 'es' ? 'es' : btn.dataset.lang === 'fr' ? 'fr' : 'ua';
     setLang(lang);
   });
 });
