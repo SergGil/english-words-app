@@ -2,12 +2,13 @@
 // ════════ CSV EXPORT (Google Sheets) ════════
 import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
+import { t } from './i18n.ts';
 
 const btn = document.getElementById('btn-csv-export') as HTMLButtonElement | null;
 if (btn) {
   btn.addEventListener('click', () => {
     const BOM = '﻿';
-    const rows: string[][] = [['English', 'Переклад', 'IPA', 'Приклад EN', 'Приклад UA', 'Статус']];
+    const rows: string[][] = [[t('csv.colEnglish'), t('csv.colTranslation'), t('csv.colIpa'), t('csv.colExampleEn'), t('csv.colExampleUa'), t('csv.colStatus')]];
     const { known, deck } = state;
     const src = known.size > 0 ? W.filter(w => known.has(w[0])) : deck.slice(0, 500);
 
@@ -18,7 +19,7 @@ if (btn) {
         if (ipa) ipa = JSON.parse('"' + ipa.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"');
       } catch (e) {}
       const exEn = (w[2] ?? '').replace(/<[^>]+>/g, '');
-      rows.push([w[0], w[1], ipa, exEn, w[3] ?? '', known.has(w[0]) ? 'Знаю' : 'Не знаю']);
+      rows.push([w[0], w[1], ipa, exEn, w[3] ?? '', known.has(w[0]) ? t('csv.statusKnown') : t('csv.statusUnknown')]);
     });
 
     const csv = BOM + rows.map(row =>

@@ -1,11 +1,13 @@
 // English Words App — js/core/ui-helpers.ts
 // Shared UI utilities used across modes
+import { t } from '../features/i18n.ts';
+
 export type SpeakFn = (text: string, btn: HTMLElement | null) => void;
 export type SpeakLangFn = (text: string, lang: string, btn: HTMLElement | null) => void;
 
 export function speakBtn(text: string, lang = 'en-US'): HTMLButtonElement {
   const btn = document.createElement('button');
-  btn.className = 'mode-speak'; btn.title = 'Прослухати'; btn.textContent = '🔊';
+  btn.className = 'mode-speak'; btn.title = t('common.listen'); btn.textContent = '🔊';
   btn.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
     if (lang.startsWith('uk')) {

@@ -3,6 +3,7 @@
 
 import type { WordEntry, SRSEntry } from '../../src/types.js';
 import { state } from '../../src/state.js';
+import { t } from '../features/i18n.ts';
 
 // ── Shuffle ───────────────────────────────────────────────────
 export function shuffle<T>(a: T[]): T[] {
@@ -73,9 +74,9 @@ export function updateSrsUI(W: readonly WordEntry[]): void {
 function _renderSrsUI({ due, newCards, total }: typeof _srsStatsCache): void {
   if (!_srsLabelOpt) _srsLabelOpt = document.querySelector('#sel-range option[value="srs"]');
   if (_srsLabelOpt) {
-    if (total === 0)  _srsLabelOpt.textContent = '🔁 Spaced Repetition';
-    else if (due > 0) _srsLabelOpt.textContent = `🔁 SRS · 🔴 ${due} до повторення`;
-    else              _srsLabelOpt.textContent = '🔁 SRS ✓ все повторено';
+    if (total === 0)  _srsLabelOpt.textContent = t('range.srs');
+    else if (due > 0) _srsLabelOpt.textContent = t('srs.optionDue', { n: due });
+    else              _srsLabelOpt.textContent = t('srs.optionAllDone');
   }
   if (!_srsStatsEl) _srsStatsEl = document.getElementById('srs-stats');
   if (!_srsDueEl)   _srsDueEl   = document.getElementById('srs-stat-due');

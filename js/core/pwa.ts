@@ -1,5 +1,6 @@
 // English Words App — js/core/pwa.ts
 // PWA install banner (Chrome + iOS)
+import { t } from '../features/i18n.ts';
 
 (function() {
   let deferredPrompt: any = null;
@@ -34,7 +35,7 @@
   if (isIOS && !isInStandalone && !localStorage.getItem('ew_pwa_dismissed')) {
     setTimeout(function() {
       const _pwaText = banner.querySelector<HTMLElement>('.pwa-text');
-      if (_pwaText) _pwaText.innerHTML = '<strong>Додай на головний екран</strong> · Натисни <strong>⬜ Поділитися</strong> → <strong>На екран «Додому»</strong>';
+      if (_pwaText) _pwaText.innerHTML = t('pwa.iosInstallHint');
       const installBtn = document.getElementById('pwa-install');
       if (installBtn) installBtn.style.display = 'none';
       banner.className = 'show';

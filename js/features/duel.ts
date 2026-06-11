@@ -65,14 +65,14 @@ const DUEL_MODES: { id:DuelMode; icon:string }[] = [
   { id:'anagram', icon:'🔀' },
   { id:'letters', icon:'🔤' },
 ];
-const DIFFICULTIES: { id:Difficulty; label:string; desc:string; color:string }[] = [
-  { id:'mixed', label:'Мікс',    desc:'Усі рівні разом',     color:'var(--text3)' },
-  { id:'A1',    label:'A1',      desc:'Початківець',         color:'#27ae60' },
-  { id:'A2',    label:'A2',      desc:'Елементарний',        color:'#2ecc71' },
-  { id:'B1',    label:'B1',      desc:'Середній',            color:'#d4ac0d' },
-  { id:'B2',    label:'B2',      desc:'Вище середнього',     color:'#e67e22' },
-  { id:'C1',    label:'C1',      desc:'Просунутий',          color:'#e74c3c' },
-  { id:'C2',    label:'C2',      desc:'Майстерний',          color:'#8e44ad' },
+const DIFFICULTIES: { id:Difficulty; label:string; color:string }[] = [
+  { id:'mixed', label:'Мікс',    color:'var(--text3)' },
+  { id:'A1',    label:'A1',      color:'#27ae60' },
+  { id:'A2',    label:'A2',      color:'#2ecc71' },
+  { id:'B1',    label:'B1',      color:'#d4ac0d' },
+  { id:'B2',    label:'B2',      color:'#e67e22' },
+  { id:'C1',    label:'C1',      color:'#e74c3c' },
+  { id:'C2',    label:'C2',      color:'#8e44ad' },
 ];
 
 interface PlayerData {

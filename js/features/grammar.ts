@@ -2,7 +2,7 @@
 // Grammar reference page: renders structured rules from data/grammar.ts
 import { GRAMMAR } from '../../data/grammar.ts';
 import type { GrammarRule, GSection } from '../../data/grammar.ts';
-import { getLang } from './i18n.ts';
+import { getLang, t } from './i18n.ts';
 
 const overlay  = document.getElementById('grammar-overlay')! as HTMLElement;
 const navEl    = document.getElementById('grammar-nav')!      as HTMLElement;
@@ -56,7 +56,7 @@ function _renderRule(id: string): void {
     rule = cat.rules.find(r => r.id === id);
     if (rule) break;
   }
-  if (!rule) { contentEl.innerHTML = `<div class="gr-empty">${getLang() === 'en' ? 'Select a topic from the left' : 'Оберіть тему зліва'}</div>`; return; }
+  if (!rule) { contentEl.innerHTML = `<div class="gr-empty">${t('grammar.selectTopic')}</div>`; return; }
 
   contentEl.innerHTML = `
     <div class="gr-rule-title">${rule.emoji} ${getLang() === 'en' && rule.titleEn ? rule.titleEn : rule.title}</div>

@@ -1,6 +1,7 @@
 // English Words App — js/core/card-helpers.ts
 // Pure helpers extracted from app.ts so they can be unit-tested without DOM.
 import type { WordEntry } from '../../src/types.js';
+import { t, pluralLabel } from '../features/i18n.ts';
 
 // ── Error-safe wrapper ─────────────────────────────────────────
 export function safe(fn: () => void): void {
@@ -61,7 +62,7 @@ export function srsStatusInfo(
 ): SrsBadgeInfo | null {
   if (!sd || !sd.due) {
     if (rangeVal === 'srs' || rangeVal === 'weak') {
-      return { text: '🆕 Нове', className: 'srs-next new', show: true };
+      return { text: t('srs.badgeNew'), className: 'srs-next new', show: true };
     }
     return null;
   }
@@ -70,16 +71,13 @@ export function srsStatusInfo(
   );
   if (diffDays < 0) {
     const over = Math.abs(diffDays);
-    const unit = over === 1 ? 'день' : over < 5 ? 'дні' : 'днів';
-    return { text: `🔴 Прострочено ${over} ${unit}`, className: 'srs-next over', show: true };
+    return { text: t('srs.badgeOverdue', { n: over, unit: pluralLabel('common_day', over) }), className: 'srs-next over', show: true };
   }
   if (diffDays === 0) {
-    return { text: '🟡 Повторити сьогодні', className: 'srs-next today', show: true };
+    return { text: t('srs.badgeToday'), className: 'srs-next today', show: true };
   }
   if (diffDays <= 3) {
-    const unit = diffDays === 1 ? 'день' : 'дні';
-    return { text: `⏰ Через ${diffDays} ${unit}`, className: 'srs-next soon', show: true };
+    return { text: t('srs.badgeSoon', { n: diffDays, unit: pluralLabel('common_day', diffDays) }), className: 'srs-next soon', show: true };
   }
-  const unit = diffDays < 5 ? 'дні' : 'днів';
-  return { text: `✅ Через ${diffDays} ${unit}`, className: 'srs-next ok', show: true };
+  return { text: t('srs.badgeFuture', { n: diffDays, unit: pluralLabel('common_day', diffDays) }), className: 'srs-next ok', show: true };
 }

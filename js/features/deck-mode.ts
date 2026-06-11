@@ -4,6 +4,7 @@ import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
 import { W_ES } from '../../data/words_es.js';
 import { ES_MODES, getMode } from './mode-utils.ts';
+import { t } from './i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 let _esWords: WordEntry[] | null = null;
@@ -43,7 +44,7 @@ document.getElementById('sel-mode')!.addEventListener('change', function() {
     if (!esDeck.length) {
       const _mt = document.getElementById('milestone-toast');
       if (_mt) {
-        _mt.textContent = 'Іспанських перекладів ще немає для цих слів';
+        _mt.textContent = t('deck.noEsTranslations');
         _mt.className = 'milestone-toast'; void _mt.offsetWidth;
         _mt.className = 'milestone-toast show';
         setTimeout(() => { _mt.className = 'milestone-toast'; }, 3500);
