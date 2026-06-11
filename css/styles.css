@@ -3204,6 +3204,7 @@ body.sw .duel-card-active { border-color:#00c8ff; }
 .notif-toggle-wrap input:checked + .notif-toggle-pill-ui { background:var(--accent); }
 .notif-toggle-wrap input:checked + .notif-toggle-pill-ui::before { transform:translateX(18px); }
 body.sw .notif-toggle-wrap input:checked + .notif-toggle-pill-ui { background:#00c8ff; }
+.notif-toggle-wrap input:disabled + .notif-toggle-pill-ui { opacity:.4; cursor:not-allowed; }
 
 /* Time picker for daily reminder */
 .time-picker {

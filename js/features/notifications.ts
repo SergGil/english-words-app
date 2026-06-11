@@ -23,7 +23,7 @@ function _updateUI(): void {
   const denied  = typeof Notification !== 'undefined' && Notification.permission === 'denied';
   const on      = isEnabled() && granted;
 
-  if (tog) tog.checked = on;
+  if (tog) { tog.checked = on; tog.disabled = !('Notification' in window); }
   if (timeRow) timeRow.style.display = on ? 'flex' : 'none';
   const [hh, mm] = getTime().split(':');
   if (timeH) timeH.value = hh;
