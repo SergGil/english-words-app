@@ -310,6 +310,7 @@ function _showLobby()    {
   const waiting=$('duel-waiting') as HTMLElement|null; if(waiting) waiting.style.display='none';
   const joinRow=$('duel-join-row') as HTMLElement|null; if(joinRow) joinRow.style.display='';
   const btn=$('duel-create-btn') as HTMLButtonElement|null; if(btn){ btn.disabled=false; btn.textContent=t('duel.create'); }
+  const asyncBtn=$('duel-async-btn') as HTMLButtonElement|null; if(asyncBtn){ asyncBtn.disabled=false; asyncBtn.textContent=t('duel.sendChallenge'); }
 }
 function _showCountdown(){ elLobby().style.display='none'; elCountdown().style.display=''; elGame().style.display='none'; elResult().style.display='none'; elChatPanel().style.display='none'; }
 function _showGame(clearChat=true) { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display=''; elResult().style.display='none'; elChatPanel().style.display=''; if(clearChat){ const log=$('duel-chat-log'); if(log) log.innerHTML=''; _lastReactionTs=0; } }
