@@ -236,6 +236,16 @@ function _buildDeck(seed:number, category:string, difficulty:Difficulty, mode?:D
   return Array.from({length:pool.length},(_,i)=>i).sort(()=>rnd()-0.5).slice(0,ROOM_SIZE).map(i=>pool[i]);
 }
 
+// Append one extra word to the deck when Skip is used, so skipping doesn't shorten the round
+function _extendDeckOnSkip(): void {
+  const scramble = _mode==='anagram'||_mode==='letters';
+  const pool = scramble ? _SCRAMBLE_POOL : (W as unknown as WordEntry[]);
+  const used = new Set(_quizDeck.map(w=>w[0].toLowerCase()));
+  const candidates = pool.filter(w=>!used.has(w[0].toLowerCase()));
+  const src = candidates.length ? candidates : pool;
+  _quizDeck.push(src[Math.floor(Math.random()*src.length)]);
+}
+
 function _getMyName():string{ try{const prfs=_getProfiles();const id=_getActiveId();return prfs.find((x:any)=>x.id===id)?.name||t('duel.player');}catch(e){return t('duel.player');} }
 function _getMyAvatar():string{ try{const prfs=_getProfiles();const id=_getActiveId();return prfs.find((x:any)=>x.id===id)?.avatar||'🧑';}catch(e){return '🧑';} }
 
@@ -618,9 +628,10 @@ async function _usePowerup(type: PowerupType): Promise<void> {
     _answered = true;
     if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
     elFeedback().innerHTML=`<span style="color:var(--accent)">${t('duel.toast.skip')}</span>`;
+    _extendDeckOnSkip();
     _quizIdx++;
     await _pushScore();
-    setTimeout(()=>{ if(_quizIdx<ROOM_SIZE) _renderQuestion(); else _finishMyGame(); }, 700);
+    setTimeout(()=>{ if(_quizIdx<_quizDeck.length) _renderQuestion(); else _finishMyGame(); }, 700);
   } else if(type==='freeze'){
     // Send freeze signal to opponent via Firebase
     try{ await _fbPatch(`/duel_rooms/${_roomId}`,{[`${_mySlot==='p1'?'p2':'p1'}_freeze`]:Date.now()+5000}); }catch(e){}
@@ -716,7 +727,7 @@ function _renderQuestion(): void {
   if(_quizIdx>=_quizDeck.length){_finishMyGame();return;}
   const w=_quizDeck[_quizIdx];
   _answered=false; _answerStartMs=Date.now();
-  elProgress().textContent=`${_quizIdx+1} / ${ROOM_SIZE}`;
+  elProgress().textContent=`${_quizIdx+1} / ${_quizDeck.length}`;
   elFeedback().textContent=''; elSpeed().textContent='';
   if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
   const nb=$('dm-next-btn') as HTMLButtonElement|null; if(nb) nb.style.display='none';
@@ -815,7 +826,7 @@ async function _answerChoice(btn:HTMLButtonElement,chosen:string,correct:string,
   elSpeed().textContent=ok?`⚡ ${(ms/1000).toFixed(1)}${_secUnit()}`:'';
   _renderPowerups();
   _quizIdx++; await _pushScore();
-  setTimeout(()=>{if(_quizIdx<ROOM_SIZE)_renderQuestion();else _finishMyGame();},ok?600:1200);
+  setTimeout(()=>{if(_quizIdx<_quizDeck.length)_renderQuestion();else _finishMyGame();},ok?600:1200);
 }
 
 function _submitWrite(): void {
@@ -873,7 +884,7 @@ async function _pushScore():Promise<void>{
 
 async function _finishMyGame():Promise<void>{
   try{
-    await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`,{score:_myScore,idx:ROOM_SIZE,done:true});
+    await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`,{score:_myScore,idx:_quizDeck.length,done:true});
     const room=await _fbGet(`/duel_rooms/${_roomId}`) as RoomData;
     const opp=_mySlot==='p1'?room.p2:room.p1;
     if(opp?.done){
@@ -1514,7 +1525,7 @@ $('duel-join-input')?.addEventListener('keydown',(e:KeyboardEvent)=>{
 
 $('dm-input')?.addEventListener('keydown',(e:KeyboardEvent)=>{if(e.key==='Enter'&&!_answered)_submitWrite();});
 $('dm-submit-btn')?.addEventListener('click',()=>{if(!_answered)_submitWrite();});
-$('dm-next-btn')?.addEventListener('click',()=>{const nb=$('dm-next-btn') as HTMLButtonElement|null;if(nb)nb.style.display='none';if(_quizIdx<ROOM_SIZE)_renderQuestion();else _finishMyGame();});
+$('dm-next-btn')?.addEventListener('click',()=>{const nb=$('dm-next-btn') as HTMLButtonElement|null;if(nb)nb.style.display='none';if(_quizIdx<_quizDeck.length)_renderQuestion();else _finishMyGame();});
 $('dm-hint-btn')?.addEventListener('click',_useHint);
 
 // In-game reactions
@@ -1593,7 +1604,7 @@ $('duel-page-close')?.addEventListener('click', async () => {
 
   // Already submitted all my answers, just waiting for the (async) opponent —
   // leaving doesn't forfeit anything, so don't warn or delete the room.
-  const myDone = gameVisible && !_finished && _quizIdx >= ROOM_SIZE;
+  const myDone = gameVisible && !_finished && _quizIdx >= _quizDeck.length;
 
   if (myDone) {
     if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
