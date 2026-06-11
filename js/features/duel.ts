@@ -1590,7 +1590,18 @@ $('duel-page-close')?.addEventListener('click', async () => {
   const countdownVisible = elCountdown().style.display !== 'none';
   const waitingVisible   = ($('duel-waiting') as HTMLElement|null)?.style.display === 'block';
 
-  if (gameVisible || countdownVisible) {
+  // Already submitted all my answers, just waiting for the (async) opponent —
+  // leaving doesn't forfeit anything, so don't warn or delete the room.
+  const myDone = gameVisible && !_finished && _quizIdx >= ROOM_SIZE;
+
+  if (myDone) {
+    if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
+    if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
+    if(_freezeTimer){clearTimeout(_freezeTimer);_freezeTimer=null;}
+    _showLobby();
+    renderDuel();
+    _tryResumeSession();
+  } else if (gameVisible || countdownVisible) {
     const ok = await _showConfirm(t('duel.confirm.leave.title'), t('duel.confirm.leave.msg'), t('duel.confirm.leave.ok'));
     if (!ok) return;
     _cancelRoom();
