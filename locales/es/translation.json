@@ -619,7 +619,7 @@
   "duel.send": "Enviar",
   "duel.result.won": "¡Ganaste!",
   "duel.result.tie": "¡Empate!",
-  "duel.result.lost": "El oponente ganó",
+  "duel.result.lost": "{{name}} ganó",
   "duel_win_one": "victoria",
   "duel_win_other": "victorias",
   "duel_loss_one": "derrota",

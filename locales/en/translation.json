@@ -619,7 +619,7 @@
   "duel.send": "Send",
   "duel.result.won": "You won!",
   "duel.result.tie": "Draw!",
-  "duel.result.lost": "Opponent won",
+  "duel.result.lost": "{{name}} won",
   "duel_win_one": "win",
   "duel_win_other": "wins",
   "duel_loss_one": "loss",

@@ -173,6 +173,7 @@ async function _fbSet(p:string,d:unknown):Promise<void>{ await fetch(`${DB_URL}$
 let _roomId    = '';
 let _mySlot:   'p1'|'p2' = 'p1';
 let _pollTimer: ReturnType<typeof setInterval> | null = null;
+let _resultPollTimer: ReturnType<typeof setInterval> | null = null;
 let _quizDeck: WordEntry[] = [];
 let _quizIdx   = 0;
 let _myScore   = 0;
@@ -593,6 +594,7 @@ function _initGame(mode:DuelMode,maxHints:number,bestOf:BestOf,series:SeriesData
 }
 
 function _setupGameUI(): void {
+  _stopResultPoll();
   if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
   if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
   elOppName().textContent=_oppName||t('duel.opp'); elOppAv().textContent=_oppAvatar;
@@ -786,6 +788,21 @@ function _showReactionReceived(text:string, ts?:number): void {
     _lastReactionTs=ts;
   }
   _appendChatMsg(text,false);
+}
+
+function _stopResultPoll(): void {
+  if(_resultPollTimer){clearInterval(_resultPollTimer);_resultPollTimer=null;}
+}
+function _startResultPoll(): void {
+  _stopResultPoll();
+  _resultPollTimer=setInterval(async()=>{
+    try {
+      const room=await _fbGet(`/duel_rooms/${_roomId}`) as RoomData|null;
+      if(!room) return;
+      const opp=_mySlot==='p1'?room.p2:room.p1;
+      if(opp?.reaction) _showReactionReceived(opp.reaction,opp.reactionTs);
+    } catch(e){}
+  },1500);
 }
 
 async function _sendChatMsg(text:string): Promise<void> {
@@ -1031,7 +1048,7 @@ function _showFinish(room:RoomData):void{
   $('duel-result-inner').innerHTML=
     `<div style="font-size:.72rem;color:var(--text3);margin-bottom:6px;">${mInfo.icon} ${t('duel.mode.'+mInfo.id)}${catLabel}</div>`+
     `<div style="font-size:3rem;margin-bottom:8px;">${won?'🏆':tie?'🤝':'😔'}</div>`+
-    `<div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:6px;">${won?t('duel.result.won'):tie?t('duel.result.tie'):t('duel.result.lost')}</div>`+
+    `<div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:6px;">${won?t('duel.result.won'):tie?t('duel.result.tie'):t('duel.result.lost',{name:opp?.name||t('duel.opp')})}</div>`+
     `<div style="display:flex;gap:20px;justify-content:center;margin:14px 0;">`+
       `<div style="text-align:center;"><div style="font-size:2rem;">${me.avatar||'🧑'}</div><div style="font-weight:700;font-size:1.2rem;color:${won||tie?'#27ae60':'#e74c3c'}">${me.score}/${ROOM_SIZE}</div><div style="font-size:.72rem;color:var(--text3);">${t('duel.you')}</div></div>`+
       `<div style="font-size:1.5rem;align-self:center;color:var(--text3);">VS</div>`+
@@ -1047,10 +1064,12 @@ function _showFinish(room:RoomData):void{
     });
   }
   _showResult();
+  _startResultPoll();
 }
 
 function _cancelRoom():void{
   _clearSession();
+  _stopResultPoll();
   if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
   if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
   if(_freezeTimer){clearTimeout(_freezeTimer);_freezeTimer=null;}

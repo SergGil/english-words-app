@@ -619,7 +619,7 @@
   "duel.send": "Надіслати",
   "duel.result.won": "Ти переміг!",
   "duel.result.tie": "Нічия!",
-  "duel.result.lost": "Суперник переміг",
+  "duel.result.lost": "{{name}} переміг",
   "duel_win_one": "перемога",
   "duel_win_few": "перемоги",
   "duel_win_many": "перемог",
