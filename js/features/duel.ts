@@ -95,6 +95,7 @@ interface RoomData {
 interface AsyncDuel {
   seed:number; mode:DuelMode; category:string; difficulty:Difficulty;
   createdAt:number; expiresAt:number;
+  powerupsEnabled?:boolean; maxHints?:number; bestOf?:BestOf;
   challenger:{ name:string; avatar:string; score:number; done:boolean };
   opponent?:{ name:string; avatar:string; score:number; done:boolean };
   finished:boolean;
@@ -204,12 +205,20 @@ const _resumeCountdownTimers = new Map<string, ReturnType<typeof setInterval>>()
 let _oppName   = '';
 let _oppAvatar = '';
 let _roomCreatedAt = 0;
+// Room/deck params kept for session persistence & resume (esp. async duels,
+// whose /duel_rooms/ doc may only contain partial data pushed by _pushScore)
+let _roomSeed = 0;
+let _roomCategory = '';
+let _roomDifficulty: Difficulty = 'mixed';
+let _roomMaxHints = 3;
 
 // ── Session persistence ───────────────────────────────────────
 const SESSION_KEY = 'ew_duel_sessions';
 const SESSION_KEY_OLD = 'ew_duel_session';
 let _chatHistory: {text:string;isMe:boolean}[] = [];
-interface DuelSession {roomId:string;slot:'p1'|'p2';mode:DuelMode;idx:number;score:number;correct?:number;wrong?:number;flags?:boolean[];chat?:{text:string;isMe:boolean}[];deckLen?:number;createdAt?:number}
+interface DuelSession {roomId:string;slot:'p1'|'p2';mode:DuelMode;idx:number;score:number;correct?:number;wrong?:number;flags?:boolean[];chat?:{text:string;isMe:boolean}[];deckLen?:number;createdAt?:number;
+  seed?:number;category?:string;difficulty?:Difficulty;maxHints?:number;bestOf?:BestOf;
+  powerupsEnabled?:boolean;myPowerups?:Record<PowerupType,number>;oppName?:string;oppAvatar?:string;}
 function _loadSessions(): DuelSession[] {
   try {
     const r=localStorage.getItem(SESSION_KEY);
@@ -230,7 +239,9 @@ function _saveSessions(list: DuelSession[]): void {
 function _saveSession(): void {
   if(!_roomId) return;
   const list=_loadSessions().filter(s=>s.roomId!==_roomId);
-  list.push({roomId:_roomId,slot:_mySlot,mode:_mode,idx:_quizIdx,score:_myScore,correct:_myCorrect,wrong:_myWrong,flags:_myFlags,chat:_chatHistory,deckLen:_quizDeck.length,createdAt:_roomCreatedAt});
+  list.push({roomId:_roomId,slot:_mySlot,mode:_mode,idx:_quizIdx,score:_myScore,correct:_myCorrect,wrong:_myWrong,flags:_myFlags,chat:_chatHistory,deckLen:_quizDeck.length,createdAt:_roomCreatedAt,
+    seed:_roomSeed,category:_roomCategory,difficulty:_roomDifficulty,maxHints:_roomMaxHints,bestOf:_bestOf,
+    powerupsEnabled:_powerupsEnabled,myPowerups:{..._myPowerups},oppName:_oppName,oppAvatar:_oppAvatar});
   _saveSessions(list);
 }
 function _clearSession(roomId?: string): void {
@@ -294,6 +305,8 @@ const elOppScore  = () => $('dm-opp-score');
 const elOppName   = () => $('dm-opp-name');
 const elOppAv     = () => $('dm-opp-av');
 const elOppProg   = () => $('dm-opp-progress');
+const elMyAv      = () => $('dm-my-av');
+const elMyProg    = () => $('dm-my-progress');
 const elModeBadge = () => $('dm-mode-badge');
 const elQuestion  = () => $('dm-question');
 const elProgress  = () => $('dm-progress');
@@ -508,6 +521,7 @@ async function createRoom(): Promise<void> {
     };
     await _fbSet(`/duel_rooms/${_roomId}`,room);
     _roomCreatedAt=room.createdAt;
+    _roomSeed=seed; _roomCategory=_selCategory; _roomDifficulty=_selDifficulty; _roomMaxHints=_selMaxHints;
     _quizDeck=_buildDeck(seed,_selCategory,_selDifficulty,_selMode);
     const codeEl=$('duel-room-code'); if(codeEl) codeEl.textContent=_fmtCode(_roomId);
     const modeEl=$('duel-waiting-mode');
@@ -538,6 +552,7 @@ async function joinRoom(): Promise<void> {
     if(room.finished) throw new Error(t('duel.err.finished'));
     _roomId=code; _mySlot='p2'; _isAsyncChallenge=false;
     _roomCreatedAt=room.createdAt||Date.now();
+    _roomSeed=room.seed; _roomCategory=room.category; _roomDifficulty=room.difficulty; _roomMaxHints=room.maxHints;
     _quizDeck=_buildDeck(room.seed,room.category,room.difficulty,room.mode);
     _bestOf=room.bestOf||1; _series={...room.series};
     await _fbPatch(`/duel_rooms/${_roomId}`,{
@@ -581,6 +596,7 @@ function _setupGameUI(): void {
   if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
   if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
   elOppName().textContent=_oppName; elOppAv().textContent=_oppAvatar;
+  elMyAv().textContent=_getMyAvatar();
   const mInfo=DUEL_MODES.find(m=>m.id===_mode)||DUEL_MODES[0];
   elModeBadge().textContent=`${mInfo.icon} ${t('duel.mode.'+_mode)}`;
   // Persistent room code hint for the host of a private room
@@ -709,7 +725,10 @@ function _renderProgressBar(elId:string, idx:number, flags?:boolean[], fallbackC
   }).join('');
 }
 function _renderOppProgressBar(idx:number, flags?:boolean[]): void { _renderProgressBar('dm-opp-progress-bar', idx, flags, 'var(--accent2)'); }
-function _renderMyProgressBar(): void { _renderProgressBar('dm-my-progress-bar', _quizIdx, _myFlags, 'var(--accent)'); }
+function _renderMyProgressBar(): void {
+  _renderProgressBar('dm-my-progress-bar', _quizIdx, _myFlags, 'var(--accent)');
+  elMyProg().textContent=`${_quizIdx}/${ROOM_SIZE}`;
+}
 
 function _updateSeriesUI(): void {
   const el=$('dm-series-row') as HTMLElement|null; if(!el) return;
@@ -1180,12 +1199,15 @@ async function createAsyncChallenge(): Promise<void> {
     const challenge: AsyncDuel = {
       seed, mode:_selMode, category:_selCategory, difficulty:_selDifficulty,
       createdAt:Date.now(), expiresAt:Date.now()+86_400_000, // 24 hours
+      powerupsEnabled:_selPowerups, maxHints:_selMaxHints, bestOf:_selBestOf,
       challenger:{ name:_getMyName(), avatar:_getMyAvatar(), score:0, done:false },
       finished:false,
     };
     await _fbSet(`/duel_async/${code}`, challenge);
     // Play immediately as challenger
-    _roomId=code; _mySlot='p1'; _isAsyncChallenge=true; _quizDeck=_buildDeck(seed,_selCategory,_selDifficulty,_selMode);
+    _roomId=code; _mySlot='p1'; _isAsyncChallenge=true;
+    _roomSeed=seed; _roomCategory=_selCategory; _roomDifficulty=_selDifficulty; _roomMaxHints=_selMaxHints;
+    _quizDeck=_buildDeck(seed,_selCategory,_selDifficulty,_selMode);
     // Show code to share
     const codeEl=$('duel-room-code'); if(codeEl) codeEl.textContent=_fmtCode(code);
     const modeEl=$('duel-waiting-mode');
@@ -1215,13 +1237,16 @@ async function joinAsyncChallenge(): Promise<void> {
     if(Date.now()>challenge.expiresAt) throw new Error(t('duel.err.chal.expired'));
     if(challenge.opponent) throw new Error(t('duel.err.chal.taken'));
     _roomId=code; _mySlot='p2'; _isAsyncChallenge=true; _roomCreatedAt=challenge.createdAt||Date.now();
+    _roomSeed=challenge.seed; _roomCategory=challenge.category; _roomDifficulty=challenge.difficulty; _roomMaxHints=challenge.maxHints??3;
     _quizDeck=_buildDeck(challenge.seed,challenge.category,challenge.difficulty,challenge.mode);
     _oppName=challenge.challenger.name; _oppAvatar=challenge.challenger.avatar;
     const mInfo=DUEL_MODES.find(m=>m.id===challenge.mode);
     elMsg().innerHTML=`<span style="color:var(--accent)">📬 ${challenge.challenger.avatar} <b>${challenge.challenger.name}</b> · ${mInfo?.icon} ${mInfo?t('duel.mode.'+mInfo.id):''}</span>`;
     elMsg().style.display='block';
+    // Let the challenger know who accepted, so resume cards can show "vs <opponent>"
+    _fbPatch(`/duel_async/${code}`,{opponent:{name:_getMyName(),avatar:_getMyAvatar(),score:0,done:false}}).catch(()=>{});
     if(_asyncStartTimer){clearTimeout(_asyncStartTimer);_asyncStartTimer=null;}
-    _asyncStartTimer=setTimeout(()=>{ _asyncStartTimer=null; elMsg().style.display='none'; _initGame(challenge.mode,3,1,{p1wins:0,p2wins:0,round:1}); }, 1800);
+    _asyncStartTimer=setTimeout(()=>{ _asyncStartTimer=null; elMsg().style.display='none'; _initGame(challenge.mode,_roomMaxHints,challenge.bestOf??1,{p1wins:0,p2wins:0,round:1},challenge.powerupsEnabled??false); }, 1800);
   } catch(e){
     elMsg().textContent='❌ '+(e as Error).message; elMsg().style.display='block';
   }
@@ -1268,10 +1293,12 @@ async function _tryResumeSession():Promise<void>{
 
   resumeEl.innerHTML=valid.map(({sess,room})=>{
     const opp=sess.slot==='p1'?room.p2:room.p1;
+    const oppName=opp?.name||sess.oppName;
+    const oppAvatar=opp?.avatar||sess.oppAvatar||'';
     const mInfo=DUEL_MODES.find(m=>m.id===sess.mode)||DUEL_MODES[0];
     return `<div style="background:rgba(0,200,100,.1);border:1.5px solid var(--accent);border-radius:14px;padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">`+
       `<div><div style="font-size:.82rem;font-weight:700;color:var(--accent);">${t('duel.resume.title')}</div>`+
-      `<div style="font-size:.75rem;color:var(--text3);margin-top:2px;">${mInfo.icon} ${t('duel.mode.'+mInfo.id)} · ${sess.score}/${ROOM_SIZE} ${t('duel.resume.pts')}${opp?.name?` · ${t('duel.resume.opp')} ${opp.name}`:''}</div>`+
+      `<div style="font-size:.75rem;color:var(--text3);margin-top:2px;">${mInfo.icon} ${t('duel.mode.'+mInfo.id)} · ${sess.score}/${ROOM_SIZE} ${t('duel.resume.pts')}${oppName?` · ${t('duel.resume.opp')} ${oppAvatar} ${oppName}`:''}</div>`+
       `<div id="duel-resume-expiry-${sess.roomId}" style="font-size:.7rem;color:var(--text3);margin-top:4px;"></div></div>`+
       `<div style="display:flex;gap:6px;">`+
         `<button id="duel-resume-btn-${sess.roomId}" style="padding:7px 14px;border-radius:9px;border:none;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;font-family:inherit;font-size:.82rem;">${t('duel.resume.continue')}</button>`+
@@ -1305,22 +1332,26 @@ async function _tryResumeSession():Promise<void>{
       resumeEl.style.display='none'; resumeEl.innerHTML='';
       _roomId=sess.roomId; _mySlot=sess.slot; _mode=sess.mode;
       _roomCreatedAt=sess.createdAt||room.createdAt||Date.now();
-      _quizDeck=_buildDeck(room.seed,room.category,room.difficulty,room.mode);
-      _oppName=room[sess.slot==='p1'?'p2':'p1']?.name||t('duel.opp');
-      _oppAvatar=room[sess.slot==='p1'?'p2':'p1']?.avatar||'🧑';
+      const seed=sess.seed??room.seed, category=sess.category??room.category, difficulty=sess.difficulty??room.difficulty;
+      const maxHints=sess.maxHints??room.maxHints, bestOf=sess.bestOf??room.bestOf;
+      _roomSeed=seed; _roomCategory=category; _roomDifficulty=difficulty; _roomMaxHints=maxHints;
+      _quizDeck=_buildDeck(seed,category,difficulty,sess.mode);
+      const oppRoom=room[sess.slot==='p1'?'p2':'p1'];
+      _oppName=oppRoom?.name||sess.oppName||t('duel.opp');
+      _oppAvatar=oppRoom?.avatar||sess.oppAvatar||'🧑';
       const savedIdx=sess.idx,savedScore=sess.score;
       // Restore saved state directly, bypassing _initGame's reset+countdown
       // (which would re-zero score/progress and wipe chat a few seconds later).
       const series=room.series||{p1wins:0,p2wins:0,round:1};
-      _bestOf=room.bestOf||1; _series={...series};
+      _bestOf=bestOf||1; _series={...series};
       if(_advanceTimer){clearTimeout(_advanceTimer);_advanceTimer=null;}
       _quizIdx=savedIdx; _myScore=savedScore;
       _myCorrect=sess.correct??0; _myWrong=sess.wrong??0; _myFlags=sess.flags??[];
       _chatHistory=sess.chat??[];
       _answered=false; _finished=false;
-      _hintsLeft = room.maxHints===0 ? 999 : room.maxHints;
-      _powerupsEnabled = !!room.powerupsEnabled;
-      const savedPowerups = room[sess.slot]?.powerups;
+      _hintsLeft = maxHints===0 ? 999 : maxHints;
+      _powerupsEnabled = sess.powerupsEnabled ?? !!room.powerupsEnabled;
+      const savedPowerups = sess.myPowerups ?? room[sess.slot]?.powerups;
       _myPowerups = savedPowerups ? {...savedPowerups} : (_powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0});
       _doubleActive = false;
       const savedDeckLen=sess.deckLen??ROOM_SIZE;
