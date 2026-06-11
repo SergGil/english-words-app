@@ -195,6 +195,9 @@ let _powerupsEnabled = false;
 // Spectator
 let _isSpectator = false;
 let _specId = '';
+// Async challenge (24h)
+let _isAsyncChallenge = false;
+let _asyncStartTimer: ReturnType<typeof setTimeout> | null = null;
 // Freeze timer
 let _freezeTimer: ReturnType<typeof setTimeout> | null = null;
 const _resumeCountdownTimers = new Map<string, ReturnType<typeof setInterval>>();
@@ -493,7 +496,7 @@ async function createRoom(): Promise<void> {
   const btn = $('duel-create-btn') as HTMLButtonElement;
   btn.disabled=true; btn.textContent=t('duel.creating');
   try {
-    _roomId=_genCode(); _mySlot='p1';
+    _roomId=_genCode(); _mySlot='p1'; _isAsyncChallenge=false;
     const seed=Date.now();
     const room: RoomData = {
       seed, mode:_selMode, category:_selCategory, difficulty:_selDifficulty,
@@ -533,7 +536,7 @@ async function joinRoom(): Promise<void> {
     if(!room?.seed) throw new Error(t('duel.err.notFound'));
     if(room.p2)      throw new Error(t('duel.err.taken'));
     if(room.finished) throw new Error(t('duel.err.finished'));
-    _roomId=code; _mySlot='p2';
+    _roomId=code; _mySlot='p2'; _isAsyncChallenge=false;
     _roomCreatedAt=room.createdAt||Date.now();
     _quizDeck=_buildDeck(room.seed,room.category,room.difficulty,room.mode);
     _bestOf=room.bestOf||1; _series={...room.series};
@@ -1028,15 +1031,22 @@ function _cancelRoom():void{
   if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
   if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
   if(_freezeTimer){clearTimeout(_freezeTimer);_freezeTimer=null;}
+  if(_asyncStartTimer){clearTimeout(_asyncStartTimer);_asyncStartTimer=null;}
   if(_roomId){
-    if(_mySlot==='p1') fetch(`${DB_URL}/duel_rooms/${_roomId}.json`,{method:'DELETE'}).catch(()=>{});
+    if(_isAsyncChallenge){
+      fetch(`${DB_URL}/duel_async/${_roomId}.json`,{method:'DELETE'}).catch(()=>{});
+    } else if(_mySlot==='p1') {
+      fetch(`${DB_URL}/duel_rooms/${_roomId}.json`,{method:'DELETE'}).catch(()=>{});
+    }
     // Remove spectator entry if spectator
     if(_isSpectator&&_specId) fetch(`${DB_URL}/duel_rooms/${_roomId}/spectators/${_specId}.json`,{method:'DELETE'}).catch(()=>{});
     _roomId='';
   }
   _isSpectator=false;
+  _isAsyncChallenge=false;
   $('duel-waiting').style.display='none'; $('duel-join-row').style.display='block';
   const btn=$('duel-create-btn') as HTMLButtonElement; btn.disabled=false; btn.textContent=t('duel.create');
+  const asyncBtn=$('duel-async-btn') as HTMLButtonElement|null; if(asyncBtn){ asyncBtn.disabled=false; asyncBtn.textContent=t('duel.sendChallenge'); }
   elMsg().style.display='none';
 }
 
@@ -1171,7 +1181,7 @@ async function createAsyncChallenge(): Promise<void> {
     };
     await _fbSet(`/duel_async/${code}`, challenge);
     // Play immediately as challenger
-    _roomId=code; _mySlot='p1'; _quizDeck=_buildDeck(seed,_selCategory,_selDifficulty,_selMode);
+    _roomId=code; _mySlot='p1'; _isAsyncChallenge=true; _quizDeck=_buildDeck(seed,_selCategory,_selDifficulty,_selMode);
     // Show code to share
     const codeEl=$('duel-room-code'); if(codeEl) codeEl.textContent=_fmtCode(code);
     const modeEl=$('duel-waiting-mode');
@@ -1179,7 +1189,9 @@ async function createAsyncChallenge(): Promise<void> {
     $('duel-waiting').style.display='block';
     $('duel-join-row').style.display='none';
     // Start playing immediately
-    setTimeout(()=>{
+    if(_asyncStartTimer){clearTimeout(_asyncStartTimer);_asyncStartTimer=null;}
+    _asyncStartTimer=setTimeout(()=>{
+      _asyncStartTimer=null;
       $('duel-waiting').style.display='none';
       _initGame(_selMode, _selMaxHints, 1, {p1wins:0,p2wins:0,round:1}, _selPowerups);
     }, 2000);
@@ -1198,12 +1210,14 @@ async function joinAsyncChallenge(): Promise<void> {
     if(challenge.finished) throw new Error(t('duel.err.chal.finished'));
     if(Date.now()>challenge.expiresAt) throw new Error(t('duel.err.chal.expired'));
     if(challenge.opponent) throw new Error(t('duel.err.chal.taken'));
-    _roomId=code; _mySlot='p2'; _quizDeck=_buildDeck(challenge.seed,challenge.category,challenge.difficulty,challenge.mode);
+    _roomId=code; _mySlot='p2'; _isAsyncChallenge=true; _roomCreatedAt=challenge.createdAt||Date.now();
+    _quizDeck=_buildDeck(challenge.seed,challenge.category,challenge.difficulty,challenge.mode);
     _oppName=challenge.challenger.name; _oppAvatar=challenge.challenger.avatar;
     const mInfo=DUEL_MODES.find(m=>m.id===challenge.mode);
     elMsg().innerHTML=`<span style="color:var(--accent)">📬 ${challenge.challenger.avatar} <b>${challenge.challenger.name}</b> · ${mInfo?.icon} ${mInfo?t('duel.mode.'+mInfo.id):''}</span>`;
     elMsg().style.display='block';
-    setTimeout(()=>{ elMsg().style.display='none'; _initGame(challenge.mode,3,1,{p1wins:0,p2wins:0,round:1}); }, 1800);
+    if(_asyncStartTimer){clearTimeout(_asyncStartTimer);_asyncStartTimer=null;}
+    _asyncStartTimer=setTimeout(()=>{ _asyncStartTimer=null; elMsg().style.display='none'; _initGame(challenge.mode,3,1,{p1wins:0,p2wins:0,round:1}); }, 1800);
   } catch(e){
     elMsg().textContent='❌ '+(e as Error).message; elMsg().style.display='block';
   }
@@ -1724,10 +1738,10 @@ $('duel-page-close')?.addEventListener('click', async () => {
   const countdownVisible = elCountdown().style.display !== 'none';
   const waitingVisible   = ($('duel-waiting') as HTMLElement|null)?.style.display === 'block';
 
-  // 24h async duel: leaving mid-question never forfeits — the room stays
-  // alive, the session is saved, and the player can resume the same
-  // question later from the lobby's resume banner.
-  if (gameVisible && !_finished) {
+  // 24h async duel: leaving mid-question (or during the pre-game countdown)
+  // never forfeits — the room stays alive, the session is saved, and the
+  // player can resume the same question later from the lobby's resume banner.
+  if ((gameVisible && !_finished) || countdownVisible) {
     if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
     if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
     if(_freezeTimer){clearTimeout(_freezeTimer);_freezeTimer=null;}
@@ -1736,12 +1750,6 @@ $('duel-page-close')?.addEventListener('click', async () => {
     _showLobby();
     renderDuel();
     _tryResumeSession();
-  } else if (countdownVisible) {
-    const ok = await _showConfirm(t('duel.confirm.leave.title'), t('duel.confirm.leave.msg'), t('duel.confirm.leave.ok'));
-    if (!ok) return;
-    _cancelRoom();
-    _showLobby();
-    renderDuel();
   } else if (waitingVisible) {
     // Waiting for opponent — cancel room, reset lobby state, then close
     _cancelRoom();
