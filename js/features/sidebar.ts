@@ -170,7 +170,16 @@ _updateTogglePills();
 new MutationObserver(_updateTogglePills).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
 // ── Restore last open page after a reload ───────────────────────
+// Deferred via setTimeout: at module-eval time some page renderers
+// (learning-path, duel, etc.) depend on app state/data that other
+// modules finish wiring up only after the whole import chain settles.
+// Calling openPage() synchronously here can throw mid-render, leaving
+// the overlay open but its content area empty.
 try {
   const savedPage = localStorage.getItem(ACTIVE_PAGE_KEY);
-  if (savedPage) openPage(savedPage);
+  if (savedPage) {
+    setTimeout(() => {
+      try { openPage(savedPage); } catch(e){ console.error('[sidebar] failed to restore page', savedPage, e); }
+    }, 0);
+  }
 } catch(e){}
