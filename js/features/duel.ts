@@ -199,11 +199,12 @@ let _oppAvatar = '';
 
 // ── Session persistence ───────────────────────────────────────
 const SESSION_KEY = 'ew_duel_session';
+let _chatHistory: {text:string;isMe:boolean}[] = [];
 function _saveSession(): void {
-  try { localStorage.setItem(SESSION_KEY, JSON.stringify({roomId:_roomId,slot:_mySlot,mode:_mode,idx:_quizIdx,score:_myScore})); } catch(e){}
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify({roomId:_roomId,slot:_mySlot,mode:_mode,idx:_quizIdx,score:_myScore,correct:_myCorrect,wrong:_myWrong,chat:_chatHistory})); } catch(e){}
 }
 function _clearSession(): void { try { localStorage.removeItem(SESSION_KEY); } catch(e){} }
-function _loadSession():{roomId:string;slot:'p1'|'p2';mode:DuelMode;idx:number;score:number}|null {
+function _loadSession():{roomId:string;slot:'p1'|'p2';mode:DuelMode;idx:number;score:number;correct?:number;wrong?:number;chat?:{text:string;isMe:boolean}[]}|null {
   try { const r=localStorage.getItem(SESSION_KEY); return r?JSON.parse(r):null; } catch(e){ return null; }
 }
 
@@ -281,7 +282,7 @@ function _showLobby()    {
   const btn=$('duel-create-btn') as HTMLButtonElement|null; if(btn){ btn.disabled=false; btn.textContent=t('duel.create'); }
 }
 function _showCountdown(){ elLobby().style.display='none'; elCountdown().style.display=''; elGame().style.display='none'; elResult().style.display='none'; }
-function _showGame()     { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display=''; elResult().style.display='none'; const log=$('duel-chat-log'); if(log) log.innerHTML=''; _lastReactionTs=0; }
+function _showGame(clearChat=true) { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display=''; elResult().style.display='none'; if(clearChat){ const log=$('duel-chat-log'); if(log) log.innerHTML=''; _lastReactionTs=0; } }
 function _showResult()   { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display='none'; elResult().style.display=''; }
 
 // ── Lobby pickers ─────────────────────────────────────────────
@@ -530,7 +531,7 @@ function _startWaitPoll(): void {
 
 function _initGame(mode:DuelMode,maxHints:number,bestOf:BestOf,series:SeriesData,powerupsEnabled=false): void {
   _mode=mode; _bestOf=bestOf; _series={...series};
-  _quizIdx=0; _myScore=0; _myCorrect=0; _myWrong=0; _answered=false; _finished=false;
+  _quizIdx=0; _myScore=0; _myCorrect=0; _myWrong=0; _chatHistory=[]; _answered=false; _finished=false;
   _hintsLeft = maxHints === 0 ? 999 : maxHints;
   _powerupsEnabled = powerupsEnabled;
   _myPowerups = powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0};
@@ -700,13 +701,14 @@ function _startOpponentPoll(): void {
 
 // ── Reactions / chat ──────────────────────────────────────────
 let _lastReactionTs = 0;
-function _appendChatMsg(text:string, isMe:boolean): void {
+function _appendChatMsg(text:string, isMe:boolean, record=true): void {
   const log=$('duel-chat-log') as HTMLElement|null; if(!log) return;
   const msg=document.createElement('div');
   msg.className='duel-chat-msg'+(isMe?' me':'');
   msg.textContent=text;
   log.appendChild(msg);
   log.scrollTop=log.scrollHeight;
+  if(record){ _chatHistory.push({text,isMe}); _saveSession(); }
 }
 function _showReactionReceived(text:string, ts?:number): void {
   if(ts!==undefined){
@@ -1195,8 +1197,14 @@ async function _tryResumeSession():Promise<void>{
       const savedIdx=sess.idx,savedScore=sess.score;
       _initGame(sess.mode,room.maxHints,room.bestOf||1,room.series||{p1wins:0,p2wins:0,round:1});
       _quizIdx=savedIdx; _myScore=savedScore;
+      _myCorrect=sess.correct??0; _myWrong=sess.wrong??0;
+      while(_quizIdx>=_quizDeck.length) _extendDeckOnSkip();
       elMyScore().textContent=String(savedScore);
+      _showGame(false);
+      (sess.chat??[]).forEach(m=>_appendChatMsg(m.text,m.isMe,false));
+      _chatHistory=sess.chat??[];
       _renderQuestion();
+      _startOpponentPoll();
     });
     $('duel-resume-discard')?.addEventListener('click',()=>{_clearSession();resumeEl.style.display='none';});
   }catch(e){_clearSession();}
