@@ -990,15 +990,18 @@
         <!-- Power-ups row -->
         <div id="dm-powerups" style="display:none;gap:6px;justify-content:center;margin-top:6px;"></div>
 
-        <div style="display:flex;gap:6px;justify-content:center;margin-top:8px;" id="dm-react-row">
-          <button class="dm-react-btn" data-emoji="👍" data-i18n-title="duel.react.good" title="Добре!">👍</button>
-          <button class="dm-react-btn" data-emoji="😅" data-i18n-title="duel.react.oops" title="Ой!">😅</button>
-          <button class="dm-react-btn" data-emoji="🔥" data-i18n-title="duel.react.fire" title="Вогонь!">🔥</button>
-          <button class="dm-react-btn" data-emoji="😂" data-i18n-title="duel.react.lol" title="Ха!">😂</button>
-          <button class="dm-react-btn" data-emoji="🤯" data-i18n-title="duel.react.wow" title="Неймовірно!">🤯</button>
+        <!-- Chat / reactions panel -->
+        <div id="duel-chat-panel" class="duel-chat-panel">
+          <div class="duel-chat-title" data-i18n="duel.chat">💬 Чат</div>
+          <div id="duel-chat-log" class="duel-chat-log"></div>
+          <div class="duel-chat-react-row" id="dm-react-row">
+            <button class="dm-react-btn" data-emoji="👍" data-i18n-title="duel.react.good" title="Добре!">👍</button>
+            <button class="dm-react-btn" data-emoji="😅" data-i18n-title="duel.react.oops" title="Ой!">😅</button>
+            <button class="dm-react-btn" data-emoji="🔥" data-i18n-title="duel.react.fire" title="Вогонь!">🔥</button>
+            <button class="dm-react-btn" data-emoji="😂" data-i18n-title="duel.react.lol" title="Ха!">😂</button>
+            <button class="dm-react-btn" data-emoji="🤯" data-i18n-title="duel.react.wow" title="Неймовірно!">🤯</button>
+          </div>
         </div>
-        <!-- Received reaction popup -->
-        <div id="dm-reaction-received" style="display:none;text-align:center;font-size:2.5rem;margin-top:4px;"></div>
       </div>
 
       <!-- RESULT -->

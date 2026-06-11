@@ -269,7 +269,7 @@ function _showLobby()    {
   const btn=$('duel-create-btn') as HTMLButtonElement|null; if(btn){ btn.disabled=false; btn.textContent=t('duel.create'); }
 }
 function _showCountdown(){ elLobby().style.display='none'; elCountdown().style.display=''; elGame().style.display='none'; elResult().style.display='none'; }
-function _showGame()     { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display=''; elResult().style.display='none'; }
+function _showGame()     { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display=''; elResult().style.display='none'; const log=$('duel-chat-log'); if(log) log.innerHTML=''; _lastReaction=''; }
 function _showResult()   { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display='none'; elResult().style.display=''; }
 
 // ── Lobby pickers ─────────────────────────────────────────────
@@ -678,20 +678,23 @@ function _startOpponentPoll(): void {
 
 // ── Reactions ─────────────────────────────────────────────────
 let _lastReaction = '';
+function _appendChatMsg(emoji:string, isMe:boolean): void {
+  const log=$('duel-chat-log') as HTMLElement|null; if(!log) return;
+  const msg=document.createElement('div');
+  msg.className='duel-chat-msg'+(isMe?' me':'');
+  msg.textContent=emoji;
+  log.appendChild(msg);
+  log.scrollTop=log.scrollHeight;
+}
 function _showReactionReceived(emoji:string): void {
   if(emoji===_lastReaction) return;
   _lastReaction=emoji;
-  const el=$('dm-reaction-received') as HTMLElement|null; if(!el) return;
-  el.textContent=emoji; el.style.display='block';
-  setTimeout(()=>{ el.style.display='none'; _lastReaction=''; }, 2000);
+  _appendChatMsg(emoji,false);
 }
 
 async function _sendReaction(emoji:string): Promise<void> {
   try { await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`,{reaction:emoji}); } catch(e){}
-  // Show briefly on own screen too
-  const el=$('dm-reaction-received') as HTMLElement|null; if(!el) return;
-  el.textContent=t('duel.sent'); el.style.display='block';
-  setTimeout(()=>{ el.style.display='none'; },1000);
+  _appendChatMsg(emoji,true);
 }
 
 // ── Questions ─────────────────────────────────────────────────

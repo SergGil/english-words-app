@@ -612,7 +612,7 @@
   "duel.timeout": "⏰ Час вийшов!",
   "duel.doublePts": "🎯 +2 очки!",
   "duel.waiting": "⏳ Чекаємо суперника…",
-  "duel.sent": "✅ Надіслано",
+  "duel.chat": "💬 Чат",
   "duel.result.won": "Ти переміг!",
   "duel.result.tie": "Нічия!",
   "duel.result.lost": "Суперник переміг",

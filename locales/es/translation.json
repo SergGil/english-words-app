@@ -612,7 +612,7 @@
   "duel.timeout": "⏰ ¡Se acabó el tiempo!",
   "duel.doublePts": "🎯 ¡+2 puntos!",
   "duel.waiting": "⏳ Esperando al oponente…",
-  "duel.sent": "✅ Enviado",
+  "duel.chat": "💬 Chat",
   "duel.result.won": "¡Ganaste!",
   "duel.result.tie": "¡Empate!",
   "duel.result.lost": "El oponente ganó",
