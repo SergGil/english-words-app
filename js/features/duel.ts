@@ -1222,6 +1222,7 @@ async function _tryResumeSession():Promise<void>{
       _setupGameUI();
       elMyScore().textContent=String(savedScore);
       _showGame(false);
+      const chatLog=$('duel-chat-log') as HTMLElement|null; if(chatLog) chatLog.innerHTML='';
       (sess.chat??[]).forEach(m=>_appendChatMsg(m.text,m.isMe,false));
       _renderQuestion();
       _startOpponentPoll();
