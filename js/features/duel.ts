@@ -10,7 +10,7 @@ import LZString from '../../lib/lzstring.js';
 import { _shuf } from '../core/srs.ts';
 import { lev } from '../core/distance.ts';
 import type { WordEntry } from '../../src/types.js';
-import { t, categoryName, getLang } from './i18n.ts';
+import { t, categoryName, getLang, pluralLabel } from './i18n.ts';
 import { DICT } from '../modes/word-letters.ts';
 
 const DICT_SET = new Set(DICT);
@@ -143,7 +143,7 @@ function _renderLeaderboard(): void {
   }).sort((a:any,b:any)=>b.xp-a.xp||b.known-a.known);
   const r=_getRating();
   const rEl=document.getElementById('duel-rating-row');
-  if(rEl) rEl.innerHTML=`🏆 ${r.wins} ${t('duel.wins')} · 💀 ${r.losses} ${t('duel.losses')} · 🤝 ${r.ties} ${t('duel.ties')}`;
+  if(rEl) rEl.innerHTML=`🏆 ${r.wins} ${pluralLabel('duel_win', r.wins)} · 💀 ${r.losses} ${pluralLabel('duel_loss', r.losses)} · 🤝 ${r.ties} ${pluralLabel('duel_tie', r.ties)}`;
   el.innerHTML=stats.map((s:any,i:number)=>{
     const rank=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
     return`<div class="duel-card${s.isActive?' duel-card-active':''}"><div class="duel-card-header"><span class="duel-rank">${rank}</span><span class="duel-av">${s.avatar}</span><span class="duel-name">${s.name}${s.isActive?` (${t('duel.you')})`:''}</span></div><div class="duel-stats"><div class="duel-stat"><div class="duel-sv">${s.known}</div><div class="duel-sl">${t('duel.stats.words')}</div></div><div class="duel-stat"><div class="duel-sv">${s.xp}</div><div class="duel-sl">XP</div></div><div class="duel-stat"><div class="duel-sv">🔥${s.streak}</div><div class="duel-sl">${t('duel.stats.streak')}</div></div><div class="duel-stat"><div class="duel-sv">${s.weekWords}</div><div class="duel-sl">${t('duel.stats.week')}</div></div></div></div>`;
