@@ -595,7 +595,7 @@ function _initGame(mode:DuelMode,maxHints:number,bestOf:BestOf,series:SeriesData
 function _setupGameUI(): void {
   if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
   if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
-  elOppName().textContent=_oppName; elOppAv().textContent=_oppAvatar;
+  elOppName().textContent=_oppName||t('duel.opp'); elOppAv().textContent=_oppAvatar;
   elMyAv().textContent=_getMyAvatar();
   const mInfo=DUEL_MODES.find(m=>m.id===_mode)||DUEL_MODES[0];
   elModeBadge().textContent=`${mInfo.icon} ${t('duel.mode.'+_mode)}`;
