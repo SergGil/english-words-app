@@ -200,15 +200,16 @@ let _freezeTimer: ReturnType<typeof setTimeout> | null = null;
 let _resumeCountdownTimer: ReturnType<typeof setInterval> | null = null;
 let _oppName   = '';
 let _oppAvatar = '';
+let _roomCreatedAt = 0;
 
 // ── Session persistence ───────────────────────────────────────
 const SESSION_KEY = 'ew_duel_session';
 let _chatHistory: {text:string;isMe:boolean}[] = [];
 function _saveSession(): void {
-  try { localStorage.setItem(SESSION_KEY, JSON.stringify({roomId:_roomId,slot:_mySlot,mode:_mode,idx:_quizIdx,score:_myScore,correct:_myCorrect,wrong:_myWrong,flags:_myFlags,chat:_chatHistory,deckLen:_quizDeck.length})); } catch(e){}
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify({roomId:_roomId,slot:_mySlot,mode:_mode,idx:_quizIdx,score:_myScore,correct:_myCorrect,wrong:_myWrong,flags:_myFlags,chat:_chatHistory,deckLen:_quizDeck.length,createdAt:_roomCreatedAt})); } catch(e){}
 }
 function _clearSession(): void { try { localStorage.removeItem(SESSION_KEY); } catch(e){} }
-function _loadSession():{roomId:string;slot:'p1'|'p2';mode:DuelMode;idx:number;score:number;correct?:number;wrong?:number;flags?:boolean[];chat?:{text:string;isMe:boolean}[];deckLen?:number}|null {
+function _loadSession():{roomId:string;slot:'p1'|'p2';mode:DuelMode;idx:number;score:number;correct?:number;wrong?:number;flags?:boolean[];chat?:{text:string;isMe:boolean}[];deckLen?:number;createdAt?:number}|null {
   try { const r=localStorage.getItem(SESSION_KEY); return r?JSON.parse(r):null; } catch(e){ return null; }
 }
 
@@ -480,6 +481,7 @@ async function createRoom(): Promise<void> {
       p2:null,
     };
     await _fbSet(`/duel_rooms/${_roomId}`,room);
+    _roomCreatedAt=room.createdAt;
     _quizDeck=_buildDeck(seed,_selCategory,_selDifficulty,_selMode);
     const codeEl=$('duel-room-code'); if(codeEl) codeEl.textContent=_fmtCode(_roomId);
     const modeEl=$('duel-waiting-mode');
@@ -509,6 +511,7 @@ async function joinRoom(): Promise<void> {
     if(room.p2)      throw new Error(t('duel.err.taken'));
     if(room.finished) throw new Error(t('duel.err.finished'));
     _roomId=code; _mySlot='p2';
+    _roomCreatedAt=room.createdAt||Date.now();
     _quizDeck=_buildDeck(room.seed,room.category,room.difficulty,room.mode);
     _bestOf=room.bestOf||1; _series={...room.series};
     await _fbPatch(`/duel_rooms/${_roomId}`,{
@@ -1215,7 +1218,7 @@ async function _tryResumeSession():Promise<void>{
     resumeEl.style.display='block';
     // 24h-from-creation countdown until the room is considered expired
     if(_resumeCountdownTimer){clearInterval(_resumeCountdownTimer);_resumeCountdownTimer=null;}
-    const expiresAt=(room.createdAt||Date.now())+86_400_000;
+    const expiresAt=(sess.createdAt||room.createdAt||Date.now())+86_400_000;
     const updateExpiry=()=>{
       const expEl=$('duel-resume-expiry') as HTMLElement|null;
       if(!expEl){ if(_resumeCountdownTimer){clearInterval(_resumeCountdownTimer);_resumeCountdownTimer=null;} return; }
@@ -1235,6 +1238,7 @@ async function _tryResumeSession():Promise<void>{
       resumeEl.style.display='none';
       if(_resumeCountdownTimer){clearInterval(_resumeCountdownTimer);_resumeCountdownTimer=null;}
       _roomId=sess.roomId; _mySlot=sess.slot; _mode=sess.mode;
+      _roomCreatedAt=sess.createdAt||room.createdAt||Date.now();
       _quizDeck=_buildDeck(room.seed,room.category,room.difficulty,room.mode);
       _oppName=room[sess.slot==='p1'?'p2':'p1']?.name||t('duel.opp');
       _oppAvatar=room[sess.slot==='p1'?'p2':'p1']?.avatar||'🧑';
@@ -1250,7 +1254,8 @@ async function _tryResumeSession():Promise<void>{
       _answered=false; _finished=false;
       _hintsLeft = room.maxHints===0 ? 999 : room.maxHints;
       _powerupsEnabled = !!room.powerupsEnabled;
-      _myPowerups = _powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0};
+      const savedPowerups = room[sess.slot]?.powerups;
+      _myPowerups = savedPowerups ? {...savedPowerups} : (_powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0});
       _doubleActive = false;
       const savedDeckLen=sess.deckLen??ROOM_SIZE;
       while(_quizDeck.length<savedDeckLen) _extendDeckOnSkip();
