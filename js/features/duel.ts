@@ -79,6 +79,7 @@ interface PlayerData {
   name:string; avatar:string; score:number; idx:number; done:boolean;
   reaction?:string; reactionTs?:number; hintsLeft:number;
   powerups:Record<PowerupType,number>; frozenUntil?:number;
+  flags?:boolean[];
 }
 interface SeriesData { p1wins:number; p2wins:number; round:number; }
 interface SpectatorData { name:string; avatar:string; }
@@ -176,6 +177,7 @@ let _quizIdx   = 0;
 let _myScore   = 0;
 let _myCorrect = 0;
 let _myWrong   = 0;
+let _myFlags: boolean[] = [];
 let _answered  = false;
 let _mode:     DuelMode   = 'quiz';
 let _tempoTimer: ReturnType<typeof setInterval> | null = null;
@@ -195,6 +197,7 @@ let _isSpectator = false;
 let _specId = '';
 // Freeze timer
 let _freezeTimer: ReturnType<typeof setTimeout> | null = null;
+let _resumeCountdownTimer: ReturnType<typeof setInterval> | null = null;
 let _oppName   = '';
 let _oppAvatar = '';
 
@@ -202,10 +205,10 @@ let _oppAvatar = '';
 const SESSION_KEY = 'ew_duel_session';
 let _chatHistory: {text:string;isMe:boolean}[] = [];
 function _saveSession(): void {
-  try { localStorage.setItem(SESSION_KEY, JSON.stringify({roomId:_roomId,slot:_mySlot,mode:_mode,idx:_quizIdx,score:_myScore,correct:_myCorrect,wrong:_myWrong,chat:_chatHistory,deckLen:_quizDeck.length})); } catch(e){}
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify({roomId:_roomId,slot:_mySlot,mode:_mode,idx:_quizIdx,score:_myScore,correct:_myCorrect,wrong:_myWrong,flags:_myFlags,chat:_chatHistory,deckLen:_quizDeck.length})); } catch(e){}
 }
 function _clearSession(): void { try { localStorage.removeItem(SESSION_KEY); } catch(e){} }
-function _loadSession():{roomId:string;slot:'p1'|'p2';mode:DuelMode;idx:number;score:number;correct?:number;wrong?:number;chat?:{text:string;isMe:boolean}[];deckLen?:number}|null {
+function _loadSession():{roomId:string;slot:'p1'|'p2';mode:DuelMode;idx:number;score:number;correct?:number;wrong?:number;flags?:boolean[];chat?:{text:string;isMe:boolean}[];deckLen?:number}|null {
   try { const r=localStorage.getItem(SESSION_KEY); return r?JSON.parse(r):null; } catch(e){ return null; }
 }
 
@@ -275,16 +278,20 @@ const elSpeed     = () => $('dm-speed');
 const elTimerBar  = () => $('dm-timer-bar') as HTMLElement;
 const elTimerNum  = () => $('dm-timer-num');
 
+const elChatPanel = () => $('duel-chat-panel') as HTMLElement;
+
 function _showLobby()    {
   elLobby().style.display=''; elCountdown().style.display='none'; elGame().style.display='none'; elResult().style.display='none';
+  elChatPanel().style.display='none';
   // Always reset waiting state so the create button is never stuck
   const waiting=$('duel-waiting') as HTMLElement|null; if(waiting) waiting.style.display='none';
   const joinRow=$('duel-join-row') as HTMLElement|null; if(joinRow) joinRow.style.display='';
   const btn=$('duel-create-btn') as HTMLButtonElement|null; if(btn){ btn.disabled=false; btn.textContent=t('duel.create'); }
 }
-function _showCountdown(){ elLobby().style.display='none'; elCountdown().style.display=''; elGame().style.display='none'; elResult().style.display='none'; }
-function _showGame(clearChat=true) { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display=''; elResult().style.display='none'; if(clearChat){ const log=$('duel-chat-log'); if(log) log.innerHTML=''; _lastReactionTs=0; } }
-function _showResult()   { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display='none'; elResult().style.display=''; }
+function _showCountdown(){ elLobby().style.display='none'; elCountdown().style.display=''; elGame().style.display='none'; elResult().style.display='none'; elChatPanel().style.display='none'; }
+function _showGame(clearChat=true) { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display=''; elResult().style.display='none'; elChatPanel().style.display=''; if(clearChat){ const log=$('duel-chat-log'); if(log) log.innerHTML=''; _lastReactionTs=0; } }
+// Keep the chat panel visible/usable on the finish screen so players can keep chatting.
+function _showResult()   { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display='none'; elResult().style.display=''; elChatPanel().style.display=''; }
 
 // ── Lobby pickers ─────────────────────────────────────────────
 let _selMode:       DuelMode   = 'quiz';
@@ -533,7 +540,7 @@ function _startWaitPoll(): void {
 function _initGame(mode:DuelMode,maxHints:number,bestOf:BestOf,series:SeriesData,powerupsEnabled=false): void {
   _mode=mode; _bestOf=bestOf; _series={...series};
   if(_advanceTimer){clearTimeout(_advanceTimer);_advanceTimer=null;}
-  _quizIdx=0; _myScore=0; _myCorrect=0; _myWrong=0; _chatHistory=[]; _answered=false; _finished=false;
+  _quizIdx=0; _myScore=0; _myCorrect=0; _myWrong=0; _myFlags=[]; _chatHistory=[]; _answered=false; _finished=false;
   _hintsLeft = maxHints === 0 ? 999 : maxHints;
   _powerupsEnabled = powerupsEnabled;
   _myPowerups = powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0};
@@ -638,6 +645,7 @@ async function _usePowerup(type: PowerupType): Promise<void> {
     if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
     elFeedback().innerHTML=`<span style="color:var(--accent)">${t('duel.toast.skip')}</span>`;
     _extendDeckOnSkip();
+    _myFlags.push(false);
     _quizIdx++;
     await _pushScore();
     if(_advanceTimer) clearTimeout(_advanceTimer);
@@ -660,11 +668,14 @@ function _showMiniToast(msg:string): void {
 }
 
 // ── Animated opponent progress bar ──────────────────────────
-function _renderOppProgressBar(idx:number): void {
+function _renderOppProgressBar(idx:number, flags?:boolean[]): void {
   const el=$('dm-opp-progress-bar') as HTMLElement|null; if(!el) return;
-  el.innerHTML = Array.from({length:ROOM_SIZE},(_,i)=>
-    `<span style="width:10px;height:10px;border-radius:50%;display:inline-block;background:${i<idx?'var(--accent2)':'var(--border)'};margin:1px;transition:background .3s;"></span>`
-  ).join('');
+  el.innerHTML = Array.from({length:ROOM_SIZE},(_,i)=>{
+    let bg='var(--border)';
+    if(flags && i<flags.length) bg=flags[i]?'#27ae60':'#e74c3c';
+    else if(i<idx) bg='var(--accent2)';
+    return `<span style="width:10px;height:10px;border-radius:50%;display:inline-block;background:${bg};margin:1px;transition:background .3s;"></span>`;
+  }).join('');
 }
 
 function _updateSeriesUI(): void {
@@ -684,7 +695,7 @@ function _startOpponentPoll(): void {
       if(opp){
         elOppScore().textContent=String(opp.score);
         elOppProg().textContent=`${opp.idx}/${ROOM_SIZE}`;
-        _renderOppProgressBar(opp.idx);
+        _renderOppProgressBar(opp.idx, opp.flags);
         if(opp.reaction) _showReactionReceived(opp.reaction,opp.reactionTs);
       }
       // Check if I'm frozen (opponent used freeze on me)
@@ -805,7 +816,7 @@ function _startTempoTimer(w:WordEntry): void {
         _answered=true;
         elOpts().querySelectorAll<HTMLButtonElement>('.quiz-option').forEach(b=>b.disabled=true);
         elFeedback().innerHTML=`<span style="color:#e74c3c">${t('duel.timeout')}</span>`;
-        _myWrong++;
+        _myWrong++; _myFlags.push(false);
         _quizIdx++; _pushScore();
         if(_advanceTimer) clearTimeout(_advanceTimer);
         _advanceTimer=setTimeout(()=>{ _advanceTimer=null; _renderQuestion(); },1000);
@@ -822,6 +833,7 @@ async function _answerChoice(btn:HTMLButtonElement,chosen:string,correct:string,
   const ms=Date.now()-_answerStartMs;
   elOpts().querySelectorAll<HTMLButtonElement>('.quiz-option').forEach(b=>b.disabled=true);
   const ok=chosen===correct;
+  _myFlags.push(ok);
   btn.classList.add(ok?'correct':'wrong');
   if(!ok) elOpts().querySelectorAll<HTMLButtonElement>('.quiz-option').forEach(b=>{if(b.textContent?.includes(correct)) b.classList.add('reveal');});
   let feedbackHtml = '';
@@ -856,6 +868,7 @@ function _submitWrite(): void {
   }
   const ms=Date.now()-_answerStartMs;
   _answered=true; inp.disabled=true;
+  _myFlags.push(ok);
   inp.style.borderColor=ok?'#27ae60':'#e74c3c';
   let feedbackHtml='';
   if(ok){
@@ -895,12 +908,12 @@ function _useHint(): void {
 
 async function _pushScore():Promise<void>{
   _saveSession();
-  try{await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`,{score:_myScore,idx:_quizIdx});}catch(e){}
+  try{await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`,{score:_myScore,idx:_quizIdx,flags:_myFlags});}catch(e){}
 }
 
 async function _finishMyGame():Promise<void>{
   try{
-    await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`,{score:_myScore,idx:_quizDeck.length,done:true});
+    await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`,{score:_myScore,idx:_quizDeck.length,flags:_myFlags,done:true});
     const room=await _fbGet(`/duel_rooms/${_roomId}`) as RoomData;
     const opp=_mySlot==='p1'?room.p2:room.p1;
     if(opp?.done){
@@ -1063,6 +1076,7 @@ async function joinAsSpectator(): Promise<void> {
 function _startSpectatorView(room:RoomData): void {
   const el=$('duel-spectate') as HTMLElement|null; if(!el) return;
   elLobby().style.display='none'; el.style.display='';
+  elChatPanel().style.display='none';
   _renderSpectatorView(room);
   _pollTimer=setInterval(async()=>{
     try{
@@ -1172,6 +1186,7 @@ async function joinAsyncChallenge(): Promise<void> {
 function _doRematch():void{
   if(_mySlot==='p1'){
     // p1 creates a new room — show waiting screen
+    _showLobby(); renderDuel();
     _cancelRoom(); createRoom();
   } else {
     // p2 gets new code to join
@@ -1191,14 +1206,34 @@ async function _tryResumeSession():Promise<void>{
     const mInfo=DUEL_MODES.find(m=>m.id===sess.mode)||DUEL_MODES[0];
     resumeEl.innerHTML=`<div style="background:rgba(0,200,100,.1);border:1.5px solid var(--accent);border-radius:14px;padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">`+
       `<div><div style="font-size:.82rem;font-weight:700;color:var(--accent);">${t('duel.resume.title')}</div>`+
-      `<div style="font-size:.75rem;color:var(--text3);margin-top:2px;">${mInfo.icon} ${t('duel.mode.'+mInfo.id)} · ${sess.score}/${ROOM_SIZE} ${t('duel.resume.pts')}${opp?` · ${t('duel.resume.opp')} ${opp.name}`:''}</div></div>`+
+      `<div style="font-size:.75rem;color:var(--text3);margin-top:2px;">${mInfo.icon} ${t('duel.mode.'+mInfo.id)} · ${sess.score}/${ROOM_SIZE} ${t('duel.resume.pts')}${opp?` · ${t('duel.resume.opp')} ${opp.name}`:''}</div>`+
+      `<div id="duel-resume-expiry" style="font-size:.7rem;color:var(--text3);margin-top:4px;"></div></div>`+
       `<div style="display:flex;gap:6px;">`+
         `<button id="duel-resume-btn" style="padding:7px 14px;border-radius:9px;border:none;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;font-family:inherit;font-size:.82rem;">${t('duel.resume.continue')}</button>`+
         `<button id="duel-resume-discard" style="padding:7px 12px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit;font-size:.78rem;">✕</button>`+
       `</div></div>`;
     resumeEl.style.display='block';
+    // 24h-from-creation countdown until the room is considered expired
+    if(_resumeCountdownTimer){clearInterval(_resumeCountdownTimer);_resumeCountdownTimer=null;}
+    const expiresAt=(room.createdAt||Date.now())+86_400_000;
+    const updateExpiry=()=>{
+      const expEl=$('duel-resume-expiry') as HTMLElement|null;
+      if(!expEl){ if(_resumeCountdownTimer){clearInterval(_resumeCountdownTimer);_resumeCountdownTimer=null;} return; }
+      const remaining=expiresAt-Date.now();
+      if(remaining<=0){
+        expEl.textContent=t('duel.resume.expired');
+        if(_resumeCountdownTimer){clearInterval(_resumeCountdownTimer);_resumeCountdownTimer=null;}
+      } else {
+        const h=Math.floor(remaining/3600000), m=Math.floor((remaining%3600000)/60000), s=Math.floor((remaining%60000)/1000);
+        const time=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        expEl.textContent=t('duel.resume.expires',{time});
+      }
+    };
+    updateExpiry();
+    _resumeCountdownTimer=setInterval(updateExpiry,1000);
     $('duel-resume-btn')?.addEventListener('click',()=>{
       resumeEl.style.display='none';
+      if(_resumeCountdownTimer){clearInterval(_resumeCountdownTimer);_resumeCountdownTimer=null;}
       _roomId=sess.roomId; _mySlot=sess.slot; _mode=sess.mode;
       _quizDeck=_buildDeck(room.seed,room.category,room.difficulty,room.mode);
       _oppName=room[sess.slot==='p1'?'p2':'p1']?.name||t('duel.opp');
@@ -1210,7 +1245,7 @@ async function _tryResumeSession():Promise<void>{
       _bestOf=room.bestOf||1; _series={...series};
       if(_advanceTimer){clearTimeout(_advanceTimer);_advanceTimer=null;}
       _quizIdx=savedIdx; _myScore=savedScore;
-      _myCorrect=sess.correct??0; _myWrong=sess.wrong??0;
+      _myCorrect=sess.correct??0; _myWrong=sess.wrong??0; _myFlags=sess.flags??[];
       _chatHistory=sess.chat??[];
       _answered=false; _finished=false;
       _hintsLeft = room.maxHints===0 ? 999 : room.maxHints;
@@ -1227,7 +1262,11 @@ async function _tryResumeSession():Promise<void>{
       _renderQuestion();
       _startOpponentPoll();
     });
-    $('duel-resume-discard')?.addEventListener('click',()=>{_clearSession();resumeEl.style.display='none';});
+    $('duel-resume-discard')?.addEventListener('click',()=>{
+      _clearSession();
+      resumeEl.style.display='none';
+      if(_resumeCountdownTimer){clearInterval(_resumeCountdownTimer);_resumeCountdownTimer=null;}
+    });
   }catch(e){_clearSession();}
 }
 
@@ -1249,7 +1288,7 @@ let _tournData: Tournament | null = null;
 let _tournPoll: ReturnType<typeof setInterval> | null = null;
 let _tournFinishHook: ((r:RoomData)=>void) | null = null;
 
-function _showTournament() { elLobby().style.display='none'; ($('duel-tournament') as HTMLElement).style.display=''; }
+function _showTournament() { elLobby().style.display='none'; ($('duel-tournament') as HTMLElement).style.display=''; elChatPanel().style.display='none'; }
 function _hideTournament() { ($('duel-tournament') as HTMLElement).style.display='none'; }
 
 function _buildBracket(size:4|8): TournMatch[][] {
@@ -1640,18 +1679,19 @@ $('duel-page-close')?.addEventListener('click', async () => {
   const countdownVisible = elCountdown().style.display !== 'none';
   const waitingVisible   = ($('duel-waiting') as HTMLElement|null)?.style.display === 'block';
 
-  // Already submitted all my answers, just waiting for the (async) opponent —
-  // leaving doesn't forfeit anything, so don't warn or delete the room.
-  const myDone = gameVisible && !_finished && _quizIdx >= _quizDeck.length;
-
-  if (myDone) {
+  // 24h async duel: leaving mid-question never forfeits — the room stays
+  // alive, the session is saved, and the player can resume the same
+  // question later from the lobby's resume banner.
+  if (gameVisible && !_finished) {
     if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
     if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
     if(_freezeTimer){clearTimeout(_freezeTimer);_freezeTimer=null;}
+    if(_advanceTimer){clearTimeout(_advanceTimer);_advanceTimer=null;}
+    _saveSession();
     _showLobby();
     renderDuel();
     _tryResumeSession();
-  } else if (gameVisible || countdownVisible) {
+  } else if (countdownVisible) {
     const ok = await _showConfirm(t('duel.confirm.leave.title'), t('duel.confirm.leave.msg'), t('duel.confirm.leave.ok'));
     if (!ok) return;
     _cancelRoom();

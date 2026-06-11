@@ -694,6 +694,8 @@
   "duel.resume.pts": "pts",
   "duel.resume.opp": "adversaire :",
   "duel.resume.continue": "Continuer",
+  "duel.resume.expires": "⏳ {{time}} restant pour terminer",
+  "duel.resume.expired": "⌛ Le délai pour terminer ce duel est écoulé",
   "duel.tourn.join.title": "🏟️ Rejoindre un tournoi",
   "duel.tourn.join.desc": "Entre le code du tournoi de l'organisateur",
   "duel.tourn.err.notFound": "Tournoi introuvable",

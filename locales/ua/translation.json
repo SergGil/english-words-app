@@ -694,6 +694,8 @@
   "duel.resume.pts": "очок",
   "duel.resume.opp": "суперник:",
   "duel.resume.continue": "Продовжити",
+  "duel.resume.expires": "⏳ Залишилось {{time}} на завершення",
+  "duel.resume.expired": "⌛ Час на завершення дуелі сплив",
   "duel.tourn.join.title": "🏟️ Вступити в турнір",
   "duel.tourn.join.desc": "Введи код турніру від організатора",
   "duel.tourn.err.notFound": "Турнір не знайдено",
