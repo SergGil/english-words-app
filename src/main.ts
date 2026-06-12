@@ -31,7 +31,6 @@ await import('../js/features/notifications.ts');
 await import('../js/features/duel.ts');
 await import('../js/features/profiles.ts');
 await import('../js/features/settings.ts');
-await import('../js/features/onboarding.ts');
 await import('../js/features/cloud-sync.ts');
 await import('../js/features/quick-quiz.ts');
 await import('../js/features/mode-hints.ts');
@@ -78,3 +77,6 @@ mountTagFilterSelect();
 
 const { mountFontSizeControl } = await import('../js/features/font-size-control.tsx');
 mountFontSizeControl();
+
+const { mountOnboarding } = await import('../js/features/onboarding.tsx');
+mountOnboarding();

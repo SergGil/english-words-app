@@ -4049,3 +4049,56 @@ body.dark .cefr-C2, body.sw .cefr-C2 { background: rgba(142,68,173,.18); }
 .mc-context  { --mc: #9b59b6; }
 .mc-spelling { --mc: #f39c12; }
 .mc-story    { --mc: #27ae60; }
+
+/* ── Onboarding (first-launch) ─────────────────────────────────*/
+#ob-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.72);
+  z-index: 999999; display: flex; align-items: center;
+  justify-content: center; padding: 16px;
+  animation: ob-fade-in .25s ease;
+}
+@keyframes ob-fade-in { from { opacity:0 } to { opacity:1 } }
+#ob-card {
+  background: #1a2540;
+  border-radius: 24px; padding: 32px 28px 24px;
+  max-width: 420px; width: 100%;
+  box-shadow: 0 16px 60px rgba(0,0,0,.55);
+  display: flex; flex-direction: column;
+  min-height: 400px;
+}
+.ob-slide { display: none; flex-direction: column; flex: 1; animation: none; }
+.ob-slide.ob-active { display: flex; animation: ob-slide-in .2s ease; }
+@keyframes ob-slide-in { from { opacity:0; transform:translateX(16px) } to { opacity:1; transform:none } }
+.ob-emoji { font-size: 2.8rem; margin-bottom: 14px; text-align: center; line-height: 1; }
+.ob-title { font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: 10px; text-align: center; }
+.ob-desc { font-size: .86rem; color: rgba(255,255,255,.78); line-height: 1.65; text-align: center; flex: 1; }
+.ob-desc b { color: #4ecca3; }
+.ob-tips { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; }
+.ob-tip { display: flex; align-items: center; gap: 10px; font-size: .82rem;
+  color: rgba(255,255,255,.75); background: rgba(255,255,255,.07);
+  border-radius: 10px; padding: 8px 12px; }
+.ob-tip b { color: #fff; }
+.ob-tip-icon { font-size: 1.1rem; flex-shrink: 0; min-width: 22px; text-align: center; }
+.ob-levels { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.ob-level-btn {
+  border: 2px solid rgba(255,255,255,.18); border-radius: 14px; padding: 12px 8px;
+  cursor: pointer; background: rgba(255,255,255,.04); color: #fff; text-align: center;
+  transition: all .15s; font-family: inherit;
+}
+.ob-level-btn:hover { border-color: #4ecca3; background: rgba(78,204,163,.1); }
+.ob-level-btn.ob-sel { border-color: #4ecca3; background: rgba(78,204,163,.15); }
+.ob-level-btn .ob-lv-emoji { font-size: 1.6rem; display: block; margin-bottom: 4px; line-height: 1; }
+.ob-level-btn .ob-lv-name { font-size: .78rem; font-weight: 700; color: #fff; }
+.ob-level-btn .ob-lv-words { font-size: .65rem; color: rgba(255,255,255,.5); margin-top: 2px; }
+.ob-level-btn .ob-lv-hint { font-size: .63rem; color: #4ecca3; margin-top: 3px; opacity: .9; }
+.ob-dots { display: flex; justify-content: center; gap: 6px; margin: 16px 0 4px; }
+.ob-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.25); transition: all .2s; }
+.ob-dot.ob-dot-active { background: #4ecca3; width: 18px; border-radius: 4px; }
+.ob-actions { display: flex; gap: 10px; margin-top: 10px; }
+.ob-btn-skip { flex: 1; padding: 12px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,.22);
+  background: none; color: rgba(255,255,255,.65); cursor: pointer; font-family: inherit; font-size: .85rem; }
+.ob-btn-skip:hover { border-color: rgba(255,255,255,.5); color: #fff; }
+.ob-btn-next { flex: 2; padding: 12px; border-radius: 12px; border: none;
+  background: #4ecca3; color: #0a1628; cursor: pointer; font-family: inherit;
+  font-size: .9rem; font-weight: 700; }
+.ob-btn-next:hover { opacity: .88; }
