@@ -25,7 +25,7 @@ import { maybeSubmitScore }                        from './features/leaderboard.
 import { playSound }                               from './core/audio.ts';
 import { updateRing }                              from './features/ring.ts';
 import { invalidateSimilarCache }                  from './features/similar-words.ts';
-import { openWordDetail }                          from './features/word-detail.ts';
+import { openWordDetail }                          from './features/word-detail.tsx';
 import { ES_MODES, FR_MODES, getMode, esEntry as _esEntry, frEntry as _frEntry }  from './features/mode-utils.ts';
 import { safe as _safe, boldEn as _boldEn, boldUa as _boldUa, boldHead as _boldHead, srsStatusInfo } from './core/card-helpers.ts';
 import './features/speech.ts';

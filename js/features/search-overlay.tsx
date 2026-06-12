@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { W } from '../../data/words.js';
 import { state } from '../../src/state.ts';
 import { decodeIpa } from '../core/ui-helpers.ts';
-import { openWordDetail } from './word-detail.ts';
+import { openWordDetail } from './word-detail.tsx';
 import { t } from './i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
