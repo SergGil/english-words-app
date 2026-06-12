@@ -158,7 +158,7 @@ function _renderHistory(): void {
     const icon = e.won?'🏆':e.myScore===e.oppScore?'🤝':'💀';
     const cat  = e.category ? ` · ${e.category.split(' ')[0]}` : '';
     return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.78rem;">
-      <span style="color:var(--text2);">${icon} vs <b>${e.oppName}</b>${cat}</span>
+      <span style="color:var(--text2);">${icon} vs <b>${e.oppName}</b>${cat}<span style="color:var(--text3);"> · ${e.date}</span></span>
       <span style="font-weight:700;color:${e.won?'#27ae60':e.myScore===e.oppScore?'var(--text3)':'#e74c3c'}">${e.myScore}:${e.oppScore}</span>
     </div>`;
   }).join('');
@@ -1031,7 +1031,7 @@ function _showFinish(room:RoomData):void{
   const mInfo=DUEL_MODES.find(m=>m.id===room.mode)||DUEL_MODES[0];
 
   // Save history + rating
-  _addHistory({date:new Date().toLocaleDateString(_dateLocale()),mode:room.mode,myScore:me.score,oppScore:opp?.score??0,oppName:opp?.name||t('duel.opp'),won,category:room.category});
+  _addHistory({date:new Date().toLocaleDateString(_dateLocale()),mode:room.mode,myScore:me.score,oppScore:opp?.score??0,oppName:opp?.name||_oppName||t('duel.opp'),won,category:room.category});
   _updateRating(won,tie);
   _clearSession();
 
