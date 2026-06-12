@@ -1228,42 +1228,7 @@
   <!-- ══ QUIZ MODAL ══ -->
   <div id="quiz-overlay">
     <div class="quiz-panel" id="quiz-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-shrink:0;">
-        <div>
-          <div style="font-size:1.05rem;font-weight:700;color:var(--text);" data-i18n="quiz.title">🧠 Тест</div>
-          <div style="font-size:.75rem;color:var(--text3);margin-top:2px;" id="quiz-subtitle">Питання 1 з 10</div>
-        </div>
-        <button id="quiz-close" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text3);line-height:1;">✕</button>
-      </div>
-      <div style="height:4px;background:var(--border);border-radius:4px;margin-bottom:10px;overflow:hidden;flex-shrink:0;">
-        <div id="quiz-pbar" style="height:100%;background:var(--accent);border-radius:4px;transition:width .4s ease;width:0%"></div>
-      </div>
-      <div style="display:flex;gap:14px;justify-content:center;margin-bottom:10px;flex-shrink:0;" id="quiz-score-row">
-        <span style="font-size:.82rem;color:#27ae60;font-weight:600;">✓ <span id="quiz-correct">0</span> <span data-i18n="quiz.correctLbl">правильно</span></span>
-        <span style="font-size:.82rem;color:#e74c3c;font-weight:600;">✗ <span id="quiz-wrong">0</span> <span data-i18n="quiz.wrongLbl">неправильно</span></span>
-      </div>
-      <div id="quiz-question-wrap" style="background:var(--bg);border-radius:14px;padding:14px 16px;text-align:center;margin-bottom:10px;">
-        <div id="quiz-dir-label" style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;"></div>
-        <div id="quiz-word" style="font-family:'DM Serif Display',serif;font-size:1.75rem;color:var(--text);line-height:1.15;"></div>
-        <div id="quiz-ipa" style="font-size:.8rem;color:var(--accent2);margin-top:3px;"></div>
-        <div id="quiz-example" style="font-size:.76rem;color:var(--text2);margin-top:6px;font-style:italic;line-height:1.4;display:none;"></div>
-        <div id="quiz-ua-ex" style="font-size:.72rem;color:var(--text3);margin-top:3px;font-style:italic;line-height:1.4;"></div>
-      </div>
-      <div id="quiz-options" style="display:flex;flex-direction:column;gap:7px;flex-shrink:0;"></div>
-      <div id="quiz-result-msg" style="text-align:center;font-size:.88rem;font-weight:600;min-height:22px;margin-top:8px;flex-shrink:0;"></div>
-      <div style="text-align:center;margin-top:10px;flex-shrink:0;">
-        <button id="quiz-next" style="display:none;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;padding:10px 32px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;transition:opacity .15s;" data-i18n="quiz.next">Наступне →</button>
-      </div>
-      <div id="quiz-final" style="display:none;text-align:center;padding:10px 0 4px;">
-        <div style="font-size:2.5rem;margin-bottom:8px;" id="quiz-final-emoji">🎉</div>
-        <div style="font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:6px;" id="quiz-final-title" data-i18n="quiz.completedExcl">Тест завершено!</div>
-        <div style="font-size:.9rem;color:var(--text2);margin-bottom:18px;" id="quiz-final-desc"></div>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <button id="quiz-restart" style="font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;padding:10px 22px;border-radius:10px;border:1.5px solid var(--accent);background:none;color:var(--accent);cursor:pointer;" data-i18n="common.tryAgain">🔄 Ще раз</button>
-          <button id="quiz-restart-wrong" style="display:none;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;padding:10px 22px;border-radius:10px;border:1.5px solid var(--accent2);background:none;color:var(--accent2);cursor:pointer;">✗ Лише помилки</button>
-          <button id="quiz-exit" style="font-family:'DM Sans',sans-serif;font-size:.88rem;padding:10px 22px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;" data-i18n="common.close">Закрити</button>
-        </div>
-      </div>
+      <div id="quiz-page-mount"></div>
     </div>
   </div>
 

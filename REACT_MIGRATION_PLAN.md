@@ -110,7 +110,12 @@
     `.pairs-panel` + `#catpairs-page-mount`. Інші функції цього файлу
     (`checkMilestones`/`renderWeakWords`/кнопка "Розмаркувати") — це чисті
     утиліти без власного шаблону, лишились як експорти/`window.*`.
-21. `quiz.ts` (232)
+21. [x] `quiz.ts` (232) → `quiz.tsx` — основний тест-режим (4 варіанти,
+    напрямок EN/UA випадковий, озвучення слова й прикладів після відповіді,
+    "лише помилки", фінальний екран з різними заголовками за відсотком) на
+    `useState`. Статичний `#quiz-overlay.open`/`.quiz-panel#quiz-panel` +
+    `#quiz-page-mount`, той самий паттерн що й у `tempo.tsx`.
+    `openQuiz`/`openQuickQuiz` лишились експортами для `quick-quiz.ts`.
 22. `scramble.ts` (245)
 23. `word-letters.ts` (298)
 
