@@ -6,7 +6,7 @@ import { t, getLang, wordsLabel, pluralLabel, monthNames, dowNames } from './i18
 import { W } from '../../data/words.js';
 import { getCefrLevel } from '../../data/cefr.ts';
 import { renderLeaderboard } from './leaderboard.ts';
-import { renderAchievements } from './render-achievements.ts';
+import { refreshAchievementsPage as renderAchievements } from './achievements-page.tsx';
 import type { WordEntry } from '../../src/types.js';
 
 function renderHeatmap(): void {

@@ -19,8 +19,9 @@
    - [x] `game-bar-level.tsx` — блок 3 (бейдж рівня + прогрес XP, `#level-box`)
    - [ ] блоки 1-2 (стрік/комбо + ціль дня) — лишаються в `render-game-bar.ts`,
      перенесення відкладено через ручні мутації DOM з `combo.ts`
-   - [ ] `renderLevelsRoadmap()` — переноситься разом з пунктом 3 (сторінка досягнень)
-3. `render-achievements.ts` (137) — бейджі досягнень
+3. [x] `render-achievements.ts` (137) — бейджі досягнень → `achievements-page.tsx`
+   (грід досягнень, попап деталей, шлях рівнів `#levels-roadmap`).
+   `showToast`/`checkAchievements` лишились легасі-функціями.
 4. `search.ts` + `search-inline.ts` (176+102) — пошук слова
 
 ## Фаза 2 — Самостійні панелі/сторінки

@@ -65,3 +65,6 @@ mountGoalModal();
 
 const { mountGameBarLevel } = await import('../js/features/game-bar-level.tsx');
 mountGameBarLevel();
+
+const { mountAchievementsPage } = await import('../js/features/achievements-page.tsx');
+mountAchievementsPage();

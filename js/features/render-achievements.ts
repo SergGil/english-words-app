@@ -1,12 +1,14 @@
 // English Words App — js/features/render-achievements.ts
-// Achievement toast, checkAchievements, renderAchievements popup
+// Achievement toast, checkAchievements.
+// Achievements grid/popup live in achievements-page.tsx (React).
 import { state } from '../../src/state.ts';
 import { ACHIEVEMENTS } from '../../data/achievements.ts';
 import {
   getGameData, getModeStats, loadUnlocked, saveUnlocked,
   registerCheckAchievements,
 } from './game.ts';
-import { t, achName as _achName, achHint as _achHint, achCatName as _achCat } from './i18n.ts';
+import { achName as _achName, achHint as _achHint } from './i18n.ts';
+import { refreshAchievementsPage } from './achievements-page.tsx';
 import type { Achievement } from '../../src/types.js';
 
 // ── Toast ─────────────────────────────────────────────────────
@@ -65,73 +67,6 @@ export function checkAchievements(): void {
 // Register so game.ts can call checkAchievements without importing app.ts
 registerCheckAchievements(checkAchievements);
 
-// ── renderAchievements ───────────────────────────────────────
-export function renderAchievements(): void {
-  const unlocked = new Set(loadUnlocked());
-  const grid = document.getElementById('achievements-grid');
-  const k = state.known.size;
-  const g = getGameData();
-  const m = getModeStats();
-  const c = ((window as any)._customWords?.length ?? 0) as number;
-
-  const cats: Record<string, Achievement[]> = {};
-  ACHIEVEMENTS.forEach(function(a) {
-    if (!cats[a.cat]) cats[a.cat] = [];
-    cats[a.cat].push(a);
-  });
-
-  let html = '';
-  Object.keys(cats).forEach(function(cat) {
-    html += '<div class="ach-category">';
-    html += '<div class="ach-cat-title">' + _achCat(cat) + '</div>';
-    html += '<div class="ach-grid-inner">';
-    cats[cat].forEach(function(a: Achievement) {
-      const isUnlocked = unlocked.has(a.id);
-      const prog = a.progress(k, g, m, c);
-      const pct  = Math.round(prog.cur / prog.max * 100);
-      html += '<div class="ach-card ' + (isUnlocked ? 'unlocked' : 'locked') + '" data-id="' + a.id + '">' +
-        '<span class="ach-icon">' + a.icon + '</span>' +
-        '<div class="ach-name">' + _achName(a) + '</div>' +
-        '<div class="ach-progress-track"><div class="ach-progress-fill" style="width:' + pct + '%' + (isUnlocked ? ';background:#27ae60' : '') + '"></div></div>' +
-        '<div class="ach-progress-label">' + (isUnlocked ? t('ach.done') : prog.cur + ' / ' + prog.max) + '</div>' +
-      '</div>';
-    });
-    html += '</div></div>';
-  });
-  grid!.innerHTML = html;
-
-  grid!.querySelectorAll('.ach-card').forEach(function(card) {
-    card.addEventListener('click', function(this: HTMLElement, e: Event) {
-      e.stopPropagation();
-      const id = (this as HTMLElement).dataset.id;
-      const a  = ACHIEVEMENTS.find(x => x.id === id);
-      if (!a) return;
-      const isUnlocked = unlocked.has(id ?? '');
-      const prog = a.progress(k, g, m, c);
-      const pct  = Math.min(Math.round(prog.cur / prog.max * 100), 100);
-      document.getElementById('ap-icon')!.textContent  = a.icon;
-      document.getElementById('ap-name')!.textContent  = _achName(a);
-      document.getElementById('ap-cat')!.textContent   = _achCat(a.cat);
-      document.getElementById('ap-hint')!.textContent  = _achHint(a);
-      document.getElementById('ap-prog-label')!.textContent = prog.cur + ' / ' + prog.max;
-      document.getElementById('ap-prog-fill')!.style.width  = pct + '%';
-      document.getElementById('ap-prog-fill')!.style.background = isUnlocked ? '#27ae60' : '';
-      const statusEl = document.getElementById('ap-status')!;
-      statusEl.textContent = isUnlocked ? t('ach.unlocked') : t('ach.notYet');
-      statusEl.className   = 'ach-popup-status ' + (isUnlocked ? 'done' : 'todo');
-      document.getElementById('ach-popup-overlay')!.className = 'open';
-    });
-  });
-}
-
-// ── Achievement popup close ──────────────────────────────────
-document.getElementById('ap-close')?.addEventListener('click', () => {
-  document.getElementById('ach-popup-overlay')!.className = '';
-});
-document.getElementById('ach-popup-overlay')?.addEventListener('click', function(e) {
-  if (e.target === this) (this as HTMLElement).className = '';
-});
-
 window.checkAchievements  = checkAchievements;
-window.renderAchievements = renderAchievements;
+window.renderAchievements = refreshAchievementsPage;
 window.showToast          = showToast;

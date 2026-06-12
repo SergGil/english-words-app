@@ -637,26 +637,8 @@
     </div>
   </div>
 
-  <!-- Попап деталей досягнення — поза .app для коректного z-index -->
-  <div id="ach-popup-overlay">
-    <div class="ach-popup">
-      <span class="ach-popup-icon" id="ap-icon">🏆</span>
-      <div class="ach-popup-name" id="ap-name"></div>
-      <div class="ach-popup-cat"  id="ap-cat"></div>
-      <div class="ach-popup-hint" id="ap-hint"></div>
-      <div class="ach-popup-progress">
-        <div class="ach-popup-prog-row">
-          <span>Прогрес</span>
-          <span id="ap-prog-label"></span>
-        </div>
-        <div class="ach-popup-prog-track">
-          <div class="ach-popup-prog-fill" id="ap-prog-fill" style="width:0%"></div>
-        </div>
-      </div>
-      <div class="ach-popup-status" id="ap-status"></div><br>
-      <button class="ach-popup-close" id="ap-close" data-i18n="ach.close">Закрити</button>
-    </div>
-  </div>
+  <!-- Попап деталей досягнення — поза .app для коректного z-index (React, achievements-page.tsx) -->
+  <div id="ach-popup-overlay"></div>
 
   <!-- ══ ACHIEVEMENTS PAGE ══ -->
   <div id="ach-overlay" class="page-overlay">
