@@ -11,7 +11,7 @@ import { _shuf } from '../core/srs.ts';
 import { lev } from '../core/distance.ts';
 import type { WordEntry } from '../../src/types.js';
 import { t, categoryName, getLang, pluralLabel } from './i18n.ts';
-import { DICT } from '../modes/word-letters.ts';
+import { DICT } from '../modes/word-letters.tsx';
 
 const DICT_SET = new Set(DICT);
 

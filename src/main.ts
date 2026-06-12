@@ -36,7 +36,6 @@ await import('../js/features/word-detail.ts');
 await import('../js/features/i18n.ts');
 await import('../js/features/learning-path.ts');
 await import('../js/features/leaderboard.ts');
-await import('../js/modes/word-letters.ts');
 
 await import('../lib/jszip.min.js');
 await import('../js/features/epub.ts');
@@ -114,3 +113,6 @@ mountQuizPage();
 
 const { mountScramblePage } = await import('../js/modes/scramble.tsx');
 mountScramblePage();
+
+const { mountWordLettersPage } = await import('../js/modes/word-letters.tsx');
+mountWordLettersPage();
