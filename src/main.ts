@@ -14,7 +14,6 @@ await import('../js/modes/write.ts');
 await import('../js/modes/pairs.ts');
 await import('../js/modes/catpairs.ts');
 await import('../js/modes/lesson.ts');
-await import('../js/modes/tempo.ts');
 await import('../js/modes/daily-challenge.ts');
 await import('../js/modes/reading.ts');
 
@@ -94,3 +93,6 @@ mountListeningPage();
 
 const { mountFibPage } = await import('../js/modes/fib.tsx');
 mountFibPage();
+
+const { mountTempoPage } = await import('../js/modes/tempo.tsx');
+mountTempoPage();

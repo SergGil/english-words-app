@@ -1509,54 +1509,7 @@
   <!-- ══ TEMPO MODAL ══ -->
   <div id="tempo-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9100;align-items:center;justify-content:center;padding:16px 12px;">
     <div id="tempo-panel" style="background:var(--card);border-radius:20px;width:100%;max-width:480px;max-height:calc(100vh - 32px);padding:24px 20px;box-shadow:0 8px 40px rgba(0,0,0,.25);overflow-y:auto;position:relative;">
-
-      <!-- START SCREEN -->
-      <div id="tempo-start">
-        <div style="text-align:center;margin-bottom:20px;">
-          <div style="font-size:2.5rem;margin-bottom:6px;">⚡</div>
-          <div style="font-size:1.2rem;font-weight:700;color:var(--text);" data-i18n="tempo.title">Темп-режим</div>
-          <div style="font-size:.85rem;color:var(--text2);margin-top:6px;" data-i18n="tempo.subtitle">Вгадай якомога більше слів за 60 секунд</div>
-        </div>
-        <div style="display:flex;gap:10px;justify-content:center;margin-bottom:22px;">
-          <button class="tempo-time-btn active" data-sec="30" data-i18n="tempo.sec30">30 сек</button>
-          <button class="tempo-time-btn" data-sec="60" data-i18n="tempo.sec60">60 сек</button>
-          <button class="tempo-time-btn" data-sec="90" data-i18n="tempo.sec90">90 сек</button>
-        </div>
-        <div id="tempo-best" style="text-align:center;font-size:.8rem;color:var(--text3);margin-bottom:20px;min-height:18px;"></div>
-        <button id="tempo-go" style="width:100%;padding:14px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;" data-i18n="tempo.start">Старт ⚡</button>
-        <button id="tempo-close-start" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:none;color:var(--text2);font-size:.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;" data-i18n="common.close">Закрити</button>
-      </div>
-
-      <!-- GAME SCREEN -->
-      <div id="tempo-game" style="display:none;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <div style="font-size:.85rem;color:var(--text2);">✓ <span id="tempo-score">0</span> &nbsp; ✗ <span id="tempo-miss">0</span></div>
-          <div id="tempo-timer" style="font-size:1.6rem;font-weight:700;color:var(--accent);min-width:48px;text-align:center;">60</div>
-        </div>
-        <div style="height:5px;background:var(--border);border-radius:5px;margin-bottom:20px;overflow:hidden;">
-          <div id="tempo-tbar" style="height:100%;background:var(--accent);border-radius:5px;width:100%;transition:width 1s linear;"></div>
-        </div>
-        <div style="background:var(--bg);border-radius:14px;padding:22px 16px;text-align:center;margin-bottom:18px;">
-          <div id="tempo-dir" style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;"></div>
-          <div id="tempo-word" style="font-family:'DM Serif Display',serif;font-size:2.2rem;color:var(--text);line-height:1.15;"></div>
-          <div id="tempo-ipa" style="font-size:.8rem;color:var(--accent2);margin-top:4px;"></div>
-        </div>
-        <div id="tempo-opts" style="display:flex;flex-direction:column;gap:9px;"></div>
-        <div id="tempo-feedback" style="text-align:center;font-size:.9rem;font-weight:600;min-height:22px;margin-top:10px;"></div>
-      </div>
-
-      <!-- RESULT SCREEN -->
-      <div id="tempo-result" style="display:none;text-align:center;padding:10px 0;">
-        <div style="font-size:3rem;margin-bottom:8px;" id="tempo-res-emoji">🏆</div>
-        <div style="font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:6px;" id="tempo-res-title"></div>
-        <div style="font-size:.9rem;color:var(--text2);margin-bottom:6px;" id="tempo-res-score"></div>
-        <div style="font-size:.8rem;color:var(--accent);font-weight:600;margin-bottom:20px;" id="tempo-res-best"></div>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <button id="tempo-again" style="font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;padding:10px 22px;border-radius:10px;border:1.5px solid var(--accent);background:none;color:var(--accent);cursor:pointer;" data-i18n="tempo.again">⚡ Ще раз</button>
-          <button id="tempo-close-res" style="font-family:'DM Sans',sans-serif;font-size:.88rem;padding:10px 22px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;" data-i18n="common.close">Закрити</button>
-        </div>
-      </div>
-
+      <div id="tempo-page-mount"></div>
     </div>
   </div>
 
