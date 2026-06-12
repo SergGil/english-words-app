@@ -13,7 +13,6 @@ await import('../js/modes/quiz.ts');
 await import('../js/modes/write.ts');
 await import('../js/modes/pairs.ts');
 await import('../js/modes/catpairs.ts');
-await import('../js/modes/lesson.ts');
 await import('../js/modes/daily-challenge.ts');
 
 // combo/bookmarks/notes/pronunciation/voice статично імпортовані в app.ts
@@ -104,3 +103,6 @@ mountReadingPage();
 
 const { mountStoryPage } = await import('../js/modes/story.tsx');
 mountStoryPage();
+
+const { mountLessonPage } = await import('../js/modes/lesson.tsx');
+mountLessonPage();

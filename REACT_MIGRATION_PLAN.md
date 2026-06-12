@@ -94,7 +94,10 @@
     Індексація слів (`_getWordIdx`, `_highlightText`) лишилась чистими
     модульними функціями. Статичний `#story-mode-overlay`/`.page-inner` +
     `#story-page-mount`.
-18. `lesson.ts` (226)
+18. [x] `lesson.ts` (226) → `lesson.tsx` — урок 5×3 (флешкарти →
+    вибір варіанту → письмо) з рахунком фаз, фінальним екраном
+    (зірки, XP з урахуванням комбо) на `useState`. Той самий паттерн
+    статичного overlay/`.quiz-panel` + `#lesson-page-mount`.
 19. `write.ts` (229)
 20. `catpairs.ts` (232, рештки після винесення WOTD)
 21. `quiz.ts` (232)
