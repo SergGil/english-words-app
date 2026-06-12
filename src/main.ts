@@ -15,7 +15,6 @@ await import('../js/modes/pairs.ts');
 await import('../js/modes/catpairs.ts');
 await import('../js/modes/lesson.ts');
 await import('../js/modes/daily-challenge.ts');
-await import('../js/modes/reading.ts');
 
 // combo/bookmarks/notes/pronunciation/voice статично імпортовані в app.ts
 await import('../js/features/custom.ts');
@@ -100,3 +99,6 @@ mountSpellingBeePage();
 
 const { mountContextPage } = await import('../js/modes/context.tsx');
 mountContextPage();
+
+const { mountReadingPage } = await import('../js/modes/reading.tsx');
+mountReadingPage();

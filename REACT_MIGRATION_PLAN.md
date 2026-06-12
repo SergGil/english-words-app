@@ -81,7 +81,13 @@
 15. [x] `context.ts` (163) → `context.tsx` — режим "вгадай слово з контексту"
     (приховане слово в реченні, 4 варіанти, підказка по IPA, фінал) на
     `useState`. Той самий паттерн статичного overlay + `#ctx-page-mount`.
-16. `reading.ts` (191)
+16. [x] `reading.ts` (191) → `reading.tsx` — текст з підсвіченими словами,
+    попап перекладу/IPA, навігація між текстами, завантаження epub —
+    весь UI на `useState`. Пошуковий індекс/стемінг (`_lookupWord`,
+    `_stems`) лишився чистими модульними функціями, `invalidateReadingIndex`
+    далі експортується в `window` для `custom.ts`. `#reading-overlay` /
+    `.page-inner` лишились статичним HTML (потрібні mode-hints.ts), React
+    монтується у `#reading-page-mount`.
 17. `story.ts` (189)
 18. `lesson.ts` (226)
 19. `write.ts` (229)
