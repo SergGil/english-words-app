@@ -1293,39 +1293,7 @@
   <!-- ══ LISTENING MODAL ══ -->
   <div id="listen-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9100;align-items:center;justify-content:center;padding:16px 12px;">
     <div class="quiz-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <div>
-          <div style="font-size:1.05rem;font-weight:700;color:var(--text);" data-i18n="listen.title">🔊 Слухання</div>
-          <div id="listen-subtitle" style="font-size:.75rem;color:var(--text3);margin-top:2px;"></div>
-        </div>
-        <button id="listen-close" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text3);">✕</button>
-      </div>
-      <div style="height:4px;background:var(--border);border-radius:4px;margin-bottom:18px;overflow:hidden;">
-        <div id="listen-pbar" style="height:100%;background:var(--accent);border-radius:4px;transition:width .4s;width:0%"></div>
-      </div>
-      <div style="display:flex;gap:14px;justify-content:center;margin-bottom:18px;" id="listen-score-row">
-        <span style="font-size:.82rem;color:#27ae60;font-weight:600;">✓ <span id="listen-ok">0</span></span>
-        <span style="font-size:.82rem;color:#e74c3c;font-weight:600;">✗ <span id="listen-fail">0</span></span>
-      </div>
-      <div style="text-align:center;margin-bottom:16px;">
-        <button class="listen-play-btn" id="listen-play-btn">🔊</button>
-        <div style="font-size:.78rem;color:var(--text3);" id="listen-play-hint" data-i18n="listen.playHint">Натисни щоб почути слово</div>
-        <div style="font-size:.72rem;color:var(--text3);margin-top:3px;"><kbd style="background:var(--border);border-radius:4px;padding:1px 5px;font-size:.68rem;" data-i18n="kbd.space">Space</kbd> <span data-i18n="listen.repeatHint">повторити</span></div>
-      </div>
-      <div id="listen-options" style="display:flex;flex-direction:column;gap:9px;"></div>
-      <div id="listen-result" style="min-height:24px;text-align:center;font-size:.9rem;font-weight:600;margin-top:10px;"></div>
-      <div style="text-align:center;margin-top:12px;">
-        <button id="listen-next" style="display:none;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;padding:11px 32px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;" data-i18n="write.next">Далі →</button>
-      </div>
-      <div id="listen-final" style="display:none;text-align:center;padding:10px 0 4px;">
-        <div style="font-size:2.5rem;margin-bottom:8px;" id="listen-final-emoji"></div>
-        <div style="font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:6px;" id="listen-final-title"></div>
-        <div style="font-size:.9rem;color:var(--text2);margin-bottom:18px;" id="listen-final-desc"></div>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <button id="listen-restart" style="font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;padding:10px 22px;border-radius:10px;border:1.5px solid var(--accent);background:none;color:var(--accent);cursor:pointer;" data-i18n="common.tryAgain">🔄 Ще раз</button>
-          <button id="listen-exit"    style="font-family:'DM Sans',sans-serif;font-size:.88rem;padding:10px 22px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;" data-i18n="common.close">Закрити</button>
-        </div>
-      </div>
+      <div id="listen-page-mount"></div>
     </div>
   </div>
 
