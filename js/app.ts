@@ -24,7 +24,7 @@ import { checkAchievements }                       from './features/render-achie
 import { maybeSubmitScore }                        from './features/leaderboard.ts';
 import { playSound }                               from './core/audio.ts';
 import { updateRing }                              from './features/ring.ts';
-import { invalidateSimilarCache }                  from './features/similar-words.ts';
+import { invalidateSimilarCache }                  from './features/similar-words.tsx';
 import { openWordDetail }                          from './features/word-detail.tsx';
 import { ES_MODES, FR_MODES, getMode, esEntry as _esEntry, frEntry as _frEntry }  from './features/mode-utils.ts';
 import { safe as _safe, boldEn as _boldEn, boldUa as _boldUa, boldHead as _boldHead, srsStatusInfo } from './core/card-helpers.ts';
@@ -330,7 +330,6 @@ function render() {
       $e('exua').innerHTML = _boldHead(_backEx, backWord) || _backEx;
     }
     $e('exua').className = 'ex-ua';
-    if ($e('cb-similar'))      $e('cb-similar').style.display      = 'none';
     if ($e('cb-families'))     $e('cb-families').style.display     = 'none';
     if ($e('cb-collocations')) $e('cb-collocations').style.display = 'none';
     $e('cidx').textContent = (idx % deck.length + 1) + '/' + deck.length;

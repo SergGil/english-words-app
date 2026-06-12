@@ -10,7 +10,7 @@ import { toggleBookmark } from './bookmarks.ts';
 import { isPronuncSupported, showPronuncResult, startPronunciationCheck } from './pronunciation.ts';
 import { getSelectedUkVoice, getSelectedEsVoice, getSelectedFrVoice } from './voice.ts';
 import { speak, _speakWithLang } from './speech.ts';
-import { updateSimilarWords } from './similar-words.ts';
+import { updateSimilarWords } from './similar-words.tsx';
 import { updateCollocations, updateWordFamilies } from './word-context.ts';
 import { ES_MODES, FR_MODES, getMode, esEntry as _esEntry, frEntry as _frEntry } from './mode-utils.ts';
 import { playSound } from '../core/audio.ts';

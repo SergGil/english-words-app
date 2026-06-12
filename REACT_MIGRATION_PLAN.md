@@ -151,7 +151,16 @@
     не існують у жодній локалі (як і в оригіналі — `data-i18n` falls back на
     статичний текст), тому замінені на той самий хардкод-текст; `wd.*` ключі
     лишені через `t()` як було (та сама "сира" поведінка).
-26. `similar-words.ts` → компонент
+26. [x] `similar-words.ts` (238) → `similar-words.tsx` — алгоритми пошуку
+    (`getSimilarWords*`, `invalidateSimilarCache`) лишились чистими
+    експортами без змін; в'юшка `#cb-similar`/`#cb-chips` стала компонентом
+    `SimilarWordsChips`, що читає `state.cw`/`state.flipped` через
+    `useStateVersion()` зі `src/store.ts` (Фаза 4 item 24) і ховається,
+    коли картка не перевернута або немає схожих слів. Клік по чіпу —
+    `openWordDetail()` напряму. `updateSimilarWords()` лишився як
+    тонкий compat-експорт (`notifyStateChange()`) для `card-actions.ts`,
+    який ще не мігровано (item 27); статичний `#cb-similar` у HTML
+    замінено на `#similar-words-mount`.
 27. `card-actions.ts` (кнопки "Знаю"/"Quick Quiz" тощо) → компонент
 28. `app.ts` `render()` → головний `<Card />` компонент
 

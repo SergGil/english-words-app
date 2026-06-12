@@ -39,7 +39,7 @@ vi.mock('../../js/features/voice.ts', () => ({
 vi.mock('../../js/features/speech.ts', () => ({
   speak: vi.fn(), _speakWithLang: vi.fn(),
 }));
-vi.mock('../../js/features/similar-words.ts', () => ({
+vi.mock('../../js/features/similar-words.tsx', () => ({
   updateSimilarWords: vi.fn(),
 }));
 vi.mock('../../js/features/word-context.ts', () => ({

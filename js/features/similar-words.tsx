@@ -1,9 +1,13 @@
-// English Words App — js/features/similar-words.ts
+// English Words App — js/features/similar-words.tsx
 // Similar word suggestions: translation-token matching + prefix similarity
+import { createRoot } from 'react-dom/client';
+import type { ReactElement } from 'react';
 import { W } from '../../data/words.js';
 import { W_ES } from '../../data/words_es.js';
 import { W_FR } from '../../data/words_fr.js';
 import { state } from '../../src/state.ts';
+import { useStateVersion, notifyStateChange } from '../../src/store.ts';
+import { openWordDetail } from './word-detail.tsx';
 import type { WordEntry } from '../../src/types.js';
 import { ES_MODES, FR_MODES, getMode as _getMode, esEntry as _esEntry, frEntry as _frEntry } from './mode-utils.ts';
 
@@ -189,18 +193,16 @@ export function getSimilarWordsFr(word: string, frTransl: string, maxCount = 5):
   return out;
 }
 
-export function updateSimilarWords(): void {
+function SimilarWordsChips(): ReactElement | null {
+  useStateVersion();
   const cw = state.cw as WordEntry | null;
-  if (!cw) return;
-  const section = document.getElementById('cb-similar');
-  const chips   = document.getElementById('cb-chips');
-  if (!section || !chips) return;
+  if (!cw || !state.flipped) return null;
 
-  const mode    = _getMode();
+  const mode = _getMode();
   const isEsMode = ES_MODES.has(mode);
   const isFrMode = FR_MODES.has(mode);
-  const esEntry  = isEsMode ? _esEntry(cw[0]) : null;
-  const frEntry  = isFrMode ? _frEntry(cw[0]) : null;
+  const esEntry = isEsMode ? _esEntry(cw[0]) : null;
+  const frEntry = isFrMode ? _frEntry(cw[0]) : null;
 
   let similar = (isEsMode && esEntry)
     ? getSimilarWordsEs(cw[0], esEntry[0], 10).filter(w => !!_esEntry(w[0]))
@@ -208,31 +210,39 @@ export function updateSimilarWords(): void {
     ? getSimilarWordsFr(cw[0], frEntry[0], 10).filter(w => !!_frEntry(w[0]))
     : getSimilarWords(cw[0], cw[1], 5);
   if (isEsMode || isFrMode) similar = similar.slice(0, 5);
-  if (!similar.length) { section.style.display = 'none'; return; }
+  if (!similar.length) return null;
 
-  section.style.display = 'block';
-  chips.innerHTML = similar.map(function(w) {
-    const isKnown   = _getActiveKnown().has(w[0]);
-    const wEsEntry  = isEsMode ? _esEntry(w[0]) : null;
-    const wFrEntry  = isFrMode ? _frEntry(w[0]) : null;
-    const displayWord   = wEsEntry ? wEsEntry[0] : wFrEntry ? wFrEntry[0] : w[0];
-    const displayTransl = w[1];
-    return '<div class="sim-chip' + (isKnown ? ' known-chip' : '') + '" data-word="' + w[0] + '">' +
-      '<span class="sc-word">' + displayWord + '</span>' +
-      '<span class="sc-transl">' + displayTransl + '</span>' +
-    '</div>';
-  }).join('');
-
-  const wordIdx = (window as any)._wordIdx as Map<string, number> | undefined;
-  chips.querySelectorAll('.sim-chip').forEach(function(chip) {
-    chip.addEventListener('click', function(this: HTMLElement, e: Event) {
-      e.stopPropagation();
-      const targetWord = this.dataset.word ?? '';
-      const wi = wordIdx?.has(targetWord) ? wordIdx.get(targetWord) : -1;
-      if (wi === undefined || wi === -1) return;
-      (window as any).openWordDetail?.(W[wi as number] as unknown as WordEntry);
-    });
-  });
+  return (
+    <div className="similar-section" id="cb-similar">
+      <div className="similar-title" data-i18n="cards.similarTitle">Схожі слова</div>
+      <div className="similar-chips" id="cb-chips">
+        {similar.map(w => {
+          const isKnown  = _getActiveKnown().has(w[0]);
+          const wEsEntry = isEsMode ? _esEntry(w[0]) : null;
+          const wFrEntry = isFrMode ? _frEntry(w[0]) : null;
+          const displayWord = wEsEntry ? wEsEntry[0] : wFrEntry ? wFrEntry[0] : w[0];
+          return (
+            <div key={w[0]} className={'sim-chip' + (isKnown ? ' known-chip' : '')}
+              onClick={(e) => { e.stopPropagation(); openWordDetail(w); }}
+            >
+              <span className="sc-word">{displayWord}</span>
+              <span className="sc-transl">{w[1]}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
+export function updateSimilarWords(): void {
+  notifyStateChange();
+}
 window.updateSimilarWords = updateSimilarWords;
+
+export function mountSimilarWordsChips(): void {
+  const el = document.getElementById('similar-words-mount');
+  if (!el) return;
+  createRoot(el).render(<SimilarWordsChips />);
+}
+

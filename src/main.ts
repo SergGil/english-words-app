@@ -118,3 +118,6 @@ mountWordLettersPage();
 
 const { mountWordDetailPage } = await import('../js/features/word-detail.tsx');
 mountWordDetailPage();
+
+const { mountSimilarWordsChips } = await import('../js/features/similar-words.tsx');
+mountSimilarWordsChips();

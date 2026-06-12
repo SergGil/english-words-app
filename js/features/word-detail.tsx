@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { state } from '../../src/state.ts';
 import { decodeIpa } from '../core/ui-helpers.ts';
 import type { SpeakFn, SpeakLangFn } from '../core/ui-helpers.ts';
-import { getSimilarWords, getSimilarWordsEs, getSimilarWordsFr } from './similar-words.ts';
+import { getSimilarWords, getSimilarWordsEs, getSimilarWordsFr } from './similar-words.tsx';
 import { W } from '../../data/words.js';
 import { W_ES } from '../../data/words_es.js';
 import { W_FR } from '../../data/words_fr.js';

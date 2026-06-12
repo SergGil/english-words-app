@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { getSimilarWords, getSimilarWordsEs, invalidateSimilarCache } from '../../js/features/similar-words.ts';
+import { getSimilarWords, getSimilarWordsEs, invalidateSimilarCache } from '../../js/features/similar-words.tsx';
 import { vi } from 'vitest';
 
 vi.mock('../../data/words.js', () => ({
