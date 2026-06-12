@@ -3,13 +3,11 @@
 import { state } from '../../src/state.ts';
 import { _shuf } from '../core/srs.ts';
 import { saveKnown, saveSRS } from '../core/storage.ts';
-import { loadWikiImage } from '../core/images.ts';
 import { WORD_CATEGORIES, CATEGORY_LIST } from '../../data/categories.js';
 import { getGameData } from '../features/game.ts';
 import { W } from '../../data/words.js';
 import type { WordEntry } from '../../src/types.js';
 import { t, wordsLabel, categoryName } from '../features/i18n.ts';
-import { ES_MODES, FR_MODES, getMode, esEntry as _esEntry, frEntry as _frEntry } from '../features/mode-utils.ts';
 
 const CP = 6;
 const RANDOM_KEY = '🎲 Випадково';
@@ -159,84 +157,6 @@ document.getElementById('catpairs-change')?.addEventListener('click', () => {
 });
 oOverlay.addEventListener('click', (e: MouseEvent) => { if (e.target === oOverlay) close(); });
 document.addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Escape' && oOverlay.style.display === 'flex') close(); });
-
-// ════ WORD OF THE DAY ════════════════════════════════════════
-const todayNum = state.TODAY.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 0);
-const wotdBaseIdx = Math.abs(todayNum) % W.length;
-const wotdBox  = document.getElementById('wotd-box') as HTMLElement | null;
-
-// Pick the word-of-the-day word matching the currently selected language pair:
-// for ES/FR-involving modes, skip ahead to a word that has the needed translation(s).
-function _wotdPickWord(mode: string): WordEntry {
-  const words = W as unknown as WordEntry[];
-  const needsEs = ES_MODES.has(mode);
-  const needsFr = FR_MODES.has(mode);
-  if (!needsEs && !needsFr) return words[wotdBaseIdx];
-  for (let i = 0; i < words.length; i++) {
-    const cand = words[(wotdBaseIdx + i) % words.length];
-    if (needsEs && !_esEntry(cand[0])) continue;
-    if (needsFr && !_frEntry(cand[0])) continue;
-    return cand;
-  }
-  return words[wotdBaseIdx];
-}
-
-function _wotdFrontBack(cw: WordEntry, mode: string): [string, string] {
-  const es = ES_MODES.has(mode) ? _esEntry(cw[0]) : null;
-  const fr = FR_MODES.has(mode) ? _frEntry(cw[0]) : null;
-  switch (mode) {
-    case 'ua':    return [cw[1],          cw[0]];
-    case 'en-es': return [cw[0],          es ? es[0] : ''];
-    case 'es-en': return [es ? es[0] : '', cw[0]];
-    case 'es-ua': return [es ? es[0] : '', cw[1]];
-    case 'ua-es': return [cw[1],          es ? es[0] : ''];
-    case 'en-fr': return [cw[0],          fr ? fr[0] : ''];
-    case 'fr-en': return [fr ? fr[0] : '', cw[0]];
-    case 'fr-ua': return [fr ? fr[0] : '', cw[1]];
-    case 'ua-fr': return [cw[1],          fr ? fr[0] : ''];
-    case 'es-fr': return [es ? es[0] : '', fr ? fr[0] : ''];
-    case 'fr-es': return [fr ? fr[0] : '', es ? es[0] : ''];
-    default:      return [cw[0], cw[1]];
-  }
-}
-
-let _wotd: WordEntry | null = null;
-
-function _renderWotd(): void {
-  if (!wotdBox) return;
-  const mode = getMode();
-  _wotd = _wotdPickWord(mode);
-  const [front] = _wotdFrontBack(_wotd, mode);
-  document.getElementById('wotd-word')!.textContent = front;
-  wotdBox.style.display = '';
-  const imgWrap = document.getElementById('wotd-img-wrap');
-  if (imgWrap) {
-    imgWrap.classList.remove('wotd-no-img');
-    imgWrap.innerHTML = '';
-    loadWikiImage(_wotd[0], (_w: string, url: string | null) => {
-      if (!imgWrap) return;
-      if (url) {
-        const img = Object.assign(document.createElement('img'), { src: url, alt: _wotd![0] });
-        img.onerror = () => imgWrap.classList.add('wotd-no-img');
-        imgWrap.innerHTML = ''; imgWrap.appendChild(img);
-      } else { imgWrap.classList.add('wotd-no-img'); }
-    });
-  }
-}
-
-if (wotdBox) {
-  _renderWotd();
-  wotdBox.addEventListener('click', () => {
-    if (!_wotd) return;
-    const deck = state.deck as WordEntry[];
-    let di = deck.findIndex(w => w[0] === _wotd![0]);
-    if (di === -1) { deck.push(_wotd); di = deck.length - 1; }
-    (window.setIdx as ((i: number) => void) | undefined)?.(di);
-    (window.closePage as (() => void) | undefined)?.();
-    (window.render as (() => void) | undefined)?.();
-  });
-  document.getElementById('sel-mode')?.addEventListener('change', _renderWotd);
-}
 
 // ════ MILESTONES ═════════════════════════════════════════════
 let _shownMilestones: Record<string, number> = {};

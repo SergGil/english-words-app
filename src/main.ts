@@ -56,3 +56,6 @@ await import('../js/features/sidebar.ts');
 
 const { mountLangPairSelect } = await import('../js/features/lang-pair-select.tsx');
 mountLangPairSelect();
+
+const { mountWordOfDay } = await import('../js/features/word-of-day.tsx');
+mountWordOfDay();

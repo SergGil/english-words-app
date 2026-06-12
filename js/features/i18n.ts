@@ -136,6 +136,7 @@ export function applyI18n(): void {
     btn.classList.toggle('lang-active', btn.dataset.lang === lang);
   });
   (window as unknown as { _refreshLangPairSelect?: () => void })._refreshLangPairSelect?.();
+  (window as unknown as { _refreshWordOfDay?: () => void })._refreshWordOfDay?.();
   (window.renderLevelBadge as (() => void) | undefined)?.();
   (window.renderGameBar as (() => void) | undefined)?.();
   (window._refreshRangeOptions as (() => void) | undefined)?.();
