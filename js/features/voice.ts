@@ -6,6 +6,7 @@ import { t } from './i18n.ts';
 let _enURI = localStorage.getItem('ew_ws_voice')    ?? '';
 let _ukURI = localStorage.getItem('ew_ws_uk_voice') ?? '';
 let _esURI = localStorage.getItem('ew_ws_es_voice') ?? '';
+let _frURI = localStorage.getItem('ew_ws_fr_voice') ?? '';
 
 type VoiceMapEntry = { match: string; label: string; gender: string; accent: string };
 
@@ -60,6 +61,18 @@ const VOICE_MAP: VoiceMapEntry[] = [
   { match: 'Jorge',                    label: 'Apple Jorge',        gender: '👨', accent: 'ES' },
   { match: 'Spanish',                  label: 'Español',            gender: '👩', accent: 'ES' },
   { match: 'español',                  label: 'Español',            gender: '👩', accent: 'ES' },
+  { match: 'Google français',          label: 'Google Français',    gender: '👩', accent: 'FR' },
+  { match: 'Google French',            label: 'Google French',      gender: '👩', accent: 'FR' },
+  { match: 'Microsoft Henri',          label: 'Microsoft Henri',     gender: '👨', accent: 'FR' },
+  { match: 'Microsoft Denise',         label: 'Microsoft Denise',    gender: '👩', accent: 'FR' },
+  { match: 'Microsoft Vivienne',       label: 'Microsoft Vivienne',  gender: '👩', accent: 'FR' },
+  { match: 'Microsoft Antoine',        label: 'Microsoft Antoine',   gender: '👨', accent: 'FR' },
+  { match: 'Microsoft Sylvie',         label: 'Microsoft Sylvie',    gender: '👩', accent: 'CA' },
+  { match: 'Microsoft Jean',           label: 'Microsoft Jean',      gender: '👨', accent: 'CA' },
+  { match: 'Thomas',                   label: 'Apple Thomas',        gender: '👨', accent: 'FR' },
+  { match: 'Amelie',                   label: 'Apple Amélie',        gender: '👩', accent: 'CA' },
+  { match: 'French',                   label: 'Français',            gender: '👩', accent: 'FR' },
+  { match: 'français',                 label: 'Français',            gender: '👩', accent: 'FR' },
 ];
 
 function _getLabel(voice: SpeechSynthesisVoice): VoiceMapEntry {
@@ -79,6 +92,8 @@ function _langFlag(lang: string): string {
   if (l.startsWith('en')) return '🌍';
   if (l === 'es-mx') return 'MX'; if (l === 'es-ar') return 'AR'; if (l === 'es-us') return 'US';
   if (l.startsWith('es')) return 'ES';
+  if (l === 'fr-ca') return 'CA';
+  if (l.startsWith('fr')) return 'FR';
   return '🌐';
 }
 
@@ -96,6 +111,12 @@ function _esVoices(): SpeechSynthesisVoice[] {
     return l.startsWith('es') || n.includes('spanish') || n.includes('español') || n.includes('espanol');
   });
 }
+function _frVoices(): SpeechSynthesisVoice[] {
+  return _allVoices().filter(v => {
+    const l = (v.lang ?? '').toLowerCase(), n = (v.name ?? '').toLowerCase();
+    return l.startsWith('fr') || n.includes('french') || n.includes('français') || n.includes('francais');
+  });
+}
 function _findByURI(uri: string, voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
   return voices.find(v => v.voiceURI === uri) ?? null;
 }
@@ -105,6 +126,9 @@ export function getSelectedUkVoice(): SpeechSynthesisVoice | null {
 }
 export function getSelectedEsVoice(): SpeechSynthesisVoice | null {
   return _findByURI(_esURI, _esVoices()) ?? _esVoices()[0] ?? null;
+}
+export function getSelectedFrVoice(): SpeechSynthesisVoice | null {
+  return _findByURI(_frURI, _frVoices()) ?? _frVoices()[0] ?? null;
 }
 
 window.speakFakeYou = (text: string, btn: HTMLElement | null): boolean => {
@@ -163,8 +187,8 @@ function _renderVoices(): void {
   const container = document.getElementById('fy-voices-list');
   if (!container) return;
   container.innerHTML = '';
-  const enVoices = _sortVoices(_enVoices()), ukVoices = _sortVoices(_ukVoices()), esVoices = _sortVoices(_esVoices());
-  if (!enVoices.length && !ukVoices.length && !esVoices.length) {
+  const enVoices = _sortVoices(_enVoices()), ukVoices = _sortVoices(_ukVoices()), esVoices = _sortVoices(_esVoices()), frVoices = _sortVoices(_frVoices());
+  if (!enVoices.length && !ukVoices.length && !esVoices.length && !frVoices.length) {
     container.innerHTML = '<span style="font-size:.78rem;color:var(--text3);">' + t('settings.voicesNotFound') + '</span>'; return;
   }
   const addSection = (title: string, voices: SpeechSynthesisVoice[], activeURI: string, storageKey: string, testText: string): void => {
@@ -177,6 +201,7 @@ function _renderVoices(): void {
     voices.forEach(v => grid.appendChild(_makeCard(v, activeURI, uri => {
       if (storageKey === 'ew_ws_voice') _enURI = uri;
       else if (storageKey === 'ew_ws_es_voice') _esURI = uri;
+      else if (storageKey === 'ew_ws_fr_voice') _frURI = uri;
       else _ukURI = uri;
       localStorage.setItem(storageKey, uri); _renderVoices();
       synth?.cancel(); const u = new SpeechSynthesisUtterance(testText);
@@ -195,9 +220,12 @@ function _renderVoices(): void {
   else addMissing('settings.noUkVoicesTitle', 'settings.noUkVoicesDesc');
   if (esVoices.length) addSection(t('settings.esVoicesTitle'), esVoices, _esURI, 'ew_ws_es_voice', 'Hola, ¿cómo estás?');
   else addMissing('settings.noEsVoicesTitle', 'settings.noEsVoicesDesc');
+  if (frVoices.length) addSection(t('settings.frVoicesTitle'), frVoices, _frURI, 'ew_ws_fr_voice', 'Bonjour, comment ça va ?');
+  else addMissing('settings.noFrVoicesTitle', 'settings.noFrVoicesDesc');
   if (!_enURI && enVoices.length) { _enURI = (enVoices.find(v => v.name.toLowerCase().includes('google')) ?? enVoices[0]).voiceURI; localStorage.setItem('ew_ws_voice', _enURI); }
   if (!_ukURI && ukVoices.length) { _ukURI = ukVoices[0].voiceURI; localStorage.setItem('ew_ws_uk_voice', _ukURI); }
   if (!_esURI && esVoices.length) { _esURI = (esVoices.find(v => v.name.toLowerCase().includes('google')) ?? esVoices[0]).voiceURI; localStorage.setItem('ew_ws_es_voice', _esURI); }
+  if (!_frURI && frVoices.length) { _frURI = (frVoices.find(v => v.name.toLowerCase().includes('google')) ?? frVoices[0]).voiceURI; localStorage.setItem('ew_ws_fr_voice', _frURI); }
 }
 window._renderVoices = _renderVoices;
 

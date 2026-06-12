@@ -2,18 +2,21 @@
 // Similar word suggestions: translation-token matching + prefix similarity
 import { W } from '../../data/words.js';
 import { W_ES } from '../../data/words_es.js';
+import { W_FR } from '../../data/words_fr.js';
 import { state } from '../../src/state.ts';
 import type { WordEntry } from '../../src/types.js';
-import { ES_MODES, getMode as _getMode, esEntry as _esEntry } from './mode-utils.ts';
+import { ES_MODES, FR_MODES, getMode as _getMode, esEntry as _esEntry, frEntry as _frEntry } from './mode-utils.ts';
 
 function _getActiveKnown(): Set<string> {
-  return ES_MODES.has(_getMode())
-    ? ((window as any).knownEs as Set<string>) ?? state.known
-    : state.known;
+  const mode = _getMode();
+  if (ES_MODES.has(mode)) return ((window as any).knownEs as Set<string>) ?? state.known;
+  if (FR_MODES.has(mode)) return ((window as any).knownFr as Set<string>) ?? state.known;
+  return state.known;
 }
 
 const STOP = new Set(['бути','мати','стати','який','яка','яке','свій','своя','цей','ця','той','та','такий','одна','також','дуже','більш','менш','людина','великий','малий','новий','старий','добрий','поганий','перший','другий','інший','різний','можна','треба','або','чи','але','його','її','їх','він','вона','вони','цього','того','собою']);
 const STOP_ES = new Set(['ser','estar','tener','hacer','poder','para','como','pero','más','muy','bien','todo','cada','otro','esta','este','también','cuando','entre','sobre','hasta','desde','porque','aunque','donde','algo','alguien','mismo','parte','gran']);
+const STOP_FR = new Set(['être','avoir','faire','pouvoir','pour','comme','mais','plus','très','bien','tout','toute','chaque','autre','cette','aussi','quand','entre','sur','dans','depuis','parce','bien','alors','avec','sans','leur','leurs','cela','celui','celle']);
 
 function _tok(s: string): string[] {
   return s.toLowerCase().replace(/\([^)]*\)/g, '').split(/[\s,;\/]+/)
@@ -27,8 +30,15 @@ function _tokEs(s: string): string[] {
     .filter(t => t.length >= 4 && !STOP_ES.has(t));
 }
 
+function _tokFr(s: string): string[] {
+  return s.toLowerCase().replace(/\([^)]*\)/g, '').split(/[\s,;\/]+/)
+    .map(t => t.replace(/[^a-zàâçéèêëîïôûùüÿœæ]/gi, '').trim())
+    .filter(t => t.length >= 4 && !STOP_FR.has(t));
+}
+
 let _synIdx: Record<string, number[]> | null = null;
 let _synIdxEs: Record<string, number[]> | null = null;
+let _synIdxFr: Record<string, number[]> | null = null;
 
 function _buildSynIdx(): void {
   _synIdx = {};
@@ -53,12 +63,26 @@ function _buildSynIdxEs(): void {
   }
 }
 
+function _buildSynIdxFr(): void {
+  _synIdxFr = {};
+  const frMap = W_FR as unknown as Record<string, [string, string]>;
+  for (let i = 0; i < W.length; i++) {
+    const frEntry = frMap[(W[i] as unknown as WordEntry)[0]];
+    if (!frEntry) continue;
+    _tokFr(frEntry[0]).forEach(t => {
+      if (!(_synIdxFr as Record<string, number[]>)[t]) (_synIdxFr as Record<string, number[]>)[t] = [];
+      (_synIdxFr as Record<string, number[]>)[t].push(i);
+    });
+  }
+}
+
 let _cache: Record<string, WordEntry[]> = {};
 
 export function invalidateSimilarCache(): void {
   _cache = {};
   _synIdx = null;
   _synIdxEs = null;
+  _synIdxFr = null;
 }
 
 export function getSimilarWords(word: string, transl: string, maxCount = 5): WordEntry[] {
@@ -130,6 +154,41 @@ export function getSimilarWordsEs(word: string, esTransl: string, maxCount = 5):
   return out;
 }
 
+export function getSimilarWordsFr(word: string, frTransl: string, maxCount = 5): WordEntry[] {
+  const cacheKey = 'fr:' + word;
+  if (_cache[cacheKey]) return _cache[cacheKey];
+  if (!_synIdxFr) _buildSynIdxFr();
+
+  const counts: Record<string, number> = {};
+  // 1. French translation token matching
+  _tokFr(frTransl).forEach(t => {
+    ((_synIdxFr as Record<string, number[]>)[t] ?? []).forEach(i => {
+      if ((W[i] as unknown as WordEntry)[0].toLowerCase() !== word.toLowerCase())
+        counts[i] = (counts[i] ?? 0) + t.length * 2;
+    });
+  });
+  // 2. English spelling similarity (prefix)
+  const wl = word.toLowerCase();
+  for (let i = 0; i < W.length; i++) {
+    const wl2 = (W[i] as unknown as WordEntry)[0].toLowerCase();
+    if (wl2 === wl) continue;
+    let pLen = 0;
+    while (pLen < wl.length && pLen < wl2.length && wl[pLen] === wl2[pLen]) pLen++;
+    if (pLen >= 4)             counts[i] = (counts[i] ?? 0) + pLen * 3;
+    if (wl.length >= 5  && wl2.includes(wl.substring(0, 4)))  counts[i] = (counts[i] ?? 0) + 8;
+    if (wl2.length >= 5 && wl.includes(wl2.substring(0, 4))) counts[i] = (counts[i] ?? 0) + 8;
+  }
+
+  const out = Object.entries(counts)
+    .filter(([, s]) => s >= 8)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, maxCount)
+    .map(([i]) => W[Number(i)] as unknown as WordEntry);
+
+  _cache[cacheKey] = out;
+  return out;
+}
+
 export function updateSimilarWords(): void {
   const cw = state.cw as WordEntry | null;
   if (!cw) return;
@@ -139,19 +198,24 @@ export function updateSimilarWords(): void {
 
   const mode    = _getMode();
   const isEsMode = ES_MODES.has(mode);
+  const isFrMode = FR_MODES.has(mode);
   const esEntry  = isEsMode ? _esEntry(cw[0]) : null;
+  const frEntry  = isFrMode ? _frEntry(cw[0]) : null;
 
   let similar = (isEsMode && esEntry)
     ? getSimilarWordsEs(cw[0], esEntry[0], 10).filter(w => !!_esEntry(w[0]))
+    : (isFrMode && frEntry)
+    ? getSimilarWordsFr(cw[0], frEntry[0], 10).filter(w => !!_frEntry(w[0]))
     : getSimilarWords(cw[0], cw[1], 5);
-  if (isEsMode) similar = similar.slice(0, 5);
+  if (isEsMode || isFrMode) similar = similar.slice(0, 5);
   if (!similar.length) { section.style.display = 'none'; return; }
 
   section.style.display = 'block';
   chips.innerHTML = similar.map(function(w) {
     const isKnown   = _getActiveKnown().has(w[0]);
     const wEsEntry  = isEsMode ? _esEntry(w[0]) : null;
-    const displayWord   = wEsEntry ? wEsEntry[0] : w[0];
+    const wFrEntry  = isFrMode ? _frEntry(w[0]) : null;
+    const displayWord   = wEsEntry ? wEsEntry[0] : wFrEntry ? wFrEntry[0] : w[0];
     const displayTransl = w[1];
     return '<div class="sim-chip' + (isKnown ? ' known-chip' : '') + '" data-word="' + w[0] + '">' +
       '<span class="sc-word">' + displayWord + '</span>' +

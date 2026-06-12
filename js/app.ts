@@ -1,6 +1,6 @@
 // English Words App — js/app.ts
 import type { WordEntry } from '../src/types.js';
-import { _lzLoad, loadKnownEs } from './core/storage.ts';
+import { _lzLoad, loadKnownEs, loadKnownFr } from './core/storage.ts';
 import { W }                                       from '../data/words.js';
 import { getIllus }                                from '../data/illustrations.js';
 import { getCategoriesForWord }                    from '../data/categories.js';
@@ -24,7 +24,7 @@ import { playSound }                               from './core/audio.ts';
 import { updateRing }                              from './features/ring.ts';
 import { invalidateSimilarCache }                  from './features/similar-words.ts';
 import { openWordDetail }                          from './features/word-detail.ts';
-import { ES_MODES, getMode, esEntry as _esEntry }  from './features/mode-utils.ts';
+import { ES_MODES, FR_MODES, getMode, esEntry as _esEntry, frEntry as _frEntry }  from './features/mode-utils.ts';
 import { safe as _safe, boldEn as _boldEn, boldUa as _boldUa, boldHead as _boldHead, srsStatusInfo } from './core/card-helpers.ts';
 import './features/speech.ts';
 import './features/image-prefetch.ts';
@@ -48,7 +48,13 @@ Object.keys(srsData).forEach(function(k: string){ if(typeof srsData[k]==='number
 let deck: WordEntry[] = W.slice() as unknown as WordEntry[];
 let idx = 0, known = new Set<string>(savedKnown as string[]), flipped = false;
 let knownEs = loadKnownEs();
-function _activeKnown(): Set<string> { return ES_MODES.has(getMode()) ? knownEs : known; }
+let knownFr = loadKnownFr();
+function _activeKnown(): Set<string> {
+  const mode = getMode();
+  if (ES_MODES.has(mode)) return knownEs;
+  if (FR_MODES.has(mode)) return knownFr;
+  return known;
+}
 let cw: WordEntry | null = null, autoTimer: ReturnType<typeof setTimeout> | null = null;
 
 // Sync reference-type locals into state (mutations propagate both ways)
@@ -241,7 +247,10 @@ function render() {
     const esEntry = ES_MODES.has(mode) ? _esEntry(cw[0]) : null;
     const _esWord = esEntry ? esEntry[0] : '';
     const _esEx   = esEntry ? esEntry[1] : '';
-    let FRONT_LANG: 'EN' | 'UA' | 'ES';
+    const frEntry = FR_MODES.has(mode) ? _frEntry(cw[0]) : null;
+    const _frWord = frEntry ? frEntry[0] : '';
+    const _frEx   = frEntry ? frEntry[1] : '';
+    let FRONT_LANG: 'EN' | 'UA' | 'ES' | 'FR';
     let frontWord: string, backWord: string;
     switch (mode) {
       case 'ua':    FRONT_LANG = 'UA'; frontWord = cw[1];   backWord = cw[0];   break;
@@ -249,6 +258,10 @@ function render() {
       case 'es-en': FRONT_LANG = 'ES'; frontWord = _esWord; backWord = cw[0];   break;
       case 'es-ua': FRONT_LANG = 'ES'; frontWord = _esWord; backWord = cw[1];   break;
       case 'ua-es': FRONT_LANG = 'UA'; frontWord = cw[1];   backWord = _esWord; break;
+      case 'en-fr': FRONT_LANG = 'EN'; frontWord = cw[0];   backWord = _frWord; break;
+      case 'fr-en': FRONT_LANG = 'FR'; frontWord = _frWord; backWord = cw[0];   break;
+      case 'fr-ua': FRONT_LANG = 'FR'; frontWord = _frWord; backWord = cw[1];   break;
+      case 'ua-fr': FRONT_LANG = 'UA'; frontWord = cw[1];   backWord = _frWord; break;
       default:      FRONT_LANG = 'EN'; frontWord = cw[0];   backWord = cw[1];
     }
     const _realIdx = _wordIdx.has(cw[0]) ? _wordIdx.get(cw[0]) : -1;
@@ -278,7 +291,7 @@ function render() {
     const posEl = document.getElementById('wpos') as HTMLElement | null;
     if (posEl) {
       const posCode = cw[5] || '';
-      const posLang: Lang = FRONT_LANG === 'EN' ? 'en' : FRONT_LANG === 'UA' ? 'ua' : 'es';
+      const posLang: Lang = FRONT_LANG === 'EN' ? 'en' : FRONT_LANG === 'UA' ? 'ua' : FRONT_LANG === 'FR' ? 'fr' : 'es';
       posEl.textContent = posCode ? tLang('pos.' + posCode, posLang) : '';
       posEl.style.display = posCode ? 'block' : 'none';
     }
@@ -298,6 +311,16 @@ function render() {
         case 'es-en': _frontEx = _esEx; _backEx = _enEx; break;
         case 'es-ua': _frontEx = _esEx; _backEx = _uaEx; break;
         case 'ua-es': _frontEx = _uaEx; _backEx = _esEx; break;
+      }
+      $e('exen').innerHTML = _boldHead(_frontEx, frontWord) || _frontEx;
+      $e('exua').innerHTML = _boldHead(_backEx, backWord) || _backEx;
+    } else if (FR_MODES.has(mode)) {
+      let _frontEx = '', _backEx = '';
+      switch (mode) {
+        case 'en-fr': _frontEx = _enEx; _backEx = _frEx; break;
+        case 'fr-en': _frontEx = _frEx; _backEx = _enEx; break;
+        case 'fr-ua': _frontEx = _frEx; _backEx = _uaEx; break;
+        case 'ua-fr': _frontEx = _uaEx; _backEx = _frEx; break;
       }
       $e('exen').innerHTML = _boldHead(_frontEx, frontWord) || _frontEx;
       $e('exua').innerHTML = _boldHead(_backEx, backWord) || _backEx;
@@ -382,6 +405,7 @@ window._wordIdx              = _wordIdx;
 window._customWords          = _customWords;
 window.invalidateSimilarCache = invalidateSimilarCache;
 window.knownEs                = knownEs;
+window.knownFr                = knownFr;
 window.setKnown    = (s: Set<string>)          => { known = s; state.known = s; window.known = s; };
 window.setSrsData  = (d: Record<string, any>)  => { srsData = d; state.srsData = d; window.srsData = d; };
 window.animCard      = _animCard;

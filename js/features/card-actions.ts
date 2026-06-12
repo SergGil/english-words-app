@@ -2,17 +2,17 @@
 // All flashcard interaction event listeners
 import { state } from '../../src/state.ts';
 import { sm2Update, buildSRSDeck, buildUnlearnedDeck, shuffle, updateSrsUI } from '../core/srs.ts';
-import { saveKnown, saveKnownEs, saveSRS } from '../core/storage.ts';
+import { saveKnown, saveKnownEs, saveKnownFr, saveSRS } from '../core/storage.ts';
 import { getGameData, saveGameData } from './game.ts';
 import { addCombo, breakCombo, flashCard } from './combo.ts';
 import { openNoteModal, hasNote } from './notes.ts';
 import { toggleBookmark } from './bookmarks.ts';
 import { isPronuncSupported, showPronuncResult, startPronunciationCheck } from './pronunciation.ts';
-import { getSelectedUkVoice, getSelectedEsVoice } from './voice.ts';
+import { getSelectedUkVoice, getSelectedEsVoice, getSelectedFrVoice } from './voice.ts';
 import { speak, _speakWithLang } from './speech.ts';
 import { updateSimilarWords } from './similar-words.ts';
 import { updateCollocations, updateWordFamilies } from './word-context.ts';
-import { ES_MODES, getMode, esEntry as _esEntry } from './mode-utils.ts';
+import { ES_MODES, FR_MODES, getMode, esEntry as _esEntry, frEntry as _frEntry } from './mode-utils.ts';
 import { playSound } from '../core/audio.ts';
 import { launchConfetti } from '../core/confetti.ts';
 import { t } from './i18n.ts';
@@ -26,6 +26,7 @@ const win = window as unknown as {
   deck: WordEntry[];
   idx: number;
   knownEs: Set<string> | undefined;
+  knownFr: Set<string> | undefined;
   TODAY: string;
   setIdx(i: number): void;
   setDeck(d: WordEntry[]): void;
@@ -46,7 +47,10 @@ function _safe(fn: () => void): void {
 }
 
 function _activeKnown(): Set<string> {
-  return ES_MODES.has(getMode()) ? win.knownEs ?? state.known : state.known;
+  const mode = getMode();
+  if (ES_MODES.has(mode)) return win.knownEs ?? state.known;
+  if (FR_MODES.has(mode)) return win.knownFr ?? state.known;
+  return state.known;
 }
 
 // ── Card flip ─────────────────────────────────────────────────
@@ -71,6 +75,10 @@ document.getElementById('speak-word')!.addEventListener('click', function(e) {
     const es = _esEntry(cw[0]);
     if (es && getSelectedEsVoice()) { _speakWithLang(es[0], 'es-ES', this); return; }
   }
+  if (modeVal === 'fr-en' || modeVal === 'fr-ua') {
+    const fr = _frEntry(cw[0]);
+    if (fr && getSelectedFrVoice()) { _speakWithLang(fr[0], 'fr-FR', this); return; }
+  }
   speak(cw[0], this);
 });
 
@@ -89,6 +97,22 @@ document.getElementById('speak-ex')!.addEventListener('click', function(e) {
       if (hasEsVoice && exEs) _speakWithLang(exEs, 'es-ES', this);
       else speak(exEn, this);
     } else if (modeVal === 'ua-es') {
+      const hasUkVoice = !!getSelectedUkVoice();
+      if (hasUkVoice && exUa) _speakWithLang(exUa, 'uk-UA', this);
+      else speak(exEn, this);
+    } else {
+      speak(exEn, this);
+    }
+    return;
+  }
+  if (FR_MODES.has(modeVal)) {
+    const fr        = _frEntry(cw[0]);
+    const exFr      = fr ? fr[1] : '';
+    const hasFrVoice = !!getSelectedFrVoice();
+    if (modeVal === 'fr-en' || modeVal === 'fr-ua') {
+      if (hasFrVoice && exFr) _speakWithLang(exFr, 'fr-FR', this);
+      else speak(exEn, this);
+    } else if (modeVal === 'ua-fr') {
       const hasUkVoice = !!getSelectedUkVoice();
       if (hasUkVoice && exUa) _speakWithLang(exUa, 'uk-UA', this);
       else speak(exEn, this);
@@ -161,7 +185,10 @@ document.getElementById('btn-know')!.addEventListener('click', function(e) {
       // re-enter the SRS queue with stale data.
       delete (state.srsData as any)[cw[0]];
     }
-    if (ES_MODES.has(getMode())) { if (win.knownEs) saveKnownEs(win.knownEs); } else { saveKnown(state.known); }
+    const _modeNow = getMode();
+    if (ES_MODES.has(_modeNow)) { if (win.knownEs) saveKnownEs(win.knownEs); }
+    else if (FR_MODES.has(_modeNow)) { if (win.knownFr) saveKnownFr(win.knownFr); }
+    else { saveKnown(state.known); }
     saveSRS(state.srsData);
     state._srsStatsDirty = true;
     _safe(() => updateSrsUI(state._baseWords as unknown as WordEntry[]));
@@ -269,10 +296,12 @@ document.getElementById('modal-cancel')!.addEventListener('click', function() {
 document.getElementById('modal-confirm')!.addEventListener('click', function() {
   state.known.clear();
   win.knownEs?.clear();
+  win.knownFr?.clear();
   win.setSrsData({});
   state._srsStatsDirty = true;
   saveKnown(state.known);
   if (win.knownEs) saveKnownEs(win.knownEs);
+  if (win.knownFr) saveKnownFr(win.knownFr);
   saveSRS(state.srsData);
   _safe(() => localStorage.removeItem('ew_game'));
   _safe(() => localStorage.removeItem('ew_daily'));

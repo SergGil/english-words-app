@@ -2,17 +2,23 @@
 // Word Detail bottom-sheet modal: full word profile
 import { state } from '../../src/state.ts';
 import { decodeIpa, speakBtn, type SpeakFn } from '../core/ui-helpers.ts';
-import { getSimilarWords, getSimilarWordsEs } from './similar-words.ts';
+import { getSimilarWords, getSimilarWordsEs, getSimilarWordsFr } from './similar-words.ts';
 import { W } from '../../data/words.js';
 import { W_ES } from '../../data/words_es.js';
+import { W_FR } from '../../data/words_fr.js';
 import { isBookmarked, toggleBookmark } from './bookmarks.ts';
-import { ES_MODES, esEntry as _esEntry } from './mode-utils.ts';
+import { ES_MODES, FR_MODES, esEntry as _esEntry, frEntry as _frEntry } from './mode-utils.ts';
 import { t, pluralLabel } from './i18n.ts';
 import type { WordEntry } from '../../src/types.js';
 
 function _isEsMode(): boolean {
   const m = (document.getElementById('sel-mode') as HTMLSelectElement | null)?.value ?? '';
   return ES_MODES.has(m);
+}
+
+function _isFrMode(): boolean {
+  const m = (document.getElementById('sel-mode') as HTMLSelectElement | null)?.value ?? '';
+  return FR_MODES.has(m);
 }
 
 const overlay  = document.getElementById('wd-overlay')!   as HTMLElement;
@@ -50,10 +56,12 @@ export function openWordDetail(w: WordEntry): void {
     (window.speak as SpeakFn | undefined)?.(w[0], elSpeak);
   };
 
-  // Translation — show Spanish when in ES mode, Ukrainian otherwise
+  // Translation — show Spanish/French when in ES/FR mode, Ukrainian otherwise
   const isEs = _isEsMode();
+  const isFr = _isFrMode();
   const esEntry = isEs ? _esEntry(w[0]) : null;
-  elTransl.textContent = esEntry ? esEntry[0] : w[1];
+  const frEntry = isFr ? _frEntry(w[0]) : null;
+  elTransl.textContent = esEntry ? esEntry[0] : frEntry ? frEntry[0] : w[1];
 
   // Examples
   if (enEx) {
@@ -89,15 +97,18 @@ export function openWordDetail(w: WordEntry): void {
   elBtnForget.style.display = isKnown ? '' : 'none';
   _updateBm(w[0]);
 
-  // Similar words — use ES index + Spanish labels when in ES mode
+  // Similar words — use ES/FR index + Spanish/French labels when in ES/FR mode
   const similar = isEs
     ? getSimilarWordsEs(w[0], esEntry?.[0] ?? w[1], 5)
+    : isFr
+    ? getSimilarWordsFr(w[0], frEntry?.[0] ?? w[1], 5)
     : getSimilarWords(w[0], w[1], 5);
   const esMap = W_ES as unknown as Record<string, [string, string]>;
+  const frMap = W_FR as unknown as Record<string, [string, string]>;
   if (similar.length) {
     elSimWrap.style.display = 'block';
     elSimChips.innerHTML = similar.map(s => {
-      const label = isEs ? (esMap[s[0]]?.[0] ?? s[1]) : s[1];
+      const label = isEs ? (esMap[s[0]]?.[0] ?? s[1]) : isFr ? (frMap[s[0]]?.[0] ?? s[1]) : s[1];
       return `<div class="wd-chip" data-word="${s[0]}" style="cursor:pointer;padding:5px 10px;border-radius:20px;border:1.5px solid var(--border);font-size:.78rem;background:var(--bg);">` +
         `<span style="font-weight:600;color:var(--text);">${s[0]}</span>` +
         `<span style="color:var(--text3);margin-left:5px;">${label}</span>` +
