@@ -41,7 +41,9 @@
 7. [x] `onboarding.ts` (237) → `onboarding.tsx` — повна модалка онбордингу
    (4 слайди, вибір рівня) переїхала на `useState`. CSS (`.ob-*`) перенесено
    зі runtime-інʼєкції в `css/styles.css`.
-8. `profiles.ts` (338) — перемикач профілів
+8. [x] `profiles.ts` (338) → `profile-switcher.tsx` — весь UI (дропдаун профілів,
+   форма додавання, модалки редагування/видалення) на `useState`. Data-layer
+   (snapshot-функції, `registerProfileKey`) лишився у тому ж файлі як експорти.
 9. `stats.ts` (382) — сторінка статистики
 10. `grammar.ts` (163), `idioms` — довідкові сторінки
 

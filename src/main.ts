@@ -29,7 +29,10 @@ await import('../js/features/offline.ts');
 await import('../js/features/export.ts');
 await import('../js/features/notifications.ts');
 await import('../js/features/duel.ts');
-await import('../js/features/profiles.ts');
+
+const { mountProfileSwitcher } = await import('../js/features/profile-switcher.tsx');
+mountProfileSwitcher();
+
 await import('../js/features/settings.ts');
 await import('../js/features/cloud-sync.ts');
 await import('../js/features/quick-quiz.ts');

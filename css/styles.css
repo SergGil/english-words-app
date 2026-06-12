@@ -4102,3 +4102,9 @@ body.dark .cefr-C2, body.sw .cefr-C2 { background: rgba(142,68,173,.18); }
   background: #4ecca3; color: #0a1628; cursor: pointer; font-family: inherit;
   font-size: .9rem; font-weight: 700; }
 .ob-btn-next:hover { opacity: .88; }
+
+/* ── Profile dropdown row buttons ───────────────────────────────*/
+.prf-dd-edit { background: none; border: none; cursor: pointer; padding: 2px 4px; font-size: .85rem; opacity: .5; border-radius: 6px; flex-shrink: 0; }
+.prf-dd-edit:hover { opacity: 1; }
+.prf-dd-del { background: none; border: none; cursor: pointer; padding: 2px 5px; font-size: 1rem; opacity: .35; border-radius: 6px; flex-shrink: 0; color: inherit; }
+.prf-dd-del:hover { opacity: 1; color: #e74c3c; }

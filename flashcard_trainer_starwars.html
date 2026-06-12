@@ -31,33 +31,8 @@
     <span class="sidebar-logo-text">EW</span>
   </div>
 
-  <!-- Profile section -->
-  <div class="sb-profile-section">
-    <div class="sb-profile-row">
-      <button id="sb-profile-btn" class="sidebar-profile-btn">
-        <span id="sb-profile-av" class="sb-av">🧑</span>
-        <span id="sb-profile-name" class="sb-name">Гравець</span>
-        <span id="sb-profile-arrow" class="sb-arrow">▾</span>
-      </button>
-      <button id="sb-add-btn" class="sb-add-btn" title="Новий профіль">+</button>
-    </div>
-    <div id="sb-dropdown" class="sb-dropdown"></div>
-    <div id="sb-add-form" class="sb-add-form">
-      <input id="sb-new-name" type="text" placeholder="Ім'я нового профіля..." data-i18n-placeholder="profile.newNamePlaceholder" maxlength="20"
-        style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:9px;
-               font-size:.82rem;font-family:inherit;background:var(--bg);color:var(--text);
-               outline:none;box-sizing:border-box;margin-bottom:8px;">
-      <div class="prf-av-picker prf-av-mini">
-        <button class="prf-av-btn prf-av-active">🧑</button><button class="prf-av-btn">👩</button>
-        <button class="prf-av-btn">🧔</button><button class="prf-av-btn">👦</button>
-        <button class="prf-av-btn">👧</button><button class="prf-av-btn">🤖</button>
-        <button class="prf-av-btn">🦊</button><button class="prf-av-btn">🐸</button>
-        <button class="prf-av-btn">⚔️</button><button class="prf-av-btn">🌟</button>
-        <button class="prf-av-btn">🔥</button><button class="prf-av-btn">🏆</button>
-      </div>
-      <button id="sb-new-confirm" class="prf-add-confirm" style="margin-top:8px;" data-i18n="profile.create">+ Створити</button>
-    </div>
-  </div>
+  <!-- Profile section (React, profile-switcher.tsx) -->
+  <div class="sb-profile-section" id="profile-switcher-mount"></div>
 
   <div class="sidebar-nav">
     <button class="sb-btn sb-active" id="sb-cards"       ><span class="sb-icon">🃏</span><span class="sb-label" data-i18n="nav.cards">Картки</span></button>
