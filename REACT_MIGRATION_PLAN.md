@@ -88,7 +88,12 @@
     далі експортується в `window` для `custom.ts`. `#reading-overlay` /
     `.page-inner` лишились статичним HTML (потрібні mode-hints.ts), React
     монтується у `#reading-page-mount`.
-17. `story.ts` (189)
+17. [x] `story.ts` (189) → `story.tsx` — picker історій + читання з
+    підсвіченими словами зі словника, попап перекладу/IPA при кліку на
+    слово (позиціюється через `getBoundingClientRect`) на `useState`.
+    Індексація слів (`_getWordIdx`, `_highlightText`) лишилась чистими
+    модульними функціями. Статичний `#story-mode-overlay`/`.page-inner` +
+    `#story-page-mount`.
 18. `lesson.ts` (226)
 19. `write.ts` (229)
 20. `catpairs.ts` (232, рештки після винесення WOTD)

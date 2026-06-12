@@ -1109,37 +1109,7 @@
   <!-- ══ STORY MODE OVERLAY ══ -->
   <div id="story-mode-overlay" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9200;align-items:flex-start;justify-content:center;padding:8px;overflow-y:auto;">
     <div class="page-inner" style="max-width:640px;max-height:calc(100vh - 16px);overflow-y:auto;position:relative;">
-      <div class="page-header">
-        <div>
-          <div class="page-title" id="sm-title">📖 Story Mode</div>
-          <div style="font-size:.72rem;color:var(--accent);margin-top:2px;" id="sm-level"></div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button id="sm-back" style="padding:6px 12px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:inherit;font-size:.8rem;" data-i18n="cards.back">← Назад</button>
-          <button id="sm-close" class="page-close-btn">✕</button>
-        </div>
-      </div>
-
-      <!-- Picker view -->
-      <div id="sm-picker-view" style="padding:14px 20px;">
-        <div style="font-size:.82rem;color:var(--text2);margin-bottom:12px;" data-i18n="story.pickerDesc">Оберіть текст для читання. Слова зі словника будуть підсвічені — натисни щоб побачити переклад.</div>
-        <div id="sm-picker"></div>
-      </div>
-
-      <!-- Story view -->
-      <div id="sm-story-view" style="display:none;padding:14px 20px;position:relative;">
-        <div id="sm-stats" style="font-size:.75rem;color:var(--text3);margin-bottom:12px;"></div>
-        <div id="sm-text" style="font-size:.9rem;line-height:1.8;color:var(--text);"></div>
-        <!-- Word popup -->
-        <div id="sm-popup" style="display:none;position:absolute;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:10;min-width:160px;flex-direction:column;gap:4px;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span id="sm-popup-word" style="font-weight:700;font-size:.95rem;color:var(--text);"></span>
-            <button id="sm-popup-speak" style="background:none;border:none;cursor:pointer;font-size:1rem;padding:2px;">🔊</button>
-          </div>
-          <div id="sm-popup-ipa"   style="font-size:.75rem;color:var(--accent2);"></div>
-          <div id="sm-popup-transl" style="font-size:.82rem;color:var(--text2);font-weight:600;"></div>
-        </div>
-      </div>
+      <div id="story-page-mount"></div>
     </div>
   </div>
 

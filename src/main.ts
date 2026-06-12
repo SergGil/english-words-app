@@ -40,7 +40,6 @@ await import('../js/features/word-detail.ts');
 await import('../js/features/i18n.ts');
 await import('../js/features/learning-path.ts');
 await import('../js/features/leaderboard.ts');
-await import('../js/modes/story.ts');
 await import('../js/modes/scramble.ts');
 await import('../js/modes/word-letters.ts');
 
@@ -102,3 +101,6 @@ mountContextPage();
 
 const { mountReadingPage } = await import('../js/modes/reading.tsx');
 mountReadingPage();
+
+const { mountStoryPage } = await import('../js/modes/story.tsx');
+mountStoryPage();
