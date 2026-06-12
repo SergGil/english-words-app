@@ -186,6 +186,7 @@ let _tempoTimer: ReturnType<typeof setInterval> | null = null;
 let _advanceTimer: ReturnType<typeof setTimeout> | null = null;
 let _tempoLeft = TEMPO_SEC;
 let _finished  = false;
+let _myDone    = false;
 let _hintsLeft = 3;
 let _series:   SeriesData = { p1wins:0, p2wins:0, round:1 };
 let _bestOf:   BestOf     = 1;
@@ -585,7 +586,7 @@ function _startWaitPoll(): void {
 function _initGame(mode:DuelMode,maxHints:number,bestOf:BestOf,series:SeriesData,powerupsEnabled=false): void {
   _mode=mode; _bestOf=bestOf; _series={...series};
   if(_advanceTimer){clearTimeout(_advanceTimer);_advanceTimer=null;}
-  _quizIdx=0; _myScore=0; _myCorrect=0; _myWrong=0; _myFlags=[]; _chatHistory=[]; _answered=false; _finished=false;
+  _quizIdx=0; _myScore=0; _myCorrect=0; _myWrong=0; _myFlags=[]; _chatHistory=[]; _answered=false; _finished=false; _myDone=false;
   _hintsLeft = maxHints === 0 ? 999 : maxHints;
   _powerupsEnabled = powerupsEnabled;
   _myPowerups = powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0};
@@ -770,6 +771,12 @@ function _startOpponentPoll(): void {
         }
       }
       if(room.finished){ clearInterval(_pollTimer!); _pollTimer=null; _showFinish(room as RoomData); }
+      else if(_myDone && opp?.done){
+        // Both players finished but a race left `finished` unset — settle it here.
+        await _fbPatch(`/duel_rooms/${_roomId}`,{finished:true});
+        clearInterval(_pollTimer!); _pollTimer=null;
+        _showFinish({...room,finished:true} as RoomData);
+      }
     } catch(e){}
   },1500);
 }
@@ -988,6 +995,7 @@ async function _pushScore():Promise<void>{
 async function _finishMyGame():Promise<void>{
   try{
     await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`,{score:_myScore,idx:_quizDeck.length,flags:_myFlags,done:true});
+    _myDone=true;
     const room=await _fbGet(`/duel_rooms/${_roomId}`) as RoomData;
     const opp=_mySlot==='p1'?room.p2:room.p1;
     if(opp?.done){
