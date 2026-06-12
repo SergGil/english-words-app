@@ -110,7 +110,7 @@ interface Rating    { wins:number; losses:number; ties:number; }
 
 function _getHistory(): HistEntry[] { try { return JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); } catch(e){ return []; } }
 function _addHistory(e: HistEntry): void {
-  const h = _getHistory(); h.unshift(e); if (h.length>20) h.length=20;
+  const h = _getHistory(); h.unshift(e); if (h.length>100) h.length=100;
   try { localStorage.setItem(HIST_KEY, JSON.stringify(h)); } catch(e){}
 }
 function _getRating(): Rating { try { return JSON.parse(localStorage.getItem(RATING_KEY)||'{"wins":0,"losses":0,"ties":0}'); } catch(e){ return {wins:0,losses:0,ties:0}; } }
@@ -150,7 +150,7 @@ function _renderLeaderboard(): void {
   }).join('');
 }
 
-const HIST_PAGE_SIZE = 5;
+const HIST_PAGE_SIZE = 10;
 let _histPage = 0;
 
 function _renderHistory(): void {
