@@ -42,8 +42,6 @@ await import('../js/features/quick-quiz.ts');
 await import('../js/features/mode-hints.ts');
 await import('../js/features/word-detail.ts');
 await import('../js/features/i18n.ts');
-await import('../js/features/grammar.ts');
-await import('../js/features/idioms.ts');
 await import('../js/features/learning-path.ts');
 await import('../js/modes/context.ts');
 await import('../js/modes/spelling-bee.ts');
@@ -86,3 +84,9 @@ mountFontSizeControl();
 
 const { mountOnboarding } = await import('../js/features/onboarding.tsx');
 mountOnboarding();
+
+const { mountGrammarPage } = await import('../js/features/grammar-page.tsx');
+mountGrammarPage();
+
+const { mountIdiomsPage } = await import('../js/features/idioms-page.tsx');
+mountIdiomsPage();

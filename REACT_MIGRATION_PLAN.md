@@ -48,7 +48,13 @@
    heatmap, місячний календар, SRS-прогноз, точність по режимах, CEFR,
    лідерборд) на `useState`. `renderForgettingCurve` (тултіп на картці,
    залежить від `cw`) лишився в `stats.ts` — переїде разом із Фазою 4.
-10. `grammar.ts` (163), `idioms` — довідкові сторінки
+10. [x] `grammar.ts` (163) → `grammar-page.tsx` — навігація по темах (сортування
+    за CEFR-рівнем, `_activeId`) і рендер правил на `useState`; `idioms.ts` (115)
+    → `idioms-page.tsx` — таби en/ua/es, пошук і картки ідіом з кнопками
+    озвучення на `useState`. Обидва файли видалені повністю — це були чисто
+    view-шари без data-логіки. `openGrammarContent`/`openGrammar`/
+    `jumpToGrammarRule`/`openIdiomsContent`/`window._refreshIdiomsUI`/`openIdioms`
+    лишились як `window.*` для sidebar.ts, i18n.ts та learning-path.ts.
 
 ## Фаза 3 — Екрани ігрових режимів
 Кожен режим — окремий міні-застосунок (свій ігровий цикл, таймери, рахунок).
