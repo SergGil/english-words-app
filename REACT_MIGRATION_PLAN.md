@@ -116,7 +116,11 @@
     `useState`. Статичний `#quiz-overlay.open`/`.quiz-panel#quiz-panel` +
     `#quiz-page-mount`, той самий паттерн що й у `tempo.tsx`.
     `openQuiz`/`openQuickQuiz` лишились експортами для `quick-quiz.ts`.
-22. `scramble.ts` (245)
+22. [x] `scramble.ts` (245) → `scramble.tsx` — гра "збери слово з літер"
+    (плитки-літери, перетягування через клік, перемішування, підказки,
+    очищення, перевірка з затримкою при помилці, фінальний екран) на
+    `useState`. Той самий паттерн статичного overlay/`.quiz-panel` +
+    `#scr-page-mount`.
 23. `word-letters.ts` (298)
 
 ## Фаза 4 — Ядро картки (найризикованіше до Дуелі)
