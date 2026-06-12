@@ -1,4 +1,4 @@
-﻿var CACHE = 'ew-v28';
+﻿var CACHE = 'ew-v29';
 
 self.addEventListener('install', function(e) {
   self.skipWaiting();
@@ -51,4 +51,59 @@ self.addEventListener('fetch', function(e) {
       return cached || fresh;
     })
   );
+});
+
+// ── Periodic Background Sync — best-effort daily study reminder ──
+var NOTIF_DB = 'ew-notif-v1';
+var NOTIF_STORE = 'kv';
+
+function notifIdbGet() {
+  return new Promise(function(resolve) {
+    var req = indexedDB.open(NOTIF_DB, 1);
+    req.onupgradeneeded = function() { req.result.createObjectStore(NOTIF_STORE); };
+    req.onsuccess = function() {
+      var db = req.result;
+      try {
+        var getReq = db.transaction(NOTIF_STORE, 'readonly').objectStore(NOTIF_STORE).get('snapshot');
+        getReq.onsuccess = function() { resolve({ db: db, snap: getReq.result }); };
+        getReq.onerror = function() { resolve({ db: db, snap: null }); };
+      } catch (e) { resolve({ db: db, snap: null }); }
+    };
+    req.onerror = function() { resolve({ db: null, snap: null }); };
+  });
+}
+
+function notifIdbSetLastShown(db, date) {
+  if (!db) return;
+  try {
+    var store = db.transaction(NOTIF_STORE, 'readwrite').objectStore(NOTIF_STORE);
+    var getReq = store.get('snapshot');
+    getReq.onsuccess = function() {
+      var snap = getReq.result || {};
+      snap.lastShown = date;
+      store.put(snap, 'snapshot');
+    };
+  } catch (e) {}
+}
+
+self.addEventListener('periodicsync', function(e) {
+  if (e.tag !== 'ew-daily-reminder') return;
+  e.waitUntil(notifIdbGet().then(function(res) {
+    var snap = res.snap;
+    if (!snap || !snap.enabled) return;
+
+    var now = new Date();
+    var today = now.toISOString().slice(0, 10);
+    if (snap.lastShown === today) return;
+    if (snap.daily && (snap.daily[today] || 0) > 0) return;
+
+    var parts = (snap.time || '20:00').split(':');
+    var hh = parseInt(parts[0], 10), mm = parseInt(parts[1], 10);
+    if (now.getHours() < hh || (now.getHours() === hh && now.getMinutes() < mm)) return;
+
+    return self.registration.showNotification(snap.titleDaily || 'English Words', {
+      body: snap.bodyDaily || '',
+      icon: snap.icon
+    }).then(function() { notifIdbSetLastShown(res.db, today); });
+  }));
 });

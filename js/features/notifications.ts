@@ -5,8 +5,73 @@ const KEY_ENABLED = 'ew_notif_enabled';
 const KEY_TIME    = 'ew_notif_time';    // "HH:MM"
 const KEY_SHOWN   = 'ew_notif_shown';   // last date shown "YYYY-MM-DD"
 
+const NOTIF_ICON  = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 64 64\'%3E%3Crect width=\'64\' height=\'64\' rx=\'14\' fill=\'%230a1628\'/%3E%3Ctext x=\'50%25\' y=\'54%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'Arial Black,sans-serif\' font-weight=\'900\' font-size=\'28\' fill=\'%2300c8ff\'%3EEW%3C/text%3E%3C/svg%3E';
+
+// ── IndexedDB snapshot — lets the service worker fire a fallback reminder
+// via Periodic Background Sync when the app itself isn't open/visible ──
+const NOTIF_DB_NAME = 'ew-notif-v1';
+const NOTIF_STORE   = 'kv';
+
+function _notifIdbOpen(): Promise<IDBDatabase | null> {
+  return new Promise(resolve => {
+    if (!('indexedDB' in window)) { resolve(null); return; }
+    try {
+      const req = indexedDB.open(NOTIF_DB_NAME, 1);
+      req.onupgradeneeded = () => { req.result.createObjectStore(NOTIF_STORE); };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror   = () => resolve(null);
+    } catch (e) { resolve(null); }
+  });
+}
+
+async function _syncNotifSnapshot(): Promise<void> {
+  const db = await _notifIdbOpen();
+  if (!db) return;
+  let daily: Record<string, number> = {};
+  try { daily = JSON.parse(localStorage.getItem('ew_daily') ?? '{}'); } catch (e) {}
+  const snapshot = {
+    enabled:    isEnabled(),
+    time:       getTime(),
+    lastShown:  localStorage.getItem(KEY_SHOWN) ?? '',
+    daily,
+    titleDaily: t('notif.daily.title'),
+    bodyDaily:  t('notif.daily.body'),
+    icon:       NOTIF_ICON,
+  };
+  try { db.transaction(NOTIF_STORE, 'readwrite').objectStore(NOTIF_STORE).put(snapshot, 'snapshot'); } catch (e) {}
+}
+
+async function _registerPeriodicSync(): Promise<void> {
+  try {
+    if (!('serviceWorker' in navigator)) return;
+    const reg = await navigator.serviceWorker.ready;
+    if (!('periodicSync' in reg)) return;
+    const perms = (navigator as any).permissions;
+    if (perms?.query) {
+      const status = await perms.query({ name: 'periodic-background-sync' }).catch(() => null);
+      if (status && status.state !== 'granted') return;
+    }
+    await (reg as any).periodicSync.register('ew-daily-reminder', { minInterval: 12 * 60 * 60 * 1000 });
+  } catch (e) {}
+}
+
+async function _unregisterPeriodicSync(): Promise<void> {
+  try {
+    if (!('serviceWorker' in navigator)) return;
+    const reg = await navigator.serviceWorker.ready;
+    if (!('periodicSync' in reg)) return;
+    await (reg as any).periodicSync.unregister('ew-daily-reminder');
+  } catch (e) {}
+}
+
 const isEnabled  = (): boolean => localStorage.getItem(KEY_ENABLED) === '1';
-const setEnabled = (v: boolean): void => { localStorage.setItem(KEY_ENABLED, v ? '1' : '0'); _updateUI(); };
+const setEnabled = (v: boolean): void => {
+  localStorage.setItem(KEY_ENABLED, v ? '1' : '0');
+  _updateUI();
+  void _syncNotifSnapshot();
+  if (v) void _registerPeriodicSync();
+  else void _unregisterPeriodicSync();
+};
 const getTime    = (): string => localStorage.getItem(KEY_TIME) ?? '20:00';
 // Bug fix 1: renamed param from `t` to `val` to avoid shadowing the i18n `t` import
 const setTime    = (val: string): void => { localStorage.setItem(KEY_TIME, val); };
@@ -92,7 +157,7 @@ function _checkAndNotify(): void {
     const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
     if ((gd.streak ?? 0) > 1 && gd.streakDate === yesterday) {
       shown = _notify(t('notif.streak.title'), t('notif.streak.body', { n: gd.streak ?? 0, unit: pluralLabel('common_day', gd.streak ?? 0) }));
-      if (shown) { localStorage.setItem(KEY_SHOWN, today); return; }
+      if (shown) { localStorage.setItem(KEY_SHOWN, today); void _syncNotifSnapshot(); return; }
     }
   } catch (e) {}
 
@@ -101,13 +166,13 @@ function _checkAndNotify(): void {
     const due = Object.values(srs).filter(s => s.due && s.due <= today).length;
     if (due >= 3) {
       shown = _notify(t('notif.due.title', { n: due }), t('notif.due.body'));
-      if (shown) { localStorage.setItem(KEY_SHOWN, today); return; }
+      if (shown) { localStorage.setItem(KEY_SHOWN, today); void _syncNotifSnapshot(); return; }
     }
   } catch (e) {}
 
   shown = _notify(t('notif.daily.title'), t('notif.daily.body'));
   // Bug fix 2: KEY_SHOWN set only if notification actually fired
-  if (shown) localStorage.setItem(KEY_SHOWN, today);
+  if (shown) { localStorage.setItem(KEY_SHOWN, today); void _syncNotifSnapshot(); }
 }
 
 // Check on startup (with small delay to let state initialize)
@@ -141,9 +206,14 @@ if (timeH && timeM) {
   const onChange = (): void => {
     setTime(`${timeH.value}:${timeM.value}`);
     _updateUI();
+    void _syncNotifSnapshot();
   };
   timeH.addEventListener('change', onChange);
   timeM.addEventListener('change', onChange);
 }
 
 _updateUI();
+void _syncNotifSnapshot();
+if (isEnabled() && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+  void _registerPeriodicSync();
+}
