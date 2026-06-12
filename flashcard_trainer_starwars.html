@@ -1137,34 +1137,7 @@
   <!-- ══ CATEGORY PAIRS MODAL ══ -->
   <div id="catpairs-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9100;align-items:center;justify-content:center;padding:16px 12px;">
     <div class="pairs-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <div>
-          <div style="font-size:1.05rem;font-weight:700;color:var(--text);" id="catpairs-title">📦 Теми</div>
-          <div id="catpairs-best-label" style="font-size:.72rem;color:var(--text3);margin-top:2px;"></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div id="catpairs-timer" style="font-size:1.4rem;font-weight:700;color:var(--accent);min-width:52px;text-align:right;display:none;">0.0с</div>
-          <button id="catpairs-close" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text3);">✕</button>
-        </div>
-      </div>
-      <!-- Category selector -->
-      <div id="cat-select-screen">
-        <div style="font-size:.8rem;color:var(--text2);margin-bottom:10px;text-align:center;" data-i18n="catpairs.selectPrompt">Оберіть тему для гри</div>
-        <div class="cat-select-grid" id="cat-select-grid"></div>
-      </div>
-      <!-- Game screen -->
-      <div id="cat-game-screen" style="display:none;">
-        <div id="catpairs-board" style="margin-bottom:12px;"></div>
-        <div id="catpairs-final" style="display:none;text-align:center;padding:8px 0;">
-          <div style="font-size:2.5rem;margin-bottom:8px;" id="cpf-emoji">⏱</div>
-          <div style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:4px;" id="cpf-time"></div>
-          <div style="font-size:.88rem;color:var(--text2);margin-bottom:18px;" id="cpf-best"></div>
-          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-            <button id="catpairs-again"  style="font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;padding:10px 22px;border-radius:10px;border:1.5px solid var(--accent);background:none;color:var(--accent);cursor:pointer;" data-i18n="pairs.again">🔄 Знову</button>
-            <button id="catpairs-change" style="font-family:'DM Sans',sans-serif;font-size:.88rem;padding:10px 22px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;" data-i18n="catpairs.backToThemes">← Теми</button>
-          </div>
-        </div>
-      </div>
+      <div id="catpairs-page-mount"></div>
     </div>
   </div>
 

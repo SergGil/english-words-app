@@ -11,7 +11,6 @@ export {};  // make this a module
 await import('../js/app.ts');
 await import('../js/modes/quiz.ts');
 await import('../js/modes/pairs.ts');
-await import('../js/modes/catpairs.ts');
 await import('../js/modes/daily-challenge.ts');
 
 // combo/bookmarks/notes/pronunciation/voice статично імпортовані в app.ts
@@ -108,3 +107,6 @@ mountLessonPage();
 
 const { mountWritePage } = await import('../js/modes/write.tsx');
 mountWritePage();
+
+const { mountCatpairsPage } = await import('../js/modes/catpairs.tsx');
+mountCatpairsPage();
