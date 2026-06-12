@@ -206,9 +206,8 @@ function _renderWotd(): void {
   if (!wotdBox) return;
   const mode = getMode();
   _wotd = _wotdPickWord(mode);
-  const [front, back] = _wotdFrontBack(_wotd, mode);
+  const [front] = _wotdFrontBack(_wotd, mode);
   document.getElementById('wotd-word')!.textContent = front;
-  document.getElementById('wotd-tr')!.textContent   = back;
   wotdBox.style.display = '';
   const imgWrap = document.getElementById('wotd-img-wrap');
   if (imgWrap) {

@@ -2821,7 +2821,7 @@ body.sw .sb-wotd:hover { border-color: #00c8ff; }
 .wotd-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; overflow: hidden; }
 .sb-wotd .wotd-word {
   font-size: .9rem; font-weight: 700; color: var(--accent); max-width: 100%;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
   overflow: hidden; white-space: normal; word-break: break-word; line-height: 1.25;
 }
 body.sw .sb-wotd .wotd-word { color: #00c8ff; }
