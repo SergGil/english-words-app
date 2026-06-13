@@ -1,6 +1,11 @@
 // English Words App — js/features/combo.ts
+import { refreshComboBox } from './game-bar-streak.tsx';
+
 let sessionCombo = 0;
 
+export function _getSessionCombo(): number {
+  return sessionCombo;
+}
 export function getComboMult(): number {
   return sessionCombo >= 10 ? 3 : sessionCombo >= 5 ? 2 : 1;
 }
@@ -24,16 +29,7 @@ export function breakCombo(): void {
   sessionCombo = 0; _renderCombo();
 }
 function _renderCombo(): void {
-  const box = document.getElementById('combo-box');
-  const num = document.getElementById('combo-num');
-  const cmx = document.getElementById('combo-x');
-  if (!box) return;
-  if (sessionCombo >= 2) {
-    if (num) num.textContent = String(sessionCombo);
-    const m = getComboMult();
-    if (cmx) cmx.textContent = m > 1 ? ` ×${m}` : '';
-    box.style.display = 'flex';
-  } else { box.style.display = 'none'; }
+  refreshComboBox();
 }
 function _showComboToast(text: string): void {
   const t = document.getElementById('combo-toast') as HTMLElement | null;

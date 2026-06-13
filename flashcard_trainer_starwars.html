@@ -126,31 +126,19 @@
   <!-- ── 3-block game bar ── -->
   <div class="game-bar-3" id="game-bar">
 
-    <!-- Block 1: Streak + Combo -->
+    <!-- Block 1: Streak + Combo (React, see game-bar-streak.tsx) -->
     <div class="gb-block gb-streak-block">
-      <div class="gb-streak-num">🔥 <span id="streak-num">0</span></div>
-      <div class="gb-streak-label" data-i18n="cards.streakLabel">днів підряд</div>
-      <div id="shields-row" class="gb-shields-row"></div>
-      <div class="combo-box" id="combo-box" style="margin-top:4px;">
-        🔥<span id="combo-num">0</span><span class="combo-x" id="combo-x"></span>
-      </div>
+      <div id="streak-block-mount"></div>
+      <div id="combo-box-mount"></div>
     </div>
 
-    <!-- Block 2: Daily goal -->
+    <!-- Block 2: Daily goal (React, see game-bar-streak.tsx) -->
     <div class="gb-block gb-goal-block">
       <div class="gb-goal-header">
         <span class="gb-label" data-i18n="cards.dailyGoal">Ціль на сьогодні</span>
         <span class="goal-set" id="goal-set-btn" title="Змінити ціль">⚙️</span>
       </div>
-      <div class="gb-goal-big">
-        <span id="goal-cur">0</span><span class="gb-goal-sep">/</span><span id="goal-max">20</span>
-      </div>
-      <div class="goal-track" style="margin:5px 0 5px;">
-        <div class="goal-fill" id="goal-fill" style="width:0%"></div>
-      </div>
-      <div class="gb-goal-footer">
-        <span class="goal-done-badge" id="goal-done" data-i18n="cards.goalDone">🎉 Ціль досягнута!</span>
-      </div>
+      <div id="goal-block-mount"></div>
     </div>
 
     <!-- Block 3: Level XP progress (React, see game-bar-level.tsx) -->

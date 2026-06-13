@@ -15,10 +15,15 @@
 виклик готових `window.*` хелперів. Найкращий полігон для звикання до паттерна.
 
 1. [x] `goal-modal.ts` (41 рядків) — модалка "Ціль на сьогодні"
-2. `render-game-bar.ts` (133) — стрік/XP/рівень бар, поділено на під-кроки:
+2. [x] `render-game-bar.ts` (133) — стрік/XP/рівень бар, поділено на під-кроки:
    - [x] `game-bar-level.tsx` — блок 3 (бейдж рівня + прогрес XP, `#level-box`)
-   - [ ] блоки 1-2 (стрік/комбо + ціль дня) — лишаються в `render-game-bar.ts`,
-     перенесення відкладено через ручні мутації DOM з `combo.ts`
+   - [x] `game-bar-streak.tsx` — блок 1 (стрік/щити/combo, `#streak-block-mount`
+     + `#combo-box-mount`) і блок 2 (ціль дня, `#goal-block-mount`; шестерня
+     `#goal-set-btn` лишилась статичною — її слухач у `goal-modal.tsx`
+     прив'язується один раз до стабільного DOM-вузла). `combo.ts`
+     (`_renderCombo`) тепер викликає `refreshComboBox()` замість прямих
+     DOM-мутацій; додано експортований `_getSessionCombo()`. `renderGameBar()`
+     зведено до трьох `refreshGameBar*()` викликів.
 3. [x] `render-achievements.ts` (137) — бейджі досягнень → `achievements-page.tsx`
    (грід досягнень, попап деталей, шлях рівнів `#levels-roadmap`).
    `showToast`/`checkAchievements` лишились легасі-функціями.
