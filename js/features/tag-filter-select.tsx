@@ -4,7 +4,7 @@
 // #sel-tag is read/written directly by deck-filter.ts and deck-mode.ts.
 import { useEffect, type ReactElement } from 'react';
 import { state } from '../../src/state.ts';
-import { notifyStateChange, useStateVersion } from '../../src/store.ts';
+import { useStateVersion } from '../../src/store.ts';
 import { WORD_CATEGORIES, CATEGORY_LIST } from '../../data/categories.js';
 import { categoryName, t } from './i18n.ts';
 import { ES_MODES } from './mode-utils.ts';
@@ -69,8 +69,3 @@ export function TagFilterSelect(): ReactElement {
   );
 }
 
-export function refreshTagFilterSelect(): void {
-  notifyStateChange();
-}
-
-(window as unknown as { _refreshTagOptions?: () => void })._refreshTagOptions = refreshTagFilterSelect;

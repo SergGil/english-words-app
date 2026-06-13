@@ -1,6 +1,6 @@
 // English Words App — js/features/achievements-page.tsx
 // Achievements page: levels roadmap, achievements grid, achievement detail popup.
-// Re-rendered on demand via window.renderAchievements/renderLevelsRoadmap.
+// Re-rendered on demand via refreshAchievementsPage() / notifyStateChange().
 import { createPortal } from 'react-dom';
 import { useEffect, useState, type ReactElement } from 'react';
 import { state } from '../../src/state.ts';

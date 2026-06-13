@@ -291,8 +291,7 @@ window.stopAuto          = stopAuto;
 window.getGameData       = getGameData;
 window.saveGameData      = saveGameData;
 window.onWordLearned     = onWordLearned;
-// window.checkAchievements/renderAchievements/showToast — set by render-achievements.ts
-// window.renderGameBar/renderLevelBadge/renderLevelsRoadmap/renderLevelProgress — set by render-game-bar.ts
+// window.checkAchievements/showToast — set by render-achievements.ts
 // window.renderStats/openStats/closeStats/renderSRSForecast — set by stats.ts
 window.ACHIEVEMENTS        = ACHIEVEMENTS;
 window.openWordDetail      = openWordDetail;

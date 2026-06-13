@@ -2,6 +2,7 @@
 // Minimal i18n: translates sidebar menu labels (UA ⇄ EN), persisted via localStorage
 
 import i18next from 'i18next';
+import { notifyStateChange } from '../../src/store.ts';
 import ua from '../../locales/ua/translation.json';
 import en from '../../locales/en/translation.json';
 import es from '../../locales/es/translation.json';
@@ -135,18 +136,14 @@ export function applyI18n(): void {
   document.querySelectorAll<HTMLElement>('.lang-opt').forEach(btn => {
     btn.classList.toggle('lang-active', btn.dataset.lang === lang);
   });
-  (window as unknown as { _refreshLangPairSelect?: () => void })._refreshLangPairSelect?.();
-  (window as unknown as { _refreshWordOfDay?: () => void })._refreshWordOfDay?.();
-  (window as unknown as { _refreshSearchInline?: () => void })._refreshSearchInline?.();
-  (window as unknown as { _refreshSearchOverlay?: () => void })._refreshSearchOverlay?.();
-  (window.renderLevelBadge as (() => void) | undefined)?.();
-  (window.renderGameBar as (() => void) | undefined)?.();
+  // Один notifyStateChange() ре-рендерить усі useStateVersion-підписники:
+  // lang-pair-select, word-of-day, search-inline/overlay, tag-filter-select,
+  // game bar (streak/goal/level), achievements/levels roadmap — заміна
+  // ~10 окремих window._refreshXxx/renderXxx викликів (усі — тонкі
+  // notifyStateChange()-обгортки).
+  notifyStateChange();
   (window._refreshRangeOptions as (() => void) | undefined)?.();
-  (window._refreshTagOptions as (() => void) | undefined)?.();
   (window.render as (() => void) | undefined)?.();
-  if (document.getElementById('ach-overlay')?.classList.contains('open')) {
-    (window.renderLevelsRoadmap as (() => void) | undefined)?.();
-  }
   if (document.getElementById('lp-overlay')?.classList.contains('open')) {
     (window.renderLearningPath as (() => void) | undefined)?.();
   }

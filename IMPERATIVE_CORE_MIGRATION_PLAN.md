@@ -47,11 +47,25 @@
   `progress-io.ts`, `settings.ts`. `sidebar.ts` тепер імпортує
   `refreshAchievementsPage` напряму (прибрано дублюючий
   `window.renderAchievements`/`window.renderLevelsRoadmap` подвійний
-  виклик → один прямий). `window.renderGameBar`/`renderLevelBadge`/
-  `renderLevelProgress`/`renderLevelsRoadmap` залишені як мінімальний
-  bridge **лише** для `i18n.ts` (циклічний імпорт: `game-bar-level.tsx`/
-  `achievements-page.tsx` самі імпортують `t` з `i18n.ts`). 529/529 тестів,
-  tsc чистий.
+  виклик → один прямий). 529/529 тестів, tsc чистий.
+- **[x] Другий прохід — `applyI18n()` в `i18n.ts`**: ~10 окремих
+  `window._refreshXxx`/`window.renderXxx` викликів (`_refreshLangPairSelect`,
+  `_refreshWordOfDay`, `_refreshSearchInline`, `_refreshSearchOverlay`,
+  `_refreshTagOptions`, `renderLevelBadge`, `renderGameBar`,
+  `renderLevelsRoadmap`) виявились усі тонкими `notifyStateChange()`-
+  обгортками (item 34). `src/store.ts` не має циклічних залежностей з
+  `i18n.ts`, тож замінено на один прямий `import { notifyStateChange }
+  from '../../src/store.ts'` + один викоик. Видалено стали
+  `window.renderGameBar`/`renderLevelBadge`/`renderLevelProgress`/
+  `renderLevelsRoadmap` з `render-game-bar.ts` і
+  `window._refreshTagOptions`/`refreshTagFilterSelect` з
+  `tag-filter-select.tsx` (нічого більше їх не читало). Залишились
+  `window._refreshRangeOptions` (deck-filter.ts, справжній DOM-рендер) і
+  `window.render`/умовні `classList.contains('open')`-перевірки для
+  `renderLearningPath`/`renderDuel`/`openGrammarContent`/`_refreshIdiomsUI`/
+  settings-overlay/stats-overlay рефрешів — усі це або імперативний
+  DOM-рендер, або `_bumpTick`-локальний стан (item 36 territory). 529/529
+  тестів, tsc чистий.
 
 ### Фаза 7.2 — daily-challenge.ts + sidebar.ts
 - `js/modes/daily-challenge.ts` (122 рядки) і `js/features/sidebar.ts`
