@@ -145,3 +145,6 @@ mountDuelLobbyOptions();
 
 const { mountDuelGameHeader } = await import('../js/features/duel-game-header.tsx');
 mountDuelGameHeader();
+
+const { mountDuelSpectator } = await import('../js/features/duel-spectator.tsx');
+mountDuelSpectator();

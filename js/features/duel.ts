@@ -14,6 +14,7 @@ import { t, getLang } from './i18n.ts';
 import { notifyStateChange } from '../../src/store.ts';
 import { DICT } from '../modes/word-letters.tsx';
 import { refreshDuelGameHeader } from './duel-game-header.tsx';
+import { refreshDuelSpectator } from './duel-spectator.tsx';
 
 const DICT_SET = new Set(DICT);
 
@@ -175,6 +176,8 @@ let _powerupsEnabled = false;
 // Spectator
 let _isSpectator = false;
 let _specId = '';
+let _specRoom: RoomData|null = null;
+export function _getSpecRoom(): RoomData|null { return _specRoom; }
 // Async challenge (24h)
 let _isAsyncChallenge = false;
 let _asyncStartTimer: ReturnType<typeof setTimeout> | null = null;
@@ -1081,36 +1084,17 @@ function _startSpectatorView(room:RoomData): void {
 }
 
 function _renderSpectatorView(room:RoomData): void {
-  const el=$('duel-spectate') as HTMLElement|null; if(!el) return;
-  const p1=room.p1, p2=room.p2;
-  const mInfo=DUEL_MODES.find(m=>m.id===room.mode)||DUEL_MODES[0];
-  const specCount=Object.keys(room.spectators||{}).length;
-  el.innerHTML=`
-    <div style="text-align:center;padding:20px 10px;">
-      <div style="font-size:.72rem;color:var(--accent);margin-bottom:6px;">${t('duel.spectate.mode')}${specCount>0?` · ${specCount} ${t('duel.spectate.viewers')}`:''}</div>
-      <div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:16px;">${mInfo.icon} ${t('duel.mode.'+room.mode)}</div>
-      <div style="display:flex;gap:20px;justify-content:center;align-items:center;">
-        <div style="text-align:center;">
-          <div style="font-size:1.8rem;">${p1.avatar}</div>
-          <div style="font-weight:700;font-size:.9rem;color:var(--text);">${p1.name}</div>
-          <div style="font-size:1.8rem;font-weight:900;color:var(--accent);margin:4px 0;">${p1.score}</div>
-          <div style="font-size:.7rem;color:var(--text3);">${p1.idx}/${ROOM_SIZE}</div>
-          <div>${Array.from({length:ROOM_SIZE},(_,i)=>`<span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:${i<p1.idx?'var(--accent)':'var(--border)'};margin:1px;"></span>`).join('')}</div>
-        </div>
-        <div style="font-size:1.2rem;color:var(--text3);">⚔️</div>
-        <div style="text-align:center;">
-          ${p2?`
-            <div style="font-size:1.8rem;">${p2.avatar}</div>
-            <div style="font-weight:700;font-size:.9rem;color:var(--text);">${p2.name}</div>
-            <div style="font-size:1.8rem;font-weight:900;color:var(--accent2);margin:4px 0;">${p2.score}</div>
-            <div style="font-size:.7rem;color:var(--text3);">${p2.idx}/${ROOM_SIZE}</div>
-            <div>${Array.from({length:ROOM_SIZE},(_,i)=>`<span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:${i<p2.idx?'var(--accent2)':'var(--border)'};margin:1px;"></span>`).join('')}</div>
-          `:`<div style="color:var(--text3);font-size:.82rem;">${t('duel.spectate.waitP2')}</div>`}
-        </div>
-      </div>
-      <button id="duel-spec-leave" style="margin-top:20px;padding:8px 18px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:inherit;font-size:.82rem;">${t('duel.spectate.leave')}</button>
-    </div>`;
-  $('duel-spec-leave')?.addEventListener('click',()=>{ _cancelRoom(); el.style.display='none'; _showLobby(); renderDuel(); });
+  _specRoom = room;
+  refreshDuelSpectator();
+}
+
+// Покинути спостереження (item 33, Фаза 5) — викликається з React-кнопки
+// duel-spectator.tsx, а також зі smart close-кнопки нижче.
+export function _leaveSpectator(): void {
+  _cancelRoom();
+  ($('duel-spectate') as HTMLElement).style.display='none';
+  _showLobby();
+  renderDuel();
 }
 
 // ── Async duel (challenge) ────────────────────────────────────
@@ -1727,10 +1711,7 @@ $('duel-page-close')?.addEventListener('click', async () => {
   } else if (tournVisible) {
     _cancelTournament();
   } else if (spectVisible) {
-    _cancelRoom();
-    ($('duel-spectate') as HTMLElement).style.display = 'none';
-    _showLobby();
-    renderDuel();
+    _leaveSpectator();
   } else {
     // Result screen or plain lobby → reset state, then close
     _showLobby();
