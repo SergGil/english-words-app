@@ -4,6 +4,7 @@ import { _shuf } from '../core/srs.ts';
 import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
 import { t } from '../features/i18n.ts';
+import { recordModeComplete } from '../features/game.ts';
 import type { WordEntry } from '../../src/types.js';
 
 const N = 6;
@@ -104,7 +105,7 @@ function finish(): void {
   const b  = getBest(), isNew = !b || secs < b;
   setBest(secs);
   pBoard.style.display = 'none'; pFinal.style.display = 'block';
-  (window.recordModeComplete as ((mode: string) => void) | undefined)?.('pairs');
+  recordModeComplete('pairs');
   pTimer.textContent = fmt(ms); pTimer.style.color = isNew ? '#e67e22' : 'var(--accent)';
   document.getElementById('pf-emoji')!.textContent = isNew ? '🏆' : '🎉';
   document.getElementById('pf-time')!.textContent  = fmt(ms);

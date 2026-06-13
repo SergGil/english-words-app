@@ -179,11 +179,21 @@
   `win.srsData`/`win.cw`/`win.TODAY`) переведено на `useAppState()` →
   `{ cw, srsData, TODAY }` зі `state`. `setKnown`/`setSrsData` більше не
   пишуть зворотньо у `window.known`/`window.srsData` (нема кому читати).
-  529/529 тестів, tsc чистий. Залишок `window.*` (23 присвоєння:
+  529/529 тестів, tsc чистий.
+- **[x] Третій прохід — ще 4 мертвих присвоєнь**: `window.getGameData`/
+  `window.saveGameData` (єдиний зовнішній читач — `combo.ts`, переведено
+  на прямий імпорт з `game.ts`), `window.invalidateSimilarCache`
+  (єдиний читач — `custom.ts`, переведено на прямий імпорт з
+  `similar-words.tsx`), `window.recordModeComplete` (єдиний читач —
+  `pairs.ts`, переведено на прямий імпорт з `game.ts`). У `app.ts`
+  видалено відповідні `window.X = X;` присвоєння; `getGameData`/
+  `saveGameData` залишились в імпортах `app.ts` (використовуються в
+  `onWordLearned()`), `invalidateSimilarCache`/`recordModeComplete`
+  видалені з імпортів `app.ts` як невикористані. 529/529 тестів, tsc
+  чистий. Залишок `window.*` (19 присвоєнь:
   `render`/`setIdx`/`setDeck`/`animCard`/`startAuto`/`stopAuto`/
   `isAutoRunning`/`updateRing`/`playSound`/`knownEs`/`knownFr`/
-  `setBaseWords`/`_wordIdx`/`_customWords`/`getGameData`/`saveGameData`/
-  `onWordLearned`/`recordModeComplete`/`invalidateSimilarCache`/`setFlipped`/
+  `setBaseWords`/`_wordIdx`/`_customWords`/`onWordLearned`/`setFlipped`/
   `TODAY`/`Object.defineProperty(deck/idx/flipped/cw)`) — усі мають
   активних читачів і є частиною "ядра картки" (Фаза 7.3 remainder).
 

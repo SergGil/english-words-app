@@ -9,7 +9,7 @@ import { notifyStateChange }                       from '../src/store.ts';
 import { synth }                                    from './core/srs.ts';
 import { getComboMult }                             from './features/combo.ts';
 import { getGameData, saveGameData, recordDailyWord,
-         updateStreak, recordModeComplete,
+         updateStreak,
          _idle }                                    from './features/game.ts';
 import { isBookmarked }                            from './features/bookmarks.ts';
 import { getNoteForWord, hasNote }                 from './features/notes.ts';
@@ -20,7 +20,6 @@ import { checkAchievements }                       from './features/render-achie
 import { maybeSubmitScore }                        from './features/leaderboard.ts';
 import { playSound }                               from './core/audio.ts';
 import { updateRing }                              from './features/ring.ts';
-import { invalidateSimilarCache }                  from './features/similar-words.tsx';
 import { ES_MODES, FR_MODES, getMode }             from './features/mode-utils.ts';
 import { safe as _safe }                           from './core/card-helpers.ts';
 import './features/speech.ts';
@@ -283,8 +282,6 @@ checkAchievements();
 // ── Expose functions/vars needed by feature modules and legacy scripts ──
 window.render            = render;
 window.stopAuto          = stopAuto;
-window.getGameData       = getGameData;
-window.saveGameData      = saveGameData;
 window.onWordLearned     = onWordLearned;
 // window.checkAchievements/showToast — set by render-achievements.ts
 // window.renderStats/openStats/closeStats/renderSRSForecast — set by stats.ts
@@ -294,7 +291,6 @@ window.setBaseWords = (w: WordEntry[]) => { _baseWords = w as unknown as string[
 window.setFlipped = (v: boolean)             => { flipped = v; state.flipped = v; };
 window._wordIdx              = _wordIdx;
 window._customWords          = _customWords;
-window.invalidateSimilarCache = invalidateSimilarCache;
 window.knownEs                = knownEs;
 window.knownFr                = knownFr;
 window.setKnown    = (s: Set<string>)          => { known = s; state.known = s; };
@@ -306,4 +302,3 @@ window.startAuto     = () => {
 };
 window.updateRing            = updateRing;
 window.playSound             = playSound;
-window.recordModeComplete    = recordModeComplete;

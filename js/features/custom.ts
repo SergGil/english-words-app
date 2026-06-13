@@ -4,6 +4,7 @@ import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
 import { recordCustomWordAdded } from './game.ts';
 import { t } from './i18n.ts';
+import { invalidateSimilarCache } from './similar-words.tsx';
 
 type CustomWord = { en: string; ua: string; ex_en?: string; ex_ua?: string };
 type WordIdx = Map<string, number>;
@@ -80,7 +81,7 @@ document.getElementById('cw-save')?.addEventListener('click', () => {
   recordCustomWordAdded();
   (window.invalidateReadingIndex as (() => void) | undefined)?.();
   (window.invalidateCatCache as (() => void) | undefined)?.();
-  (window.invalidateSimilarCache as (() => void) | undefined)?.();
+  invalidateSimilarCache();
   enInp.value = ''; uaInp.value = ''; exEnInp.value = ''; exUaInp.value = '';
   renderList();
   try { (window.playSound as PlaySound | undefined)?.('know'); } catch (e) {}
