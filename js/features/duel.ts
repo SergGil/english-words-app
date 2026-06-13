@@ -13,6 +13,17 @@ import type { WordEntry } from '../../src/types.js';
 import { t, getLang } from './i18n.ts';
 import { notifyStateChange } from '../../src/store.ts';
 import { DICT } from '../modes/word-letters.tsx';
+
+// Динамічний імпорт: sidebar.ts має DOM-side-effects на рівні модуля,
+// а sidebar.ts сам статично імпортує цей файл (renderDuel) — статичний
+// імпорт тут створив би цикл і тягнув би sidebar.ts у кожен тест, що
+// імпортує duel.ts.
+async function _openPage(page: string): Promise<void> {
+  (await import('./sidebar.ts')).openPage(page);
+}
+async function _closePage(): Promise<void> {
+  (await import('./sidebar.ts')).closePage();
+}
 import { refreshDuelGameHeader } from './duel-game-header.tsx';
 import { refreshDuelSpectator } from './duel-spectator.tsx';
 import { refreshDuelPowerups } from './duel-powerups.tsx';
@@ -1687,7 +1698,7 @@ document.addEventListener('keydown',(e:KeyboardEvent)=>{
 });
 
 $('sb-duel')?.addEventListener('click',()=>{
-  (window.openPage as ((p:string)=>void)|undefined)?.('duel');
+  _openPage('duel');
   renderDuel();
 });
 
@@ -1750,7 +1761,7 @@ $('duel-page-close')?.addEventListener('click', async () => {
     // Waiting for opponent — cancel room, reset lobby state, then close
     _cancelRoom();
     _showLobby();
-    (window.closePage as (() => void) | undefined)?.();
+    _closePage();
   } else if (tournVisible) {
     _cancelTournament();
   } else if (spectVisible) {
@@ -1758,6 +1769,6 @@ $('duel-page-close')?.addEventListener('click', async () => {
   } else {
     // Result screen or plain lobby → reset state, then close
     _showLobby();
-    (window.closePage as (() => void) | undefined)?.();
+    _closePage();
   }
 });

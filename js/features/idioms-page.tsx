@@ -94,7 +94,9 @@ export function openIdiomsContent(): void {
 window._refreshIdiomsUI = openIdiomsContent;
 
 export function openIdioms(): void {
-  (window.openPage as ((p: string) => void) | undefined)?.('idioms');
+  // Динамічний імпорт: sidebar.ts статично імпортує цей файл
+  // (openIdiomsContent) — зворотний статичний імпорт створив би цикл.
+  import('./sidebar.ts').then(m => m.openPage('idioms'));
 }
 
 window.openIdioms = openIdioms;

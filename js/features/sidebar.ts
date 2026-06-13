@@ -101,7 +101,6 @@ export function openPage(page: string): void {
   }
   if (window.innerWidth <= 900) closeSidebar();
 }
-window.openPage = openPage;
 
 // Mode-game overlays (quiz, write, story, etc.) sit far above the page
 // overlays (z-index 9100+) and are toggled via style.display rather than
@@ -133,7 +132,6 @@ export function closePage(): void {
     if (el) el.style.display = 'none';
   }
 }
-window.closePage = closePage;
 
 document.querySelectorAll('[data-close-page]').forEach(btn => btn.addEventListener('click', closePage));
 document.getElementById('stats-close')?.addEventListener('click', closePage);

@@ -97,22 +97,19 @@
   `word-of-day.tsx` (немає циклу з `sidebar.ts`) і `learning-path.ts` (вже
   імпортував `openPage`, додано `closePage` до того ж імпорту) переведені
   на прямий імпорт.
-- **Залишок — архітектурний бар'єр**: `duel.ts`, `grammar-page.tsx`,
-  `idioms-page.tsx` досі викликають `window.openPage`/`window.closePage`,
-  і **не можуть** імпортувати `sidebar.ts` напряму — `sidebar.ts` сам
-  імпортує `renderDuel`/`openGrammarContent`/`openIdiomsContent` з цих
-  файлів (Фаза 7.2, прохід 1), тож зворотний імпорт = цикл. Справжнє
-  вирішення — прибрати цей взаємний виклик: або (а) router-модуль без
-  page-специфічних імпортів + registry, куди сторінки самі реєструються
-  при завантаженні, або (б) кожна сторінка сама підписується на
-  `state.activePage` через `useStateVersion()`/`useEffect` і
-  рефрешиться, коли стає активною — тоді `sidebar.ts` лише виставляє
-  `state.activePage`/`classList`, без жодних page-специфічних викликів.
-  Варіант (б) органічніший для React і усуває обидва напрямки
-  `window.*`, але вимагає змін у кожному з ~9 page-компонентів і
-  браузерного smoke-тесту — окремий під-проєкт. `MODE_OVERLAY_IDS`/
-  `daily-challenge.ts` не потребували змін (вже без `window.*` після
-  Фази 7.1).
+- **[x] Четвертий прохід — `window.openPage`/`window.closePage` усунено
+  повністю**: `duel.ts`, `grammar-page.tsx`, `idioms-page.tsx` та
+  `overlay-utils.ts` (`bindOverlayDismiss`) переведені на **динамічний
+  імпорт** `import('./sidebar.ts').then(m => m.openPage(...)/closePage())`
+  замість `window.*`. Динамічний імпорт вирішує статичний цикл
+  (`sidebar.ts` → `duel.ts`/`grammar-page.tsx`/`idioms-page.tsx` з проходу
+  1) — модуль `sidebar.ts` довантажується лише в момент кліку, а не при
+  ініціалізації цих файлів. Це водночас усуває й проблему DOM-side-effects
+  на рівні модуля в `sidebar.ts` (querySelector сайдбару тощо), яка при
+  спробі статичного імпорту ламала `duel-logic.test.ts` (немає потрібних
+  DOM-елементів у jsdom). `window.openPage =`/`window.closePage =` у
+  `sidebar.ts` видалені — `window.*`-інтерфейс для роутингу сторінок
+  повністю закритий. 529/529 тестів, tsc чистий.
 
 ### Фаза 7.3 — card-actions / swipe / keyboard (ядро картки)
 - `js/features/card-actions.ts` (324 рядки), `swipe.ts` (20), `keyboard.ts`
@@ -157,8 +154,8 @@
 
 ## Статус
 
-- [ ] Фаза 7.1 — i18n / learning-path refresh-checks
-- [ ] Фаза 7.2 — daily-challenge.ts + sidebar.ts (роутинг сторінок)
+- [x] Фаза 7.1 — i18n / learning-path refresh-checks
+- [x] Фаза 7.2 — daily-challenge.ts + sidebar.ts (роутинг сторінок)
 - [ ] Фаза 7.3 — card-actions / swipe / keyboard (ядро картки + стан деку)
 - [ ] Фаза 7.4 — duel.ts
 - [ ] Фаза 7.5 — app.ts: прибрати `window.*`
