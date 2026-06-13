@@ -1209,12 +1209,11 @@ export interface ResumeSessionVM {
   expiresAt: number;
 }
 let _resumeValid: {sess:DuelSession; room:RoomData}[] = [];
-let _resumeSessions: ResumeSessionVM[] = [];
-export function _getResumeSessions(): ResumeSessionVM[] { return _resumeSessions; }
+export function _getResumeSessions(): ResumeSessionVM[] { return state.duelResumeSessions; }
 
 async function _tryResumeSession():Promise<void>{
   const sessions=_loadSessions();
-  if(!sessions.length){ _resumeValid=[]; _resumeSessions=[]; refreshDuelResume(); return; }
+  if(!sessions.length){ _resumeValid=[]; state.duelResumeSessions=[]; notifyStateChange(); refreshDuelResume(); return; }
 
   const valid: {sess:DuelSession; room:RoomData}[] = [];
   for(const sess of sessions){
@@ -1226,7 +1225,7 @@ async function _tryResumeSession():Promise<void>{
       valid.push({sess,room});
     }catch(e){_clearSession(sess.roomId);}
   }
-  if(!valid.length){ _resumeValid=[]; _resumeSessions=[]; refreshDuelResume(); return; }
+  if(!valid.length){ _resumeValid=[]; state.duelResumeSessions=[]; notifyStateChange(); refreshDuelResume(); return; }
 
   // Show the duel with the least time left to finish first.
   valid.sort((a,b)=>{
@@ -1236,7 +1235,7 @@ async function _tryResumeSession():Promise<void>{
   });
 
   _resumeValid=valid;
-  _resumeSessions=valid.map(({sess,room})=>{
+  state.duelResumeSessions=valid.map(({sess,room})=>{
     const opp=sess.slot==='p1'?room.p2:room.p1;
     const oppName=opp?.name||sess.oppName;
     const oppAvatar=opp?.avatar||sess.oppAvatar||'';
@@ -1252,6 +1251,7 @@ async function _tryResumeSession():Promise<void>{
       expiresAt,
     };
   });
+  notifyStateChange();
   refreshDuelResume();
 }
 
@@ -1259,7 +1259,7 @@ export function _onResumeContinue(roomId:string): void {
   const found=_resumeValid.find(v=>v.sess.roomId===roomId);
   if(!found) return;
   const {sess,room}=found;
-  _resumeValid=[]; _resumeSessions=[]; refreshDuelResume();
+  _resumeValid=[]; state.duelResumeSessions=[]; notifyStateChange(); refreshDuelResume();
   _roomId=sess.roomId; _mySlot=sess.slot; _mode=sess.mode;
   _roomCreatedAt=sess.createdAt||room.createdAt||Date.now();
   const seed=sess.seed??room.seed, category=sess.category??room.category, difficulty=sess.difficulty??room.difficulty;

@@ -105,6 +105,7 @@ export interface AppState {
   _wordIdx:       Map<string, number>;
   _customWords:   Array<{ en: string; ua: string; ex_en?: string; ex_ua?: string }>;
   duelSel:        DuelSelState;
+  duelResumeSessions: import('../js/features/duel.ts').ResumeSessionVM[];
 }
 
 // Дуель: вибір режиму/категорії/складності в лобі (item 36, Фаза 7.4-B,

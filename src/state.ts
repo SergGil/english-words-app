@@ -33,4 +33,5 @@ export const state: AppState = {
     maxHints:        3,
     powerupsEnabled: true,
   },
+  duelResumeSessions: [],
 };
