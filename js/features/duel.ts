@@ -1647,7 +1647,6 @@ export function renderDuel():void{
   notifyStateChange();
   _tryResumeSession();
 }
-window.renderDuel=renderDuel;
 
 // ── Event bindings ────────────────────────────────────────────
 $('duel-create-btn')?.addEventListener('click',createRoom);

@@ -152,6 +152,14 @@
   дуелі (items 29-33) вже мігровані й викликають `refreshXxx()` →
   `notifyStateChange()` — сам `duel.ts` залишається imperative
   "контролером". Повне переписування — окремий великий під-проєкт.
+- **[x] Прибрано останній `window.*` (`window.renderDuel`)**: видалено
+  `window.renderDuel=renderDuel;` (рядок 1650 `duel.ts`, функція
+  залишається `export`-нутою). `profile-switcher.tsx` — статичний
+  `import { renderDuel } from './duel.ts'` (циклу немає), `i18n.ts` —
+  динамічний `import('./duel.ts').then(({ renderDuel }) => renderDuel())`
+  (уникнення циклу, бо `duel.ts` сам імпортує `i18n.ts`). 529/529, tsc
+  чистий. Повне переписування 43 module-level змінних `duel.ts` у
+  `AppState` лишається окремим майбутнім під-проєктом (Фаза 7.4-B).
 
 ### Фаза 7.5 — app.ts: прибрати `window.*`, перенести стан у `src/state.ts`
 - Фінальний крок: коли всі читачі (фази 7.1-7.4) переведені на
@@ -275,5 +283,7 @@
 - [x] Фаза 7.1 — i18n / learning-path refresh-checks
 - [x] Фаза 7.2 — daily-challenge.ts + sidebar.ts (роутинг сторінок)
 - [x] Фаза 7.3 — card-actions / swipe / keyboard (ядро картки + стан деку)
-- [ ] Фаза 7.4 — duel.ts
+- [x] Фаза 7.4 — duel.ts: останній `window.*` (`renderDuel`) прибрано;
+      повне переписування 43 module-level змінних у `AppState` — окремий
+      майбутній під-проєкт (Фаза 7.4-B, не входить в item 36)
 - [x] Фаза 7.5 — app.ts: прибрати `window.*`

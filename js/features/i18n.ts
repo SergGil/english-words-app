@@ -148,7 +148,7 @@ export function applyI18n(): void {
     (window.renderLearningPath as (() => void) | undefined)?.();
   }
   if (document.getElementById('duel-overlay')?.classList.contains('open')) {
-    (window.renderDuel as (() => void) | undefined)?.();
+    import('./duel.ts').then(({ renderDuel }) => renderDuel());
   }
   if (document.getElementById('grammar-overlay')?.classList.contains('open')) {
     (window.openGrammarContent as (() => void) | undefined)?.();

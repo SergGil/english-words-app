@@ -3,6 +3,7 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { t } from './i18n.ts';
+import { renderDuel } from './duel.ts';
 
 const LIST_KEY   = 'ew_profiles';
 const ACTIVE_KEY = 'ew_active_profile';
@@ -161,7 +162,7 @@ export function ProfileSwitcher(): ReactElement {
     const next = profiles.map(p => p.id === editTarget.id ? { ...p, name, avatar: editAvatar } : p);
     setProfiles(next); _setProfiles(next);
     setEditTarget(null);
-    (window.renderDuel as (() => void) | undefined)?.();
+    renderDuel();
   }
 
   function confirmDelete(): void {
