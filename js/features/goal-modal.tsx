@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { getGameData, saveGameData } from './game.ts';
 import { t } from './i18n.ts';
+import { renderGameBar } from './render-game-bar.ts';
 
 export function GoalModal(): ReactElement | null {
   const [open, setOpen] = useState(false);
@@ -33,7 +34,7 @@ export function GoalModal(): ReactElement | null {
       const d = getGameData();
       d.goalMax = val;
       saveGameData(d);
-      (window.renderGameBar as (() => void) | undefined)?.();
+      renderGameBar();
       setOpen(false);
     } else {
       inputRef.current?.focus();

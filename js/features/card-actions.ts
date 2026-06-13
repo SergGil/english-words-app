@@ -16,6 +16,8 @@ import { ES_MODES, FR_MODES, getMode, esEntry as _esEntry, frEntry as _frEntry }
 import { playSound } from '../core/audio.ts';
 import { launchConfetti } from '../core/confetti.ts';
 import { t } from './i18n.ts';
+import { renderGameBar } from './render-game-bar.ts';
+import { refreshGameBarLevel } from './game-bar-level.tsx';
 import type { WordEntry } from '../../src/types.js';
 
 // Typed view of the globals exposed by app.ts (deck/idx/cw live-getters,
@@ -37,8 +39,6 @@ const win = window as unknown as {
   startAuto?: () => void;
   isAutoRunning?: () => boolean;
   onWordLearned?: () => void;
-  renderGameBar?: () => void;
-  renderLevelBadge?: () => void;
   updateRing?: () => void;
 };
 
@@ -316,8 +316,8 @@ document.getElementById('modal-confirm')!.addEventListener('click', function() {
   } else if (rangeVal === 'unlearned') {
     win.setDeck(buildUnlearnedDeck(state._baseWords as unknown as WordEntry[]));
   }
-  _safe(() => win.renderGameBar?.());
-  _safe(() => win.renderLevelBadge?.());
+  _safe(() => renderGameBar());
+  _safe(() => refreshGameBarLevel());
   _safe(() => win.updateRing?.());
   _safe(() => win.render?.());
   document.getElementById('modal-overlay')!.style.display = 'none';

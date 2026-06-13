@@ -12,6 +12,9 @@ export function renderGameBar(): void {
   try { refreshGameBarLevel(); } catch (_e) {}
 }
 
+// window.renderLevelBadge/renderGameBar are read by i18n.ts's applyI18n();
+// kept as a window bridge there to avoid a circular import (i18n.ts is
+// itself imported by game-bar-level.tsx/achievements-page.tsx for t()).
 window.renderGameBar       = renderGameBar;
 window.renderLevelBadge    = refreshGameBarLevel;
 window.renderLevelProgress = refreshGameBarLevel;

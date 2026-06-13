@@ -8,7 +8,6 @@ import {
   registerCheckAchievements,
 } from './game.ts';
 import { achName as _achName, achHint as _achHint } from './i18n.ts';
-import { refreshAchievementsPage } from './achievements-page.tsx';
 import type { Achievement } from '../../src/types.js';
 
 // ── Toast ─────────────────────────────────────────────────────
@@ -68,5 +67,4 @@ export function checkAchievements(): void {
 registerCheckAchievements(checkAchievements);
 
 window.checkAchievements  = checkAchievements;
-window.renderAchievements = refreshAchievementsPage;
 window.showToast          = showToast;

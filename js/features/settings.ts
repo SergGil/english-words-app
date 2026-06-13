@@ -4,6 +4,7 @@ import { _imgCache, loadWikiImage } from '../core/images.ts';
 import { W } from '../../data/words.js';
 import { openPage } from './sidebar.ts';
 import { t } from './i18n.ts';
+import { refreshGameBarLevel } from './game-bar-level.tsx';
 import type { WordEntry } from '../../src/types.js';
 
 type VoidFn = () => void;
@@ -43,7 +44,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ── Initial renders ────────────────────────────────────────────
-try { _callWin('renderLevelBadge'); } catch (e) { console.error(e); }
+try { refreshGameBarLevel(); } catch (e) { console.error(e); }
 try { updateSrsUI(W as unknown as WordEntry[]); } catch (e) { console.error(e); }
 try { _callWin('checkAchievements'); } catch (e) { console.error(e); }
 try { _callWin('render'); } catch (e) { console.error('render ERR:', e); }

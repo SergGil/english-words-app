@@ -7,6 +7,8 @@ import { W } from '../../data/words.js';
 import LZString from '../../lib/lzstring.js';
 import type { WordEntry } from '../../src/types.js';
 import { t } from './i18n.ts';
+import { renderGameBar } from './render-game-bar.ts';
+import { refreshGameBarLevel } from './game-bar-level.tsx';
 
 function exportProgress(): string {
   const data = {
@@ -128,8 +130,8 @@ document.getElementById('import-confirm')!.addEventListener('click', function() 
   if (!code) { document.getElementById('import-error')!.textContent = t('modal.importEmpty'); return; }
   if (importProgress(code)) {
     document.getElementById('import-modal')!.className = '';
-    _safe(() => (window as any).renderGameBar?.());
-    _safe(() => (window as any).renderLevelBadge?.());
+    _safe(() => renderGameBar());
+    _safe(() => refreshGameBarLevel());
     _safe(() => (window as any).openStats?.());
     _safe(() => (window as any).render?.());
     const btn = document.getElementById('btn-import-open')!;

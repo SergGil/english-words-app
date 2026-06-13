@@ -7,6 +7,7 @@ import { getGameData, saveGameData, recordModeComplete } from '../features/game.
 import { closePage, openPage } from '../features/sidebar.ts';
 import { speakBtn, decodeIpa } from '../core/ui-helpers.ts';
 import { t } from '../features/i18n.ts';
+import { refreshGameBarLevel } from '../features/game-bar-level.tsx';
 import type { WordEntry } from '../../src/types.js';
 
 const DC_SIZE = 10, DC_XP = 3;
@@ -106,7 +107,7 @@ if (overlay) {
     elFinalTitle.textContent = (pct===100?t('daily.missionDone'):pct>=80?t('tempo.excellentTitle'):pct>=60?t('quiz.goodTitle'):t('daily.keepTraining')) + ` — ${dcCorrect} / ${DC_SIZE} (${pct}%)`;
     elFinalXP.textContent = t('daily.xpLabel', { xp });
     elFinal.style.display = 'block'; elOpts.innerHTML = '';
-    try { const d = getGameData(); d.xp = (d.xp ?? 0) + xp; saveGameData(d); (window.renderLevelBadge as (() => void) | undefined)?.(); } catch (e) {}
+    try { const d = getGameData(); d.xp = (d.xp ?? 0) + xp; saveGameData(d); refreshGameBarLevel(); } catch (e) {}
     recordModeComplete('daily');
     try { (window.checkAchievements as (() => void) | undefined)?.(); } catch (e) {}
   }

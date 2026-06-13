@@ -9,6 +9,7 @@ import { getGameData } from '../features/game.ts';
 import { W } from '../../data/words.js';
 import type { WordEntry } from '../../src/types.js';
 import { t, wordsLabel, categoryName } from '../features/i18n.ts';
+import { renderGameBar } from '../features/render-game-bar.ts';
 
 const CP = 6;
 const RANDOM_KEY = '🎲 Випадково';
@@ -307,7 +308,7 @@ document.getElementById('btn-unmark')?.addEventListener('click', (e: MouseEvent)
   state.known.delete(cw[0]); delete (state.srsData as Record<string, unknown>)[cw[0]];
   saveKnown(state.known); saveSRS(state.srsData);
   document.getElementById('card')?.classList.remove('is-known');
-  try { (window.renderGameBar as (() => void) | undefined)?.(); } catch (e) {}
+  try { renderGameBar(); } catch (e) {}
   checkMilestones();
 });
 

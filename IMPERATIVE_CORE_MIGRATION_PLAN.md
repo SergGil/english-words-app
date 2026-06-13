@@ -40,6 +40,18 @@
   `notifyStateChange()` (вже є механізм з item 34), де це можливо без
   переписування `app.ts`.
 - Найменший і найбезпечніший крок — гарний кандидат для старту.
+- **[x] Перший прохід виконано**: `renderGameBar`/`refreshGameBarLevel`
+  (== `notifyStateChange()`-обгортки з item 34) переведені з `window.*` на
+  прямі імпорти в листових файлах, де циклічного імпорту з `i18n.ts` немає:
+  `card-actions.ts`, `catpairs.tsx`, `daily-challenge.ts`, `goal-modal.tsx`,
+  `progress-io.ts`, `settings.ts`. `sidebar.ts` тепер імпортує
+  `refreshAchievementsPage` напряму (прибрано дублюючий
+  `window.renderAchievements`/`window.renderLevelsRoadmap` подвійний
+  виклик → один прямий). `window.renderGameBar`/`renderLevelBadge`/
+  `renderLevelProgress`/`renderLevelsRoadmap` залишені як мінімальний
+  bridge **лише** для `i18n.ts` (циклічний імпорт: `game-bar-level.tsx`/
+  `achievements-page.tsx` самі імпортують `t` з `i18n.ts`). 529/529 тестів,
+  tsc чистий.
 
 ### Фаза 7.2 — daily-challenge.ts + sidebar.ts
 - `js/modes/daily-challenge.ts` (122 рядки) і `js/features/sidebar.ts`

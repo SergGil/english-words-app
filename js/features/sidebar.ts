@@ -1,5 +1,6 @@
 // English Words App — js/features/sidebar.ts
 // Sidebar wiring, page-view system, theme toggles, img-clear confirm
+import { refreshAchievementsPage } from './achievements-page.tsx';
 
 // ── Image cache clear confirm ──────────────────────────────────
 let _imgClearCb: (() => void) | null = null;
@@ -69,8 +70,7 @@ export function openPage(page: string): void {
     document.getElementById('btn-stats')?.dispatchEvent(new Event('click'));
   } else if (page === 'ach') {
     document.getElementById('ach-overlay')?.classList.add('open');
-    (window.renderAchievements as (() => void) | undefined)?.();
-    (window.renderLevelsRoadmap as (() => void) | undefined)?.();
+    refreshAchievementsPage();
   } else if (page === 'modes') {
     const mo = document.getElementById('modes-overlay');
     mo?.classList.add('as-page', 'open');
