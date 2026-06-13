@@ -115,7 +115,6 @@ window.requestNotifPermission = (): void => {
     _updateUI();
   });
 };
-window.isNotifEnabled = isEnabled;
 
 // Bug fix 2: returns true if notification was actually fired
 function _notify(title: string, body: string): boolean {

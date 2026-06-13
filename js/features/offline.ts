@@ -67,9 +67,9 @@ if (!_online) {
 }
 
 // ── Exports ───────────────────────────────────────────────────
-window._isOnlineCheck = (): boolean => _online;
+export const _isOnlineCheck = (): boolean => _online;
 
-window._offlineSvg = (_word: string): string =>
+export const _offlineSvg = (_word: string): string =>
   `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <rect width="100" height="100" rx="10" fill="#1a2a3a"/>
     <text x="50" y="38" text-anchor="middle" font-size="30" fill="#3a5a7a">📡</text>

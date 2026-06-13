@@ -111,8 +111,6 @@ export function jumpToGrammarRule(id: string): void {
 }
 
 window.openGrammarContent = openGrammarContent;
-window.openGrammar = openGrammar;
-window.jumpToGrammarRule = jumpToGrammarRule;
 
 export function GrammarPage(): ReactElement {
   const [activeId, setActiveId] = useState('');

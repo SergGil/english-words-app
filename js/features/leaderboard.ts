@@ -122,4 +122,3 @@ export function maybeSubmitScore(): void {
   _lastSubmit = Date.now();
   _submitScore().catch(() => {});
 }
-window.maybeSubmitScore = maybeSubmitScore;

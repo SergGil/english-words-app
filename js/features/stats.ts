@@ -33,9 +33,6 @@ document.getElementById('stats-overlay')?.addEventListener('click', function(e) 
 });
 
 window.renderStats        = refreshStatsPage;
-window.renderSRSForecast  = refreshStatsPage;
 window._refreshStatsExtras = refreshStatsPage;
-window.openStats          = openStats;
-window.closeStats         = closeStats;
 
 export {};

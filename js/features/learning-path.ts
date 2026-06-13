@@ -6,6 +6,7 @@ import type { CefrLevel } from '../../data/cefr.ts';
 import { W } from '../../data/words.js';
 import { getLevel } from '../features/game.ts';
 import { openPage, closePage } from '../features/sidebar.ts';
+import { jumpToGrammarRule } from '../features/grammar-page.tsx';
 import type { WordEntry } from '../../src/types.js';
 import type { PaceSnapshot } from './learning-path-logic.ts';
 import {
@@ -287,7 +288,7 @@ export function renderLearningPath(): void {
   el.querySelectorAll<HTMLElement>('.lp-skill-link').forEach(tag => {
     tag.addEventListener('click', () => {
       const gid = tag.dataset.grammar!;
-      (window as unknown as { jumpToGrammarRule?: (id: string) => void }).jumpToGrammarRule?.(gid);
+      jumpToGrammarRule(gid);
     });
   });
 }

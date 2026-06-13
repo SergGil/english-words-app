@@ -179,5 +179,3 @@ document.querySelectorAll<HTMLElement>('.lang-opt').forEach(btn => {
 });
 
 applyI18n();
-
-window.applyI18n = applyI18n;

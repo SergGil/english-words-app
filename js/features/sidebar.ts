@@ -15,7 +15,6 @@ export function showImgClearConfirm(cb: () => void): void {
   _imgClearCb = cb;
   _imgClearOvl?.classList.add('open');
 }
-window._showImgClearConfirm = showImgClearConfirm;
 
 document.getElementById('img-clear-cancel')?.addEventListener('click', () => {
   _imgClearOvl?.classList.remove('open'); _imgClearCb = null;

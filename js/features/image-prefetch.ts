@@ -3,6 +3,7 @@
 import { loadWikiImage, _imgCache, _getPixabayKey, resetImgCache } from '../core/images.ts';
 import { W } from '../../data/words.js';
 import { t, wordsLabel } from './i18n.ts';
+import { showImgClearConfirm } from './sidebar.ts';
 
 // ── Background prefetch ───────────────────────────────────────
 (function() {
@@ -83,7 +84,7 @@ import { t, wordsLabel } from './i18n.ts';
   if (btnStart) btnStart.addEventListener('click', start);
   if (btnStop)  btnStop.addEventListener('click', stop);
   if (btnClear) btnClear.addEventListener('click', function() {
-    ((window as any)._showImgClearConfirm as ((cb: () => void) => void))(function() {
+    showImgClearConfirm(function() {
       stop();
       resetImgCache();
       _pos = 0;

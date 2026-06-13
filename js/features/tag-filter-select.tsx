@@ -8,6 +8,7 @@ import { useStateVersion } from '../../src/store.ts';
 import { WORD_CATEGORIES, CATEGORY_LIST } from '../../data/categories.js';
 import { categoryName, t } from './i18n.ts';
 import { ES_MODES } from './mode-utils.ts';
+import { _rebuildEsDeck } from './deck-mode.ts';
 
 function fitSelTag(selTag: HTMLSelectElement): void {
   const tmp = document.createElement('select');
@@ -33,7 +34,7 @@ function applyTagFilter(selTag: HTMLSelectElement): void {
   }
   const selMode = document.getElementById('sel-mode') as HTMLSelectElement | null;
   if (selMode && ES_MODES.has(selMode.value)) {
-    (window as Window & { _rebuildEsDeck?: () => void })._rebuildEsDeck?.();
+    _rebuildEsDeck();
   } else {
     document.getElementById('sel-range')?.dispatchEvent(new Event('change'));
   }

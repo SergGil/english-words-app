@@ -1,7 +1,7 @@
 // English Words App — js/features/speech.ts
 // TTS: getVoice, speak, _speakWeb, _speakWithLang
 import { synth, hasSpeech } from '../core/srs.ts';
-import { getSelectedUkVoice, getSelectedEsVoice } from './voice.ts';
+import { getSelectedUkVoice, getSelectedEsVoice, speakFakeYou } from './voice.ts';
 
 export function getVoice(): SpeechSynthesisVoice | null {
   const v = synth.getVoices();
@@ -51,13 +51,9 @@ export function _speakWeb(text: string, btn: HTMLElement | null): void {
 }
 
 export function speak(text: string, btn: HTMLElement | null): void {
-  const _speakFakeYou = (window as any).speakFakeYou as ((t: string, b: HTMLElement | null) => boolean) | undefined;
-  if (_speakFakeYou?.(text, btn)) return;
+  if (speakFakeYou(text, btn)) return;
   _speakWeb(text, btn);
 }
 
 window.speak           = speak;
-window.getVoice        = getVoice;
-window._speakWeb       = _speakWeb;
-window.speakWebFallback = _speakWeb;
 window._speakWithLang  = _speakWithLang;

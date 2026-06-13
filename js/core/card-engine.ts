@@ -21,6 +21,7 @@ import { checkAchievements }                       from '../features/render-achi
 import { maybeSubmitScore }                        from '../features/leaderboard.ts';
 import { updateRing }                              from '../features/ring.ts';
 import { ES_MODES, FR_MODES, getMode }             from '../features/mode-utils.ts';
+import { _isOnlineCheck, _offlineSvg }             from '../features/offline.ts';
 import { safe as _safe }                           from './card-helpers.ts';
 
 let deck: WordEntry[] = W.slice() as unknown as WordEntry[];
@@ -154,10 +155,8 @@ function renderCardImage(word: string, illusEl: HTMLElement): void {
       if (_localIllus) { illusEl.innerHTML = _localIllus; illusEl.style.display = ''; }
       else              { illusEl.innerHTML = ''; illusEl.style.display = 'none'; }
       if (!_imgCache.hasOwnProperty(word)) {
-        const _isOnlineCheck = (window as Window & { _isOnlineCheck?: () => boolean })._isOnlineCheck;
-        const _offlineSvg   = (window as Window & { _offlineSvg?: (w: string) => string })._offlineSvg;
-        if (_isOnlineCheck && !_isOnlineCheck() && !_localIllus) {
-          illusEl.innerHTML = _offlineSvg ? _offlineSvg(word) : '';
+        if (!_isOnlineCheck() && !_localIllus) {
+          illusEl.innerHTML = _offlineSvg(word);
           if (illusEl.innerHTML) illusEl.style.display = '';
         } else {
           (function(w) {

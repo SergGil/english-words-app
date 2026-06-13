@@ -237,4 +237,3 @@ export function SimilarWordsChips(): ReactElement | null {
 export function updateSimilarWords(): void {
   notifyStateChange();
 }
-window.updateSimilarWords = updateSimilarWords;

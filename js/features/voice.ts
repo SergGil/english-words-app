@@ -131,7 +131,7 @@ export function getSelectedFrVoice(): SpeechSynthesisVoice | null {
   return _findByURI(_frURI, _frVoices()) ?? _frVoices()[0] ?? null;
 }
 
-window.speakFakeYou = (text: string, btn: HTMLElement | null): boolean => {
+export const speakFakeYou = (text: string, btn: HTMLElement | null): boolean => {
   const enVoices = _enVoices();
   if (!enVoices.length) return false;
   const clean = text.replace(/<[^>]+>/g, '').replace(/\s*\([^)]*\)/g, '').trim();

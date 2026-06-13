@@ -20,7 +20,6 @@ export function loadEpub(file: File, onProgress: ProgressFn, onDone: DoneFn): vo
     onDone(null, t('epub.error') + (err.message ?? String(err)));
   });
 }
-window.loadEpub = loadEpub;
 
 function _parseEpub(zip: JSZipType, onProgress: ProgressFn): Promise<string[]> {
   const containerFile = zip.file('META-INF/container.xml');

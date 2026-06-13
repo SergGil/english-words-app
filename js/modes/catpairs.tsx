@@ -289,7 +289,6 @@ function checkMilestones(): void {
     }
   });
 }
-window._checkMilestones = checkMilestones;
 
 function showMilestone(text: string): void {
   const el = document.getElementById('milestone-toast');

@@ -48,7 +48,7 @@ let _preSpecialIdx = 0;
 
 const ES_FR_MODES = new Set(['es-fr', 'fr-es']);
 
-window._rebuildEsDeck = function(): void {
+export function _rebuildEsDeck(): void {
   const m = getMode();
   if (!ES_MODES.has(m)) return;
   const esDeck = ES_FR_MODES.has(m) ? _getEsFrDeck() : _getEsDeck();
@@ -58,18 +58,7 @@ window._rebuildEsDeck = function(): void {
   setDeck(deck);
   setIdx(0);
   render();
-};
-
-window._rebuildFrDeck = function(): void {
-  if (!FR_MODES.has(getMode())) return;
-  const frDeck = _getFrDeck();
-  const ats    = state._activeTagSet as Set<string> | null;
-  let deck     = ats ? frDeck.filter(w => (ats as Set<string>).has(w[0])) : frDeck.slice();
-  if (!deck.length) deck = frDeck.slice();
-  setDeck(deck);
-  setIdx(0);
-  render();
-};
+}
 
 document.getElementById('sel-mode')!.addEventListener('change', function() {
   stopAuto();

@@ -10,6 +10,7 @@ import { t } from './i18n.ts';
 import { renderGameBar } from './render-game-bar.ts';
 import { refreshGameBarLevel } from './game-bar-level.tsx';
 import { render } from '../core/card-engine.ts';
+import { openStats, closeStats } from './stats-page.tsx';
 
 function exportProgress(): string {
   const data = {
@@ -70,7 +71,7 @@ function importProgress(code: string): boolean {
 
 // ── Export modal ─────────────────────────────────────────────
 document.getElementById('btn-export')!.addEventListener('click', function() {
-  (window as any).closeStats?.();
+  closeStats();
   const code = exportProgress();
   const ta   = document.getElementById('export-textarea') as HTMLTextAreaElement;
   ta.value   = code;
@@ -120,7 +121,7 @@ document.getElementById('export-modal')!.addEventListener('click', function(e) {
 document.getElementById('btn-import-open')!.addEventListener('click', function() {
   (document.getElementById('import-textarea') as HTMLTextAreaElement).value = '';
   document.getElementById('import-error')!.textContent = '';
-  (window as any).closeStats?.();
+  closeStats();
   document.getElementById('import-modal')!.className = 'open';
 });
 document.getElementById('import-cancel')!.addEventListener('click', function() {
@@ -133,7 +134,7 @@ document.getElementById('import-confirm')!.addEventListener('click', function() 
     document.getElementById('import-modal')!.className = '';
     _safe(() => renderGameBar());
     _safe(() => refreshGameBarLevel());
-    _safe(() => (window as any).openStats?.());
+    _safe(() => openStats());
     _safe(() => render());
     const btn = document.getElementById('btn-import-open')!;
     btn.textContent = t('modal.importedExcl');

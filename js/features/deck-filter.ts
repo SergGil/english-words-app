@@ -25,8 +25,6 @@ export function buildStaleDeck(days: number): WordEntry[] {
   return result.length ? result : _shuf(W as unknown as WordEntry[]).slice(0, 50);
 }
 
-window.buildStaleDeck = buildStaleDeck;
-
 export function _refreshRangeOptions(): void {
   const sel = document.getElementById('sel-range') as HTMLSelectElement | null;
   if (!sel) return;
