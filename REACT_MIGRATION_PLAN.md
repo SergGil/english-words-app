@@ -367,7 +367,7 @@ Realtime Firebase-синхронізація, багато режимів дуе
     містить лише один виклик `mountAppRoot()` замість ~43 пар
     `await import(...); mountXxx();`. 529/529 тестів пройдено без
     регресій.
-35. [in progress] Видалити DOM-хелпери (`$e`, `querySelector`/`addEventListener`) —
+35. [x] Видалити DOM-хелпери (`$e`, `querySelector`/`addEventListener`) —
     **переформульовано в обмежений, безпечний обсяг**: повне видалення
     неможливе без переписування card-actions/swipe/keyboard/duel game
     screen (items 27, 32-33) і `window.*`-інтерфейсу (item 36) — це
@@ -383,10 +383,15 @@ Realtime Firebase-синхронізація, багато режимів дуе
     - `bindOverlayDismiss(overlayId, closeBtnId)` — кнопка закриття + клік
       по фону + Escape → `window.closePage()`. Застосовано в
       `grammar-page.tsx` та `idioms-page.tsx`.
-    529/529 тестів пройдено без регресій. Решта `$e`/`querySelector`
-    усередині цих же файлів (фокус інпутів, читання значень форм тощо)
-    лишається — це нормальне використання React `ref`/DOM API в
-    компонентах, не дублікат-boilerplate.
+    529/529 тестів пройдено без регресій. Решта `$e`/`querySelector` в
+    кодовій базі — це або (а) коректні React `useEffect`-хуки з власним
+    cleanup для конкретних компонентів (`stats-page`, `achievements-page`,
+    `word-detail`, `search-overlay`, `goal-modal`, `onboarding` тощо), або
+    (б) `window.*`-інтерфейс/перевірки `classList.contains('open')` —
+    territory item 36, або (в) ядро ще-imperative модулів (`app.ts`,
+    `duel.ts`, `sidebar.ts`, `daily-challenge.ts`, card-actions, swipe,
+    keyboard). Подальше прибирання вимагає переписування цих модулів на
+    React і розглядається разом з item 36 в окремому майбутньому плані.
 36. [skip] Прибрати `window.*` глобали — **не виконується**. `window.render`,
     `window.deck`/`idx`/`flipped`/`cw`, `window.known*`, `window.setIdx` тощо
     — це активний інтерфейс між `app.ts` (джерело істини) і десятками legacy
