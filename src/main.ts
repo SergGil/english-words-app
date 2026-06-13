@@ -35,38 +35,5 @@ await import('../js/features/epub.ts');
 await import('../js/features/bug-report.ts');
 await import('../js/features/sidebar.ts');
 
-const { mountDuelLeaderboard } = await import('../js/features/duel-leaderboard.tsx');
-mountDuelLeaderboard();
-
-const { mountDuelHistory } = await import('../js/features/duel-history.tsx');
-mountDuelHistory();
-
-const { mountDuelLobbyOptions } = await import('../js/features/duel-lobby-options.tsx');
-mountDuelLobbyOptions();
-
-const { mountDuelGameHeader } = await import('../js/features/duel-game-header.tsx');
-mountDuelGameHeader();
-
-const { mountDuelSpectator } = await import('../js/features/duel-spectator.tsx');
-mountDuelSpectator();
-
-const { mountDuelPowerups } = await import('../js/features/duel-powerups.tsx');
-mountDuelPowerups();
-
-const { mountDuelFeedback } = await import('../js/features/duel-feedback.tsx');
-mountDuelFeedback();
-
-const { mountDuelChatLog } = await import('../js/features/duel-chat-log.tsx');
-mountDuelChatLog();
-
-const { mountDuelQuestion } = await import('../js/features/duel-question.tsx');
-mountDuelQuestion();
-
-const { mountDuelResume } = await import('../js/features/duel-resume.tsx');
-mountDuelResume();
-
-const { mountDuelTournament } = await import('../js/features/duel-tournament.tsx');
-mountDuelTournament();
-
 const { mountAppRoot } = await import('./app-root.tsx');
 mountAppRoot();

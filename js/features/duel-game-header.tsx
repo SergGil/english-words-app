@@ -3,10 +3,10 @@
 // бейдж режиму, серія Best-of-3, код кімнати. Re-rendered on demand via
 // refreshDuelGameHeader(), яку викликає duel.ts після зміни стану гри
 // (polling/state-machine логіка лишається в duel.ts).
-import { createRoot, type Root } from 'react-dom/client';
 import type { ReactElement } from 'react';
 import { _getGameHeaderData, DUEL_MODES } from './duel.ts';
 import { t } from './i18n.ts';
+import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 
 function Dots({ idx, flags, total, color }: { idx:number; flags:(boolean|'skip'|'double')[]; total:number; color:string }): ReactElement {
   const len = Math.max(total, flags?.length ?? 0);
@@ -24,7 +24,8 @@ function Dots({ idx, flags, total, color }: { idx:number; flags:(boolean|'skip'|
   );
 }
 
-function DuelGameHeader(): ReactElement {
+export function DuelGameHeader(): ReactElement {
+  useStateVersion();
   const d = _getGameHeaderData();
   const mInfo = DUEL_MODES.find(m => m.id === d.mode) || DUEL_MODES[0];
   return (
@@ -63,11 +64,4 @@ function DuelGameHeader(): ReactElement {
   );
 }
 
-let _headerRoot: Root | null = null;
-
-export function mountDuelGameHeader(): void {
-  const el = document.getElementById('duel-game-header-mount');
-  if (el) { _headerRoot = createRoot(el); _headerRoot.render(<DuelGameHeader />); }
-}
-
-export function refreshDuelGameHeader(): void { _headerRoot?.render(<DuelGameHeader />); }
+export function refreshDuelGameHeader(): void { notifyStateChange(); }

@@ -2,12 +2,13 @@
 // Рядок паверапів ігрового екрану дуелі (item 32, Фаза 5). Чисте
 // відображення знімку `_getPowerupsData()`; клік делегується в
 // `_onPowerupClick()` (duel.ts), яка зберігає весь guard/state-machine.
-import { createRoot, type Root } from 'react-dom/client';
 import type { ReactElement } from 'react';
 import { _getPowerupsData, _onPowerupClick, POWERUPS, type PowerupType } from './duel.ts';
 import { t } from './i18n.ts';
+import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 
-function DuelPowerups(): ReactElement | null {
+export function DuelPowerups(): ReactElement | null {
+  useStateVersion();
   const d = _getPowerupsData();
   if (!d.enabled) return null;
   return (
@@ -45,11 +46,4 @@ function DuelPowerups(): ReactElement | null {
   );
 }
 
-let _powerupsRoot: Root | null = null;
-
-export function mountDuelPowerups(): void {
-  const el = document.getElementById('dm-powerups-mount');
-  if (el) { _powerupsRoot = createRoot(el); _powerupsRoot.render(<DuelPowerups />); }
-}
-
-export function refreshDuelPowerups(): void { _powerupsRoot?.render(<DuelPowerups />); }
+export function refreshDuelPowerups(): void { notifyStateChange(); }

@@ -3,13 +3,14 @@
 // відображення `_getQuestionData()`; duel.ts викликає
 // refreshDuelQuestion() при кожній зміні (нове питання, вибір
 // відповіді, підказка, тайм-аут tempo, фінал гравця).
-import { createRoot, type Root } from 'react-dom/client';
 import type { ReactElement } from 'react';
 import { useEffect, useRef } from 'react';
 import { t } from './i18n.ts';
 import { _getQuestionData, _onOptionClick, _onInputChange, _submitWrite, _useHint, _onNextClick } from './duel.ts';
+import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 
-function DuelQuestion(): ReactElement {
+export function DuelQuestion(): ReactElement {
+  useStateVersion();
   const d = _getQuestionData();
   const inputRef = useRef<HTMLInputElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
@@ -125,11 +126,4 @@ function DuelQuestion(): ReactElement {
   );
 }
 
-let _questionRoot: Root | null = null;
-
-export function mountDuelQuestion(): void {
-  const el = document.getElementById('duel-question-mount');
-  if (el) { _questionRoot = createRoot(el); _questionRoot.render(<DuelQuestion />); }
-}
-
-export function refreshDuelQuestion(): void { _questionRoot?.render(<DuelQuestion />); }
+export function refreshDuelQuestion(): void { notifyStateChange(); }

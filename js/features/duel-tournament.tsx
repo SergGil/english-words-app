@@ -2,10 +2,10 @@
 // Турнірна сітка (item 33, Фаза 5). Чисте відображення
 // `_getTournamentData()`; duel.ts викликає refreshDuelTournament()
 // при кожній зміні (полінг кімнати очікування / турнірного браунзера).
-import { createRoot, type Root } from 'react-dom/client';
 import type { ReactElement } from 'react';
 import { t } from './i18n.ts';
 import { _getTournamentData, _onTournStart, _onTournCancel, _onTournPlay, _onTournRejoin, type TournRoundVM } from './duel.ts';
+import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 
 function TournWaiting(): ReactElement | null {
   const d = _getTournamentData();
@@ -108,7 +108,8 @@ function TournBracket(): ReactElement | null {
   );
 }
 
-function DuelTournament(): ReactElement {
+export function DuelTournament(): ReactElement {
+  useStateVersion();
   return (
     <>
       <TournWaiting />
@@ -117,11 +118,4 @@ function DuelTournament(): ReactElement {
   );
 }
 
-let _tournRoot: Root | null = null;
-
-export function mountDuelTournament(): void {
-  const el = document.getElementById('duel-tournament-mount');
-  if (el) { _tournRoot = createRoot(el); _tournRoot.render(<DuelTournament />); }
-}
-
-export function refreshDuelTournament(): void { _tournRoot?.render(<DuelTournament />); }
+export function refreshDuelTournament(): void { notifyStateChange(); }

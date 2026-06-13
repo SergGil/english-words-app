@@ -3,11 +3,11 @@
 // відображення `_getResumeSessions()`; duel.ts викликає
 // refreshDuelResume() при кожній зміні (нова перевірка сесій,
 // продовження, відмова).
-import { createRoot, type Root } from 'react-dom/client';
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
 import { t } from './i18n.ts';
 import { _getResumeSessions, _onResumeContinue, _onResumeDiscard, type ResumeSessionVM } from './duel.ts';
+import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 
 function ResumeCard({ s }: { s: ResumeSessionVM }): ReactElement {
   const [now, setNow] = useState(Date.now());
@@ -51,17 +51,11 @@ function ResumeCard({ s }: { s: ResumeSessionVM }): ReactElement {
   );
 }
 
-function DuelResume(): ReactElement | null {
+export function DuelResume(): ReactElement | null {
+  useStateVersion();
   const sessions = _getResumeSessions();
   if (!sessions.length) return null;
   return <>{sessions.map(s => <ResumeCard key={s.roomId} s={s} />)}</>;
 }
 
-let _resumeRoot: Root | null = null;
-
-export function mountDuelResume(): void {
-  const el = document.getElementById('duel-resume-mount');
-  if (el) { _resumeRoot = createRoot(el); _resumeRoot.render(<DuelResume />); }
-}
-
-export function refreshDuelResume(): void { _resumeRoot?.render(<DuelResume />); }
+export function refreshDuelResume(): void { notifyStateChange(); }

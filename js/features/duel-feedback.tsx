@@ -3,11 +3,12 @@
 // Чисте відображення `_getFeedbackData()`; duel.ts викликає
 // refreshDuelFeedback() при кожній зміні (правильно/невірно/таймаут/
 // заморозка/очікування суперника).
-import { createRoot, type Root } from 'react-dom/client';
 import type { ReactElement } from 'react';
 import { _getFeedbackData } from './duel.ts';
+import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 
-function DuelFeedback(): ReactElement {
+export function DuelFeedback(): ReactElement {
+  useStateVersion();
   const d = _getFeedbackData();
   return (
     <>
@@ -17,11 +18,4 @@ function DuelFeedback(): ReactElement {
   );
 }
 
-let _feedbackRoot: Root | null = null;
-
-export function mountDuelFeedback(): void {
-  const el = document.getElementById('dm-feedback-mount');
-  if (el) { _feedbackRoot = createRoot(el); _feedbackRoot.render(<DuelFeedback />); }
-}
-
-export function refreshDuelFeedback(): void { _feedbackRoot?.render(<DuelFeedback />); }
+export function refreshDuelFeedback(): void { notifyStateChange(); }

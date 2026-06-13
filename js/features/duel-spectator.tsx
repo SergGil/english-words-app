@@ -3,10 +3,10 @@
 // знімку кімнати `_getSpecRoom()`; polling/Firebase-логіка лишається в
 // duel.ts (_startSpectatorView/_renderSpectatorView), яка викликає
 // refreshDuelSpectator() після кожного оновлення.
-import { createRoot, type Root } from 'react-dom/client';
 import type { ReactElement } from 'react';
 import { _getSpecRoom, _leaveSpectator, DUEL_MODES, ROOM_SIZE } from './duel.ts';
 import { t } from './i18n.ts';
+import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 
 function Dots({ idx, color }: { idx:number; color:string }): ReactElement {
   return (
@@ -18,7 +18,8 @@ function Dots({ idx, color }: { idx:number; color:string }): ReactElement {
   );
 }
 
-function DuelSpectatorView(): ReactElement | null {
+export function DuelSpectatorView(): ReactElement | null {
+  useStateVersion();
   const room = _getSpecRoom();
   if (!room) return null;
   const { p1, p2 } = room;
@@ -65,11 +66,4 @@ function DuelSpectatorView(): ReactElement | null {
   );
 }
 
-let _specRoot: Root | null = null;
-
-export function mountDuelSpectator(): void {
-  const el = document.getElementById('duel-spectate-mount');
-  if (el) { _specRoot = createRoot(el); _specRoot.render(<DuelSpectatorView />); }
-}
-
-export function refreshDuelSpectator(): void { _specRoot?.render(<DuelSpectatorView />); }
+export function refreshDuelSpectator(): void { notifyStateChange(); }

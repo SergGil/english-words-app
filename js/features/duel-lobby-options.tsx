@@ -2,7 +2,6 @@
 // Лобі дуелі: вибір режиму (#duel-mode-picker), категорії (#duel-cat-picker)
 // і опцій (#duel-options-row). Частина item 29 (Фаза 5).
 import { useState } from 'react';
-import { createRoot } from 'react-dom/client';
 import { CATEGORY_LIST } from '../../data/categories.js';
 import { t, categoryName } from './i18n.ts';
 import type { Difficulty, BestOf, DuelMode } from './duel.ts';
@@ -16,7 +15,7 @@ import {
   _getSelPowerups, _setSelPowerups,
 } from './duel.ts';
 
-function DuelModePicker() {
+export function DuelModePicker() {
   const [selMode, setSelMode] = useState(_getSelMode());
   return <>{DUEL_MODES.map(m => {
     const active = m.id === selMode;
@@ -37,7 +36,7 @@ function DuelModePicker() {
   })}</>;
 }
 
-function DuelCategoryPicker() {
+export function DuelCategoryPicker() {
   const [selCategory, setSelCategory] = useState(_getSelCategory());
   const cats = ['', ...CATEGORY_LIST];
   return (
@@ -48,7 +47,7 @@ function DuelCategoryPicker() {
   );
 }
 
-function DuelOptionsRow() {
+export function DuelOptionsRow() {
   const [selDifficulty, setSelDifficulty] = useState<Difficulty>(_getSelDifficulty());
   const [selBestOf, setSelBestOf] = useState<BestOf>(_getSelBestOf());
   const [selMaxHints, setSelMaxHints] = useState(_getSelMaxHints());
@@ -108,13 +107,4 @@ function DuelOptionsRow() {
       </label>
     </div>
   </>;
-}
-
-export function mountDuelLobbyOptions(): void {
-  const modeEl = document.getElementById('duel-mode-picker');
-  if (modeEl) createRoot(modeEl).render(<DuelModePicker />);
-  const catEl = document.getElementById('duel-cat-picker');
-  if (catEl) createRoot(catEl).render(<DuelCategoryPicker />);
-  const optsEl = document.getElementById('duel-options-row');
-  if (optsEl) createRoot(optsEl).render(<DuelOptionsRow />);
 }

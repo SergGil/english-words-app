@@ -3,12 +3,13 @@
 // `_getChatHistory()`; duel.ts викликає refreshDuelChatLog() при
 // кожному новому повідомленні/реакції (_appendChatMsg, _showGame,
 // відновлення сесії).
-import { createRoot, type Root } from 'react-dom/client';
 import type { ReactElement } from 'react';
 import { useEffect, useRef } from 'react';
 import { _getChatHistory } from './duel.ts';
+import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 
-function DuelChatLog(): ReactElement {
+export function DuelChatLog(): ReactElement {
+  useStateVersion();
   const msgs = _getChatHistory();
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -23,11 +24,4 @@ function DuelChatLog(): ReactElement {
   );
 }
 
-let _chatLogRoot: Root | null = null;
-
-export function mountDuelChatLog(): void {
-  const el = document.getElementById('duel-chat-log-mount');
-  if (el) { _chatLogRoot = createRoot(el); _chatLogRoot.render(<DuelChatLog />); }
-}
-
-export function refreshDuelChatLog(): void { _chatLogRoot?.render(<DuelChatLog />); }
+export function refreshDuelChatLog(): void { notifyStateChange(); }

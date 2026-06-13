@@ -1,7 +1,6 @@
 // English Words App — js/features/duel-leaderboard.tsx
 // Лідерборд профілів (#duel-leaderboard) і рядок W/L рейтингу (#duel-rating-row)
 // у лобі дуелі. Частина item 31 (Фаза 5).
-import { createRoot } from 'react-dom/client';
 import { useStateVersion } from '../../src/store.ts';
 import { t, pluralLabel } from './i18n.ts';
 import {
@@ -31,7 +30,7 @@ function _computeStats(): ProfileStat[] {
     .sort((a: ProfileStat, b: ProfileStat) => b.xp - a.xp || b.known - a.known);
 }
 
-function DuelLeaderboard() {
+export function DuelLeaderboard() {
   useStateVersion();
   const stats = _computeStats();
   if (!stats.length) {
@@ -57,17 +56,10 @@ function DuelLeaderboard() {
   })}</>;
 }
 
-function DuelRating() {
+export function DuelRating() {
   useStateVersion();
   const r = _getRating();
   return <>{'🏆 ' + r.wins + ' ' + pluralLabel('duel_win', r.wins) +
     ' · 💀 ' + r.losses + ' ' + pluralLabel('duel_loss', r.losses) +
     ' · 🤝 ' + r.ties + ' ' + pluralLabel('duel_tie', r.ties)}</>;
-}
-
-export function mountDuelLeaderboard(): void {
-  const lbEl = document.getElementById('duel-leaderboard');
-  if (lbEl) createRoot(lbEl).render(<DuelLeaderboard />);
-  const rEl = document.getElementById('duel-rating-row');
-  if (rEl) createRoot(rEl).render(<DuelRating />);
 }

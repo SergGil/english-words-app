@@ -39,6 +39,17 @@ import { AchievementsPage } from '../js/features/achievements-page.tsx';
 import { GrammarPage } from '../js/features/grammar-page.tsx';
 import { IdiomsPageRoot } from '../js/features/idioms-page.tsx';
 import { OnboardingPage } from '../js/features/onboarding.tsx';
+import { DuelLeaderboard, DuelRating } from '../js/features/duel-leaderboard.tsx';
+import { DuelHistory } from '../js/features/duel-history.tsx';
+import { DuelModePicker, DuelCategoryPicker, DuelOptionsRow } from '../js/features/duel-lobby-options.tsx';
+import { DuelGameHeader } from '../js/features/duel-game-header.tsx';
+import { DuelSpectatorView } from '../js/features/duel-spectator.tsx';
+import { DuelPowerups } from '../js/features/duel-powerups.tsx';
+import { DuelFeedback } from '../js/features/duel-feedback.tsx';
+import { DuelChatLog } from '../js/features/duel-chat-log.tsx';
+import { DuelQuestion } from '../js/features/duel-question.tsx';
+import { DuelResume } from '../js/features/duel-resume.tsx';
+import { DuelTournament } from '../js/features/duel-tournament.tsx';
 
 function Portal({ id, children }: { id: string; children: ReactNode }): ReactElement | null {
   const el = document.getElementById(id);
@@ -90,6 +101,20 @@ function AppRoot(): ReactElement {
     <Portal id="grammar-layout-mount"><GrammarPage/></Portal>
     <Portal id="idioms-page-mount"><IdiomsPageRoot/></Portal>
     <Portal id="onboarding-mount"><OnboardingPage/></Portal>
+    <Portal id="duel-leaderboard"><DuelLeaderboard/></Portal>
+    <Portal id="duel-rating-row"><DuelRating/></Portal>
+    <Portal id="duel-history-list"><DuelHistory/></Portal>
+    <Portal id="duel-mode-picker"><DuelModePicker/></Portal>
+    <Portal id="duel-cat-picker"><DuelCategoryPicker/></Portal>
+    <Portal id="duel-options-row"><DuelOptionsRow/></Portal>
+    <Portal id="duel-game-header-mount"><DuelGameHeader/></Portal>
+    <Portal id="duel-spectate-mount"><DuelSpectatorView/></Portal>
+    <Portal id="dm-powerups-mount"><DuelPowerups/></Portal>
+    <Portal id="dm-feedback-mount"><DuelFeedback/></Portal>
+    <Portal id="duel-chat-log-mount"><DuelChatLog/></Portal>
+    <Portal id="duel-question-mount"><DuelQuestion/></Portal>
+    <Portal id="duel-resume-mount"><DuelResume/></Portal>
+    <Portal id="duel-tournament-mount"><DuelTournament/></Portal>
   </>;
 }
 
