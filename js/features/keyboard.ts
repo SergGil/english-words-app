@@ -1,15 +1,14 @@
 // English Words App — js/features/keyboard.ts
 // ════════ KEYBOARD OVERLAY ════════
+import { bindOverlayOpenClose } from './overlay-utils.ts';
+
 const keysOverlay = document.getElementById('keys-overlay');
 
 function _openKeys(): void  { if (keysOverlay) keysOverlay.className = 'open'; }
 function _closeKeys(): void { if (keysOverlay) keysOverlay.className = ''; }
 
-document.getElementById('btn-keys')?.addEventListener('click', _openKeys);
+bindOverlayOpenClose('btn-keys', 'keys-overlay', _openKeys, _closeKeys);
 document.getElementById('keys-close')?.addEventListener('click', _closeKeys);
-keysOverlay?.addEventListener('click', (e: MouseEvent) => {
-  if (e.target === keysOverlay) _closeKeys();
-});
 
 document.addEventListener('keydown', (e: KeyboardEvent) => {
   const tag = (document.activeElement as HTMLElement).tagName;
