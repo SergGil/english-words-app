@@ -1346,10 +1346,9 @@ export interface TournamentData {
   rounds: TournRoundVM[];
   matchArea: TournMatchArea;
 }
-let _tournView: TournamentData|null = null;
 let _tournPlayCtx: {tourn:Tournament; round:number; matchIdx:number} | null = null;
 let _tournRejoinRoomId: string|null = null;
-export function _getTournamentData(): TournamentData|null { return _tournView; }
+export function _getTournamentData(): TournamentData|null { return state.duelTournView; }
 export function _onTournStart(): void { startTournament(); }
 export function _onTournCancel(): void { _cancelTournament(); }
 export function _onTournPlay(): void { if(_tournPlayCtx) _startTournMatch(_tournPlayCtx.tourn,_tournPlayCtx.round,_tournPlayCtx.matchIdx); }
@@ -1439,7 +1438,7 @@ function _renderTournWaiting(tourn:Tournament): void {
       : {filled:false, avatar:'', name:'', label:`${t('duel.tourn.slot')} ${i+1}`};
   });
   const joined=Object.keys(tourn.players).length;
-  _tournView={
+  state.duelTournView={
     phase:'waiting',
     code:_fmtCode(_tournId),
     modeLabel:`${mInfo.icon} ${t('duel.mode.'+tourn.mode)} · ${tourn.size} ${t('duel.tourn.players')}`,
@@ -1449,6 +1448,7 @@ function _renderTournWaiting(tourn:Tournament): void {
     finished:false, champion:'', statusLabel:'', statusColor:'',
     rounds:[], matchArea:{kind:'none'},
   };
+  notifyStateChange();
   refreshDuelTournament();
 }
 
@@ -1531,11 +1531,12 @@ function _renderTournBracket(tourn:Tournament): void {
       }
     }
   }
-  _tournView={
+  state.duelTournView={
     phase:'bracket', code:'', modeLabel:'', slots:[], joined:0, size:tourn.size,
     showStartBtn:false, startBtnLabel:'',
     finished:tourn.finished, champion:tourn.champion, statusLabel, statusColor, rounds, matchArea,
   };
+  notifyStateChange();
   refreshDuelTournament();
 }
 

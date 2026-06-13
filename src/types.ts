@@ -108,6 +108,7 @@ export interface AppState {
   duelResumeSessions: import('../js/features/duel.ts').ResumeSessionVM[];
   duelChatHistory: { text: string; isMe: boolean }[];
   duelSpecRoom: import('../js/features/duel.ts').RoomData | null;
+  duelTournView: import('../js/features/duel.ts').TournamentData | null;
 }
 
 // Дуель: вибір режиму/категорії/складності в лобі (item 36, Фаза 7.4-B,
