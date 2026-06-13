@@ -227,8 +227,18 @@ Realtime Firebase-синхронізація, багато режимів дуе
 турніри. Робимо останньою і ділимо на під-кроки:
 
 29. Лобі/налаштування дуелі (вибір режиму, коду кімнати) → компонент
-30. Історія дуелей + пагінація (уже має локальний `_histPage` — легко переноситься)
-31. Лідерборд (`_renderLeaderboard`)
+30. [x] Історія дуелей + пагінація → `js/features/duel-history.tsx`
+    (`DuelHistory`, `#duel-history-list`). Пагінація тепер локальний
+    React `useState` замість модульної змінної `_histPage`. Дані
+    (`_getHistory()`) читаються з localStorage і експортовані з
+    `duel.ts`. Оновлення через `useStateVersion()` + `notifyStateChange()`
+    (викликається в `renderDuel()` замість прямого `_renderHistory()`).
+31. [x] Лідерборд → `js/features/duel-leaderboard.tsx` (`DuelLeaderboard`
+    → `#duel-leaderboard`, `DuelRating` → `#duel-rating-row`). Хелпери
+    `_getProfiles`/`_getActiveId`/`_readSnap`/`_currentSnap`/`_parseKnown`/
+    `_parseGame`/`_weekWords`/`_getRating` експортовані з `duel.ts`
+    (залишаються там, бо `_getMyName`/`_getMyAvatar`/`_addHistory`/
+    `_updateRating` теж їх використовують).
 32. Сам ігровий екран дуелі (питання/відповіді/таймер)
 33. Спостерігач, асинхронні челенджі, турнірна сітка
 

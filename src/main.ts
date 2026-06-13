@@ -130,3 +130,9 @@ mountCardFrontText();
 
 const { mountCardProgress } = await import('../js/features/card-progress.tsx');
 mountCardProgress();
+
+const { mountDuelLeaderboard } = await import('../js/features/duel-leaderboard.tsx');
+mountDuelLeaderboard();
+
+const { mountDuelHistory } = await import('../js/features/duel-history.tsx');
+mountDuelHistory();

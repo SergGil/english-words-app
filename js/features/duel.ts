@@ -10,7 +10,8 @@ import LZString from '../../lib/lzstring.js';
 import { _shuf } from '../core/srs.ts';
 import { lev } from '../core/distance.ts';
 import type { WordEntry } from '../../src/types.js';
-import { t, categoryName, getLang, pluralLabel } from './i18n.ts';
+import { t, categoryName, getLang } from './i18n.ts';
+import { notifyStateChange } from '../../src/store.ts';
 import { DICT } from '../modes/word-letters.tsx';
 
 const DICT_SET = new Set(DICT);
@@ -108,12 +109,12 @@ const RATING_KEY = 'ew_duel_rating';
 interface HistEntry { date:string; mode:DuelMode; myScore:number; oppScore:number; oppName:string; won:boolean; category:string; }
 interface Rating    { wins:number; losses:number; ties:number; }
 
-function _getHistory(): HistEntry[] { try { return JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); } catch(e){ return []; } }
+export function _getHistory(): HistEntry[] { try { return JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); } catch(e){ return []; } }
 function _addHistory(e: HistEntry): void {
   const h = _getHistory(); h.unshift(e); if (h.length>100) h.length=100;
   try { localStorage.setItem(HIST_KEY, JSON.stringify(h)); } catch(e){}
 }
-function _getRating(): Rating { try { return JSON.parse(localStorage.getItem(RATING_KEY)||'{"wins":0,"losses":0,"ties":0}'); } catch(e){ return {wins:0,losses:0,ties:0}; } }
+export function _getRating(): Rating { try { return JSON.parse(localStorage.getItem(RATING_KEY)||'{"wins":0,"losses":0,"ties":0}'); } catch(e){ return {wins:0,losses:0,ties:0}; } }
 function _updateRating(won:boolean, tie:boolean): void {
   const r = _getRating();
   if (tie) r.ties++; else if (won) r.wins++; else r.losses++;
@@ -123,63 +124,13 @@ function _updateRating(won:boolean, tie:boolean): void {
 // ── Profile leaderboard ───────────────────────────────────────
 const LIST_KEY='ew_profiles', ACTIVE_KEY='ew_active_profile';
 const SNAP_KEYS=['ew_known','ew_known_lz','ew_game','ew_daily','ew_ach'];
-function _getProfiles() { try { return JSON.parse(localStorage.getItem(LIST_KEY)||'[]'); } catch(e){ return []; } }
-function _getActiveId() { return localStorage.getItem(ACTIVE_KEY)||''; }
-function _readSnap(id:string):Record<string,string>{ const d:Record<string,string>={}; SNAP_KEYS.forEach(k=>{const v=localStorage.getItem(`ew_p_${id}__${k}`);if(v!==null)d[k]=v;}); return d; }
-function _currentSnap():Record<string,string>{ const d:Record<string,string>={}; SNAP_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)d[k]=v;}); return d; }
-function _parseKnown(s:Record<string,string>):string[]{const r=s['ew_known'];if(!r)return[];try{if(s['ew_known_lz']==='1'){const d=LZString.decompress(r);if(d)return JSON.parse(d);}return JSON.parse(r);}catch(e){return[];}}
-function _parseGame(s:Record<string,string>){try{return JSON.parse(s['ew_game']||'{}');}catch(e){return{};}}
-function _weekWords(s:Record<string,string>):number{try{const d=JSON.parse(s['ew_daily']||'{}');const t=new Date();let c=0;for(let i=0;i<7;i++){const dt=new Date(t);dt.setDate(dt.getDate()-i);c+=(d[dt.toISOString().slice(0,10)]||0);}return c;}catch(e){return 0;}}
-
-function _renderLeaderboard(): void {
-  const el = document.getElementById('duel-leaderboard'); if(!el) return;
-  const profiles = _getProfiles();
-  if(!profiles.length){el.innerHTML=`<div style="text-align:center;color:var(--text3);padding:12px;">${t('duel.noProfiles')}</div>`;return;}
-  const aid = _getActiveId();
-  const stats = profiles.map((p:Record<string,unknown>)=>{
-    const snap=p.id===aid?_currentSnap():_readSnap(p.id as string);
-    const known=_parseKnown(snap),game=_parseGame(snap);
-    return{name:p.name,avatar:p.avatar,known:known.length,streak:game.streak||0,weekWords:_weekWords(snap),xp:(game.xp||0)+known.length*5,isActive:p.id===aid};
-  }).sort((a:any,b:any)=>b.xp-a.xp||b.known-a.known);
-  const r=_getRating();
-  const rEl=document.getElementById('duel-rating-row');
-  if(rEl) rEl.innerHTML=`🏆 ${r.wins} ${pluralLabel('duel_win', r.wins)} · 💀 ${r.losses} ${pluralLabel('duel_loss', r.losses)} · 🤝 ${r.ties} ${pluralLabel('duel_tie', r.ties)}`;
-  el.innerHTML=stats.map((s:any,i:number)=>{
-    const rank=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
-    return`<div class="duel-card${s.isActive?' duel-card-active':''}"><div class="duel-card-header"><span class="duel-rank">${rank}</span><span class="duel-av">${s.avatar}</span><span class="duel-name">${s.name}${s.isActive?` (${t('duel.you')})`:''}</span></div><div class="duel-stats"><div class="duel-stat"><div class="duel-sv">${s.known}</div><div class="duel-sl">${t('duel.stats.words')}</div></div><div class="duel-stat"><div class="duel-sv">${s.xp}</div><div class="duel-sl">XP</div></div><div class="duel-stat"><div class="duel-sv">🔥${s.streak}</div><div class="duel-sl">${t('duel.stats.streak')}</div></div><div class="duel-stat"><div class="duel-sv">${s.weekWords}</div><div class="duel-sl">${t('duel.stats.week')}</div></div></div></div>`;
-  }).join('');
-}
-
-const HIST_PAGE_SIZE = 10;
-let _histPage = 0;
-
-function _renderHistory(): void {
-  const el = document.getElementById('duel-history-list'); if(!el) return;
-  const h = _getHistory();
-  if(!h.length){ el.innerHTML=`<div style="color:var(--text3);font-size:.8rem;text-align:center;padding:8px;">${t('duel.noHistory')}</div>`; return; }
-  const pages = Math.ceil(h.length/HIST_PAGE_SIZE);
-  if(_histPage>=pages) _histPage=pages-1;
-  if(_histPage<0) _histPage=0;
-  const start = _histPage*HIST_PAGE_SIZE;
-  const rows = h.slice(start, start+HIST_PAGE_SIZE).map(e=>{
-    const icon = e.won?'🏆':e.myScore===e.oppScore?'🤝':'💀';
-    const cat  = e.category ? ` · ${e.category.split(' ')[0]}` : '';
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.78rem;">
-      <span style="color:var(--text2);">${icon} vs <b>${e.oppName}</b>${cat}<span style="color:var(--text3);"> · ${e.date}</span></span>
-      <span style="font-weight:700;color:${e.won?'#27ae60':e.myScore===e.oppScore?'var(--text3)':'#e74c3c'}">${e.myScore}:${e.oppScore}</span>
-    </div>`;
-  }).join('');
-  const pager = pages>1 ? `<div style="display:flex;justify-content:center;align-items:center;gap:10px;padding-top:8px;font-size:.78rem;color:var(--text2);">
-      <button type="button" id="duel-hist-prev" ${_histPage===0?'disabled':''} style="background:none;border:1px solid var(--border);border-radius:4px;color:inherit;padding:2px 8px;cursor:pointer;">‹</button>
-      <span>${_histPage+1} / ${pages}</span>
-      <button type="button" id="duel-hist-next" ${_histPage>=pages-1?'disabled':''} style="background:none;border:1px solid var(--border);border-radius:4px;color:inherit;padding:2px 8px;cursor:pointer;">›</button>
-    </div>` : '';
-  el.innerHTML = rows + pager;
-  const prevBtn = document.getElementById('duel-hist-prev');
-  const nextBtn = document.getElementById('duel-hist-next');
-  if(prevBtn) prevBtn.addEventListener('click', ()=>{ _histPage--; _renderHistory(); });
-  if(nextBtn) nextBtn.addEventListener('click', ()=>{ _histPage++; _renderHistory(); });
-}
+export function _getProfiles() { try { return JSON.parse(localStorage.getItem(LIST_KEY)||'[]'); } catch(e){ return []; } }
+export function _getActiveId() { return localStorage.getItem(ACTIVE_KEY)||''; }
+export function _readSnap(id:string):Record<string,string>{ const d:Record<string,string>={}; SNAP_KEYS.forEach(k=>{const v=localStorage.getItem(`ew_p_${id}__${k}`);if(v!==null)d[k]=v;}); return d; }
+export function _currentSnap():Record<string,string>{ const d:Record<string,string>={}; SNAP_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)d[k]=v;}); return d; }
+export function _parseKnown(s:Record<string,string>):string[]{const r=s['ew_known'];if(!r)return[];try{if(s['ew_known_lz']==='1'){const d=LZString.decompress(r);if(d)return JSON.parse(d);}return JSON.parse(r);}catch(e){return[];}}
+export function _parseGame(s:Record<string,string>){try{return JSON.parse(s['ew_game']||'{}');}catch(e){return{};}}
+export function _weekWords(s:Record<string,string>):number{try{const d=JSON.parse(s['ew_daily']||'{}');const t=new Date();let c=0;for(let i=0;i<7;i++){const dt=new Date(t);dt.setDate(dt.getDate()-i);c+=(d[dt.toISOString().slice(0,10)]||0);}return c;}catch(e){return 0;}}
 
 // ── Firebase ──────────────────────────────────────────────────
 async function _fbGet(p:string):Promise<unknown>{ const r=await fetch(`${DB_URL}${p}.json`);if(!r.ok)throw new Error('HTTP '+r.status);return r.json(); }
@@ -1723,8 +1674,8 @@ function _cancelTournament(): void {
 
 // ── renderDuel (full page) ────────────────────────────────────
 export function renderDuel():void{
-  _renderLeaderboard(); _renderModePicker(); _renderCategoryPicker(); _renderOptionsRow();
-  _renderHistory(); _tryResumeSession();
+  notifyStateChange(); _renderModePicker(); _renderCategoryPicker(); _renderOptionsRow();
+  _tryResumeSession();
 }
 window.renderDuel=renderDuel;
 
