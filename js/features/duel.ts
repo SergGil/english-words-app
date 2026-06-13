@@ -109,7 +109,7 @@ interface PlayerData {
   powerups:Record<PowerupType,number>; frozenUntil?:number;
   flags?:(boolean|'skip'|'double')[];
 }
-interface SeriesData { p1wins:number; p2wins:number; round:number; }
+export interface SeriesData { p1wins:number; p2wins:number; round:number; }
 interface SpectatorData { name:string; avatar:string; }
 export interface RoomData {
   seed:number; mode:DuelMode; category:string; difficulty:Difficulty;
@@ -165,54 +165,23 @@ async function _fbPatch(p:string,d:unknown):Promise<void>{ await fetch(`${DB_URL
 async function _fbSet(p:string,d:unknown):Promise<void>{ await fetch(`${DB_URL}${p}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}); }
 
 // ── Room state ────────────────────────────────────────────────
-let _roomId    = '';
-let _mySlot:   'p1'|'p2' = 'p1';
 let _pollTimer: ReturnType<typeof setInterval> | null = null;
 let _resultPollTimer: ReturnType<typeof setInterval> | null = null;
-let _quizDeck: WordEntry[] = [];
-let _quizIdx   = 0;
-let _myScore   = 0;
-let _myCorrect = 0;
-let _myWrong   = 0;
-let _myFlags: (boolean|'skip'|'double')[] = [];
-let _answered  = false;
-let _mode:     DuelMode   = 'quiz';
 let _tempoTimer: ReturnType<typeof setInterval> | null = null;
 let _advanceTimer: ReturnType<typeof setTimeout> | null = null;
 let _tempoLeft = TEMPO_SEC;
-let _finished  = false;
-let _myDone    = false;
-let _hintsLeft = 3;
-let _series:   SeriesData = { p1wins:0, p2wins:0, round:1 };
-let _bestOf:   BestOf     = 1;
-let _answerStartMs = 0;
-// Power-ups
-let _myPowerups: Record<PowerupType,number> = { double:1, skip:1, freeze:1 };
-let _doubleActive = false;
-let _powerupsEnabled = false;
 // Spectator
 let _isSpectator = false;
 let _specId = '';
 export function _getSpecRoom(): RoomData|null { return state.duelSpecRoom; }
 // Async challenge (24h)
-let _isAsyncChallenge = false;
 let _asyncStartTimer: ReturnType<typeof setTimeout> | null = null;
 // Freeze timer
 let _freezeTimer: ReturnType<typeof setTimeout> | null = null;
-let _oppName   = '';
-let _oppAvatar = '';
-let _oppScore  = 0;
-let _oppIdx    = 0;
-let _oppFlags: (boolean|'skip'|'double')[] = [];
 // Feedback / speed indicator under the question (item 32, Фаза 5)
 export function _getFeedbackData(): { html:string; speed:string } { return { html:state.duelQuestion.feedbackHtml, speed:state.duelQuestion.speedText }; }
-let _roomCreatedAt = 0;
 // Room/deck params kept for session persistence & resume (esp. async duels,
 // whose /duel_rooms/ doc may only contain partial data pushed by _pushScore)
-let _roomSeed = 0;
-let _roomCategory = '';
-let _roomDifficulty: Difficulty = 'mixed';
-let _roomMaxHints = 3;
 
 // ── Session persistence ───────────────────────────────────────
 const SESSION_KEY = 'ew_duel_sessions';
@@ -239,15 +208,15 @@ function _saveSessions(list: DuelSession[]): void {
   try { localStorage.setItem(SESSION_KEY, JSON.stringify(list)); } catch(e){}
 }
 function _saveSession(): void {
-  if(!_roomId) return;
-  const list=_loadSessions().filter(s=>s.roomId!==_roomId);
-  list.push({roomId:_roomId,slot:_mySlot,mode:_mode,idx:_quizIdx,score:_myScore,correct:_myCorrect,wrong:_myWrong,flags:_myFlags,chat:state.duelChatHistory,deckLen:_quizDeck.length,createdAt:_roomCreatedAt,
-    seed:_roomSeed,category:_roomCategory,difficulty:_roomDifficulty,maxHints:_roomMaxHints,bestOf:_bestOf,
-    powerupsEnabled:_powerupsEnabled,myPowerups:{..._myPowerups},oppName:_oppName,oppAvatar:_oppAvatar});
+  if(!state.duelRoom.roomId) return;
+  const list=_loadSessions().filter(s=>s.roomId!==state.duelRoom.roomId);
+  list.push({roomId:state.duelRoom.roomId,slot:state.duelRoom.mySlot,mode:state.duelRoom.mode,idx:state.duelRoom.quizIdx,score:state.duelRoom.myScore,correct:state.duelRoom.myCorrect,wrong:state.duelRoom.myWrong,flags:state.duelRoom.myFlags,chat:state.duelChatHistory,deckLen:state.duelRoom.quizDeck.length,createdAt:state.duelRoom.roomCreatedAt,
+    seed:state.duelRoom.roomSeed,category:state.duelRoom.roomCategory,difficulty:state.duelRoom.roomDifficulty,maxHints:state.duelRoom.roomMaxHints,bestOf:state.duelRoom.bestOf,
+    powerupsEnabled:state.duelRoom.powerupsEnabled,myPowerups:{...state.duelRoom.myPowerups},oppName:state.duelRoom.oppName,oppAvatar:state.duelRoom.oppAvatar});
   _saveSessions(list);
 }
 function _clearSession(roomId?: string): void {
-  const id=roomId||_roomId; if(!id) return;
+  const id=roomId||state.duelRoom.roomId; if(!id) return;
   _saveSessions(_loadSessions().filter(s=>s.roomId!==id));
 }
 
@@ -284,12 +253,13 @@ export function _buildDeck(seed:number, category:string, difficulty:Difficulty, 
 
 // Append one extra word to the deck when Skip is used, so skipping doesn't shorten the round
 function _extendDeckOnSkip(): void {
-  const scramble = _mode==='anagram'||_mode==='letters';
+  const scramble = state.duelRoom.mode==='anagram'||state.duelRoom.mode==='letters';
   const pool = scramble ? _SCRAMBLE_POOL : (W as unknown as WordEntry[]);
-  const used = new Set(_quizDeck.map(w=>w[0].toLowerCase()));
+  const used = new Set(state.duelRoom.quizDeck.map(w=>w[0].toLowerCase()));
   const candidates = pool.filter(w=>!used.has(w[0].toLowerCase()));
   const src = candidates.length ? candidates : pool;
-  _quizDeck.push(src[Math.floor(Math.random()*src.length)]);
+  state.duelRoom.quizDeck.push(src[Math.floor(Math.random()*src.length)]);
+  notifyStateChange();
 }
 
 function _getMyName():string{ try{const prfs=_getProfiles();const id=_getActiveId();return prfs.find((x:any)=>x.id===id)?.name||t('duel.player');}catch(e){return t('duel.player');} }
@@ -307,22 +277,22 @@ export interface GameHeaderData {
 export function _getGameHeaderData(): GameHeaderData {
   return {
     myAvatar: _getMyAvatar(),
-    myScore: _myScore,
-    myIdx: _quizIdx,
-    myTotal: _quizDeck.length,
-    myFlags: _myFlags,
-    oppAvatar: _oppAvatar||'🧑',
-    oppName: _oppName||t('duel.opp'),
-    oppScore: _oppScore,
-    oppIdx: _oppIdx,
-    oppFlags: _oppFlags,
+    myScore: state.duelRoom.myScore,
+    myIdx: state.duelRoom.quizIdx,
+    myTotal: state.duelRoom.quizDeck.length,
+    myFlags: state.duelRoom.myFlags,
+    oppAvatar: state.duelRoom.oppAvatar||'🧑',
+    oppName: state.duelRoom.oppName||t('duel.opp'),
+    oppScore: state.duelRoom.oppScore,
+    oppIdx: state.duelRoom.oppIdx,
+    oppFlags: state.duelRoom.oppFlags,
     oppTotal: ROOM_SIZE,
-    mode: _mode,
-    progressText: `${_quizIdx+1} / ${_quizDeck.length}`,
-    bestOf: _bestOf,
-    seriesMe: _mySlot==='p1'?_series.p1wins:_series.p2wins,
-    seriesOpp: _mySlot==='p1'?_series.p2wins:_series.p1wins,
-    roomCode: (_roomId && _mySlot==='p1') ? _roomId : null,
+    mode: state.duelRoom.mode,
+    progressText: `${state.duelRoom.quizIdx+1} / ${state.duelRoom.quizDeck.length}`,
+    bestOf: state.duelRoom.bestOf,
+    seriesMe: state.duelRoom.mySlot==='p1'?state.duelRoom.series.p1wins:state.duelRoom.series.p2wins,
+    seriesOpp: state.duelRoom.mySlot==='p1'?state.duelRoom.series.p2wins:state.duelRoom.series.p1wins,
+    roomCode: (state.duelRoom.roomId && state.duelRoom.mySlot==='p1') ? state.duelRoom.roomId : null,
   };
 }
 
@@ -428,12 +398,12 @@ function _runCountdown(cb: ()=>void): void {
   _showCountdown();
   const numEl = $('dc-number');
   const oppEl = $('dc-opp-row');
-  if (oppEl) oppEl.textContent = `${_oppAvatar} ${_oppName} vs ${_getMyAvatar()} ${_getMyName()}`;
+  if (oppEl) oppEl.textContent = `${state.duelRoom.oppAvatar} ${state.duelRoom.oppName} vs ${_getMyAvatar()} ${_getMyName()}`;
   // Show room code so p1 still has time to share it during countdown
   const codeHint = $('dc-room-code-hint') as HTMLElement|null;
   const codeVal  = $('dc-room-code-val')  as HTMLElement|null;
   if (codeHint && codeVal) {
-    if (_roomId && _mySlot === 'p1') { codeVal.textContent = _roomId; codeHint.style.display = ''; }
+    if (state.duelRoom.roomId && state.duelRoom.mySlot === 'p1') { codeVal.textContent = state.duelRoom.roomId; codeHint.style.display = ''; }
     else { codeHint.style.display = 'none'; }
   }
   let n = 3;
@@ -457,7 +427,7 @@ async function createRoom(): Promise<void> {
   const btn = $('duel-create-btn') as HTMLButtonElement;
   btn.disabled=true; btn.textContent=t('duel.creating');
   try {
-    _roomId=_genCode(); _mySlot='p1'; _isAsyncChallenge=false;
+    state.duelRoom.roomId=_genCode(); state.duelRoom.mySlot='p1'; state.duelRoom.isAsyncChallenge=false;
     const seed=Date.now();
     const room: RoomData = {
       seed, mode:state.duelSel.mode, category:state.duelSel.category, difficulty:state.duelSel.difficulty,
@@ -467,11 +437,12 @@ async function createRoom(): Promise<void> {
       p1:{name:_getMyName(),avatar:_getMyAvatar(),score:0,idx:0,done:false,hintsLeft:state.duelSel.maxHints,powerups:{double:state.duelSel.powerupsEnabled?1:0,skip:state.duelSel.powerupsEnabled?1:0,freeze:state.duelSel.powerupsEnabled?1:0}},
       p2:null,
     };
-    await _fbSet(`/duel_rooms/${_roomId}`,room);
-    _roomCreatedAt=room.createdAt;
-    _roomSeed=seed; _roomCategory=state.duelSel.category; _roomDifficulty=state.duelSel.difficulty; _roomMaxHints=state.duelSel.maxHints;
-    _quizDeck=_buildDeck(seed,state.duelSel.category,state.duelSel.difficulty,state.duelSel.mode);
-    const codeEl=$('duel-room-code'); if(codeEl) codeEl.textContent=_fmtCode(_roomId);
+    await _fbSet(`/duel_rooms/${state.duelRoom.roomId}`,room);
+    state.duelRoom.roomCreatedAt=room.createdAt;
+    state.duelRoom.roomSeed=seed; state.duelRoom.roomCategory=state.duelSel.category; state.duelRoom.roomDifficulty=state.duelSel.difficulty; state.duelRoom.roomMaxHints=state.duelSel.maxHints;
+    state.duelRoom.quizDeck=_buildDeck(seed,state.duelSel.category,state.duelSel.difficulty,state.duelSel.mode);
+    notifyStateChange();
+    const codeEl=$('duel-room-code'); if(codeEl) codeEl.textContent=_fmtCode(state.duelRoom.roomId);
     const modeEl=$('duel-waiting-mode');
     const mInfo=DUEL_MODES.find(m=>m.id===state.duelSel.mode)!;
     const catLabel=state.duelSel.category?` · ${state.duelSel.category.split(' ')[0]}`:'';
@@ -498,16 +469,17 @@ async function joinRoom(): Promise<void> {
     if(!room?.seed) throw new Error(t('duel.err.notFound'));
     if(room.p2)      throw new Error(t('duel.err.taken'));
     if(room.finished) throw new Error(t('duel.err.finished'));
-    _roomId=code; _mySlot='p2'; _isAsyncChallenge=false;
-    _roomCreatedAt=room.createdAt||Date.now();
-    _roomSeed=room.seed; _roomCategory=room.category; _roomDifficulty=room.difficulty; _roomMaxHints=room.maxHints;
-    _quizDeck=_buildDeck(room.seed,room.category,room.difficulty,room.mode);
-    _bestOf=room.bestOf||1; _series={...room.series};
-    await _fbPatch(`/duel_rooms/${_roomId}`,{
+    state.duelRoom.roomId=code; state.duelRoom.mySlot='p2'; state.duelRoom.isAsyncChallenge=false;
+    state.duelRoom.roomCreatedAt=room.createdAt||Date.now();
+    state.duelRoom.roomSeed=room.seed; state.duelRoom.roomCategory=room.category; state.duelRoom.roomDifficulty=room.difficulty; state.duelRoom.roomMaxHints=room.maxHints;
+    state.duelRoom.quizDeck=_buildDeck(room.seed,room.category,room.difficulty,room.mode);
+    state.duelRoom.bestOf=room.bestOf||1; state.duelRoom.series={...room.series};
+    await _fbPatch(`/duel_rooms/${state.duelRoom.roomId}`,{
       p2:{name:_getMyName(),avatar:_getMyAvatar(),score:0,idx:0,done:false,hintsLeft:room.maxHints,powerups:{double:room.powerupsEnabled?1:0,skip:room.powerupsEnabled?1:0,freeze:room.powerupsEnabled?1:0}},
       started:true,
     });
-    _oppName=room.p1.name; _oppAvatar=room.p1.avatar;
+    state.duelRoom.oppName=room.p1.name; state.duelRoom.oppAvatar=room.p1.avatar;
+    notifyStateChange();
     _initGame(room.mode,room.maxHints,room.bestOf,room.series,room.powerupsEnabled);
   } catch(e){
     btn.disabled=false; btn.textContent=t('duel.join');
@@ -518,11 +490,12 @@ async function joinRoom(): Promise<void> {
 function _startWaitPoll(): void {
   _pollTimer=setInterval(async()=>{
     try {
-      const room=await _fbGet(`/duel_rooms/${_roomId}`) as RoomData|null;
+      const room=await _fbGet(`/duel_rooms/${state.duelRoom.roomId}`) as RoomData|null;
       if(!room) return;
       if(room.started&&room.p2){
         clearInterval(_pollTimer!); _pollTimer=null;
-        _oppName=room.p2.name; _oppAvatar=room.p2.avatar;
+        state.duelRoom.oppName=room.p2.name; state.duelRoom.oppAvatar=room.p2.avatar;
+        notifyStateChange();
         _initGame(room.mode,room.maxHints,room.bestOf,room.series,room.powerupsEnabled);
       }
     } catch(e){}
@@ -530,13 +503,14 @@ function _startWaitPoll(): void {
 }
 
 function _initGame(mode:DuelMode,maxHints:number,bestOf:BestOf,series:SeriesData,powerupsEnabled=false): void {
-  _mode=mode; _bestOf=bestOf; _series={...series};
+  state.duelRoom.mode=mode; state.duelRoom.bestOf=bestOf; state.duelRoom.series={...series};
   if(_advanceTimer){clearTimeout(_advanceTimer);_advanceTimer=null;}
-  _quizIdx=0; _myScore=0; _myCorrect=0; _myWrong=0; _myFlags=[]; state.duelChatHistory=[]; notifyStateChange(); _answered=false; _finished=false; _myDone=false;
-  _hintsLeft = maxHints === 0 ? 999 : maxHints;
-  _powerupsEnabled = powerupsEnabled;
-  _myPowerups = powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0};
-  _doubleActive = false;
+  state.duelRoom.quizIdx=0; state.duelRoom.myScore=0; state.duelRoom.myCorrect=0; state.duelRoom.myWrong=0; state.duelRoom.myFlags=[]; state.duelChatHistory=[]; state.duelRoom.answered=false; state.duelRoom.finished=false; state.duelRoom.myDone=false;
+  state.duelRoom.hintsLeft = maxHints === 0 ? 999 : maxHints;
+  state.duelRoom.powerupsEnabled = powerupsEnabled;
+  state.duelRoom.myPowerups = powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0};
+  state.duelRoom.doubleActive = false;
+  notifyStateChange();
   _runCountdown(()=>_startGameUI());
 }
 
@@ -545,13 +519,14 @@ function _setupGameUI(): void {
   if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
   if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
   refreshDuelGameHeader();
-  const tr=$('dm-timer-row') as HTMLElement|null; if(tr) tr.style.display=_mode==='tempo'?'':'none';
+  const tr=$('dm-timer-row') as HTMLElement|null; if(tr) tr.style.display=state.duelRoom.mode==='tempo'?'':'none';
   // Power-ups
   _renderPowerups();
 }
 
 function _startGameUI(): void {
-  _oppScore=0; _oppIdx=0; _oppFlags=[];
+  state.duelRoom.oppScore=0; state.duelRoom.oppIdx=0; state.duelRoom.oppFlags=[];
+  notifyStateChange();
   _setupGameUI();
   _showGame();
   _renderQuestion();
@@ -563,13 +538,13 @@ export interface PowerupsData {
   enabled:boolean; mode:DuelMode; myPowerups:Record<PowerupType,number>; answered:boolean;
 }
 export function _getPowerupsData(): PowerupsData {
-  return { enabled:_powerupsEnabled, mode:_mode, myPowerups:{..._myPowerups}, answered:_answered };
+  return { enabled:state.duelRoom.powerupsEnabled, mode:state.duelRoom.mode, myPowerups:{...state.duelRoom.myPowerups}, answered:state.duelRoom.answered };
 }
 
 // Клік по паверапу з duel-powerups.tsx — той самий guard, що раніше був
 // у addEventListener (запобігає freeze поза tempo-режимом).
 export function _onPowerupClick(type:PowerupType): void {
-  if(type==='freeze' && _mode!=='tempo'){
+  if(type==='freeze' && state.duelRoom.mode!=='tempo'){
     _showMiniToast(t('duel.pu.freeze.unavail'));
     return;
   }
@@ -581,32 +556,37 @@ function _renderPowerups(): void {
 }
 
 async function _usePowerup(type: PowerupType): Promise<void> {
-  if(_myPowerups[type]<=0 || _answered) return;
-  _myPowerups[type]--;
+  if(state.duelRoom.myPowerups[type]<=0 || state.duelRoom.answered) return;
+  state.duelRoom.myPowerups[type]--;
+  notifyStateChange();
   _renderPowerups();
-  const w = _quizDeck[_quizIdx];
+  const w = state.duelRoom.quizDeck[state.duelRoom.quizIdx];
   if(type==='double'){
-    _doubleActive = true;
+    state.duelRoom.doubleActive = true;
+    notifyStateChange();
     _showMiniToast(t('duel.toast.double'));
   } else if(type==='skip'){
     // Skip current question without penalty
-    _answered = true;
+    state.duelRoom.answered = true;
     if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
-    state.duelQuestion.feedbackHtml=`<span style="color:var(--accent)">${t('duel.toast.skip')}</span>`; notifyStateChange(); refreshDuelFeedback();
+    state.duelQuestion.feedbackHtml=`<span style="color:var(--accent)">${t('duel.toast.skip')}</span>`;
+    notifyStateChange();
+    refreshDuelFeedback();
     _extendDeckOnSkip();
-    _myFlags.push('skip');
-    _quizIdx++;
+    state.duelRoom.myFlags.push('skip');
+    state.duelRoom.quizIdx++;
+    notifyStateChange();
     _renderMyProgressBar();
     await _pushScore();
     if(_advanceTimer) clearTimeout(_advanceTimer);
-    _advanceTimer=setTimeout(()=>{ _advanceTimer=null; if(_quizIdx<_quizDeck.length) _renderQuestion(); else _finishMyGame(); }, 700);
+    _advanceTimer=setTimeout(()=>{ _advanceTimer=null; if(state.duelRoom.quizIdx<state.duelRoom.quizDeck.length) _renderQuestion(); else _finishMyGame(); }, 700);
   } else if(type==='freeze'){
     // Send freeze signal to opponent via Firebase
-    try{ await _fbPatch(`/duel_rooms/${_roomId}`,{[`${_mySlot==='p1'?'p2':'p1'}_freeze`]:Date.now()+5000}); }catch(e){}
+    try{ await _fbPatch(`/duel_rooms/${state.duelRoom.roomId}`,{[`${state.duelRoom.mySlot==='p1'?'p2':'p1'}_freeze`]:Date.now()+5000}); }catch(e){}
     _showMiniToast(t('duel.toast.freeze'));
   }
   // Persist powerup state
-  try{ await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`,{powerups:_myPowerups}); }catch(e){}
+  try{ await _fbPatch(`/duel_rooms/${state.duelRoom.roomId}/${state.duelRoom.mySlot}`,{powerups:state.duelRoom.myPowerups}); }catch(e){}
 }
 
 function _showMiniToast(msg:string): void {
@@ -620,7 +600,8 @@ function _showMiniToast(msg:string): void {
 // ── Animated dot progress bar (mine + opponent's) — rendered by
 // duel-game-header.tsx via refreshDuelGameHeader() ────────────────
 function _renderOppProgressBar(idx:number, flags?:(boolean|'skip'|'double')[]): void {
-  _oppIdx=idx; _oppFlags=flags||[];
+  state.duelRoom.oppIdx=idx; state.duelRoom.oppFlags=flags||[];
+  notifyStateChange();
   refreshDuelGameHeader();
 }
 function _renderMyProgressBar(): void { refreshDuelGameHeader(); }
@@ -628,32 +609,33 @@ function _renderMyProgressBar(): void { refreshDuelGameHeader(); }
 function _startOpponentPoll(): void {
   _pollTimer=setInterval(async()=>{
     try {
-      const room=await _fbGet(`/duel_rooms/${_roomId}`) as (RoomData & Record<string,unknown>)|null;
+      const room=await _fbGet(`/duel_rooms/${state.duelRoom.roomId}`) as (RoomData & Record<string,unknown>)|null;
       if(!room) return;
-      const opp=_mySlot==='p1'?room.p2:room.p1;
+      const opp=state.duelRoom.mySlot==='p1'?room.p2:room.p1;
       if(opp){
-        _oppScore=opp.score;
+        state.duelRoom.oppScore=opp.score;
+        notifyStateChange();
         _renderOppProgressBar(opp.idx, opp.flags);
         if(opp.reaction) _showReactionReceived(opp.reaction,opp.reactionTs);
       }
       // Check if I'm frozen (opponent used freeze on me)
-      const myFreezeKey = `${_mySlot}_freeze`;
+      const myFreezeKey = `${state.duelRoom.mySlot}_freeze`;
       const freezeUntil = room[myFreezeKey] as number|undefined;
-      if(freezeUntil && freezeUntil > Date.now() && !_answered && _mode==='tempo'){
+      if(freezeUntil && freezeUntil > Date.now() && !state.duelRoom.answered && state.duelRoom.mode==='tempo'){
         if(!_freezeTimer){
           const remaining = Math.ceil((freezeUntil-Date.now())/1000);
           state.duelQuestion.feedbackHtml=`<span style="color:#5dade2">${t('duel.frozen')} ${remaining}${_secUnit()}!</span>`; notifyStateChange(); refreshDuelFeedback();
           if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
           _freezeTimer=setTimeout(()=>{
             _freezeTimer=null; state.duelQuestion.feedbackHtml=''; notifyStateChange(); refreshDuelFeedback();
-            _startTempoTimer(_quizDeck[_quizIdx]);
+            _startTempoTimer(state.duelRoom.quizDeck[state.duelRoom.quizIdx]);
           },freezeUntil-Date.now());
         }
       }
       if(room.finished){ clearInterval(_pollTimer!); _pollTimer=null; _showFinish(room as RoomData); }
-      else if(_myDone && opp?.done){
+      else if(state.duelRoom.myDone && opp?.done){
         // Both players finished but a race left `finished` unset — settle it here.
-        await _fbPatch(`/duel_rooms/${_roomId}`,{finished:true});
+        await _fbPatch(`/duel_rooms/${state.duelRoom.roomId}`,{finished:true});
         clearInterval(_pollTimer!); _pollTimer=null;
         _showFinish({...room,finished:true} as RoomData);
       }
@@ -682,9 +664,9 @@ function _startResultPoll(): void {
   _stopResultPoll();
   _resultPollTimer=setInterval(async()=>{
     try {
-      const room=await _fbGet(`/duel_rooms/${_roomId}`) as RoomData|null;
+      const room=await _fbGet(`/duel_rooms/${state.duelRoom.roomId}`) as RoomData|null;
       if(!room) return;
-      const opp=_mySlot==='p1'?room.p2:room.p1;
+      const opp=state.duelRoom.mySlot==='p1'?room.p2:room.p1;
       if(opp?.reaction) _showReactionReceived(opp.reaction,opp.reactionTs);
     } catch(e){}
   },1500);
@@ -693,31 +675,31 @@ function _startResultPoll(): void {
 async function _sendChatMsg(text:string): Promise<void> {
   if(!text.trim()) return;
   const ts=Date.now();
-  try { await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`,{reaction:text,reactionTs:ts}); } catch(e){}
+  try { await _fbPatch(`/duel_rooms/${state.duelRoom.roomId}/${state.duelRoom.mySlot}`,{reaction:text,reactionTs:ts}); } catch(e){}
   _lastReactionTs=ts;
   _appendChatMsg(text,true);
 }
 
 // ── Questions ─────────────────────────────────────────────────
 function _renderQuestion(): void {
-  if(_quizIdx>=_quizDeck.length){_finishMyGame();return;}
-  const w=_quizDeck[_quizIdx];
-  _answered=false; _answerStartMs=Date.now();
+  if(state.duelRoom.quizIdx>=state.duelRoom.quizDeck.length){_finishMyGame();return;}
+  const w=state.duelRoom.quizDeck[state.duelRoom.quizIdx];
+  state.duelRoom.answered=false; state.duelRoom.answerStartMs=Date.now();
   state.duelQuestion.feedbackHtml=''; state.duelQuestion.speedText=''; notifyStateChange(); refreshDuelFeedback();
   if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
   state.duelQuestion.chosenOption=null; state.duelQuestion.hintNote=null; state.duelQuestion.writeInputValue=''; state.duelQuestion.inputBorderColor=''; state.duelQuestion.showNextBtn=false; state.duelQuestion.waitingFinish=false;
-  if(_mode==='write') _renderWriteQ(w);
-  else if(_mode==='anagram') _renderAnagramQ(w);
-  else if(_mode==='letters') _renderLettersQ(w);
+  if(state.duelRoom.mode==='write') _renderWriteQ(w);
+  else if(state.duelRoom.mode==='anagram') _renderAnagramQ(w);
+  else if(state.duelRoom.mode==='letters') _renderLettersQ(w);
   else _renderChoiceQ(w);
   _renderPowerups();
   notifyStateChange();
   refreshDuelQuestion();
-  if(_mode==='tempo') _startTempoTimer(w);
+  if(state.duelRoom.mode==='tempo') _startTempoTimer(w);
 }
 
 function _renderChoiceQ(w:WordEntry): void {
-  const isRev=_mode==='reverse';
+  const isRev=state.duelRoom.mode==='reverse';
   const q=isRev?w[1]:w[0], ans=isRev?w[0]:w[1];
   state.duelQuestion.qPrimary=q; state.duelQuestion.qSecondary=''; state.duelQuestion.qTertiary='';
   const wrongs:string[]=[]; const used=new Set([w[0].toLowerCase()]);
@@ -753,11 +735,14 @@ function _startTempoTimer(w:WordEntry): void {
     if(num) num.textContent=String(_tempoLeft);
     if(_tempoLeft<=0){
       clearInterval(_tempoTimer!); _tempoTimer=null;
-      if(!_answered){
-        _answered=true;
-        state.duelQuestion.feedbackHtml=`<span style="color:#e74c3c">${t('duel.timeout')}</span>`; notifyStateChange(); refreshDuelFeedback();
-        _myWrong++; _myFlags.push(false);
-        _quizIdx++; _renderMyProgressBar(); _pushScore();
+      if(!state.duelRoom.answered){
+        state.duelRoom.answered=true;
+        state.duelQuestion.feedbackHtml=`<span style="color:#e74c3c">${t('duel.timeout')}</span>`;
+        state.duelRoom.myWrong++; state.duelRoom.myFlags.push(false);
+        state.duelRoom.quizIdx++;
+        notifyStateChange();
+        refreshDuelFeedback();
+        _renderMyProgressBar(); _pushScore();
         refreshDuelQuestion();
         if(_advanceTimer) clearTimeout(_advanceTimer);
         _advanceTimer=setTimeout(()=>{ _advanceTimer=null; _renderQuestion(); },1000);
@@ -768,24 +753,24 @@ function _startTempoTimer(w:WordEntry): void {
 
 // ── Answers ───────────────────────────────────────────────────
 export async function _onOptionClick(chosen:string):Promise<void>{
-  if(_answered) return;
-  _answered=true;
+  if(state.duelRoom.answered) return;
+  state.duelRoom.answered=true;
   state.duelQuestion.chosenOption=chosen;
   if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
-  const ms=Date.now()-_answerStartMs;
+  const ms=Date.now()-state.duelRoom.answerStartMs;
   const correct=state.duelQuestion.choiceAnswer;
   const ok=chosen===correct;
   let feedbackHtml = '';
   if(ok){
-    const wasDouble = _doubleActive;
+    const wasDouble = state.duelRoom.doubleActive;
     const pts = wasDouble ? 2 : 1;
-    _myScore += pts; _myCorrect++;
-    _myFlags.push(wasDouble?'double':true);
-    if(wasDouble){ _doubleActive=false; feedbackHtml=`<span style="color:#f39c12">${t('duel.doublePts')}</span>`; }
+    state.duelRoom.myScore += pts; state.duelRoom.myCorrect++;
+    state.duelRoom.myFlags.push(wasDouble?'double':true);
+    if(wasDouble){ state.duelRoom.doubleActive=false; feedbackHtml=`<span style="color:#f39c12">${t('duel.doublePts')}</span>`; }
     else { feedbackHtml=`<span style="color:#27ae60">${t('duel.correct')}</span>`; }
   } else {
-    _myWrong++;
-    _myFlags.push(false);
+    state.duelRoom.myWrong++;
+    state.duelRoom.myFlags.push(false);
     feedbackHtml=`<span style="color:#e74c3c">✗ ${correct}</span>`;
   }
   state.duelQuestion.feedbackHtml=feedbackHtml;
@@ -794,31 +779,32 @@ export async function _onOptionClick(chosen:string):Promise<void>{
   refreshDuelFeedback();
   _renderPowerups();
   refreshDuelQuestion();
-  _quizIdx++; _renderMyProgressBar(); await _pushScore();
+  state.duelRoom.quizIdx++; notifyStateChange();
+  _renderMyProgressBar(); await _pushScore();
   if(_advanceTimer) clearTimeout(_advanceTimer);
-  _advanceTimer=setTimeout(()=>{ _advanceTimer=null; if(_quizIdx<_quizDeck.length)_renderQuestion();else _finishMyGame();},ok?600:1200);
+  _advanceTimer=setTimeout(()=>{ _advanceTimer=null; if(state.duelRoom.quizIdx<state.duelRoom.quizDeck.length)_renderQuestion();else _finishMyGame();},ok?600:1200);
 }
 
 export function _onInputChange(val:string): void { state.duelQuestion.writeInputValue=val; notifyStateChange(); }
 
 export function _submitWrite(): void {
-  if(_answered) return;
-  const w=_quizDeck[_quizIdx];
+  if(state.duelRoom.answered) return;
+  const w=state.duelRoom.quizDeck[state.duelRoom.quizIdx];
   const val=state.duelQuestion.writeInputValue.trim().toLowerCase(), ans=w[0].toLowerCase();
-  const ok = _checkWriteAnswer(_mode, val, ans);
-  const ms=Date.now()-_answerStartMs;
-  _answered=true;
+  const ok = _checkWriteAnswer(state.duelRoom.mode, val, ans);
+  const ms=Date.now()-state.duelRoom.answerStartMs;
+  state.duelRoom.answered=true;
   state.duelQuestion.inputBorderColor=ok?'#27ae60':'#e74c3c';
   let feedbackHtml='';
   if(ok){
-    const wasDouble=_doubleActive;
-    _myScore += wasDouble?2:1; _myCorrect++;
-    _myFlags.push(wasDouble?'double':true);
-    if(wasDouble){ _doubleActive=false; feedbackHtml=`<span style="color:#f39c12">${t('duel.doublePts')}</span>`; }
+    const wasDouble=state.duelRoom.doubleActive;
+    state.duelRoom.myScore += wasDouble?2:1; state.duelRoom.myCorrect++;
+    state.duelRoom.myFlags.push(wasDouble?'double':true);
+    if(wasDouble){ state.duelRoom.doubleActive=false; feedbackHtml=`<span style="color:#f39c12">${t('duel.doublePts')}</span>`; }
     else feedbackHtml=`<span style="color:#27ae60">${t('duel.correct')}</span>`;
   } else {
-    _myWrong++;
-    _myFlags.push(false);
+    state.duelRoom.myWrong++;
+    state.duelRoom.myFlags.push(false);
     feedbackHtml=`<span style="color:#e74c3c">✗ ${w[0]}</span>`;
   }
   state.duelQuestion.feedbackHtml=feedbackHtml;
@@ -828,19 +814,20 @@ export function _submitWrite(): void {
   refreshDuelFeedback();
   _renderPowerups();
   refreshDuelQuestion();
-  _quizIdx++; _renderMyProgressBar(); _pushScore();
+  state.duelRoom.quizIdx++; notifyStateChange();
+  _renderMyProgressBar(); _pushScore();
 }
 
 export function _onNextClick(): void {
   state.duelQuestion.showNextBtn=false;
   notifyStateChange();
-  if(_quizIdx<_quizDeck.length) _renderQuestion(); else _finishMyGame();
+  if(state.duelRoom.quizIdx<state.duelRoom.quizDeck.length) _renderQuestion(); else _finishMyGame();
 }
 
 export function _useHint(): void {
-  if(_hintsLeft<=0||_answered) return; // only before answering
-  const w=_quizDeck[_quizIdx]; if(!w) return;
-  if(_hintsLeft<999) _hintsLeft--;
+  if(state.duelRoom.hintsLeft<=0||state.duelRoom.answered) return; // only before answering
+  const w=state.duelRoom.quizDeck[state.duelRoom.quizIdx]; if(!w) return;
+  if(state.duelRoom.hintsLeft<999) state.duelRoom.hintsLeft--;
   const h=w[0];
   state.duelQuestion.hintNote=`💡 ${h.slice(0,Math.ceil(h.length/3))}...`;
   notifyStateChange();
@@ -870,51 +857,52 @@ export interface QuestionData {
   showNextBtn: boolean;
 }
 export function _getQuestionData(): QuestionData {
-  const isInput=_mode==='write'||_mode==='anagram'||_mode==='letters';
+  const isInput=state.duelRoom.mode==='write'||state.duelRoom.mode==='anagram'||state.duelRoom.mode==='letters';
   return {
-    mode:_mode,
-    quizIdx:_quizIdx,
+    mode:state.duelRoom.mode,
+    quizIdx:state.duelRoom.quizIdx,
     waiting:state.duelQuestion.waitingFinish,
-    myCorrect:_myCorrect,
-    myWrong:_myWrong,
+    myCorrect:state.duelRoom.myCorrect,
+    myWrong:state.duelRoom.myWrong,
     qPrimary:state.duelQuestion.qPrimary,
     qSecondary:state.duelQuestion.qSecondary,
     qTertiary:state.duelQuestion.qTertiary,
     hintNote:state.duelQuestion.hintNote,
     options:state.duelQuestion.choiceOptions.map((opt,i)=>{
       let cls='quiz-option';
-      if(_answered){
+      if(state.duelRoom.answered){
         if(opt===state.duelQuestion.chosenOption) cls += (state.duelQuestion.chosenOption===state.duelQuestion.choiceAnswer?' correct':' wrong');
         else if(state.duelQuestion.chosenOption!==state.duelQuestion.choiceAnswer && opt===state.duelQuestion.choiceAnswer) cls+=' reveal';
       }
       return {text:opt,num:i+1,cls};
     }),
-    answered:_answered,
+    answered:state.duelRoom.answered,
     showOptions: !isInput && !state.duelQuestion.waitingFinish,
     showInputRow: isInput && !state.duelQuestion.waitingFinish,
     inputBorderColor:state.duelQuestion.inputBorderColor,
-    showHintBtn:_mode==='write',
-    hintBtnText:_hintsLeft>=999?t('duel.hint.btn'):`💡 ×${_hintsLeft}`,
-    hintBtnDisabled:_hintsLeft<=0,
+    showHintBtn:state.duelRoom.mode==='write',
+    hintBtnText:state.duelRoom.hintsLeft>=999?t('duel.hint.btn'):`💡 ×${state.duelRoom.hintsLeft}`,
+    hintBtnDisabled:state.duelRoom.hintsLeft<=0,
     showNextBtn:state.duelQuestion.showNextBtn,
   };
 }
 
 async function _pushScore():Promise<void>{
   _saveSession();
-  try{await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`,{score:_myScore,idx:_quizIdx,flags:_myFlags});}catch(e){}
+  try{await _fbPatch(`/duel_rooms/${state.duelRoom.roomId}/${state.duelRoom.mySlot}`,{score:state.duelRoom.myScore,idx:state.duelRoom.quizIdx,flags:state.duelRoom.myFlags});}catch(e){}
 }
 
 async function _finishMyGame():Promise<void>{
   try{
-    await _fbPatch(`/duel_rooms/${_roomId}/${_mySlot}`,{score:_myScore,idx:_quizDeck.length,flags:_myFlags,done:true});
-    _myDone=true;
-    const room=await _fbGet(`/duel_rooms/${_roomId}`) as RoomData;
-    const opp=_mySlot==='p1'?room.p2:room.p1;
+    await _fbPatch(`/duel_rooms/${state.duelRoom.roomId}/${state.duelRoom.mySlot}`,{score:state.duelRoom.myScore,idx:state.duelRoom.quizDeck.length,flags:state.duelRoom.myFlags,done:true});
+    state.duelRoom.myDone=true;
+    notifyStateChange();
+    const room=await _fbGet(`/duel_rooms/${state.duelRoom.roomId}`) as RoomData;
+    const opp=state.duelRoom.mySlot==='p1'?room.p2:room.p1;
     if(opp?.done){
-      await _fbPatch(`/duel_rooms/${_roomId}`,{finished:true});
+      await _fbPatch(`/duel_rooms/${state.duelRoom.roomId}`,{finished:true});
       clearInterval(_pollTimer!); _pollTimer=null;
-      _showFinish({...room,[_mySlot]:{...room[_mySlot],score:_myScore,done:true}} as RoomData);
+      _showFinish({...room,[state.duelRoom.mySlot]:{...room[state.duelRoom.mySlot],score:state.duelRoom.myScore,done:true}} as RoomData);
     } else {
       state.duelQuestion.waitingFinish=true;
       state.duelQuestion.feedbackHtml=t('duel.waiting');
@@ -926,8 +914,9 @@ async function _finishMyGame():Promise<void>{
 }
 
 function _showFinish(room:RoomData):void{
-  if(_finished) return;
-  _finished=true;
+  if(state.duelRoom.finished) return;
+  state.duelRoom.finished=true;
+  notifyStateChange();
   // Tournament hook: if we're in a tournament match, report result and return to bracket
   const hook=_tournFinishHook;
   if(hook&&_tournId){
@@ -936,25 +925,26 @@ function _showFinish(room:RoomData):void{
     setTimeout(()=>{ _showTournament(); const t=_tournData; if(t) _renderTournBracket(t); },800);
     return;
   }
-  const me=room[_mySlot] as PlayerData;
-  const opp=(_mySlot==='p1'?room.p2:room.p1) as PlayerData;
+  const me=room[state.duelRoom.mySlot] as PlayerData;
+  const opp=(state.duelRoom.mySlot==='p1'?room.p2:room.p1) as PlayerData;
   const won=me.score>(opp?.score??0), tie=me.score===(opp?.score??0);
   const mInfo=DUEL_MODES.find(m=>m.id===room.mode)||DUEL_MODES[0];
 
   // Save history + rating
-  _addHistory({date:`${new Date().toLocaleDateString(_dateLocale())} ${new Date().toLocaleTimeString(_dateLocale(),{hour:'2-digit',minute:'2-digit'})}`,mode:room.mode,myScore:me.score,oppScore:opp?.score??0,oppName:opp?.name||_oppName||t('duel.opp'),won,category:room.category});
+  _addHistory({date:`${new Date().toLocaleDateString(_dateLocale())} ${new Date().toLocaleTimeString(_dateLocale(),{hour:'2-digit',minute:'2-digit'})}`,mode:room.mode,myScore:me.score,oppScore:opp?.score??0,oppName:opp?.name||state.duelRoom.oppName||t('duel.opp'),won,category:room.category});
   _updateRating(won,tie);
   _clearSession();
 
   // Best of 3 logic
   if(room.bestOf===3){
     const newSeries={...room.series};
-    if(won) { if(_mySlot==='p1') newSeries.p1wins++; else newSeries.p2wins++; }
-    else if(!tie) { if(_mySlot==='p1') newSeries.p2wins++; else newSeries.p1wins++; }
+    if(won) { if(state.duelRoom.mySlot==='p1') newSeries.p1wins++; else newSeries.p2wins++; }
+    else if(!tie) { if(state.duelRoom.mySlot==='p1') newSeries.p2wins++; else newSeries.p1wins++; }
     newSeries.round++;
-    const myW=_mySlot==='p1'?newSeries.p1wins:newSeries.p2wins;
-    const oppW=_mySlot==='p1'?newSeries.p2wins:newSeries.p1wins;
-    _series=newSeries;
+    const myW=state.duelRoom.mySlot==='p1'?newSeries.p1wins:newSeries.p2wins;
+    const oppW=state.duelRoom.mySlot==='p1'?newSeries.p2wins:newSeries.p1wins;
+    state.duelRoom.series=newSeries;
+    notifyStateChange();
     if(myW<2&&oppW<2&&newSeries.round<=3){
       // Series not decided — show next round
       $('duel-result-inner').innerHTML=
@@ -998,18 +988,19 @@ function _cancelRoom():void{
   if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
   if(_freezeTimer){clearTimeout(_freezeTimer);_freezeTimer=null;}
   if(_asyncStartTimer){clearTimeout(_asyncStartTimer);_asyncStartTimer=null;}
-  if(_roomId){
-    if(_isAsyncChallenge){
-      fetch(`${DB_URL}/duel_async/${_roomId}.json`,{method:'DELETE'}).catch(()=>{});
-    } else if(_mySlot==='p1') {
-      fetch(`${DB_URL}/duel_rooms/${_roomId}.json`,{method:'DELETE'}).catch(()=>{});
+  if(state.duelRoom.roomId){
+    if(state.duelRoom.isAsyncChallenge){
+      fetch(`${DB_URL}/duel_async/${state.duelRoom.roomId}.json`,{method:'DELETE'}).catch(()=>{});
+    } else if(state.duelRoom.mySlot==='p1') {
+      fetch(`${DB_URL}/duel_rooms/${state.duelRoom.roomId}.json`,{method:'DELETE'}).catch(()=>{});
     }
     // Remove spectator entry if spectator
-    if(_isSpectator&&_specId) fetch(`${DB_URL}/duel_rooms/${_roomId}/spectators/${_specId}.json`,{method:'DELETE'}).catch(()=>{});
-    _roomId='';
+    if(_isSpectator&&_specId) fetch(`${DB_URL}/duel_rooms/${state.duelRoom.roomId}/spectators/${_specId}.json`,{method:'DELETE'}).catch(()=>{});
+    state.duelRoom.roomId='';
   }
   _isSpectator=false;
-  _isAsyncChallenge=false;
+  state.duelRoom.isAsyncChallenge=false;
+  notifyStateChange();
   $('duel-waiting').style.display='none'; $('duel-join-row').style.display='block';
   const btn=$('duel-create-btn') as HTMLButtonElement; btn.disabled=false; btn.textContent=t('duel.create');
   const asyncBtn=$('duel-async-btn') as HTMLButtonElement|null; if(asyncBtn){ asyncBtn.disabled=false; asyncBtn.textContent=t('duel.sendChallenge'); }
@@ -1067,7 +1058,8 @@ async function joinAsSpectator(): Promise<void> {
   try {
     const room=await _fbGet(`/duel_rooms/${code}`) as RoomData|null;
     if(!room?.seed) throw new Error(t('duel.err.notFound'));
-    _isSpectator=true; _specId=_genCode(); _roomId=code;
+    _isSpectator=true; _specId=_genCode(); state.duelRoom.roomId=code;
+    notifyStateChange();
     await _fbPatch(`/duel_rooms/${code}/spectators/${_specId}`,{name:_getMyName(),avatar:_getMyAvatar()});
     _startSpectatorView(room);
   } catch(e){
@@ -1082,13 +1074,13 @@ function _startSpectatorView(room:RoomData): void {
   _renderSpectatorView(room);
   _pollTimer=setInterval(async()=>{
     try{
-      const r=await _fbGet(`/duel_rooms/${_roomId}`) as RoomData|null;
+      const r=await _fbGet(`/duel_rooms/${state.duelRoom.roomId}`) as RoomData|null;
       if(!r) return;
       _renderSpectatorView(r);
       if(r.finished){
         clearInterval(_pollTimer!); _pollTimer=null;
         // Clean up spectator entry in Firebase before leaving
-        if(_specId) fetch(`${DB_URL}/duel_rooms/${_roomId}/spectators/${_specId}.json`,{method:'DELETE'}).catch(()=>{});
+        if(_specId) fetch(`${DB_URL}/duel_rooms/${state.duelRoom.roomId}/spectators/${_specId}.json`,{method:'DELETE'}).catch(()=>{});
         _specId=''; _isSpectator=false;
         setTimeout(()=>{ el.style.display='none'; _showLobby(); renderDuel(); },3000);
       }
@@ -1130,9 +1122,10 @@ async function createAsyncChallenge(): Promise<void> {
     };
     await _fbSet(`/duel_async/${code}`, challenge);
     // Play immediately as challenger
-    _roomId=code; _mySlot='p1'; _isAsyncChallenge=true; _roomCreatedAt=challenge.createdAt;
-    _roomSeed=seed; _roomCategory=state.duelSel.category; _roomDifficulty=state.duelSel.difficulty; _roomMaxHints=state.duelSel.maxHints;
-    _quizDeck=_buildDeck(seed,state.duelSel.category,state.duelSel.difficulty,state.duelSel.mode);
+    state.duelRoom.roomId=code; state.duelRoom.mySlot='p1'; state.duelRoom.isAsyncChallenge=true; state.duelRoom.roomCreatedAt=challenge.createdAt;
+    state.duelRoom.roomSeed=seed; state.duelRoom.roomCategory=state.duelSel.category; state.duelRoom.roomDifficulty=state.duelSel.difficulty; state.duelRoom.roomMaxHints=state.duelSel.maxHints;
+    state.duelRoom.quizDeck=_buildDeck(seed,state.duelSel.category,state.duelSel.difficulty,state.duelSel.mode);
+    notifyStateChange();
     // Show code to share
     const codeEl=$('duel-room-code'); if(codeEl) codeEl.textContent=_fmtCode(code);
     const modeEl=$('duel-waiting-mode');
@@ -1161,24 +1154,25 @@ async function joinAsyncChallenge(): Promise<void> {
     if(challenge.finished) throw new Error(t('duel.err.chal.finished'));
     if(Date.now()>challenge.expiresAt) throw new Error(t('duel.err.chal.expired'));
     if(challenge.opponent) throw new Error(t('duel.err.chal.taken'));
-    _roomId=code; _mySlot='p2'; _isAsyncChallenge=true; _roomCreatedAt=challenge.createdAt||Date.now();
-    _roomSeed=challenge.seed; _roomCategory=challenge.category; _roomDifficulty=challenge.difficulty; _roomMaxHints=challenge.maxHints??3;
-    _quizDeck=_buildDeck(challenge.seed,challenge.category,challenge.difficulty,challenge.mode);
-    _oppName=challenge.challenger.name; _oppAvatar=challenge.challenger.avatar;
+    state.duelRoom.roomId=code; state.duelRoom.mySlot='p2'; state.duelRoom.isAsyncChallenge=true; state.duelRoom.roomCreatedAt=challenge.createdAt||Date.now();
+    state.duelRoom.roomSeed=challenge.seed; state.duelRoom.roomCategory=challenge.category; state.duelRoom.roomDifficulty=challenge.difficulty; state.duelRoom.roomMaxHints=challenge.maxHints??3;
+    state.duelRoom.quizDeck=_buildDeck(challenge.seed,challenge.category,challenge.difficulty,challenge.mode);
+    state.duelRoom.oppName=challenge.challenger.name; state.duelRoom.oppAvatar=challenge.challenger.avatar;
+    notifyStateChange();
     const mInfo=DUEL_MODES.find(m=>m.id===challenge.mode);
     elMsg().innerHTML=`<span style="color:var(--accent)">📬 ${challenge.challenger.avatar} <b>${challenge.challenger.name}</b> · ${mInfo?.icon} ${mInfo?t('duel.mode.'+mInfo.id):''}</span>`;
     elMsg().style.display='block';
     // Let the challenger know who accepted, so resume cards can show "vs <opponent>"
     _fbPatch(`/duel_async/${code}`,{opponent:{name:_getMyName(),avatar:_getMyAvatar(),score:0,done:false}}).catch(()=>{});
     if(_asyncStartTimer){clearTimeout(_asyncStartTimer);_asyncStartTimer=null;}
-    _asyncStartTimer=setTimeout(()=>{ _asyncStartTimer=null; elMsg().style.display='none'; _initGame(challenge.mode,_roomMaxHints,challenge.bestOf??1,{p1wins:0,p2wins:0,round:1},challenge.powerupsEnabled??false); }, 1800);
+    _asyncStartTimer=setTimeout(()=>{ _asyncStartTimer=null; elMsg().style.display='none'; _initGame(challenge.mode,state.duelRoom.roomMaxHints,challenge.bestOf??1,{p1wins:0,p2wins:0,round:1},challenge.powerupsEnabled??false); }, 1800);
   } catch(e){
     elMsg().textContent='❌ '+(e as Error).message; elMsg().style.display='block';
   }
 }
 
 function _doRematch():void{
-  if(_mySlot==='p1'){
+  if(state.duelRoom.mySlot==='p1'){
     // p1 creates a new room — show waiting screen
     _showLobby(); renderDuel();
     _cancelRoom(); createRoom();
@@ -1252,32 +1246,34 @@ export function _onResumeContinue(roomId:string): void {
   if(!found) return;
   const {sess,room}=found;
   _resumeValid=[]; state.duelResumeSessions=[]; notifyStateChange(); refreshDuelResume();
-  _roomId=sess.roomId; _mySlot=sess.slot; _mode=sess.mode;
-  _roomCreatedAt=sess.createdAt||room.createdAt||Date.now();
+  state.duelRoom.roomId=sess.roomId; state.duelRoom.mySlot=sess.slot; state.duelRoom.mode=sess.mode;
+  state.duelRoom.roomCreatedAt=sess.createdAt||room.createdAt||Date.now();
   const seed=sess.seed??room.seed, category=sess.category??room.category, difficulty=sess.difficulty??room.difficulty;
   const maxHints=sess.maxHints??room.maxHints, bestOf=sess.bestOf??room.bestOf;
-  _roomSeed=seed; _roomCategory=category; _roomDifficulty=difficulty; _roomMaxHints=maxHints;
-  _quizDeck=_buildDeck(seed,category,difficulty,sess.mode);
+  state.duelRoom.roomSeed=seed; state.duelRoom.roomCategory=category; state.duelRoom.roomDifficulty=difficulty; state.duelRoom.roomMaxHints=maxHints;
+  state.duelRoom.quizDeck=_buildDeck(seed,category,difficulty,sess.mode);
   const oppRoom=room[sess.slot==='p1'?'p2':'p1'];
-  _oppName=oppRoom?.name||sess.oppName||t('duel.opp');
-  _oppAvatar=oppRoom?.avatar||sess.oppAvatar||'🧑';
+  state.duelRoom.oppName=oppRoom?.name||sess.oppName||t('duel.opp');
+  state.duelRoom.oppAvatar=oppRoom?.avatar||sess.oppAvatar||'🧑';
+  notifyStateChange();
   const savedIdx=sess.idx,savedScore=sess.score;
   // Restore saved state directly, bypassing _initGame's reset+countdown
   // (which would re-zero score/progress and wipe chat a few seconds later).
   const series=room.series||{p1wins:0,p2wins:0,round:1};
-  _bestOf=bestOf||1; _series={...series};
+  state.duelRoom.bestOf=bestOf||1; state.duelRoom.series={...series};
   if(_advanceTimer){clearTimeout(_advanceTimer);_advanceTimer=null;}
-  _quizIdx=savedIdx; _myScore=savedScore;
-  _myCorrect=sess.correct??0; _myWrong=sess.wrong??0; _myFlags=sess.flags??[];
+  state.duelRoom.quizIdx=savedIdx; state.duelRoom.myScore=savedScore;
+  state.duelRoom.myCorrect=sess.correct??0; state.duelRoom.myWrong=sess.wrong??0; state.duelRoom.myFlags=sess.flags??[];
   state.duelChatHistory=sess.chat??[]; notifyStateChange();
-  _answered=false; _finished=false;
-  _hintsLeft = maxHints===0 ? 999 : maxHints;
-  _powerupsEnabled = sess.powerupsEnabled ?? !!room.powerupsEnabled;
+  state.duelRoom.answered=false; state.duelRoom.finished=false;
+  state.duelRoom.hintsLeft = maxHints===0 ? 999 : maxHints;
+  state.duelRoom.powerupsEnabled = sess.powerupsEnabled ?? !!room.powerupsEnabled;
   const savedPowerups = sess.myPowerups ?? room[sess.slot]?.powerups;
-  _myPowerups = savedPowerups ? {...savedPowerups} : (_powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0});
-  _doubleActive = false;
+  state.duelRoom.myPowerups = savedPowerups ? {...savedPowerups} : (state.duelRoom.powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0});
+  state.duelRoom.doubleActive = false;
   const savedDeckLen=sess.deckLen??ROOM_SIZE;
-  while(_quizDeck.length<savedDeckLen) _extendDeckOnSkip();
+  while(state.duelRoom.quizDeck.length<savedDeckLen) _extendDeckOnSkip();
+  notifyStateChange();
   _setupGameUI();
   _renderMyProgressBar();
   _showGame(false);
@@ -1536,7 +1532,7 @@ function _renderTournBracket(tourn:Tournament): void {
 async function _startTournMatch(tourn:Tournament, round:number, matchIdx:number): Promise<void> {
   const match=tourn.bracket[round][matchIdx];
   // Create a duel room for this match
-  _roomId=_genCode(); _mySlot=match.p1===_tournSlot?'p1':'p2';
+  state.duelRoom.roomId=_genCode(); state.duelRoom.mySlot=match.p1===_tournSlot?'p1':'p2';
   const seed=Date.now();
   const room:RoomData={
     seed, mode:tourn.mode, category:tourn.category, difficulty:tourn.difficulty,
@@ -1546,19 +1542,20 @@ async function _startTournMatch(tourn:Tournament, round:number, matchIdx:number)
     p1:{name:tourn.players[match.p1].name,avatar:tourn.players[match.p1].avatar,score:0,idx:0,done:false,hintsLeft:3,powerups:{double:0,skip:0,freeze:0}},
     p2:null,
   };
-  await _fbSet(`/duel_rooms/${_roomId}`,room);
+  await _fbSet(`/duel_rooms/${state.duelRoom.roomId}`,room);
   // Save room ID to tournament match
   const matchPath=`/tournaments/${_tournId}/bracket/${round}/${matchIdx}`;
-  await _fbPatch(matchPath,{roomId:_roomId});
-  _oppName=tourn.players[match.p1===_tournSlot?match.p2:match.p1].name;
-  _oppAvatar=tourn.players[match.p1===_tournSlot?match.p2:match.p1].avatar;
-  _quizDeck=_buildDeck(seed,tourn.category,tourn.difficulty,tourn.mode);
+  await _fbPatch(matchPath,{roomId:state.duelRoom.roomId});
+  state.duelRoom.oppName=tourn.players[match.p1===_tournSlot?match.p2:match.p1].name;
+  state.duelRoom.oppAvatar=tourn.players[match.p1===_tournSlot?match.p2:match.p1].avatar;
+  state.duelRoom.quizDeck=_buildDeck(seed,tourn.category,tourn.difficulty,tourn.mode);
+  notifyStateChange();
   _hideTournament();
   _initGame(tourn.mode,3,1,{p1wins:0,p2wins:0,round:1},false);
   // After game finishes, save result to tournament
   _tournFinishHook=async(roomData:RoomData)=>{
-    const me=roomData[_mySlot] as PlayerData;
-    const opp=(roomData[_mySlot==='p1'?'p2':'p1']) as PlayerData;
+    const me=roomData[state.duelRoom.mySlot] as PlayerData;
+    const opp=(roomData[state.duelRoom.mySlot==='p1'?'p2':'p1']) as PlayerData;
     const myScore=me.score, oppScore=opp?.score??0;
     const winner=myScore>oppScore?match.p1===_tournSlot?match.p1:match.p2:match.p1===_tournSlot?match.p2:match.p1;
     await _fbPatch(`/tournaments/${_tournId}/bracket/${round}/${matchIdx}`,{
@@ -1575,13 +1572,14 @@ async function _joinTournMatch(roomId:string): Promise<void> {
   try{
     const room=await _fbGet(`/duel_rooms/${roomId}`) as RoomData|null;
     if(!room) return;
-    _roomId=roomId; _mySlot='p2';
+    state.duelRoom.roomId=roomId; state.duelRoom.mySlot='p2';
     await _fbPatch(`/duel_rooms/${roomId}`,{
       p2:{name:_getMyName(),avatar:_getMyAvatar(),score:0,idx:0,done:false,hintsLeft:3,powerups:{double:0,skip:0,freeze:0}},
       started:true,
     });
-    _quizDeck=_buildDeck(room.seed,room.category,room.difficulty,room.mode);
-    _oppName=room.p1.name; _oppAvatar=room.p1.avatar;
+    state.duelRoom.quizDeck=_buildDeck(room.seed,room.category,room.difficulty,room.mode);
+    state.duelRoom.oppName=room.p1.name; state.duelRoom.oppAvatar=room.p1.avatar;
+    notifyStateChange();
     _hideTournament();
     _initGame(room.mode,3,1,{p1wins:0,p2wins:0,round:1},false);
   }catch(e){}
@@ -1676,7 +1674,7 @@ _chatInput?.addEventListener('keydown',(e:KeyboardEvent)=>{ if(e.key==='Enter') 
 
 document.addEventListener('keydown',(e:KeyboardEvent)=>{
   const game=$('duel-game'); if(!game||game.style.display==='none') return;
-  if(_mode!=='write'&&!_answered&&['1','2','3','4'].includes(e.key)){
+  if(state.duelRoom.mode!=='write'&&!state.duelRoom.answered&&['1','2','3','4'].includes(e.key)){
     e.preventDefault();
     const opt=state.duelQuestion.choiceOptions[parseInt(e.key)-1];
     if(opt) _onOptionClick(opt);
@@ -1734,7 +1732,7 @@ $('duel-page-close')?.addEventListener('click', async () => {
   // 24h async duel: leaving mid-question (or during the pre-game countdown)
   // never forfeits — the room stays alive, the session is saved, and the
   // player can resume the same question later from the lobby's resume banner.
-  if ((gameVisible && !_finished) || countdownVisible) {
+  if ((gameVisible && !state.duelRoom.finished) || countdownVisible) {
     if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
     if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
     if(_freezeTimer){clearTimeout(_freezeTimer);_freezeTimer=null;}

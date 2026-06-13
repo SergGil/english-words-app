@@ -110,6 +110,43 @@ export interface AppState {
   duelSpecRoom: import('../js/features/duel.ts').RoomData | null;
   duelTournView: import('../js/features/duel.ts').TournamentData | null;
   duelQuestion: DuelQuestionState;
+  duelRoom: DuelRoomState;
+}
+
+// Дуель: стан кімнати/гри (item 36, Фаза 7.4-B, під-фаза 7) — джерело
+// правди для `duel-game-header.tsx`/`duel-question.tsx`/`duel-powerups.tsx`
+// та session-persistence (`_saveSession`).
+export interface DuelRoomState {
+  roomId:           string;
+  mySlot:           'p1' | 'p2';
+  quizDeck:         WordEntry[];
+  quizIdx:          number;
+  myScore:          number;
+  myCorrect:        number;
+  myWrong:          number;
+  myFlags:          (boolean | 'skip' | 'double')[];
+  answered:         boolean;
+  mode:             import('../js/features/duel.ts').DuelMode;
+  finished:         boolean;
+  myDone:           boolean;
+  hintsLeft:        number;
+  series:           import('../js/features/duel.ts').SeriesData;
+  bestOf:           import('../js/features/duel.ts').BestOf;
+  answerStartMs:    number;
+  myPowerups:       Record<import('../js/features/duel.ts').PowerupType, number>;
+  doubleActive:     boolean;
+  powerupsEnabled:  boolean;
+  isAsyncChallenge: boolean;
+  oppName:          string;
+  oppAvatar:        string;
+  oppScore:         number;
+  oppIdx:           number;
+  oppFlags:         (boolean | 'skip' | 'double')[];
+  roomCreatedAt:    number;
+  roomSeed:         number;
+  roomCategory:     string;
+  roomDifficulty:   import('../js/features/duel.ts').Difficulty;
+  roomMaxHints:     number;
 }
 
 // Дуель: стан поточного питання/відповіді/фідбеку (item 36, Фаза 7.4-B,
