@@ -95,8 +95,7 @@ function $e(id: string): HTMLElement { return $el[id] as HTMLElement; }
 
 // Кеш DOM-елементів: уникаємо getElementById на кожен render()
 const $el: Record<string, HTMLElement | null> = {};
-['cidx','cknown',
- 'pbar','illus','card',
+['illus','card',
  'cb-similar','cb-families','cb-collocations'].forEach(function(id: string) {
   $el[id] = document.getElementById(id);
 });
@@ -233,9 +232,6 @@ function render() {
     state._mode = mode;
     if ($e('cb-families'))     $e('cb-families').style.display     = 'none';
     if ($e('cb-collocations')) $e('cb-collocations').style.display = 'none';
-    $e('cidx').textContent = (idx % deck.length + 1) + '/' + deck.length;
-    $e('cknown').textContent = String(_activeKnown().size);
-    $e('pbar').style.width = (_activeKnown().size / W.length * 100) + '%';
     _safe(() => renderCardIndicators(cw![0]));
     renderCardImage(cw[0], $e('illus'));
     const cardEl = $e('card');

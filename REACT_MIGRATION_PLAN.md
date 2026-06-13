@@ -170,7 +170,7 @@
     Той самий принцип, що й для `settings.ts` (Фаза 2, item 6) — лишається
     як є; обробники переїдуть у `<Card />` разом з відповідними кнопками
     в item 28.
-28. `app.ts` `render()` → головний `<Card />` компонент. Найризикованіший
+28. [x] `app.ts` `render()` → головний `<Card />` компонент. Найризикованіший
     крок — ділимо на під-кроки (кожен зі своїм tsc+vitest+commit+push):
     - 28a. [x] `#card-meta` (бейджі `#wnum`/`#wlang`/`#wcefr`/`#wcategory`/
       known-badge+`#btn-unmark`) → `CardMeta` компонент (`card-meta.tsx`,
@@ -197,13 +197,30 @@
       (реальний "флип" реалізовано через `.show`-класи на `#wtransl`/`#exua`
       у `#card-front`, item 28b). Блок видалено повністю; `#similar-words-mount`
       (item 26) переміщено напряму в `.card` як сестру `#card-front`.
-    - 28d. `#illus` (зображення) — ймовірно лишається імперативним
-      (складне кешування через IndexedDB/мережу), документується окремо.
-    - 28e. Кнопки дій (`actions-bar`, know/dontknow, quick-quiz,
-      `#cidx`/`#cknown`/`#pbar`, `.is-known`) — обробники з `card-actions.ts`
-      переїжджають у JSX `onClick`.
-    - 28f. Прибирання решток `render()`/`card-actions.ts`, фінальні
-      `window.*`-експорти.
+    - 28d. [x] `#illus` (зображення) — лишається імперативним: складне
+      кешування через `_imgCache`/IndexedDB (`_idb`), мережеві запити
+      (`loadWikiImage`) з callback'ами, що напряму пишуть `innerHTML`/
+      `style.display` у відповідь на асинхронні події. Перетворення на
+      React-стан вимагало б синхронізації цих callback'ів зі React-рендером
+      без явної переваги — лишено як є, `render()` продовжує викликати
+      `renderCardImage(cw[0], $e('illus'))`.
+    - 28e. [x] `#cidx`/`#cknown` (підзаголовок) та `#pbar` (progress bar) →
+      `card-progress.tsx` (`CardIdx`/`CardKnownCount`/`ProgressBar`),
+      кожен зі своїм `#xxx-mount`. `getActiveKnown(known)` (дублює логіку
+      `_activeKnown()`) винесено в `mode-utils.ts`.
+    - 28f. [x] Підсумок item 28: кнопки дій (`actions-bar`, know/dontknow,
+      quick-quiz, картка-клік/флип, `.is-known` клас на `#card`,
+      `#btn-dontknow` visibility) лишаються на статичних елементах,
+      обробники — в `card-actions.ts` (item 27, без власного шаблону,
+      той самий принцип що й `settings.ts`). `render()` лишається лінивим
+      ядром: оновлює `cw`/`flipped`/`_mode`, ховає `cb-families`/
+      `cb-collocations`, малює `#illus` (28d), `.is-known`,
+      `#btn-dontknow`, кільце прогресу, викликає `notifyStateChange()`
+      (item 24) — звідси React-компоненти 28a/28b/28c/28e перерендеряться.
+      Увесь *текстовий/реактивний вміст* картки (бейджі, слово, переклад,
+      приклади, SRS-бейдж, прогрес) тепер на React + сторі — основна мета
+      Фази 4 досягнута без переписування wiring-файлів (`card-actions.ts`,
+      `swipe.ts`, `keyboard.ts`), що дало б ризик без користі.
 
 ## Фаза 5 — Дуель (1862 рядків, найскладніше)
 Realtime Firebase-синхронізація, багато режимів дуелі, асинхронні челенджі,

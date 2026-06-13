@@ -127,3 +127,6 @@ mountCardMeta();
 
 const { mountCardFrontText } = await import('../js/features/card-front-text.tsx');
 mountCardFrontText();
+
+const { mountCardProgress } = await import('../js/features/card-progress.tsx');
+mountCardProgress();

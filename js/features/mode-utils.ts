@@ -45,6 +45,16 @@ export function getResolvedMode(): string {
   return state._mode || getMode();
 }
 
+// Той самий вибір активного набору "вивчених" слів, що й `_activeKnown()`
+// в app.ts/card-actions.ts — за поточним резолвленим режимом.
+export function getActiveKnown(known: Set<string>): Set<string> {
+  const mode = getResolvedMode();
+  const win = window as unknown as { knownEs?: Set<string>; knownFr?: Set<string> };
+  if (ES_MODES.has(mode)) return win.knownEs ?? known;
+  if (FR_MODES.has(mode)) return win.knownFr ?? known;
+  return known;
+}
+
 export interface CardView {
   FRONT_LANG: 'EN' | 'UA' | 'ES' | 'FR';
   frontWord: string;
