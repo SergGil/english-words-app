@@ -97,7 +97,6 @@ export function openIdioms(): void {
   (window.openPage as ((p: string) => void) | undefined)?.('idioms');
 }
 
-window.openIdiomsContent = openIdiomsContent;
 window.openIdioms = openIdioms;
 
 export function IdiomsPageRoot(): ReactElement {

@@ -74,6 +74,21 @@
   через `window.openPage`/`window.closePage`. Переписування сайдбару на
   React-роутинг (стан "активна сторінка" в `src/store.ts`) усуває
   найпоширеніший `window.*`-виклик одразу в десятках файлів.
+- **[x] Перший прохід — `openPage('duel'|'grammar'|'idioms')`**: 3
+  `window.*`-виклики (`renderDuel`, `openGrammarContent`,
+  `openIdiomsContent`) замінено на прямі імпорти — жодного циклу немає
+  (`duel.ts`/`grammar-page.tsx`/`idioms-page.tsx` не імпортують
+  `sidebar.ts`). Видалено мертвий `window.openIdiomsContent` (нічим не
+  читався після переходу). `window.openGrammarContent` і `window.renderDuel`
+  залишені — потрібні `i18n.ts`/`profile-switcher.tsx`, які імпортують
+  `duel.ts`/`grammar-page.tsx` ⇒ цикл з `sidebar.ts` неможливий, але цикл з
+  `i18n.ts` (бо `duel.ts`/`grammar-page.tsx` самі імпортують `i18n.ts` для
+  `t()`) — лишається.
+- **Залишок — не зроблено**: повне переписування `openPage`/`closePage`
+  системи (роутинг сторінок, `_activePage`, `MODE_OVERLAY_IDS`,
+  localStorage-restore) на React-стан у `src/store.ts` — окремий великий
+  під-проєкт; `daily-challenge.ts` не переглядався окремо (вже без
+  `window.*` після Фази 7.1).
 
 ### Фаза 7.3 — card-actions / swipe / keyboard (ядро картки)
 - `js/features/card-actions.ts` (324 рядки), `swipe.ts` (20), `keyboard.ts`

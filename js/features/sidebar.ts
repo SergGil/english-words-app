@@ -1,6 +1,9 @@
 // English Words App — js/features/sidebar.ts
 // Sidebar wiring, page-view system, theme toggles, img-clear confirm
 import { refreshAchievementsPage } from './achievements-page.tsx';
+import { renderDuel } from './duel.ts';
+import { openGrammarContent } from './grammar-page.tsx';
+import { openIdiomsContent } from './idioms-page.tsx';
 
 // ── Image cache clear confirm ──────────────────────────────────
 let _imgClearCb: (() => void) | null = null;
@@ -83,13 +86,13 @@ export function openPage(page: string): void {
     (window._refreshCloudSyncUI as (() => void) | undefined)?.();
   } else if (page === 'duel') {
     document.getElementById('duel-overlay')?.classList.add('open');
-    (window.renderDuel as (() => void) | undefined)?.();
+    renderDuel();
   } else if (page === 'grammar') {
     document.getElementById('grammar-overlay')?.classList.add('open');
-    (window.openGrammarContent as (() => void) | undefined)?.();
+    openGrammarContent();
   } else if (page === 'idioms') {
     document.getElementById('idioms-overlay')?.classList.add('open');
-    (window.openIdiomsContent as (() => void) | undefined)?.();
+    openIdiomsContent();
   } else if (page === 'learning-path') {
     document.getElementById('lp-overlay')?.classList.add('open');
     (window.openLearningPath as (() => void) | undefined)?.();
