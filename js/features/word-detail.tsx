@@ -11,6 +11,7 @@ import { W_FR } from '../../data/words_fr.js';
 import { isBookmarked, toggleBookmark } from './bookmarks.ts';
 import { ES_MODES, FR_MODES, esEntry as _esEntry, frEntry as _frEntry } from './mode-utils.ts';
 import { t, pluralLabel } from './i18n.ts';
+import { render, setIdx, onWordLearned as _onWordLearned } from '../core/card-engine.ts';
 import type { WordEntry } from '../../src/types.js';
 
 function _isEsMode(): boolean {
@@ -111,7 +112,7 @@ export function WordDetailPage(): ReactElement | null {
   const enExHtml = enEx ? enEx.replace(new RegExp(`(${escWord}\\w*)`, 'gi'), '<b>$1</b>') : '';
 
   function onKnow(): void {
-    (window.onWordLearned as ((w: WordEntry) => void) | undefined)?.(w);
+    _onWordLearned();
     state.known.add(w[0]);
     setKnown(true);
   }
@@ -138,14 +139,14 @@ export function WordDetailPage(): ReactElement | null {
     const sel = document.getElementById('sel-range') as HTMLSelectElement | null;
     const di = state.deck.findIndex(d => d[0] === word);
     if (di !== -1) {
-      (window.setIdx as ((i: number) => void) | undefined)?.(di);
-      (window.render as (() => void) | undefined)?.();
+      setIdx(di);
+      render();
     } else if (sel && sel.value !== '0') {
       sel.value = '0';
       sel.dispatchEvent(new Event('change'));
       setTimeout(() => {
         const di2 = state.deck.findIndex(d => d[0] === word);
-        if (di2 !== -1) { (window.setIdx as ((i: number) => void) | undefined)?.(di2); (window.render as (() => void) | undefined)?.(); }
+        if (di2 !== -1) { setIdx(di2); render(); }
       }, 100);
     }
   }

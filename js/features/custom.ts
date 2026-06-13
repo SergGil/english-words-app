@@ -6,6 +6,7 @@ import { recordCustomWordAdded } from './game.ts';
 import { t } from './i18n.ts';
 import { invalidateSimilarCache } from './similar-words.tsx';
 import { playSound } from '../core/audio.ts';
+import { setDeck } from '../core/card-engine.ts';
 
 type CustomWord = { en: string; ua: string; ex_en?: string; ex_ua?: string };
 type WordIdx = Map<string, number>;
@@ -53,7 +54,7 @@ function renderList(): void {
       renderList();
       const key = btn.closest('.custom-word-row')?.querySelector('.cw-en')?.textContent ?? '';
       if (key) {
-        (window.setDeck as ((d: unknown[]) => void) | undefined)?.(state.deck.filter(w => w[0] !== key));
+        setDeck(state.deck.filter(w => w[0] !== key));
       }
     });
   });

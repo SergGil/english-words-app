@@ -96,7 +96,7 @@ function _save2(): void {
   _refreshCard();
 }
 function _refreshCard(): void {
-  try { (window.render as (() => void) | undefined)?.(); } catch (e) {}
+  import('../core/card-engine.ts').then(({ render }) => render()).catch(() => {});
 }
 function _close(): void {
   if (_overlay) _overlay.style.display = 'none';

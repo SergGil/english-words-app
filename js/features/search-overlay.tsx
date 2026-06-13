@@ -8,6 +8,7 @@ import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 import { decodeIpa } from '../core/ui-helpers.ts';
 import { openWordDetail } from './word-detail.tsx';
 import { t } from './i18n.ts';
+import { render, setIdx } from '../core/card-engine.ts';
 import type { WordEntry } from '../../src/types.js';
 
 const MAX_RESULTS = 40;
@@ -37,8 +38,8 @@ function jumpTo(w: WordEntry, close: () => void): void {
   // If word is in current deck — navigate to it
   const di = state.deck.findIndex(d => d[0] === w[0]);
   if (di !== -1) {
-    (window.setIdx as ((i: number) => void) | undefined)?.(di);
-    (window.render as (() => void) | undefined)?.();
+    setIdx(di);
+    render();
     return;
   }
   // Word not in deck — switch to all-words range, find it there
@@ -49,8 +50,8 @@ function jumpTo(w: WordEntry, close: () => void): void {
     setTimeout(() => {
       const di2 = state.deck.findIndex(d => d[0] === w[0]);
       if (di2 !== -1) {
-        (window.setIdx as ((i: number) => void) | undefined)?.(di2);
-        (window.render as (() => void) | undefined)?.();
+        setIdx(di2);
+        render();
       }
     }, 80);
   }

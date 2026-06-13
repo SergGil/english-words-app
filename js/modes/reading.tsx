@@ -8,6 +8,7 @@ import { loadEpub } from '../features/epub.ts';
 import { decodeIpa } from '../core/ui-helpers.ts';
 import { closePage, openPage } from '../features/sidebar.ts';
 import { t, pluralLabel } from '../features/i18n.ts';
+import { onWordLearned } from '../core/card-engine.ts';
 import type { WordEntry } from '../../src/types.js';
 
 type TextEntry = { title: string; text: string; level: string };
@@ -154,7 +155,7 @@ export function ReadingPage(): ReactElement {
     if (!popup.known) {
       state.known.add(popup.word);
       saveKnown(state.known);
-      (window.onWordLearned as (() => void) | undefined)?.();
+      onWordLearned();
     }
     setPopup(null);
     setTick(x => x + 1);

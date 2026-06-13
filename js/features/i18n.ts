@@ -143,7 +143,7 @@ export function applyI18n(): void {
   // notifyStateChange()-обгортки).
   notifyStateChange();
   (window._refreshRangeOptions as (() => void) | undefined)?.();
-  (window.render as (() => void) | undefined)?.();
+  import('../core/card-engine.ts').then(({ render }) => render());
   if (document.getElementById('lp-overlay')?.classList.contains('open')) {
     (window.renderLearningPath as (() => void) | undefined)?.();
   }

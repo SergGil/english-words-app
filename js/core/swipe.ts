@@ -1,5 +1,7 @@
 // English Words App — js/core/swipe.ts
 // Touch swipe gestures on the flashcard
+import { state } from '../../src/state.ts';
+import { setFlipped } from './card-engine.ts';
 
 (function() {
   const card   = document.getElementById('card')!;
@@ -79,11 +81,11 @@
         }, 220);
       }
     } else if (absDy > 40 && dy < 0 && absDy > absDx * 1.2) {
-      if (!(window as any).flipped) {
+      if (!state.flipped) {
         card.classList.add('swipe-up');
         setTimeout(function() {
           card.classList.remove('swipe-up');
-          (window as any).flipped = true;
+          setFlipped(true);
           document.getElementById('wtransl')!.className = 'transl show';
           document.getElementById('exua')!.className    = 'ex-ua show';
         }, 200);

@@ -10,6 +10,7 @@ import { t } from './i18n.ts';
 import { ES_MODES, FR_MODES, getMode, esEntry as _esEntry, frEntry as _frEntry } from './mode-utils.ts';
 import { loadWikiImage } from '../core/images.ts';
 import { closePage } from './sidebar.ts';
+import { render, setIdx } from '../core/card-engine.ts';
 
 const todayNum = state.TODAY.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 0);
 const wotdBaseIdx = Math.abs(todayNum) % W.length;
@@ -51,9 +52,9 @@ function goToWord(word: WordEntry): void {
   const deck = state.deck as WordEntry[];
   let di = deck.findIndex(w => w[0] === word[0]);
   if (di === -1) { deck.push(word); di = deck.length - 1; }
-  (window.setIdx as ((i: number) => void) | undefined)?.(di);
+  setIdx(di);
   closePage();
-  (window.render as (() => void) | undefined)?.();
+  render();
 }
 
 export function WordOfDay(): ReactElement {

@@ -16,7 +16,7 @@ function activeKnown(): Set<string> {
 }
 
 function goToWord(word: string, after: () => void): void {
-  const deckNow = (window as any).deck as WordEntry[];
+  const deckNow = state.deck as unknown as WordEntry[];
   let di = deckNow.findIndex(w => w[0].toLowerCase() === word.toLowerCase());
   if (di === -1) {
     const wLow = word.toLowerCase();

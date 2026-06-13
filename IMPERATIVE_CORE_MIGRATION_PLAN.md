@@ -238,6 +238,30 @@
   `Object.defineProperty(deck/idx/flipped/cw)`) — Під-фаза D (найризикованіша:
   екстракція `js/core/card-engine.ts`) лишається в
   `C:\Users\Serhii\.claude\plans\temporal-roaming-quiche.md`.
+- **[x] Під-фаза D — `js/core/card-engine.ts`**: новий модуль володіє
+  `deck`/`idx`/`flipped`/`cw`/`autoTimer` (дзеркалюються у `state.*`) і
+  експортує `render`/`setIdx`/`setDeck`/`setFlipped`/`animCard`/
+  `stopAuto`/`startAuto`/`isAutoRunning`/`onWordLearned` (+ внутрішні
+  `_activeKnown`/`renderCardIndicators`/`renderCardImage`/`$e`/`$el`).
+  `app.ts` став тонким bootstrapper (~52 рядки): init-стан (`srsData`/
+  `known`/`knownEs`/`knownFr`/`_baseWords`/`_wordIdx`/`_customWords`) +
+  `renderGameBar()`/`renderLevelBadge()`/`checkAchievements()`/`render()`.
+  10 споживачів (`card-actions.ts`, `custom.ts`, `deck-mode.ts`,
+  `search-inline.tsx`, `keyboard.ts`, `swipe.ts`, `search-overlay.tsx`,
+  `word-detail.tsx`, `word-of-day.tsx`, `reading.tsx`) перейшли на прямий
+  `import ... from '../core/card-engine.ts'`. `i18n.ts`/`notes.ts`
+  (транзитивні залежності `card-engine.ts`) — динамічний
+  `import('../core/card-engine.ts').then(({ render }) => render())` для
+  уникнення циклу. `Object.defineProperty(window, deck/idx/flipped/cw)` і
+  решта 10 `window.*` видалені — лічильник для card-engine scope = 0
+  (`window._rebuildEsDeck`/`_rebuildFrDeck` у `deck-mode.ts` залишені
+  поза скоупом, як і раніше задокументовано). `card-actions.test.ts`:
+  замінено `win.*`-моки на `vi.mock('../../js/core/card-engine.ts', ...)`
+  з `vi.fn()`-обгортками (`setIdx`/`setDeck`/`setFlipped` дзеркалюють
+  `state.*`, як старі `win.*`-мокі); додано `registerCheckAchievements`/
+  `recordDailyWord`/`updateStreak`/`_idle` у мок `game.ts` (потрібні для
+  реальних викликів з `onWordLearned()`/`render-achievements.ts`).
+  529/529, tsc чистий. Фаза 7.3/7.5 (item 36) завершена.
 
 ## Верифікація
 
@@ -250,6 +274,6 @@
 
 - [x] Фаза 7.1 — i18n / learning-path refresh-checks
 - [x] Фаза 7.2 — daily-challenge.ts + sidebar.ts (роутинг сторінок)
-- [ ] Фаза 7.3 — card-actions / swipe / keyboard (ядро картки + стан деку)
+- [x] Фаза 7.3 — card-actions / swipe / keyboard (ядро картки + стан деку)
 - [ ] Фаза 7.4 — duel.ts
-- [ ] Фаза 7.5 — app.ts: прибрати `window.*`
+- [x] Фаза 7.5 — app.ts: прибрати `window.*`

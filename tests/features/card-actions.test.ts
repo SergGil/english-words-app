@@ -19,6 +19,10 @@ vi.mock('../../js/features/game.ts', () => ({
   saveGameData,
   getLevel: () => ({ name: '⭐ Test', min: 0, color: '#000', bg: '#fff' }),
   getNextLevel: () => null,
+  registerCheckAchievements: vi.fn(),
+  recordDailyWord: vi.fn(),
+  updateStreak: (d: unknown) => d,
+  _idle: (fn: () => void) => fn(),
 }));
 vi.mock('../../js/features/combo.ts', () => ({
   addCombo: vi.fn(), breakCombo: vi.fn(), flashCard: vi.fn(),
@@ -57,13 +61,32 @@ vi.mock('../../js/features/i18n.ts', () => ({
   t: (k: string) => k,
 }));
 
+const engineSetIdx = vi.fn((i: number) => { state.idx = i; });
+const engineSetDeck = vi.fn((d: WordEntry[]) => { state.deck = d; });
+const engineSetFlipped = vi.fn((v: boolean) => { state.flipped = v; });
+const engineRender = vi.fn();
+const engineAnimCard = vi.fn();
+const engineStopAuto = vi.fn();
+const engineStartAuto = vi.fn();
+const engineIsAutoRunning = vi.fn(() => false);
+const engineOnWordLearned = vi.fn();
+vi.mock('../../js/core/card-engine.ts', () => ({
+  setIdx: engineSetIdx,
+  setDeck: engineSetDeck,
+  setFlipped: engineSetFlipped,
+  render: engineRender,
+  animCard: engineAnimCard,
+  stopAuto: engineStopAuto,
+  startAuto: engineStartAuto,
+  isAutoRunning: engineIsAutoRunning,
+  onWordLearned: engineOnWordLearned,
+}));
+
 const W: WordEntry[] = [
   ['apple',  'яблуко',  'I eat an apple.',   'Я їм яблуко.'],
   ['banana', 'банан',   'The banana is yellow.', 'Банан жовтий.'],
   ['cat',    'кіт',     'The cat sleeps.',   'Кіт спить.'],
 ];
-
-let win: any;
 
 beforeAll(async () => {
   document.body.innerHTML = `
@@ -97,7 +120,6 @@ beforeAll(async () => {
   `;
 
   await import('../../js/features/card-actions.ts');
-  win = window as any;
 });
 
 function setRange(v: string): void {
@@ -117,17 +139,15 @@ beforeEach(() => {
   state.flipped = false;
   state.deck = W.slice() as unknown as WordEntry[];
   state.idx = 0;
-  win.setIdx = vi.fn((i: number) => { state.idx = i; });
-  win.setDeck = vi.fn((d: WordEntry[]) => { state.deck = d as unknown as WordEntry[]; });
-  win.setFlipped = vi.fn((v: boolean) => { state.flipped = v; });
-  win.render = vi.fn();
-  win.animCard = vi.fn();
-  win.stopAuto = vi.fn();
-  win.startAuto = vi.fn();
-  win.isAutoRunning = vi.fn(() => false);
-  win.onWordLearned = vi.fn();
-  win.renderGameBar = vi.fn();
-  win.renderLevelBadge = vi.fn();
+  engineSetIdx.mockClear();
+  engineSetDeck.mockClear();
+  engineSetFlipped.mockClear();
+  engineRender.mockClear();
+  engineAnimCard.mockClear();
+  engineStopAuto.mockClear();
+  engineStartAuto.mockClear();
+  engineIsAutoRunning.mockClear();
+  engineOnWordLearned.mockClear();
 
   gameData.goalCur = 0;
   gameData.goalMax = 20;
@@ -159,9 +179,9 @@ describe('btn-know', () => {
   it('rebuilds the SRS deck and resets index when range = srs', () => {
     document.getElementById('btn-know')!.click();
 
-    expect(win.setDeck).toHaveBeenCalled();
-    expect(win.setIdx).toHaveBeenCalledWith(0);
-    expect(win.render).toHaveBeenCalled();
+    expect(engineSetDeck).toHaveBeenCalled();
+    expect(engineSetIdx).toHaveBeenCalledWith(0);
+    expect(engineRender).toHaveBeenCalled();
   });
 
   it('drops stale SRS progress when marking known outside the SRS range', () => {
@@ -180,18 +200,18 @@ describe('btn-know', () => {
 
     document.getElementById('btn-know')!.click();
 
-    expect(win.setIdx).toHaveBeenCalledWith(1);
-    expect(win.render).toHaveBeenCalled();
+    expect(engineSetIdx).toHaveBeenCalledWith(1);
+    expect(engineRender).toHaveBeenCalled();
   });
 
   it('calls onWordLearned only the first time a word becomes known', () => {
     setRange('all');
     document.getElementById('btn-know')!.click();
-    expect(win.onWordLearned).toHaveBeenCalledTimes(1);
+    expect(engineOnWordLearned).toHaveBeenCalledTimes(1);
 
     state.cw = W[0]; // already known now
     document.getElementById('btn-know')!.click();
-    expect(win.onWordLearned).toHaveBeenCalledTimes(1);
+    expect(engineOnWordLearned).toHaveBeenCalledTimes(1);
   });
 
   it('launches confetti once the daily goal is reached for the first time', async () => {
@@ -214,7 +234,7 @@ describe('btn-know', () => {
     document.getElementById('btn-know')!.click();
 
     expect(state.known.size).toBe(0);
-    expect(win.render).toHaveBeenCalled();
+    expect(engineRender).toHaveBeenCalled();
   });
 });
 
@@ -235,8 +255,8 @@ describe('btn-dontknow', () => {
     document.getElementById('btn-dontknow')!.click();
 
     expect(loadSRS()['apple']).toBeDefined();
-    expect(win.setDeck).toHaveBeenCalled();
-    expect(win.setIdx).toHaveBeenCalledWith(0);
+    expect(engineSetDeck).toHaveBeenCalled();
+    expect(engineSetIdx).toHaveBeenCalledWith(0);
   });
 
   it('advances to the next card without rebuilding the deck when range != srs', () => {
@@ -245,8 +265,8 @@ describe('btn-dontknow', () => {
 
     document.getElementById('btn-dontknow')!.click();
 
-    expect(win.setDeck).not.toHaveBeenCalled();
-    expect(win.setIdx).toHaveBeenCalledWith(1);
+    expect(engineSetDeck).not.toHaveBeenCalled();
+    expect(engineSetIdx).toHaveBeenCalledWith(1);
   });
 });
 
@@ -309,17 +329,17 @@ describe('navigation buttons', () => {
   it('btn-shuf shuffles the deck, resets index and re-renders', () => {
     document.getElementById('btn-shuf')!.click();
 
-    expect(win.stopAuto).toHaveBeenCalled();
-    expect(win.setIdx).toHaveBeenCalledWith(0);
-    expect(win.render).toHaveBeenCalled();
+    expect(engineStopAuto).toHaveBeenCalled();
+    expect(engineSetIdx).toHaveBeenCalledWith(0);
+    expect(engineRender).toHaveBeenCalled();
   });
 
   it('btn-prev wraps around to the last card', () => {
     state.idx = 0;
     document.getElementById('btn-prev')!.click();
 
-    expect(win.setIdx).toHaveBeenCalledWith(W.length - 1);
-    expect(win.animCard).toHaveBeenCalledWith('prev');
+    expect(engineSetIdx).toHaveBeenCalledWith(W.length - 1);
+    expect(engineAnimCard).toHaveBeenCalledWith('prev');
   });
 
   it('btn-next advances the index and breaks the combo', async () => {
@@ -327,7 +347,7 @@ describe('navigation buttons', () => {
     state.idx = 0;
     document.getElementById('btn-next')!.click();
 
-    expect(win.setIdx).toHaveBeenCalledWith(1);
+    expect(engineSetIdx).toHaveBeenCalledWith(1);
     expect(breakCombo).toHaveBeenCalled();
   });
 });

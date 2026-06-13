@@ -19,23 +19,9 @@ import { t } from './i18n.ts';
 import { renderGameBar } from './render-game-bar.ts';
 import { refreshGameBarLevel } from './game-bar-level.tsx';
 import { updateRing } from './ring.ts';
+import { render, setIdx, setDeck, setFlipped, animCard, stopAuto, startAuto,
+         isAutoRunning, onWordLearned } from '../core/card-engine.ts';
 import type { WordEntry } from '../../src/types.js';
-
-// Typed view of the globals exposed by app.ts (setter/action functions —
-// avoids scattering `(window as any)` casts below). Read-only values
-// (cw/deck/idx/flipped/TODAY) are mirrored into state by app.ts on every
-// mutation, so they're read directly from `state` instead.
-const win = window as unknown as {
-  setIdx(i: number): void;
-  setDeck(d: WordEntry[]): void;
-  setFlipped(v: boolean): void;
-  render?: () => void;
-  animCard?: (dir: string) => void;
-  stopAuto?: () => void;
-  startAuto?: () => void;
-  isAutoRunning?: () => boolean;
-  onWordLearned?: () => void;
-};
 
 function _safe(fn: () => void): void {
   try { fn(); } catch (e) { console.warn('[safe]', (e as Error).message ?? e); }
@@ -51,7 +37,7 @@ function _activeKnown(): Set<string> {
 // ── Card flip ─────────────────────────────────────────────────
 document.getElementById('card')!.addEventListener('click', function() {
   if (!state.flipped) {
-    win.setFlipped(true);
+    setFlipped(true);
     document.getElementById('wtransl')!.className = 'transl show';
     document.getElementById('exua')!.className    = 'ex-ua show';
     _safe(() => updateSimilarWords());
@@ -156,12 +142,12 @@ if (isPronuncSupported()) {
 // ── Navigation buttons ────────────────────────────────────────
 document.getElementById('btn-prev')!.addEventListener('click', function(e) {
   e.stopPropagation();
-  win.stopAuto?.();
+  stopAuto();
   const deckLen = state.deck.length;
-  if (!deckLen) { win.render?.(); return; }
-  win.setIdx((state.idx - 1 + deckLen) % deckLen);
-  win.animCard?.('prev');
-  win.render?.();
+  if (!deckLen) { render(); return; }
+  setIdx((state.idx - 1 + deckLen) % deckLen);
+  animCard('prev');
+  render();
 });
 
 document.getElementById('btn-know')!.addEventListener('click', function(e) {
@@ -190,7 +176,7 @@ document.getElementById('btn-know')!.addEventListener('click', function(e) {
     _safe(() => playSound('know'));
     _safe(() => { addCombo(); flashCard(true); });
     if (isNewlyKnown) {
-      win.onWordLearned?.();
+      onWordLearned();
       _safe(() => {
         const gd = getGameData();
         if (gd.goalCur >= gd.goalMax && !gd.confettiShown) {
@@ -202,27 +188,27 @@ document.getElementById('btn-know')!.addEventListener('click', function(e) {
       });
     }
     if (rangeVal === 'srs') {
-      win.setDeck(buildSRSDeck(state._baseWords as unknown as WordEntry[]));
-      win.setIdx(0);
-      win.render?.();
+      setDeck(buildSRSDeck(state._baseWords as unknown as WordEntry[]));
+      setIdx(0);
+      render();
       return;
     }
     if (rangeVal === 'unlearned') {
       const newDeck = buildUnlearnedDeck(state._baseWords as unknown as WordEntry[]);
-      win.setDeck(newDeck);
+      setDeck(newDeck);
       const dl = state.deck.length;
-      if (!dl) { win.render?.(); return; }
-      win.setIdx(state.idx % dl);
-      win.animCard?.('fade');
-      win.render?.();
+      if (!dl) { render(); return; }
+      setIdx(state.idx % dl);
+      animCard('fade');
+      render();
       return;
     }
   }
   const deckLen = state.deck.length;
-  if (!deckLen) { win.render?.(); return; }
-  win.animCard?.('next');
-  win.setIdx((state.idx + 1) % deckLen);
-  win.render?.();
+  if (!deckLen) { render(); return; }
+  animCard('next');
+  setIdx((state.idx + 1) % deckLen);
+  render();
 });
 
 document.getElementById('btn-next')!.addEventListener('click', function(e) {
@@ -230,9 +216,9 @@ document.getElementById('btn-next')!.addEventListener('click', function(e) {
   _safe(() => playSound('next'));
   _safe(() => breakCombo());
   const deckLen = state.deck.length;
-  if (!deckLen) { win.render?.(); return; }
-  win.setIdx((state.idx + 1) % deckLen);
-  win.render?.();
+  if (!deckLen) { render(); return; }
+  setIdx((state.idx + 1) % deckLen);
+  render();
 });
 
 document.getElementById('btn-dontknow')!.addEventListener('click', function(e) {
@@ -247,34 +233,34 @@ document.getElementById('btn-dontknow')!.addEventListener('click', function(e) {
     _safe(() => breakCombo());
     const rangeVal = (document.getElementById('sel-range') as HTMLSelectElement)!.value;
     if (rangeVal === 'srs') {
-      win.setDeck(buildSRSDeck(state._baseWords as unknown as WordEntry[]));
-      win.setIdx(0);
-      win.render?.();
+      setDeck(buildSRSDeck(state._baseWords as unknown as WordEntry[]));
+      setIdx(0);
+      render();
       return;
     }
   }
   const deckLen = state.deck.length;
-  if (!deckLen) { win.render?.(); return; }
-  win.setIdx((state.idx + 1) % deckLen);
-  win.render?.();
+  if (!deckLen) { render(); return; }
+  setIdx((state.idx + 1) % deckLen);
+  render();
 });
 
 document.getElementById('btn-auto')!.addEventListener('click', function(e) {
   e.stopPropagation();
-  if (win.isAutoRunning?.()) {
-    win.stopAuto?.();
+  if (isAutoRunning()) {
+    stopAuto();
   } else {
     this.textContent = t('cards.stop');
-    win.startAuto?.();
+    startAuto();
   }
 });
 
 document.getElementById('btn-shuf')!.addEventListener('click', function(e) {
   e.stopPropagation();
-  win.stopAuto?.();
+  stopAuto();
   shuffle(state.deck as WordEntry[]);
-  win.setIdx(0);
-  win.render?.();
+  setIdx(0);
+  render();
 });
 
 document.getElementById('btn-reset')!.addEventListener('click', function(e) {
@@ -307,13 +293,13 @@ document.getElementById('modal-confirm')!.addEventListener('click', function() {
   if (cardEl) cardEl.classList.remove('is-known');
   const rangeVal = (document.getElementById('sel-range') as HTMLSelectElement)!.value;
   if (rangeVal === 'srs') {
-    win.setDeck(buildSRSDeck(state._baseWords as unknown as WordEntry[]));
+    setDeck(buildSRSDeck(state._baseWords as unknown as WordEntry[]));
   } else if (rangeVal === 'unlearned') {
-    win.setDeck(buildUnlearnedDeck(state._baseWords as unknown as WordEntry[]));
+    setDeck(buildUnlearnedDeck(state._baseWords as unknown as WordEntry[]));
   }
   _safe(() => renderGameBar());
   _safe(() => refreshGameBarLevel());
   _safe(() => updateRing());
-  _safe(() => win.render?.());
+  _safe(() => render());
   document.getElementById('modal-overlay')!.style.display = 'none';
 });

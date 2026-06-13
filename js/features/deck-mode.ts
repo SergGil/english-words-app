@@ -6,6 +6,7 @@ import { W_ES } from '../../data/words_es.js';
 import { W_FR } from '../../data/words_fr.js';
 import { ES_MODES, FR_MODES, getMode } from './mode-utils.ts';
 import { t } from './i18n.ts';
+import { render, setDeck, setIdx, stopAuto } from '../core/card-engine.ts';
 import type { WordEntry } from '../../src/types.js';
 
 let _esWords: WordEntry[] | null = null;
@@ -54,9 +55,9 @@ window._rebuildEsDeck = function(): void {
   const ats    = state._activeTagSet as Set<string> | null;
   let deck     = ats ? esDeck.filter(w => (ats as Set<string>).has(w[0])) : esDeck.slice();
   if (!deck.length) deck = esDeck.slice();
-  (window as any).setDeck(deck);
-  (window as any).setIdx(0);
-  (window as any).render?.();
+  setDeck(deck);
+  setIdx(0);
+  render();
 };
 
 window._rebuildFrDeck = function(): void {
@@ -65,13 +66,13 @@ window._rebuildFrDeck = function(): void {
   const ats    = state._activeTagSet as Set<string> | null;
   let deck     = ats ? frDeck.filter(w => (ats as Set<string>).has(w[0])) : frDeck.slice();
   if (!deck.length) deck = frDeck.slice();
-  (window as any).setDeck(deck);
-  (window as any).setIdx(0);
-  (window as any).render?.();
+  setDeck(deck);
+  setIdx(0);
+  render();
 };
 
 document.getElementById('sel-mode')!.addEventListener('change', function() {
-  (window as any).stopAuto?.();
+  stopAuto();
   const m          = (this as HTMLSelectElement).value;
   const isEsFr     = ES_FR_MODES.has(m);
   const isEs       = ES_MODES.has(m);
@@ -91,26 +92,26 @@ document.getElementById('sel-mode')!.addEventListener('change', function() {
         setTimeout(() => { _mt.className = 'milestone-toast'; }, 3500);
       }
       (this as HTMLSelectElement).value = 'en';
-      (window as any).render?.();
+      render();
       return;
     }
     if (!_preSpecialDeck) {
-      _preSpecialDeck = (window as any).deck as WordEntry[];
-      _preSpecialIdx  = (window as any).idx as number;
+      _preSpecialDeck = state.deck;
+      _preSpecialIdx  = state.idx;
       if (selRangeEl) selRangeEl.disabled = true;
     }
     const ats = state._activeTagSet as Set<string> | null;
     let deck = ats ? specialDeck.filter(w => (ats as Set<string>).has(w[0])) : specialDeck.slice();
     if (!deck.length) deck = specialDeck.slice();
-    (window as any).setDeck(deck);
-    (window as any).setIdx(0);
+    setDeck(deck);
+    setIdx(0);
   } else if (!isSpecial && _preSpecialDeck) {
-    (window as any).setDeck(_preSpecialDeck);
-    const deckLen = ((window as any).deck as WordEntry[]).length;
-    (window as any).setIdx(deckLen ? _preSpecialIdx % deckLen : 0);
+    setDeck(_preSpecialDeck);
+    const deckLen = (state.deck).length;
+    setIdx(deckLen ? _preSpecialIdx % deckLen : 0);
     _preSpecialDeck = null;
     if (selRangeEl) selRangeEl.disabled = false;
     if (selTagEl)   selTagEl.disabled   = false;
   }
-  (window as any).render?.();
+  render();
 });
