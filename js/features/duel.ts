@@ -16,13 +16,13 @@ import { DICT } from '../modes/word-letters.tsx';
 
 const DICT_SET = new Set(DICT);
 
-function _letterCounts(word: string): Record<string, number> {
+export function _letterCounts(word: string): Record<string, number> {
   const c: Record<string, number> = {};
   for (const ch of word) c[ch] = (c[ch] ?? 0) + 1;
   return c;
 }
 
-function _canForm(word: string, base: Record<string, number>): boolean {
+export function _canForm(word: string, base: Record<string, number>): boolean {
   const c: Record<string, number> = {};
   for (const ch of word) {
     c[ch] = (c[ch] ?? 0) + 1;
@@ -31,7 +31,7 @@ function _canForm(word: string, base: Record<string, number>): boolean {
   return true;
 }
 
-function _shuffleLetters(word: string): string {
+export function _shuffleLetters(word: string): string {
   const orig = word.toUpperCase().split('');
   let shuffled = orig;
   let tries = 0;
@@ -39,10 +39,18 @@ function _shuffleLetters(word: string): string {
   return shuffled.join(' ');
 }
 
+// Pure answer-check for write/anagram/letters modes (item 32 prep, Фаза 5).
+// `val`/`ans` мають бути вже trim()+toLowerCase().
+export function _checkWriteAnswer(mode: DuelMode, val: string, ans: string): boolean {
+  if (mode === 'letters') return val.length >= 3 && _canForm(val, _letterCounts(ans)) && DICT_SET.has(val);
+  return val === ans || (ans.length > 3 && lev(val, ans) <= 1);
+}
+
 // ── Constants ─────────────────────────────────────────────────
 const DB_URL    = 'https://english-words-trainer-557e8-default-rtdb.europe-west1.firebasedatabase.app';
-const CHARS     = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const ROOM_SIZE = 10, NUM_OPTS = 4;
+export const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+export const ROOM_SIZE = 10;
+const NUM_OPTS = 4;
 const TEMPO_SEC = 4;
 const REACTIONS = ['👍','😅','🔥','😂','🤯','😤','🎉','👏'];
 
@@ -222,15 +230,15 @@ function _clearSession(roomId?: string): void {
 // ── Deck building ─────────────────────────────────────────────
 function _dateLocale(): string { return getLang()==='en'?'en':getLang()==='es'?'es':'uk'; }
 function _secUnit(): string { return getLang()==='ua'?'с':'s'; }
-function _genCode(): string { return Array.from(crypto.getRandomValues(new Uint8Array(6)),v=>CHARS[v%CHARS.length]).join(''); }
-function _fmtCode(c:string): string { return c.slice(0,3)+'-'+c.slice(3); }
-function _rng(seed:number):()=>number{ let s=seed; return()=>{s=(s*1664525+1013904223)&0x7FFFFFFF;return s/0x7FFFFFFF;}; }
+export function _genCode(): string { return Array.from(crypto.getRandomValues(new Uint8Array(6)),v=>CHARS[v%CHARS.length]).join(''); }
+export function _fmtCode(c:string): string { return c.slice(0,3)+'-'+c.slice(3); }
+export function _rng(seed:number):()=>number{ let s=seed; return()=>{s=(s*1664525+1013904223)&0x7FFFFFFF;return s/0x7FFFFFFF;}; }
 
 // Words usable as a letter source for anagram/letters modes: plain a-z, 4-9 letters
 const _SCRAMBLE_POOL: WordEntry[] = (W as unknown as WordEntry[])
   .filter(w => /^[a-z]+$/i.test(w[0]) && w[0].length >= 4 && w[0].length <= 9);
 
-function _buildDeck(seed:number, category:string, difficulty:Difficulty, mode?:DuelMode): WordEntry[] {
+export function _buildDeck(seed:number, category:string, difficulty:Difficulty, mode?:DuelMode): WordEntry[] {
   const rnd = _rng(seed);
   const scramble = mode==='anagram'||mode==='letters';
   let pool = scramble ? _SCRAMBLE_POOL : (W as unknown as WordEntry[]);
@@ -843,12 +851,7 @@ function _submitWrite(): void {
   if(_answered) return;
   const w=_quizDeck[_quizIdx], inp=elInput();
   const val=inp.value.trim().toLowerCase(), ans=w[0].toLowerCase();
-  let ok:boolean;
-  if(_mode==='letters'){
-    ok = val.length>=3 && _canForm(val,_letterCounts(ans)) && DICT_SET.has(val);
-  } else {
-    ok = val===ans||(ans.length>3&&lev(val,ans)<=1);
-  }
+  const ok = _checkWriteAnswer(_mode, val, ans);
   const ms=Date.now()-_answerStartMs;
   _answered=true; inp.disabled=true;
   inp.style.borderColor=ok?'#27ae60':'#e74c3c';
