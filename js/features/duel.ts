@@ -19,6 +19,8 @@ import { refreshDuelPowerups } from './duel-powerups.tsx';
 import { refreshDuelFeedback } from './duel-feedback.tsx';
 import { refreshDuelChatLog } from './duel-chat-log.tsx';
 import { refreshDuelQuestion } from './duel-question.tsx';
+import { refreshDuelResume } from './duel-resume.tsx';
+import { refreshDuelTournament } from './duel-tournament.tsx';
 
 const DICT_SET = new Set(DICT);
 
@@ -187,7 +189,6 @@ let _isAsyncChallenge = false;
 let _asyncStartTimer: ReturnType<typeof setTimeout> | null = null;
 // Freeze timer
 let _freezeTimer: ReturnType<typeof setTimeout> | null = null;
-const _resumeCountdownTimers = new Map<string, ReturnType<typeof setInterval>>();
 let _oppName   = '';
 let _oppAvatar = '';
 let _oppScore  = 0;
@@ -1192,12 +1193,23 @@ function _doRematch():void{
 }
 
 // ── Session resume ────────────────────────────────────────────
+// Знімок даних для duel-resume.tsx (item 33, Фаза 5).
+export interface ResumeSessionVM {
+  roomId: string;
+  modeIcon: string;
+  modeLabel: string;
+  score: number;
+  roomSize: number;
+  oppText: string|null;
+  expiresAt: number;
+}
+let _resumeValid: {sess:DuelSession; room:RoomData}[] = [];
+let _resumeSessions: ResumeSessionVM[] = [];
+export function _getResumeSessions(): ResumeSessionVM[] { return _resumeSessions; }
+
 async function _tryResumeSession():Promise<void>{
-  const resumeEl=$('duel-resume') as HTMLElement|null; if(!resumeEl) return;
-  _resumeCountdownTimers.forEach(id=>clearInterval(id));
-  _resumeCountdownTimers.clear();
   const sessions=_loadSessions();
-  if(!sessions.length){ resumeEl.innerHTML=''; resumeEl.style.display='none'; return; }
+  if(!sessions.length){ _resumeValid=[]; _resumeSessions=[]; refreshDuelResume(); return; }
 
   const valid: {sess:DuelSession; room:RoomData}[] = [];
   for(const sess of sessions){
@@ -1209,7 +1221,7 @@ async function _tryResumeSession():Promise<void>{
       valid.push({sess,room});
     }catch(e){_clearSession(sess.roomId);}
   }
-  if(!valid.length){ resumeEl.innerHTML=''; resumeEl.style.display='none'; return; }
+  if(!valid.length){ _resumeValid=[]; _resumeSessions=[]; refreshDuelResume(); return; }
 
   // Show the duel with the least time left to finish first.
   valid.sort((a,b)=>{
@@ -1218,83 +1230,68 @@ async function _tryResumeSession():Promise<void>{
     return expA-expB;
   });
 
-  resumeEl.innerHTML=valid.map(({sess,room})=>{
+  _resumeValid=valid;
+  _resumeSessions=valid.map(({sess,room})=>{
     const opp=sess.slot==='p1'?room.p2:room.p1;
     const oppName=opp?.name||sess.oppName;
     const oppAvatar=opp?.avatar||sess.oppAvatar||'';
     const mInfo=DUEL_MODES.find(m=>m.id===sess.mode)||DUEL_MODES[0];
-    return `<div style="background:rgba(0,200,100,.1);border:1.5px solid var(--accent);border-radius:14px;padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">`+
-      `<div><div style="font-size:.82rem;font-weight:700;color:var(--accent);">${t('duel.resume.title')}</div>`+
-      `<div style="font-size:.75rem;color:var(--text3);margin-top:2px;">${mInfo.icon} ${t('duel.mode.'+mInfo.id)} · ${sess.score}/${ROOM_SIZE} ${t('duel.resume.pts')}${oppName?` · ${t('duel.resume.opp')} ${oppAvatar} ${oppName}`:''}</div>`+
-      `<div id="duel-resume-expiry-${sess.roomId}" style="font-size:.7rem;color:var(--text3);margin-top:4px;"></div></div>`+
-      `<div style="display:flex;gap:6px;">`+
-        `<button id="duel-resume-btn-${sess.roomId}" style="padding:7px 14px;border-radius:9px;border:none;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;font-family:inherit;font-size:.82rem;">${t('duel.resume.continue')}</button>`+
-        `<button id="duel-resume-discard-${sess.roomId}" style="padding:7px 12px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit;font-size:.78rem;">✕</button>`+
-      `</div></div>`;
-  }).join('');
-  resumeEl.style.display='block';
-
-  valid.forEach(({sess,room})=>{
-    // 24h-from-creation countdown until the room is considered expired
     const expiresAt=(sess.createdAt||room.createdAt||Date.now())+86_400_000;
-    const updateExpiry=()=>{
-      const expEl=$(`duel-resume-expiry-${sess.roomId}`) as HTMLElement|null;
-      if(!expEl){ const tm=_resumeCountdownTimers.get(sess.roomId); if(tm){clearInterval(tm);_resumeCountdownTimers.delete(sess.roomId);} return; }
-      const remaining=expiresAt-Date.now();
-      if(remaining<=0){
-        expEl.textContent=t('duel.resume.expired');
-        const tm=_resumeCountdownTimers.get(sess.roomId); if(tm){clearInterval(tm);_resumeCountdownTimers.delete(sess.roomId);}
-      } else {
-        const h=Math.floor(remaining/3600000), m=Math.floor((remaining%3600000)/60000), s=Math.floor((remaining%60000)/1000);
-        const time=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-        expEl.textContent=t('duel.resume.expires',{time});
-      }
+    return {
+      roomId:sess.roomId,
+      modeIcon:mInfo.icon,
+      modeLabel:t('duel.mode.'+mInfo.id),
+      score:sess.score,
+      roomSize:ROOM_SIZE,
+      oppText: oppName ? `${t('duel.resume.opp')} ${oppAvatar} ${oppName}` : null,
+      expiresAt,
     };
-    updateExpiry();
-    _resumeCountdownTimers.set(sess.roomId, setInterval(updateExpiry,1000));
-
-    $(`duel-resume-btn-${sess.roomId}`)?.addEventListener('click',()=>{
-      _resumeCountdownTimers.forEach(id=>clearInterval(id));
-      _resumeCountdownTimers.clear();
-      resumeEl.style.display='none'; resumeEl.innerHTML='';
-      _roomId=sess.roomId; _mySlot=sess.slot; _mode=sess.mode;
-      _roomCreatedAt=sess.createdAt||room.createdAt||Date.now();
-      const seed=sess.seed??room.seed, category=sess.category??room.category, difficulty=sess.difficulty??room.difficulty;
-      const maxHints=sess.maxHints??room.maxHints, bestOf=sess.bestOf??room.bestOf;
-      _roomSeed=seed; _roomCategory=category; _roomDifficulty=difficulty; _roomMaxHints=maxHints;
-      _quizDeck=_buildDeck(seed,category,difficulty,sess.mode);
-      const oppRoom=room[sess.slot==='p1'?'p2':'p1'];
-      _oppName=oppRoom?.name||sess.oppName||t('duel.opp');
-      _oppAvatar=oppRoom?.avatar||sess.oppAvatar||'🧑';
-      const savedIdx=sess.idx,savedScore=sess.score;
-      // Restore saved state directly, bypassing _initGame's reset+countdown
-      // (which would re-zero score/progress and wipe chat a few seconds later).
-      const series=room.series||{p1wins:0,p2wins:0,round:1};
-      _bestOf=bestOf||1; _series={...series};
-      if(_advanceTimer){clearTimeout(_advanceTimer);_advanceTimer=null;}
-      _quizIdx=savedIdx; _myScore=savedScore;
-      _myCorrect=sess.correct??0; _myWrong=sess.wrong??0; _myFlags=sess.flags??[];
-      _chatHistory=sess.chat??[];
-      _answered=false; _finished=false;
-      _hintsLeft = maxHints===0 ? 999 : maxHints;
-      _powerupsEnabled = sess.powerupsEnabled ?? !!room.powerupsEnabled;
-      const savedPowerups = sess.myPowerups ?? room[sess.slot]?.powerups;
-      _myPowerups = savedPowerups ? {...savedPowerups} : (_powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0});
-      _doubleActive = false;
-      const savedDeckLen=sess.deckLen??ROOM_SIZE;
-      while(_quizDeck.length<savedDeckLen) _extendDeckOnSkip();
-      _setupGameUI();
-      _renderMyProgressBar();
-      _showGame(false);
-      refreshDuelChatLog();
-      _renderQuestion();
-      _startOpponentPoll();
-    });
-    $(`duel-resume-discard-${sess.roomId}`)?.addEventListener('click',()=>{
-      _clearSession(sess.roomId);
-      _tryResumeSession();
-    });
   });
+  refreshDuelResume();
+}
+
+export function _onResumeContinue(roomId:string): void {
+  const found=_resumeValid.find(v=>v.sess.roomId===roomId);
+  if(!found) return;
+  const {sess,room}=found;
+  _resumeValid=[]; _resumeSessions=[]; refreshDuelResume();
+  _roomId=sess.roomId; _mySlot=sess.slot; _mode=sess.mode;
+  _roomCreatedAt=sess.createdAt||room.createdAt||Date.now();
+  const seed=sess.seed??room.seed, category=sess.category??room.category, difficulty=sess.difficulty??room.difficulty;
+  const maxHints=sess.maxHints??room.maxHints, bestOf=sess.bestOf??room.bestOf;
+  _roomSeed=seed; _roomCategory=category; _roomDifficulty=difficulty; _roomMaxHints=maxHints;
+  _quizDeck=_buildDeck(seed,category,difficulty,sess.mode);
+  const oppRoom=room[sess.slot==='p1'?'p2':'p1'];
+  _oppName=oppRoom?.name||sess.oppName||t('duel.opp');
+  _oppAvatar=oppRoom?.avatar||sess.oppAvatar||'🧑';
+  const savedIdx=sess.idx,savedScore=sess.score;
+  // Restore saved state directly, bypassing _initGame's reset+countdown
+  // (which would re-zero score/progress and wipe chat a few seconds later).
+  const series=room.series||{p1wins:0,p2wins:0,round:1};
+  _bestOf=bestOf||1; _series={...series};
+  if(_advanceTimer){clearTimeout(_advanceTimer);_advanceTimer=null;}
+  _quizIdx=savedIdx; _myScore=savedScore;
+  _myCorrect=sess.correct??0; _myWrong=sess.wrong??0; _myFlags=sess.flags??[];
+  _chatHistory=sess.chat??[];
+  _answered=false; _finished=false;
+  _hintsLeft = maxHints===0 ? 999 : maxHints;
+  _powerupsEnabled = sess.powerupsEnabled ?? !!room.powerupsEnabled;
+  const savedPowerups = sess.myPowerups ?? room[sess.slot]?.powerups;
+  _myPowerups = savedPowerups ? {...savedPowerups} : (_powerupsEnabled ? {double:1,skip:1,freeze:1} : {double:0,skip:0,freeze:0});
+  _doubleActive = false;
+  const savedDeckLen=sess.deckLen??ROOM_SIZE;
+  while(_quizDeck.length<savedDeckLen) _extendDeckOnSkip();
+  _setupGameUI();
+  _renderMyProgressBar();
+  _showGame(false);
+  refreshDuelChatLog();
+  _renderQuestion();
+  _startOpponentPoll();
+}
+
+export function _onResumeDiscard(roomId:string): void {
+  _clearSession(roomId);
+  _tryResumeSession();
 }
 
 // ── Tournament ────────────────────────────────────────────────
@@ -1317,6 +1314,42 @@ let _tournFinishHook: ((r:RoomData)=>void) | null = null;
 
 function _showTournament() { elLobby().style.display='none'; ($('duel-tournament') as HTMLElement).style.display=''; elChatPanel().style.display='none'; }
 function _hideTournament() { ($('duel-tournament') as HTMLElement).style.display='none'; }
+
+// Знімок даних для duel-tournament.tsx (item 33, Фаза 5).
+export interface TournSlotVM { filled:boolean; avatar:string; name:string; label:string; }
+export interface TournPlayerVM { name:string; avatar:string; won:boolean; }
+export interface TournMatchVM { p1:TournPlayerVM; p2:TournPlayerVM; done:boolean; active:boolean; scoreText:string|null; }
+export interface TournRoundVM { name:string; matches:TournMatchVM[]; }
+export type TournMatchArea =
+  | { kind:'none' }
+  | { kind:'champion' }
+  | { kind:'play' }
+  | { kind:'rejoin' }
+  | { kind:'waiting'; oppName:string };
+export interface TournamentData {
+  phase: 'waiting'|'bracket';
+  code: string;
+  modeLabel: string;
+  slots: TournSlotVM[];
+  joined: number;
+  size: number;
+  showStartBtn: boolean;
+  startBtnLabel: string;
+  finished: boolean;
+  champion: string;
+  statusLabel: string;
+  statusColor: string;
+  rounds: TournRoundVM[];
+  matchArea: TournMatchArea;
+}
+let _tournView: TournamentData|null = null;
+let _tournPlayCtx: {tourn:Tournament; round:number; matchIdx:number} | null = null;
+let _tournRejoinRoomId: string|null = null;
+export function _getTournamentData(): TournamentData|null { return _tournView; }
+export function _onTournStart(): void { startTournament(); }
+export function _onTournCancel(): void { _cancelTournament(); }
+export function _onTournPlay(): void { if(_tournPlayCtx) _startTournMatch(_tournPlayCtx.tourn,_tournPlayCtx.round,_tournPlayCtx.matchIdx); }
+export function _onTournRejoin(): void { if(_tournRejoinRoomId) _joinTournMatch(_tournRejoinRoomId); }
 
 function _buildBracket(size:4|8): TournMatch[][] {
   // Single-elimination bracket
@@ -1394,24 +1427,25 @@ async function joinTournament(): Promise<void> {
 }
 
 function _renderTournWaiting(tourn:Tournament): void {
-  const wEl=$('tourn-waiting') as HTMLElement;
-  const bEl=$('tourn-bracket') as HTMLElement;
-  wEl.style.display=''; bEl.style.display='none';
-  ($('tourn-code') as HTMLElement).textContent=_fmtCode(_tournId);
   const mInfo=DUEL_MODES.find(m=>m.id===tourn.mode)||DUEL_MODES[0];
-  ($('tourn-mode-label') as HTMLElement).textContent=`${mInfo.icon} ${t('duel.mode.'+tourn.mode)} · ${tourn.size} ${t('duel.tourn.players')}`;
-  const slotsEl=$('tourn-slots') as HTMLElement;
-  slotsEl.innerHTML=Array.from({length:tourn.size},(_,i)=>{
+  const slots:TournSlotVM[]=Array.from({length:tourn.size},(_,i)=>{
     const p=tourn.players[i];
-    return `<div style="padding:8px 10px;border-radius:10px;border:1.5px solid ${p?'var(--accent)':'var(--border)'};background:${p?'rgba(0,200,100,.06)':'var(--bg)'};text-align:center;">
-      ${p?`<span style="font-size:1.2rem;">${p.avatar}</span> <span style="font-size:.8rem;font-weight:600;color:var(--text);">${p.name}</span>`
-         :`<span style="color:var(--text3);font-size:.78rem;">${t('duel.tourn.slot')} ${i+1}</span>`}
-    </div>`;
-  }).join('');
+    return p
+      ? {filled:true, avatar:p.avatar, name:p.name, label:''}
+      : {filled:false, avatar:'', name:'', label:`${t('duel.tourn.slot')} ${i+1}`};
+  });
   const joined=Object.keys(tourn.players).length;
-  const startBtn=$('tourn-start-btn') as HTMLButtonElement;
-  startBtn.style.display=(_tournSlot===0&&joined===tourn.size)?'':'none';
-  startBtn.textContent=`${t('duel.tourn.start')} (${joined}/${tourn.size})`;
+  _tournView={
+    phase:'waiting',
+    code:_fmtCode(_tournId),
+    modeLabel:`${mInfo.icon} ${t('duel.mode.'+tourn.mode)} · ${tourn.size} ${t('duel.tourn.players')}`,
+    slots, joined, size:tourn.size,
+    showStartBtn:_tournSlot===0&&joined===tourn.size,
+    startBtnLabel:`${t('duel.tourn.start')} (${joined}/${tourn.size})`,
+    finished:false, champion:'', statusLabel:'', statusColor:'',
+    rounds:[], matchArea:{kind:'none'},
+  };
+  refreshDuelTournament();
 }
 
 function _startTournWaitPoll(): void {
@@ -1447,58 +1481,58 @@ async function startTournament(): Promise<void> {
 }
 
 function _renderTournBracket(tourn:Tournament): void {
-  const wEl=$('tourn-waiting') as HTMLElement;
-  const bEl=$('tourn-bracket') as HTMLElement;
-  wEl.style.display='none'; bEl.style.display='';
   const totalRounds=tourn.bracket.length;
-  const statusEl=$('tourn-status-label') as HTMLElement;
+  let statusLabel:string, statusColor:string;
   if(tourn.finished){
-    statusEl.innerHTML=`🏆 ${t('duel.tourn.champion')} ${tourn.champion}!`;
-    statusEl.style.color='#f39c12';
+    statusLabel=`🏆 ${t('duel.tourn.champion')} ${tourn.champion}!`;
+    statusColor='#f39c12';
   } else {
-    statusEl.textContent=`${_tournRoundName(tourn.currentRound,totalRounds)} · ${t('duel.tourn.match')} ${tourn.currentMatch+1}`;
-    statusEl.style.color='var(--text3)';
+    statusLabel=`${_tournRoundName(tourn.currentRound,totalRounds)} · ${t('duel.tourn.match')} ${tourn.currentMatch+1}`;
+    statusColor='var(--text3)';
   }
-  // Bracket visual
-  const visEl=$('tourn-bracket-visual') as HTMLElement;
-  visEl.innerHTML=tourn.bracket.map((round,ri)=>{
-    const rName=_tournRoundName(ri,totalRounds);
-    return `<div style="margin-bottom:10px;">
-      <div style="font-size:.68rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">${rName}</div>
-      ${round.map((m,mi)=>{
-        const p1=tourn.players[m.p1]??{name:'?',avatar:'?'};
-        const p2=tourn.players[m.p2]??{name:'?',avatar:'?'};
-        const active=ri===tourn.currentRound&&mi===tourn.currentMatch&&!m.done;
-        const done=m.done;
-        return `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:9px;border:1.5px solid ${active?'var(--accent)':done?'var(--border)':'var(--border)'};background:${active?'rgba(0,200,100,.06)':'transparent'};margin-bottom:4px;">
-          <span style="${m.winner===m.p1?'font-weight:700;color:var(--accent)':'color:var(--text2)'}">${p1.avatar} ${p1.name}</span>
-          ${done?`<span style="font-size:.75rem;font-weight:700;color:var(--text3);">${m.p1score}:${m.p2score}</span>`:'<span style="color:var(--text3);font-size:.72rem;">vs</span>'}
-          <span style="${m.winner===m.p2?'font-weight:700;color:var(--accent)':'color:var(--text2)'}">${p2.avatar} ${p2.name}</span>
-          ${active?`<span style="font-size:.65rem;color:var(--accent);margin-left:auto;">${t('duel.tourn.now')}</span>`:''}
-        </div>`;
-      }).join('')}
-    </div>`;
-  }).join('');
+  const rounds:TournRoundVM[]=tourn.bracket.map((round,ri)=>({
+    name:_tournRoundName(ri,totalRounds),
+    matches:round.map((m,mi)=>{
+      const p1=tourn.players[m.p1]??{name:'?',avatar:'?'};
+      const p2=tourn.players[m.p2]??{name:'?',avatar:'?'};
+      return {
+        p1:{name:p1.name,avatar:p1.avatar,won:m.winner===m.p1},
+        p2:{name:p2.name,avatar:p2.avatar,won:m.winner===m.p2},
+        done:m.done,
+        active:ri===tourn.currentRound&&mi===tourn.currentMatch&&!m.done,
+        scoreText:m.done?`${m.p1score}:${m.p2score}`:null,
+      };
+    }),
+  }));
   // Match area — show play button if it's my turn
-  const matchEl=$('tourn-match-area') as HTMLElement;
+  let matchArea:TournMatchArea;
+  _tournPlayCtx=null; _tournRejoinRoomId=null;
   if(tourn.finished){
-    matchEl.innerHTML=`<div style="text-align:center;padding:16px;"><div style="font-size:3rem;">🏆</div><div style="font-weight:700;font-size:1.1rem;color:#f39c12;margin-top:8px;">${tourn.champion} — ${t('duel.tourn.champ.excl')}</div><button id="tourn-leave-btn" style="margin-top:14px;padding:8px 20px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:inherit;font-size:.82rem;">${t('duel.tourn.leave')}</button></div>`;
-    $('tourn-leave-btn')?.addEventListener('click',()=>{ _cancelTournament(); });
-    return;
-  }
-  const curMatch=tourn.bracket[tourn.currentRound]?.[tourn.currentMatch];
-  if(!curMatch||curMatch.done){ matchEl.innerHTML=''; return; }
-  const myTurn=curMatch.p1===_tournSlot||curMatch.p2===_tournSlot;
-  if(myTurn&&!curMatch.roomId){
-    matchEl.innerHTML=`<button id="tourn-play-btn" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.9rem;">${t('duel.tourn.play')}</button>`;
-    $('tourn-play-btn')?.addEventListener('click',()=>_startTournMatch(tourn,tourn.currentRound,tourn.currentMatch));
-  } else if(myTurn&&curMatch.roomId){
-    matchEl.innerHTML=`<button id="tourn-rejoin-btn" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.9rem;">${t('duel.tourn.rejoin')}</button>`;
-    $('tourn-rejoin-btn')?.addEventListener('click',()=>_joinTournMatch(curMatch.roomId));
+    matchArea={kind:'champion'};
   } else {
-    const opp=curMatch.p1===_tournSlot?tourn.players[curMatch.p2]:tourn.players[curMatch.p1];
-    matchEl.innerHTML=`<div style="text-align:center;padding:12px;color:var(--text3);font-size:.82rem;">⏳ ${t('duel.tourn.waiting.match')}: ${opp?.name||'?'} vs …<br>${t('duel.tourn.turn.later')}</div>`;
+    const curMatch=tourn.bracket[tourn.currentRound]?.[tourn.currentMatch];
+    if(!curMatch||curMatch.done){
+      matchArea={kind:'none'};
+    } else {
+      const myTurn=curMatch.p1===_tournSlot||curMatch.p2===_tournSlot;
+      if(myTurn&&!curMatch.roomId){
+        matchArea={kind:'play'};
+        _tournPlayCtx={tourn,round:tourn.currentRound,matchIdx:tourn.currentMatch};
+      } else if(myTurn&&curMatch.roomId){
+        matchArea={kind:'rejoin'};
+        _tournRejoinRoomId=curMatch.roomId;
+      } else {
+        const opp=curMatch.p1===_tournSlot?tourn.players[curMatch.p2]:tourn.players[curMatch.p1];
+        matchArea={kind:'waiting',oppName:opp?.name||'?'};
+      }
+    }
   }
+  _tournView={
+    phase:'bracket', code:'', modeLabel:'', slots:[], joined:0, size:tourn.size,
+    showStartBtn:false, startBtnLabel:'',
+    finished:tourn.finished, champion:tourn.champion, statusLabel, statusColor, rounds, matchArea,
+  };
+  refreshDuelTournament();
 }
 
 async function _startTournMatch(tourn:Tournament, round:number, matchIdx:number): Promise<void> {
@@ -1616,8 +1650,6 @@ $('duel-async-join-btn')?.addEventListener('click',joinAsyncChallenge);
 $('tourn-create-4')?.addEventListener('click',()=>createTournament(4));
 $('tourn-create-8')?.addEventListener('click',()=>createTournament(8));
 $('tourn-join-btn')?.addEventListener('click',joinTournament);
-$('tourn-start-btn')?.addEventListener('click',startTournament);
-$('tourn-cancel-btn')?.addEventListener('click',_cancelTournament);
 
 $('duel-join-input')?.addEventListener('keydown',(e:KeyboardEvent)=>{
   const inp=e.target as HTMLInputElement;

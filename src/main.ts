@@ -160,3 +160,9 @@ mountDuelChatLog();
 
 const { mountDuelQuestion } = await import('../js/features/duel-question.tsx');
 mountDuelQuestion();
+
+const { mountDuelResume } = await import('../js/features/duel-resume.tsx');
+mountDuelResume();
+
+const { mountDuelTournament } = await import('../js/features/duel-tournament.tsx');
+mountDuelTournament();

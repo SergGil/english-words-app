@@ -609,8 +609,8 @@
         <div style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:10px;" data-i18n="duel.online">⚡ Онлайн дуель</div>
         <div id="duel-msg" style="display:none;font-size:.82rem;padding:8px 12px;border-radius:10px;background:var(--bg);color:var(--text2);margin-bottom:10px;"></div>
 
-        <!-- Resume banner (shown if active session found) -->
-        <div id="duel-resume" style="display:none;"></div>
+        <!-- Resume banner (React, duel-resume.tsx) -->
+        <div id="duel-resume-mount"></div>
 
         <!-- W/L Rating -->
         <div id="duel-rating-row" style="font-size:.75rem;color:var(--accent);margin-bottom:12px;text-align:center;font-weight:600;"></div>
@@ -676,25 +676,9 @@
       <!-- SPECTATOR VIEW (React, duel-spectator.tsx) -->
       <div id="duel-spectate" style="display:none;"><div id="duel-spectate-mount"></div></div>
 
-      <!-- TOURNAMENT VIEW -->
+      <!-- TOURNAMENT VIEW (React, duel-tournament.tsx) -->
       <div id="duel-tournament" style="display:none;">
-        <!-- Waiting room -->
-        <div id="tourn-waiting" style="display:none;">
-          <div style="text-align:center;margin-bottom:14px;">
-            <div style="font-size:.72rem;color:var(--text3);margin-bottom:6px;" data-i18n="duel.tournCode">Код турніру:</div>
-            <div id="tourn-code" style="font-family:monospace;font-size:1.8rem;font-weight:900;color:var(--accent);letter-spacing:.15em;"></div>
-            <div id="tourn-mode-label" style="font-size:.75rem;color:var(--accent);margin-top:4px;"></div>
-          </div>
-          <div id="tourn-slots" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"></div>
-          <button id="tourn-start-btn" style="display:none;width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.9rem;">⚔️ Почати турнір</button>
-          <button id="tourn-cancel-btn" data-i18n="duel.tourn.cancel" style="width:100%;padding:8px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit;font-size:.78rem;margin-top:6px;">✕ Скасувати</button>
-        </div>
-        <!-- Bracket view -->
-        <div id="tourn-bracket" style="display:none;">
-          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:10px;" id="tourn-status-label">Турнір</div>
-          <div id="tourn-bracket-visual"></div>
-          <div id="tourn-match-area" style="margin-top:14px;"></div>
-        </div>
+        <div id="duel-tournament-mount"></div>
       </div>
 
       <!-- COUNTDOWN -->

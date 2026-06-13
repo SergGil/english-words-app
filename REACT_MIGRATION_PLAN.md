@@ -316,14 +316,38 @@ Realtime Firebase-синхронізація, багато режимів дуе
     експортовано з `duel.ts`, використовується і з React-кнопки, і зі
     smart close-кнопки). Polling (`_startSpectatorView`/`_pollTimer`)
     лишається в `duel.ts` без змін.
-    Async-челенджі й турнірна сітка **залишаються imperative** з тієї ж
-    причини, що й раніше: `_startResultPoll`, `_startWaitPoll`,
-    `_startTournWaitPoll`, `_startTournMatchPoll`, `_advanceTournament` —
-    stateful polling-машини над `/duel_rooms`, `/async_duels`,
-    `/tournaments` у продакшн Firebase з великою кількістю
-    innerHTML-розмітки бректа й кнопок; переписування без
-    live-тестування проти реальної БД створює ризик зламати активні
-    дуелі/турніри користувачів.
+    Картки "продовжити дуель" у лобі (`duel-resume`) теж мігровано в
+    `duel-resume.tsx` (`DuelResume`/`ResumeCard`, `mountDuelResume()`/
+    `refreshDuelResume()`). `_tryResumeSession()` тепер лише валідує
+    збережені сесії (`_loadSessions`/`_fbGet`/`_clearSession`) і зберігає
+    знімок `_resumeSessions: ResumeSessionVM[]` (+ `_resumeValid` з
+    оригінальними `sess`/`room` для продовження), викликаючи
+    `refreshDuelResume()`. Зворотний відлік до закінчення 24г рендериться
+    в самому компоненті через `useState`+`setInterval` (рахує `now`,
+    `expiresAt` статичний — без участі `duel.ts`). Кнопки "Продовжити"/✕ —
+    `_onResumeContinue(roomId)` (весь код відновлення сесії з
+    `_setupGameUI`/`_renderMyProgressBar`/`_showGame`/`_renderQuestion`/
+    `_startOpponentPoll`, без змін у логіці) і `_onResumeDiscard(roomId)`
+    (`_clearSession`+повторний `_tryResumeSession`).
+    Турнірна сітка (`duel-tournament`) теж мігровано в
+    `duel-tournament.tsx` (`TournWaiting`/`TournBracket`,
+    `mountDuelTournament()`/`refreshDuelTournament()`), замінивши
+    `tourn-waiting`/`tourn-bracket` (слоти, код, кнопка старту, статус,
+    bracket-візуалізація, область матчу) єдиним
+    `#duel-tournament-mount`. `_renderTournWaiting`/`_renderTournBracket`
+    тепер лише будують знімок `_tournView: TournamentData` (фаза
+    waiting/bracket, слоти, раунди/матчі з прапорцями `active`/`won`,
+    `matchArea` — `play`/`rejoin`/`waiting`/`champion`/`none`) і викликають
+    `refreshDuelTournament()`. Кнопки — `_onTournStart`/`_onTournCancel`/
+    `_onTournPlay`/`_onTournRejoin` (контекст матчу для play/rejoin
+    зберігається в `_tournPlayCtx`/`_tournRejoinRoomId`, що оновлюються при
+    кожному рендері bracket). Усе live-полінг (`_startTournWaitPoll`/
+    `_startTournMatchPoll`/`_advanceTournament`/`_startResultPoll`/
+    `_startWaitPoll`) лишилось без змін у `duel.ts`.
+    Async-челенджі (`createAsyncChallenge`/`joinAsyncChallenge`) теж
+    **залишаються imperative** — це короткі флоу без власної розмітки
+    (переписують лише `#duel-waiting`/`#duel-msg`, які вже є простими
+    текстовими полями), мігрувати їх окремо не дає додаткової вигоди.
 
 ## Фаза 6 — Прибирання легасі
 34. [skip] Перенести shell у єдиний React-рут (`createRoot` на `#app`) —
@@ -350,14 +374,16 @@ Realtime Firebase-синхронізація, багато режимів дуе
 ---
 **Підсумок Фази 5/6**: items 29-31 (лобі, лідерборд, історія), item 32
 (шапка ігрового екрану дуелі, паверапи, фідбек, чат-лог, ядро питання/
-відповіді/таймера) і item 33 (спостерігач) мігровані на React, разом із
-текстовою/реактивною частиною картки (items 24-28) — усе покрите тестами
-(529/529). Решта item 33 (async-челенджі, турнірна сітка) і items 34-36
-свідомо залишені imperative — це живі мультиплеєрні Firebase
-polling-машини без можливості безпечного переписування без
-live-тестування проти прод-БД, або інфраструктурні зміни, що вимагали б
-одночасного переписування десятків ще-imperative модулів. React-міграція
-цієї картки й дуелі вважається завершеною в межах безпечного обсягу.
+відповіді/таймера) і item 33 (спостерігач, картки відновлення сесії,
+турнірна сітка) мігровані на React, разом із текстовою/реактивною
+частиною картки (items 24-28) — усе покрите тестами (529/529). Лише
+короткі async-challenge флоу (`createAsyncChallenge`/
+`joinAsyncChallenge`) і items 34-36 свідомо залишені imperative — перші
+не мають власної розмітки, що варто було б мігрувати, а 34-36 — це
+живі мультиплеєрні Firebase polling-машини/глобальний `window.*`-інтерфейс,
+чиє прибирання вимагало б одночасного переписування десятків ще-imperative
+модулів поза межами цього плану. React-міграція цієї картки й дуелі
+вважається завершеною в межах безпечного обсягу.
 
 ---
 **Правило**: жодна фаза не починається, поки попередній крок не пройшов
