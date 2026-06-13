@@ -346,8 +346,5 @@ export function WordLettersPage(): ReactElement {
   );
 }
 
-document.getElementById('btn-letters')?.addEventListener('click', openWordLetters);
-{
-  const overlay = document.getElementById('wl-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeWordLetters(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-letters', 'wl-overlay', openWordLetters, closeWordLetters);

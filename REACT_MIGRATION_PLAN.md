@@ -367,12 +367,26 @@ Realtime Firebase-синхронізація, багато режимів дуе
     містить лише один виклик `mountAppRoot()` замість ~43 пар
     `await import(...); mountXxx();`. 529/529 тестів пройдено без
     регресій.
-35. [skip] Видалити DOM-хелпери (`$e`, `querySelector`/`addEventListener`) —
-    **не виконується**. `$e`/`$`/ручні listeners лишаються основним
-    механізмом для всіх ще-imperative модулів (card-actions, swipe,
-    keyboard, duel game screen — items 27, 32-33). Видаляти їх можна
-    тільки після того, як ці модулі самі стануть React-компонентами, що
-    свідомо не робиться через ризик (див. вище).
+35. [in progress] Видалити DOM-хелпери (`$e`, `querySelector`/`addEventListener`) —
+    **переформульовано в обмежений, безпечний обсяг**: повне видалення
+    неможливе без переписування card-actions/swipe/keyboard/duel game
+    screen (items 27, 32-33) і `window.*`-інтерфейсу (item 36) — це
+    окремий майбутній план. Натомість зроблено перший крок:
+    централізація повторюваного overlay-listener boilerplate у
+    `js/features/overlay-utils.ts`:
+    - `bindOverlayOpenClose(btnId, overlayId, open, close)` — кнопка
+      відкриття + клік по фону оверлею. Застосовано в 13 файлах режимів
+      (`fib`, `listening`, `tempo`, `spelling-bee`, `context`, `reading`,
+      `story`, `lesson`, `write`, `catpairs`, `quiz`, `scramble`,
+      `word-letters`), кожен файл втратив 4-5 рядків ручного
+      `document.getElementById`/`addEventListener` на 1 викликом хелпера.
+    - `bindOverlayDismiss(overlayId, closeBtnId)` — кнопка закриття + клік
+      по фону + Escape → `window.closePage()`. Застосовано в
+      `grammar-page.tsx` та `idioms-page.tsx`.
+    529/529 тестів пройдено без регресій. Решта `$e`/`querySelector`
+    усередині цих же файлів (фокус інпутів, читання значень форм тощо)
+    лишається — це нормальне використання React `ref`/DOM API в
+    компонентах, не дублікат-boilerplate.
 36. [skip] Прибрати `window.*` глобали — **не виконується**. `window.render`,
     `window.deck`/`idx`/`flipped`/`cw`, `window.known*`, `window.setIdx` тощо
     — це активний інтерфейс між `app.ts` (джерело істини) і десятками legacy

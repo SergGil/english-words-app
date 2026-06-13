@@ -315,8 +315,5 @@ export function QuizPage(): ReactElement {
   );
 }
 
-document.getElementById('btn-quiz')?.addEventListener('click', () => openQuiz(null));
-{
-  const overlay = document.getElementById('quiz-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeQuiz(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-quiz', 'quiz-overlay', () => openQuiz(null), closeQuiz);

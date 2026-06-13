@@ -109,14 +109,5 @@ export function IdiomsPageRoot(): ReactElement {
   return <IdiomsPage />;
 }
 
-{
-  const overlay = document.getElementById('idioms-overlay') as HTMLElement | null;
-  if (overlay) {
-    const closeIdioms = (): void => { (window.closePage as (() => void) | undefined)?.(); };
-    document.getElementById('idioms-close')?.addEventListener('click', closeIdioms);
-    overlay.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeIdioms(); });
-    document.addEventListener('keydown', (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && overlay.classList.contains('open')) closeIdioms();
-    });
-  }
-}
+import { bindOverlayDismiss } from './overlay-utils.ts';
+bindOverlayDismiss('idioms-overlay', 'idioms-close');

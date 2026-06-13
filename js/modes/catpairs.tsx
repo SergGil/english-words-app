@@ -263,11 +263,8 @@ export function CatPairsPage(): ReactElement {
   );
 }
 
-document.getElementById('btn-catpairs')?.addEventListener('click', openCatpairs);
-{
-  const overlay = document.getElementById('catpairs-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeCatpairs(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-catpairs', 'catpairs-overlay', openCatpairs, closeCatpairs);
 
 // ════ MILESTONES ═════════════════════════════════════════════
 let _shownMilestones: Record<string, number> = {};

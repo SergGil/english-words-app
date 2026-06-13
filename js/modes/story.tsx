@@ -234,8 +234,5 @@ export function StoryPage(): ReactElement {
   );
 }
 
-document.getElementById('btn-story')?.addEventListener('click', openStoryMode);
-{
-  const overlay = document.getElementById('story-mode-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeStoryMode(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-story', 'story-mode-overlay', openStoryMode, closeStoryMode);

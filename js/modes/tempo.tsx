@@ -283,8 +283,5 @@ export function TempoPage(): ReactElement {
   );
 }
 
-document.getElementById('btn-tempo')?.addEventListener('click', openTempo);
-{
-  const overlay = document.getElementById('tempo-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeTempo(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-tempo', 'tempo-overlay', openTempo, closeTempo);

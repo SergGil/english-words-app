@@ -269,8 +269,5 @@ export function ContextPage(): ReactElement {
   );
 }
 
-document.getElementById('btn-context')?.addEventListener('click', openContext);
-{
-  const overlay = document.getElementById('ctx-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeContext(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-context', 'ctx-overlay', openContext, closeContext);

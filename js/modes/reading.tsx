@@ -241,8 +241,5 @@ export function ReadingPage(): ReactElement {
   );
 }
 
-document.getElementById('btn-reading')?.addEventListener('click', openReading);
-{
-  const overlay = document.getElementById('reading-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeReading(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-reading', 'reading-overlay', openReading, closeReading);

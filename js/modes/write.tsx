@@ -353,8 +353,5 @@ export function WritePage(): ReactElement {
   );
 }
 
-document.getElementById('btn-write')?.addEventListener('click', () => openWrite(null));
-{
-  const overlay = document.getElementById('write-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeWrite(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-write', 'write-overlay', () => openWrite(null), closeWrite);

@@ -290,8 +290,5 @@ export function FibPage(): ReactElement {
   );
 }
 
-document.getElementById('btn-fib')?.addEventListener('click', openFib);
-{
-  const overlay = document.getElementById('fib-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeFib(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-fib', 'fib-overlay', openFib, closeFib);

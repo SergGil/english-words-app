@@ -241,8 +241,5 @@ export function ListeningPage(): ReactElement {
   );
 }
 
-document.getElementById('btn-listen')?.addEventListener('click', openListening);
-{
-  const overlay = document.getElementById('listen-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeListening(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-listen', 'listen-overlay', openListening, closeListening);

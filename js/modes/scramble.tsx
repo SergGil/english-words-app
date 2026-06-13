@@ -304,8 +304,5 @@ export function ScramblePage(): ReactElement {
   );
 }
 
-document.getElementById('btn-scramble')?.addEventListener('click', openScramble);
-{
-  const overlay = document.getElementById('scr-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeScramble(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-scramble', 'scr-overlay', openScramble, closeScramble);

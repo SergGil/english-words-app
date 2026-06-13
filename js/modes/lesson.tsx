@@ -324,8 +324,5 @@ export function LessonPage(): ReactElement {
   );
 }
 
-document.getElementById('btn-lesson')?.addEventListener('click', openLesson);
-{
-  const overlay = document.getElementById('lesson-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeLesson(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-lesson', 'lesson-overlay', openLesson, closeLesson);

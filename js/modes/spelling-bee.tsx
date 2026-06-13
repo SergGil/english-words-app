@@ -272,8 +272,5 @@ export function SpellingBeePage(): ReactElement {
   );
 }
 
-document.getElementById('btn-spelling-bee')?.addEventListener('click', openSpellingBee);
-{
-  const overlay = document.getElementById('bee-overlay');
-  overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeSpellingBee(); });
-}
+import { bindOverlayOpenClose } from '../features/overlay-utils.ts';
+bindOverlayOpenClose('btn-spelling-bee', 'bee-overlay', openSpellingBee, closeSpellingBee);

@@ -168,14 +168,5 @@ export function GrammarPage(): ReactElement {
   );
 }
 
-{
-  const overlay = document.getElementById('grammar-overlay') as HTMLElement | null;
-  if (overlay) {
-    const closeGrammar = (): void => { (window.closePage as (() => void) | undefined)?.(); };
-    document.getElementById('grammar-close')?.addEventListener('click', closeGrammar);
-    overlay.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) closeGrammar(); });
-    document.addEventListener('keydown', (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && overlay.classList.contains('open')) closeGrammar();
-    });
-  }
-}
+import { bindOverlayDismiss } from './overlay-utils.ts';
+bindOverlayDismiss('grammar-overlay', 'grammar-close');
