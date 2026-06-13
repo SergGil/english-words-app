@@ -267,6 +267,13 @@ Realtime Firebase-синхронізація, багато режимів дуе
     знімок через `_getPowerupsData()`, клік делегується в
     `_onPowerupClick()` (зберігає попередній freeze-guard і викликає
     `_usePowerup`).
+    Фідбек + швидкість відповіді (`dm-feedback`/`dm-speed`) також
+    мігровано в `duel-feedback.tsx` (`DuelFeedback`,
+    `mountDuelFeedback()`/`refreshDuelFeedback()`) — `duel.ts` зберігає
+    `_feedbackHtml`/`_speedText` і викликає `refreshDuelFeedback()` у всіх
+    точках, де раніше писав у `elFeedback()`/`elSpeed()` напряму
+    (правильно/невірно/таймаут/double/skip/заморозка/очікування
+    суперника).
     Решта екрану (`_renderQuestion`/`_renderChoiceQ`/`_renderWriteQ`/
     `_renderAnagramQ`/`_renderLettersQ`/`_startTempoTimer`/`_answerChoice`/
     `_submitWrite`, питання/опції/інпут/чат) **залишається

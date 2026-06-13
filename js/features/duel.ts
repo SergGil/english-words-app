@@ -16,6 +16,7 @@ import { DICT } from '../modes/word-letters.tsx';
 import { refreshDuelGameHeader } from './duel-game-header.tsx';
 import { refreshDuelSpectator } from './duel-spectator.tsx';
 import { refreshDuelPowerups } from './duel-powerups.tsx';
+import { refreshDuelFeedback } from './duel-feedback.tsx';
 
 const DICT_SET = new Set(DICT);
 
@@ -190,6 +191,10 @@ let _oppAvatar = '';
 let _oppScore  = 0;
 let _oppIdx    = 0;
 let _oppFlags: (boolean|'skip'|'double')[] = [];
+// Feedback / speed indicator under the question (item 32, Фаза 5)
+let _feedbackHtml = '';
+let _speedText    = '';
+export function _getFeedbackData(): { html:string; speed:string } { return { html:_feedbackHtml, speed:_speedText }; }
 let _roomCreatedAt = 0;
 // Room/deck params kept for session persistence & resume (esp. async duels,
 // whose /duel_rooms/ doc may only contain partial data pushed by _pushScore)
@@ -320,8 +325,6 @@ const elMsg       = () => $('duel-msg');
 const elQuestion  = () => $('dm-question');
 const elOpts      = () => $('dm-options')  as HTMLElement;
 const elInput     = () => $('dm-input')    as HTMLInputElement;
-const elFeedback  = () => $('dm-feedback');
-const elSpeed     = () => $('dm-speed');
 const elTimerBar  = () => $('dm-timer-bar') as HTMLElement;
 const elTimerNum  = () => $('dm-timer-num');
 
@@ -601,7 +604,7 @@ async function _usePowerup(type: PowerupType): Promise<void> {
     // Skip current question without penalty
     _answered = true;
     if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
-    elFeedback().innerHTML=`<span style="color:var(--accent)">${t('duel.toast.skip')}</span>`;
+    _feedbackHtml=`<span style="color:var(--accent)">${t('duel.toast.skip')}</span>`; refreshDuelFeedback();
     _extendDeckOnSkip();
     _myFlags.push('skip');
     _quizIdx++;
@@ -651,10 +654,10 @@ function _startOpponentPoll(): void {
       if(freezeUntil && freezeUntil > Date.now() && !_answered && _mode==='tempo'){
         if(!_freezeTimer){
           const remaining = Math.ceil((freezeUntil-Date.now())/1000);
-          elFeedback().innerHTML=`<span style="color:#5dade2">${t('duel.frozen')} ${remaining}${_secUnit()}!</span>`;
+          _feedbackHtml=`<span style="color:#5dade2">${t('duel.frozen')} ${remaining}${_secUnit()}!</span>`; refreshDuelFeedback();
           if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
           _freezeTimer=setTimeout(()=>{
-            _freezeTimer=null; elFeedback().textContent='';
+            _freezeTimer=null; _feedbackHtml=''; refreshDuelFeedback();
             _startTempoTimer(_quizDeck[_quizIdx]);
           },freezeUntil-Date.now());
         }
@@ -717,7 +720,7 @@ function _renderQuestion(): void {
   if(_quizIdx>=_quizDeck.length){_finishMyGame();return;}
   const w=_quizDeck[_quizIdx];
   _answered=false; _answerStartMs=Date.now();
-  elFeedback().textContent=''; elSpeed().textContent='';
+  _feedbackHtml=''; _speedText=''; refreshDuelFeedback();
   if(_tempoTimer){clearInterval(_tempoTimer);_tempoTimer=null;}
   const nb=$('dm-next-btn') as HTMLButtonElement|null; if(nb) nb.style.display='none';
   if(_mode==='write') _renderWriteQ(w);
@@ -782,7 +785,7 @@ function _startTempoTimer(w:WordEntry): void {
       if(!_answered){
         _answered=true;
         elOpts().querySelectorAll<HTMLButtonElement>('.quiz-option').forEach(b=>b.disabled=true);
-        elFeedback().innerHTML=`<span style="color:#e74c3c">${t('duel.timeout')}</span>`;
+        _feedbackHtml=`<span style="color:#e74c3c">${t('duel.timeout')}</span>`; refreshDuelFeedback();
         _myWrong++; _myFlags.push(false);
         _quizIdx++; _renderMyProgressBar(); _pushScore();
         if(_advanceTimer) clearTimeout(_advanceTimer);
@@ -815,8 +818,9 @@ async function _answerChoice(btn:HTMLButtonElement,chosen:string,correct:string,
     _myFlags.push(false);
     feedbackHtml=`<span style="color:#e74c3c">✗ ${correct}</span>`;
   }
-  elFeedback().innerHTML=feedbackHtml;
-  elSpeed().textContent=ok?`⚡ ${(ms/1000).toFixed(1)}${_secUnit()}`:'';
+  _feedbackHtml=feedbackHtml;
+  _speedText=ok?`⚡ ${(ms/1000).toFixed(1)}${_secUnit()}`:'';
+  refreshDuelFeedback();
   _renderPowerups();
   _quizIdx++; _renderMyProgressBar(); await _pushScore();
   if(_advanceTimer) clearTimeout(_advanceTimer);
@@ -843,8 +847,9 @@ function _submitWrite(): void {
     _myFlags.push(false);
     feedbackHtml=`<span style="color:#e74c3c">✗ ${w[0]}</span>`;
   }
-  elFeedback().innerHTML=feedbackHtml;
-  elSpeed().textContent=ok?`⚡ ${(ms/1000).toFixed(1)}${_secUnit()}`:'';
+  _feedbackHtml=feedbackHtml;
+  _speedText=ok?`⚡ ${(ms/1000).toFixed(1)}${_secUnit()}`:'';
+  refreshDuelFeedback();
   _renderPowerups();
   _quizIdx++; _renderMyProgressBar(); _pushScore();
   const nb=$('dm-next-btn') as HTMLButtonElement|null;
@@ -888,7 +893,7 @@ async function _finishMyGame():Promise<void>{
         `<div style="text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#27ae60;">${_myCorrect}</div><div style="font-size:.78rem;color:var(--text3);">${t('duel.correctCount')}</div></div>`+
         `<div style="text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#e74c3c;">${_myWrong}</div><div style="font-size:.78rem;color:var(--text3);">${t('duel.wrongCount')}</div></div>`+
       `</div>`;
-      elFeedback().textContent=t('duel.waiting');
+      _feedbackHtml=t('duel.waiting'); refreshDuelFeedback();
       elOpts().innerHTML=''; elOpts().style.display='none';
       const ir=$('dm-input-row') as HTMLElement|null; if(ir) ir.style.display='none';
     }

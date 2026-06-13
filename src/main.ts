@@ -151,3 +151,6 @@ mountDuelSpectator();
 
 const { mountDuelPowerups } = await import('../js/features/duel-powerups.tsx');
 mountDuelPowerups();
+
+const { mountDuelFeedback } = await import('../js/features/duel-feedback.tsx');
+mountDuelFeedback();
