@@ -226,7 +226,15 @@
 Realtime Firebase-синхронізація, багато режимів дуелі, асинхронні челенджі,
 турніри. Робимо останньою і ділимо на під-кроки:
 
-29. Лобі/налаштування дуелі (вибір режиму, коду кімнати) → компонент
+29. [x] Лобі/налаштування дуелі → `js/features/duel-lobby-options.tsx`
+    (`DuelModePicker` → `#duel-mode-picker`, `DuelCategoryPicker` →
+    `#duel-cat-picker`, `DuelOptionsRow` → `#duel-options-row`). Кожен
+    компонент тримає локальний `useState`, а зміни дублює у модульні
+    змінні `_selMode`/`_selCategory`/`_selDifficulty`/`_selBestOf`/
+    `_selMaxHints`/`_selPowerups` через нові експортовані гетери/сетери
+    в `duel.ts` — `createRoom`/`joinRoom`/турнірна логіка продовжують
+    читати ці змінні без змін. `_showInfoTooltip` (imperative DOM-tooltip)
+    лишається в `duel.ts`, викликається з onClick через `e.currentTarget`.
 30. [x] Історія дуелей + пагінація → `js/features/duel-history.tsx`
     (`DuelHistory`, `#duel-history-list`). Пагінація тепер локальний
     React `useState` замість модульної змінної `_histPage`. Дані

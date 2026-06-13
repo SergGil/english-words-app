@@ -3,14 +3,14 @@
 
 import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
-import { WORD_CATEGORIES, CATEGORY_LIST } from '../../data/categories.js';
+import { WORD_CATEGORIES } from '../../data/categories.js';
 import { getCefrLevel, CEFR_META } from '../../data/cefr.ts';
 import type { CefrLevel } from '../../data/cefr.ts';
 import LZString from '../../lib/lzstring.js';
 import { _shuf } from '../core/srs.ts';
 import { lev } from '../core/distance.ts';
 import type { WordEntry } from '../../src/types.js';
-import { t, categoryName, getLang } from './i18n.ts';
+import { t, getLang } from './i18n.ts';
 import { notifyStateChange } from '../../src/store.ts';
 import { DICT } from '../modes/word-letters.tsx';
 
@@ -47,9 +47,9 @@ const TEMPO_SEC = 4;
 const REACTIONS = ['👍','😅','🔥','😂','🤯','😤','🎉','👏'];
 
 // ── Types ─────────────────────────────────────────────────────
-type DuelMode       = 'quiz' | 'reverse' | 'write' | 'tempo' | 'anagram' | 'letters';
-type Difficulty     = CefrLevel | 'mixed'; // CEFR-based difficulty
-type BestOf         = 1 | 3;
+export type DuelMode = 'quiz' | 'reverse' | 'write' | 'tempo' | 'anagram' | 'letters';
+export type Difficulty = CefrLevel | 'mixed'; // CEFR-based difficulty
+export type BestOf   = 1 | 3;
 type PowerupType    = 'double' | 'skip' | 'freeze';
 
 const POWERUPS: { id:PowerupType; icon:string }[] = [
@@ -58,7 +58,7 @@ const POWERUPS: { id:PowerupType; icon:string }[] = [
   { id:'freeze', icon:'🧊' },
 ];
 
-const DUEL_MODES: { id:DuelMode; icon:string }[] = [
+export const DUEL_MODES: { id:DuelMode; icon:string }[] = [
   { id:'quiz',    icon:'🧠' },
   { id:'reverse', icon:'🔄' },
   { id:'write',   icon:'✍️' },
@@ -66,7 +66,7 @@ const DUEL_MODES: { id:DuelMode; icon:string }[] = [
   { id:'anagram', icon:'🔀' },
   { id:'letters', icon:'🔤' },
 ];
-const DIFFICULTIES: { id:Difficulty; label:string; color:string }[] = [
+export const DIFFICULTIES: { id:Difficulty; label:string; color:string }[] = [
   { id:'mixed', label:'Мікс',    color:'var(--text3)' },
   { id:'A1',    label:'A1',      color:'#27ae60' },
   { id:'A2',    label:'A2',      color:'#2ecc71' },
@@ -311,88 +311,23 @@ let _selBestOf:      BestOf     = 1;
 let _selMaxHints:    number     = 3;
 let _selPowerups:    boolean    = true;
 
-function _renderModePicker(): void {
-  const el = $('duel-mode-picker'); if(!el) return;
-  el.innerHTML = DUEL_MODES.map(m=>
-    `<button class="duel-mode-btn${m.id===_selMode?' duel-mode-sel':''}" data-mode="${m.id}" style="flex:1;min-width:90px;padding:9px 6px;border-radius:11px;border:2px solid ${m.id===_selMode?'var(--accent)':'var(--border)'};background:${m.id===_selMode?'rgba(0,200,100,.08)':'var(--card)'};cursor:pointer;font-family:inherit;text-align:center;">
-      <div style="font-size:1.2rem;">${m.icon}</div>
-      <div style="font-size:.75rem;font-weight:700;color:var(--text);margin-top:2px;">${t('duel.mode.'+m.id)}</div>
-      <div style="font-size:.62rem;color:var(--text3);">${t('duel.mode.'+m.id+'.desc')}</div>
-    </button>`).join('');
-  el.querySelectorAll<HTMLButtonElement>('.duel-mode-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>{ _selMode=btn.dataset.mode as DuelMode; _renderModePicker(); });
-  });
-}
+// Геттери/сеттери для React-пікерів (item 29, Фаза 5) — createRoom/joinRoom/
+// тощо й далі читають ці модульні змінні напряму, тому React-компоненти
+// синхронізують свій локальний useState через ці функції.
+export function _getSelMode(): DuelMode { return _selMode; }
+export function _setSelMode(m: DuelMode): void { _selMode = m; }
+export function _getSelCategory(): string { return _selCategory; }
+export function _setSelCategory(c: string): void { _selCategory = c; }
+export function _getSelDifficulty(): Difficulty { return _selDifficulty; }
+export function _setSelDifficulty(d: Difficulty): void { _selDifficulty = d; }
+export function _getSelBestOf(): BestOf { return _selBestOf; }
+export function _setSelBestOf(b: BestOf): void { _selBestOf = b; }
+export function _getSelMaxHints(): number { return _selMaxHints; }
+export function _setSelMaxHints(h: number): void { _selMaxHints = h; }
+export function _getSelPowerups(): boolean { return _selPowerups; }
+export function _setSelPowerups(p: boolean): void { _selPowerups = p; }
 
-function _renderCategoryPicker(): void {
-  const el = $('duel-cat-picker'); if(!el) return;
-  const cats = ['', ...CATEGORY_LIST];
-  el.innerHTML = `<select style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;font-size:.83rem;outline:none;">
-    ${cats.map(c=>`<option value="${c}"${c===_selCategory?' selected':''}>${c?categoryName(c):t('duel.allWords')}</option>`).join('')}
-  </select>`;
-  el.querySelector('select')?.addEventListener('change',e=>{ _selCategory=(e.target as HTMLSelectElement).value; });
-}
-
-function _renderOptionsRow(): void {
-  const el = $('duel-options-row'); if(!el) return;
-
-  // CEFR difficulty buttons
-  const diffBtns = DIFFICULTIES.map(d => {
-    const active = d.id === _selDifficulty;
-    return `<button class="duel-cefr-btn${active?' duel-cefr-active':''}" data-diff="${d.id}"
-      title="${t('duel.diff.'+d.id+'.desc')}"
-      style="padding:5px 9px;border-radius:8px;border:1.5px solid ${active?d.color:'var(--border)'};background:${active?d.color+'22':'transparent'};color:${active?d.color:'var(--text3)'};cursor:pointer;font-family:inherit;font-size:.78rem;font-weight:${active?'700':'400'};transition:all .12s;">
-      ${d.id==='mixed'?t('duel.diff.mixed'):d.label}
-    </button>`;
-  }).join('');
-
-  el.innerHTML = `
-    <div style="margin-bottom:8px;">
-      <div style="font-size:.72rem;color:var(--text3);margin-bottom:5px;">${t('duel.difficulty')}</div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap;">${diffBtns}</div>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:.8rem;color:var(--text2);">
-      <label style="display:flex;align-items:center;gap:5px;">
-        ${t('duel.format')}
-        <select id="duel-bestof-sel" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.8rem;font-family:inherit;outline:none;">
-          <option value="1"${_selBestOf===1?' selected':''}>${t('duel.oneRound')}</option>
-          <option value="3"${_selBestOf===3?' selected':''}>${t('duel.bestOf3')}</option>
-        </select>
-      </label>
-      <label style="display:flex;align-items:center;gap:5px;">
-        ${t('duel.hints')}
-        <button class="duel-info-btn" data-info="hints" title="${t('duel.hints')}" style="background:none;border:none;cursor:pointer;font-size:.85rem;color:var(--text3);padding:0 2px;">ℹ️</button>:
-        <select id="duel-hints-sel" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.8rem;font-family:inherit;outline:none;">
-          <option value="0"${_selMaxHints===0?' selected':''}>${t('duel.hintsUnlimited')}</option>
-          <option value="3"${_selMaxHints===3?' selected':''}>${t('duel.hints3')}</option>
-          <option value="1"${_selMaxHints===1?' selected':''}>${t('duel.hints1')}</option>
-        </select>
-      </label>
-      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
-        <input type="checkbox" id="duel-powerups-chk"${_selPowerups?' checked':''} style="cursor:pointer;">
-        <span>🎯 Power-ups</span>
-        <button class="duel-info-btn" data-info="powerups" title="Power-ups" style="background:none;border:none;cursor:pointer;font-size:.85rem;color:var(--text3);padding:0 2px;">ℹ️</button>
-      </label>
-    </div>`;
-
-  // CEFR button clicks
-  el.querySelectorAll<HTMLButtonElement>('.duel-cefr-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>{ _selDifficulty=btn.dataset.diff as Difficulty; _renderOptionsRow(); });
-  });
-  $('duel-bestof-sel')?.addEventListener('change', e=>{ _selBestOf=parseInt((e.target as HTMLSelectElement).value) as BestOf; });
-  $('duel-hints-sel')?.addEventListener('change', e=>{ _selMaxHints=parseInt((e.target as HTMLSelectElement).value); });
-  ($('duel-powerups-chk') as HTMLInputElement)?.addEventListener('change', e=>{ _selPowerups=(e.target as HTMLInputElement).checked; });
-
-  // Info tooltips
-  el.querySelectorAll<HTMLButtonElement>('.duel-info-btn').forEach(btn=>{
-    btn.addEventListener('click', e=>{
-      e.stopPropagation();
-      _showInfoTooltip(btn, btn.dataset.info as 'hints'|'powerups');
-    });
-  });
-}
-
-function _showInfoTooltip(anchor: HTMLElement, type: 'hints' | 'powerups'): void {
+export function _showInfoTooltip(anchor: HTMLElement, type: 'hints' | 'powerups'): void {
   const existing = document.getElementById('duel-tooltip');
   if (existing) { existing.remove(); return; }
 
@@ -1674,7 +1609,7 @@ function _cancelTournament(): void {
 
 // ── renderDuel (full page) ────────────────────────────────────
 export function renderDuel():void{
-  notifyStateChange(); _renderModePicker(); _renderCategoryPicker(); _renderOptionsRow();
+  notifyStateChange();
   _tryResumeSession();
 }
 window.renderDuel=renderDuel;

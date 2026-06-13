@@ -136,3 +136,6 @@ mountDuelLeaderboard();
 
 const { mountDuelHistory } = await import('../js/features/duel-history.tsx');
 mountDuelHistory();
+
+const { mountDuelLobbyOptions } = await import('../js/features/duel-lobby-options.tsx');
+mountDuelLobbyOptions();
