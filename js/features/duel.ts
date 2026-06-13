@@ -9,7 +9,7 @@ import type { CefrLevel } from '../../data/cefr.ts';
 import LZString from '../../lib/lzstring.js';
 import { _shuf } from '../core/srs.ts';
 import { lev } from '../core/distance.ts';
-import type { WordEntry } from '../../src/types.js';
+import type { WordEntry, DuelScreen } from '../../src/types.js';
 import { t, getLang } from './i18n.ts';
 import { notifyStateChange } from '../../src/store.ts';
 import { DICT } from '../modes/word-letters.tsx';
@@ -296,6 +296,13 @@ export function _getGameHeaderData(): GameHeaderData {
   };
 }
 
+// Який екран дуелі активний (item 36, Фаза 7.4-B, під-фаза 9) — дзеркалить
+// `_showLobby`/`_showCountdown`/`_showGame`/`_showResult`/`_showTournament`/
+// spectator-view.
+export function _getDuelScreen(): DuelScreen {
+  return state.duelScreen;
+}
+
 // ── UI refs ───────────────────────────────────────────────────
 const $ = (id:string) => document.getElementById(id)!;
 const elLobby     = () => $('duel-lobby')     as HTMLElement;
@@ -316,11 +323,12 @@ function _showLobby()    {
   const joinRow=$('duel-join-row') as HTMLElement|null; if(joinRow) joinRow.style.display='';
   const btn=$('duel-create-btn') as HTMLButtonElement|null; if(btn){ btn.disabled=false; btn.textContent=t('duel.create'); }
   const asyncBtn=$('duel-async-btn') as HTMLButtonElement|null; if(asyncBtn){ asyncBtn.disabled=false; asyncBtn.textContent=t('duel.sendChallenge'); }
+  state.duelScreen='lobby'; notifyStateChange();
 }
-function _showCountdown(){ elLobby().style.display='none'; elCountdown().style.display=''; elGame().style.display='none'; elResult().style.display='none'; elChatPanel().style.display='none'; }
-function _showGame(clearChat=true) { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display=''; elResult().style.display='none'; elChatPanel().style.display=''; if(clearChat){ state.duelChatHistory=[]; notifyStateChange(); refreshDuelChatLog(); _lastReactionTs=0; } }
+function _showCountdown(){ elLobby().style.display='none'; elCountdown().style.display=''; elGame().style.display='none'; elResult().style.display='none'; elChatPanel().style.display='none'; state.duelScreen='countdown'; notifyStateChange(); }
+function _showGame(clearChat=true) { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display=''; elResult().style.display='none'; elChatPanel().style.display=''; state.duelScreen='game'; if(clearChat){ state.duelChatHistory=[]; refreshDuelChatLog(); _lastReactionTs=0; } notifyStateChange(); }
 // Keep the chat panel visible/usable on the finish screen so players can keep chatting.
-function _showResult()   { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display='none'; elResult().style.display=''; elChatPanel().style.display=''; }
+function _showResult()   { elLobby().style.display='none'; elCountdown().style.display='none'; elGame().style.display='none'; elResult().style.display=''; elChatPanel().style.display=''; state.duelScreen='result'; notifyStateChange(); }
 
 // ── Lobby pickers ─────────────────────────────────────────────
 // Geттери/сеттери для React-пікерів (item 29, Фаза 5) — createRoom/joinRoom/
@@ -1071,6 +1079,7 @@ function _startSpectatorView(room:RoomData): void {
   const el=$('duel-spectate') as HTMLElement|null; if(!el) return;
   elLobby().style.display='none'; el.style.display='';
   elChatPanel().style.display='none';
+  state.duelScreen='spectate'; notifyStateChange();
   _renderSpectatorView(room);
   _pollTimer=setInterval(async()=>{
     try{
@@ -1305,7 +1314,7 @@ let _tournData: Tournament | null = null;
 let _tournPoll: ReturnType<typeof setInterval> | null = null;
 let _tournFinishHook: ((r:RoomData)=>void) | null = null;
 
-function _showTournament() { elLobby().style.display='none'; ($('duel-tournament') as HTMLElement).style.display=''; elChatPanel().style.display='none'; }
+function _showTournament() { elLobby().style.display='none'; ($('duel-tournament') as HTMLElement).style.display=''; elChatPanel().style.display='none'; state.duelScreen='tournament'; notifyStateChange(); }
 function _hideTournament() { ($('duel-tournament') as HTMLElement).style.display='none'; }
 
 // Знімок даних для duel-tournament.tsx (item 33, Фаза 5).

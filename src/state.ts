@@ -84,4 +84,5 @@ export const state: AppState = {
     roomDifficulty:   'mixed',
     roomMaxHints:     3,
   },
+  duelScreen: 'lobby',
 };

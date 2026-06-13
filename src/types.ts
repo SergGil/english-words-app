@@ -111,7 +111,14 @@ export interface AppState {
   duelTournView: import('../js/features/duel.ts').TournamentData | null;
   duelQuestion: DuelQuestionState;
   duelRoom: DuelRoomState;
+  duelScreen: DuelScreen;
 }
+
+// Дуель: який екран наразі активний (item 36, Фаза 7.4-B, під-фаза 9) —
+// дзеркалить виклики `_showLobby`/`_showCountdown`/`_showGame`/
+// `_showResult`/`_showTournament`/spectator-view; читається через
+// `_getDuelScreen()`.
+export type DuelScreen = 'lobby' | 'countdown' | 'game' | 'result' | 'tournament' | 'spectate';
 
 // Дуель: стан кімнати/гри (item 36, Фаза 7.4-B, під-фаза 7) — джерело
 // правди для `duel-game-header.tsx`/`duel-question.tsx`/`duel-powerups.tsx`
