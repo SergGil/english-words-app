@@ -7,6 +7,7 @@ import { getHardWords } from './game.ts';
 import { getBookmarks } from './bookmarks.ts';
 import { getCefrLevel } from '../../data/cefr.ts';
 import { t } from './i18n.ts';
+import { render, setDeck, setIdx, stopAuto } from '../core/card-engine.ts';
 import type { WordEntry } from '../../src/types.js';
 
 export function buildStaleDeck(days: number): WordEntry[] {
@@ -59,7 +60,7 @@ function _showToast(msg: string): void {
 }
 
 document.getElementById('sel-range')!.addEventListener('change', function() {
-  (window as any).stopAuto?.();
+  stopAuto();
   const v        = (this as HTMLSelectElement).value;
   const selTagEl = document.getElementById('sel-tag') as HTMLSelectElement | null;
 
@@ -92,9 +93,9 @@ document.getElementById('sel-range')!.addEventListener('change', function() {
     state._activeTagSet = null;
     if (selTagEl) selTagEl.value = '';
     (state._baseWords = W.slice() as unknown as WordEntry[]);
-    (window as any).setDeck(deck);
-    (window as any).setIdx(0);
-    (window as any).render?.();
+    setDeck(deck);
+    setIdx(0);
+    render();
     return;
   } else if (v === 'hard') {
     const _hardWords = getHardWords(50);
@@ -109,9 +110,9 @@ document.getElementById('sel-range')!.addEventListener('change', function() {
     state._activeTagSet = null;
     if (selTagEl) selTagEl.value = '';
     (state._baseWords = W.slice() as unknown as WordEntry[]);
-    (window as any).setDeck(deck);
-    (window as any).setIdx(0);
-    (window as any).render?.();
+    setDeck(deck);
+    setIdx(0);
+    render();
     return;
   } else if (v === 'bookmarks') {
     const _bms = getBookmarks();
@@ -122,9 +123,9 @@ document.getElementById('sel-range')!.addEventListener('change', function() {
       (state._baseWords = W.slice() as unknown as WordEntry[]);
       deck = (W as unknown as WordEntry[]).slice();
       shuffle(deck);
-      (window as any).setDeck(deck);
-      (window as any).setIdx(0);
-      (window as any).render?.();
+      setDeck(deck);
+      setIdx(0);
+      render();
       return;
     }
     shuffle(deck);
@@ -147,9 +148,9 @@ document.getElementById('sel-range')!.addEventListener('change', function() {
     state._activeTagSet = null;
     if (selTagEl) selTagEl.value = '';
     (state._baseWords = W.slice() as unknown as WordEntry[]);
-    (window as any).setDeck(deck);
-    (window as any).setIdx(0);
-    (window as any).render?.();
+    setDeck(deck);
+    setIdx(0);
+    render();
     return;
   } else if (v.startsWith('stale')) {
     (state._baseWords = W.slice() as unknown as WordEntry[]);
@@ -168,9 +169,9 @@ document.getElementById('sel-range')!.addEventListener('change', function() {
       shuffle(deck);
     }
   }
-  (window as any).setDeck(deck);
-  (window as any).setIdx(0);
-  (window as any).render?.();
+  setDeck(deck);
+  setIdx(0);
+  render();
 });
 
 // Initialize options on load
