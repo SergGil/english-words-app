@@ -111,7 +111,7 @@ interface PlayerData {
 }
 interface SeriesData { p1wins:number; p2wins:number; round:number; }
 interface SpectatorData { name:string; avatar:string; }
-interface RoomData {
+export interface RoomData {
   seed:number; mode:DuelMode; category:string; difficulty:Difficulty;
   bestOf:BestOf; maxHints:number; powerupsEnabled:boolean;
   p1:PlayerData; p2:PlayerData|null;
@@ -193,8 +193,7 @@ let _powerupsEnabled = false;
 // Spectator
 let _isSpectator = false;
 let _specId = '';
-let _specRoom: RoomData|null = null;
-export function _getSpecRoom(): RoomData|null { return _specRoom; }
+export function _getSpecRoom(): RoomData|null { return state.duelSpecRoom; }
 // Async challenge (24h)
 let _isAsyncChallenge = false;
 let _asyncStartTimer: ReturnType<typeof setTimeout> | null = null;
@@ -1105,7 +1104,8 @@ function _startSpectatorView(room:RoomData): void {
 }
 
 function _renderSpectatorView(room:RoomData): void {
-  _specRoom = room;
+  state.duelSpecRoom = room;
+  notifyStateChange();
   refreshDuelSpectator();
 }
 

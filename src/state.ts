@@ -35,4 +35,5 @@ export const state: AppState = {
   },
   duelResumeSessions: [],
   duelChatHistory: [],
+  duelSpecRoom: null,
 };
