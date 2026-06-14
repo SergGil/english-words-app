@@ -115,6 +115,24 @@ export interface AppState {
   duelCountdownNum: number; // Фаза 9/1: поточне число countdown-екрану (3,2,1,0='⚡'), читає duel-countdown.tsx
   duelResult: import('../js/features/duel.ts').DuelResultData; // Фаза 9/2: знімок result-екрану, читає duel-result.tsx
   duelTempo: { visible: boolean; num: number }; // Фаза 9/3: tempo-таймер game-екрану, читає duel-tempo-timer.tsx
+  duelLobbyUI: DuelLobbyUIState; // Фаза 9/6: lobby UI (msg/waiting/buttons), читає duel-lobby.tsx
+}
+
+// Лобі-екран дуелі (Фаза 9/6) — стан повідомлення/банера очікування/кнопок,
+// що раніше були прямими DOM-маніпуляціями (#duel-msg/#duel-waiting/...).
+export interface DuelLobbyUIState {
+  msg: {
+    visible: boolean;
+    text: string;
+    challenge: { avatar: string; name: string; modeIcon: string; modeLabel: string } | null;
+  };
+  waiting: { visible: boolean; roomCode: string; modeLabel: string };
+  joinRowVisible: boolean;
+  createBtn: { disabled: boolean };
+  joinBtn: { disabled: boolean };
+  asyncBtn: { disabled: boolean };
+  tournBtn4: { disabled: boolean; errorLabel: string | null };
+  tournBtn8: { disabled: boolean; errorLabel: string | null };
 }
 
 // Дуель: який екран наразі активний (item 36, Фаза 7.4-B, під-фаза 9) —

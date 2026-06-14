@@ -9,7 +9,7 @@ import type { CefrLevel } from '../../data/cefr.ts';
 import LZString from '../../lib/lzstring.js';
 import { _shuf } from '../core/srs.ts';
 import { lev } from '../core/distance.ts';
-import type { WordEntry, DuelScreen } from '../../src/types.js';
+import type { WordEntry, DuelScreen, DuelLobbyUIState } from '../../src/types.js';
 import { t, getLang } from './i18n.ts';
 import { notifyStateChange } from '../../src/store.ts';
 import { DICT } from '../modes/word-letters.tsx';
@@ -317,7 +317,6 @@ const elLobby     = () => $('duel-lobby')     as HTMLElement;
 const elCountdown = () => $('duel-countdown') as HTMLElement;
 const elGame      = () => $('duel-game')      as HTMLElement;
 const elResult    = () => $('duel-result')    as HTMLElement;
-const elMsg       = () => $('duel-msg');
 
 const elChatPanel = () => $('duel-chat-panel') as HTMLElement;
 
@@ -325,10 +324,13 @@ function _showLobby()    {
   elLobby().style.display=''; elCountdown().style.display='none'; elGame().style.display='none'; elResult().style.display='none';
   elChatPanel().style.display='none';
   // Always reset waiting state so the create button is never stuck
-  const waiting=$('duel-waiting') as HTMLElement|null; if(waiting) waiting.style.display='none';
-  const joinRow=$('duel-join-row') as HTMLElement|null; if(joinRow) joinRow.style.display='';
-  const btn=$('duel-create-btn') as HTMLButtonElement|null; if(btn){ btn.disabled=false; btn.textContent=t('duel.create'); }
-  const asyncBtn=$('duel-async-btn') as HTMLButtonElement|null; if(asyncBtn){ asyncBtn.disabled=false; asyncBtn.textContent=t('duel.sendChallenge'); }
+  state.duelLobbyUI.waiting.visible=false;
+  state.duelLobbyUI.joinRowVisible=true;
+  state.duelLobbyUI.createBtn.disabled=false;
+  state.duelLobbyUI.joinBtn.disabled=false;
+  state.duelLobbyUI.asyncBtn.disabled=false;
+  state.duelLobbyUI.tournBtn4={disabled:false,errorLabel:null};
+  state.duelLobbyUI.tournBtn8={disabled:false,errorLabel:null};
   state.duelScreen='lobby'; notifyStateChange();
 }
 function _showCountdown(){ elLobby().style.display='none'; elCountdown().style.display=''; elGame().style.display='none'; elResult().style.display='none'; elChatPanel().style.display='none'; state.duelScreen='countdown'; notifyStateChange(); }
@@ -429,6 +431,11 @@ export function _getTempoData(): { visible: boolean; num: number } {
   return state.duelTempo;
 }
 
+// Знімок lobby UI (Фаза 9/6), читає duel-lobby.tsx.
+export function _getLobbyUIData(): DuelLobbyUIState {
+  return state.duelLobbyUI;
+}
+
 function _runCountdown(cb: ()=>void): void {
   _showCountdown();
   state.duelCountdownNum = 3;
@@ -441,9 +448,8 @@ function _runCountdown(cb: ()=>void): void {
 }
 
 // ── Create / Join ─────────────────────────────────────────────
-async function createRoom(): Promise<void> {
-  const btn = $('duel-create-btn') as HTMLButtonElement;
-  btn.disabled=true; btn.textContent=t('duel.creating');
+export async function createRoom(): Promise<void> {
+  state.duelLobbyUI.createBtn.disabled=true; notifyStateChange();
   try {
     state.duelRoom.roomId=_genCode(); state.duelRoom.mySlot='p1'; state.duelRoom.isAsyncChallenge=false;
     const seed=Date.now();
@@ -460,28 +466,26 @@ async function createRoom(): Promise<void> {
     state.duelRoom.roomSeed=seed; state.duelRoom.roomCategory=state.duelSel.category; state.duelRoom.roomDifficulty=state.duelSel.difficulty; state.duelRoom.roomMaxHints=state.duelSel.maxHints;
     state.duelRoom.quizDeck=_buildDeck(seed,state.duelSel.category,state.duelSel.difficulty,state.duelSel.mode);
     notifyStateChange();
-    const codeEl=$('duel-room-code'); if(codeEl) codeEl.textContent=_fmtCode(state.duelRoom.roomId);
-    const modeEl=$('duel-waiting-mode');
     const mInfo=DUEL_MODES.find(m=>m.id===state.duelSel.mode)!;
     const catLabel=state.duelSel.category?` · ${state.duelSel.category.split(' ')[0]}`:'';
     const diff=DIFFICULTIES.find(d=>d.id===state.duelSel.difficulty); const diffLabel=diff?(diff.id==='mixed'?t('duel.diff.mixed'):diff.label):'';
-    if(modeEl) modeEl.textContent=`${mInfo.icon} ${t('duel.mode.'+mInfo.id)}${catLabel} · ${diffLabel}${state.duelSel.bestOf===3?' · '+t('duel.bestOf3'):''}`;
-    elMsg().style.display='none';
-    $('duel-waiting').style.display='block';
-    $('duel-join-row').style.display='none';
+    const modeLabel=`${mInfo.icon} ${t('duel.mode.'+mInfo.id)}${catLabel} · ${diffLabel}${state.duelSel.bestOf===3?' · '+t('duel.bestOf3'):''}`;
+    state.duelLobbyUI.msg.visible=false; state.duelLobbyUI.msg.challenge=null;
+    state.duelLobbyUI.waiting={visible:true,roomCode:_fmtCode(state.duelRoom.roomId),modeLabel};
+    state.duelLobbyUI.joinRowVisible=false;
+    notifyStateChange();
     _startWaitPoll();
   } catch(e){
-    btn.disabled=false; btn.textContent=t('duel.create');
-    elMsg().textContent='❌ '+(e as Error).message; elMsg().style.display='block';
+    state.duelLobbyUI.createBtn.disabled=false;
+    state.duelLobbyUI.msg={visible:true,text:'❌ '+(e as Error).message,challenge:null};
+    notifyStateChange();
   }
 }
 
-async function joinRoom(): Promise<void> {
-  const inp=$('duel-join-input') as HTMLInputElement;
-  const btn=$('duel-join-btn') as HTMLButtonElement;
-  const code=inp.value.replace(/[^A-Z0-9]/gi,'').toUpperCase();
-  if(code.length<6){elMsg().textContent=t('duel.enterCode');elMsg().style.display='block';return;}
-  btn.disabled=true; btn.textContent=t('duel.connecting');
+export async function joinRoom(rawCode: string): Promise<void> {
+  const code=rawCode.replace(/[^A-Z0-9]/gi,'').toUpperCase();
+  if(code.length<6){state.duelLobbyUI.msg={visible:true,text:t('duel.enterCode'),challenge:null};notifyStateChange();return;}
+  state.duelLobbyUI.joinBtn.disabled=true; notifyStateChange();
   try {
     const room=await _fbGet(`/duel_rooms/${code}`) as RoomData|null;
     if(!room?.seed) throw new Error(t('duel.err.notFound'));
@@ -500,8 +504,9 @@ async function joinRoom(): Promise<void> {
     notifyStateChange();
     _initGame(room.mode,room.maxHints,room.bestOf,room.series,room.powerupsEnabled);
   } catch(e){
-    btn.disabled=false; btn.textContent=t('duel.join');
-    elMsg().textContent='❌ '+(e as Error).message; elMsg().style.display='block';
+    state.duelLobbyUI.joinBtn.disabled=false;
+    state.duelLobbyUI.msg={visible:true,text:'❌ '+(e as Error).message,challenge:null};
+    notifyStateChange();
   }
 }
 
@@ -1002,7 +1007,7 @@ export function _onResultNewDuel(): void { _cancelRoom(); _showLobby(); renderDu
 export function _onResultReaction(emoji:string): void { _sendChatMsg(emoji); }
 export { REACTIONS };
 
-function _cancelRoom():void{
+export function _cancelRoom():void{
   _clearSession();
   _stopResultPoll();
   if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
@@ -1021,11 +1026,12 @@ function _cancelRoom():void{
   }
   _isSpectator=false;
   state.duelRoom.isAsyncChallenge=false;
+  state.duelLobbyUI.waiting.visible=false;
+  state.duelLobbyUI.joinRowVisible=true;
+  state.duelLobbyUI.createBtn.disabled=false;
+  state.duelLobbyUI.asyncBtn.disabled=false;
+  state.duelLobbyUI.msg.visible=false; state.duelLobbyUI.msg.challenge=null;
   notifyStateChange();
-  $('duel-waiting').style.display='none'; $('duel-join-row').style.display='block';
-  const btn=$('duel-create-btn') as HTMLButtonElement; btn.disabled=false; btn.textContent=t('duel.create');
-  const asyncBtn=$('duel-async-btn') as HTMLButtonElement|null; if(asyncBtn){ asyncBtn.disabled=false; asyncBtn.textContent=t('duel.sendChallenge'); }
-  elMsg().style.display='none';
 }
 
 // ── Reusable styled code input (replaces ugly browser prompt) ─
@@ -1073,7 +1079,7 @@ function _askCode(title: string, desc: string): Promise<string | null> {
 }
 
 // ── Spectator mode ────────────────────────────────────────────
-async function joinAsSpectator(): Promise<void> {
+export async function joinAsSpectator(): Promise<void> {
   const code = await _askCode(t('duel.spectate.title'), t('duel.spectate.desc'));
   if (!code) return;
   try {
@@ -1084,7 +1090,8 @@ async function joinAsSpectator(): Promise<void> {
     await _fbPatch(`/duel_rooms/${code}/spectators/${_specId}`,{name:_getMyName(),avatar:_getMyAvatar()});
     _startSpectatorView(room);
   } catch(e){
-    elMsg().textContent='❌ '+(e as Error).message; elMsg().style.display='block';
+    state.duelLobbyUI.msg={visible:true,text:'❌ '+(e as Error).message,challenge:null};
+    notifyStateChange();
   }
 }
 
@@ -1124,9 +1131,8 @@ export function _leaveSpectator(): void {
 }
 
 // ── Async duel (challenge) ────────────────────────────────────
-async function createAsyncChallenge(): Promise<void> {
-  const btn=$('duel-async-btn') as HTMLButtonElement;
-  btn.disabled=true; btn.textContent=t('duel.creating');
+export async function createAsyncChallenge(): Promise<void> {
+  state.duelLobbyUI.asyncBtn.disabled=true; notifyStateChange();
   try {
     // Clear any stale tournament state so _showFinish doesn't route to tournament path
     _tournId=''; _tournData=null;
@@ -1145,27 +1151,26 @@ async function createAsyncChallenge(): Promise<void> {
     state.duelRoom.roomId=code; state.duelRoom.mySlot='p1'; state.duelRoom.isAsyncChallenge=true; state.duelRoom.roomCreatedAt=challenge.createdAt;
     state.duelRoom.roomSeed=seed; state.duelRoom.roomCategory=state.duelSel.category; state.duelRoom.roomDifficulty=state.duelSel.difficulty; state.duelRoom.roomMaxHints=state.duelSel.maxHints;
     state.duelRoom.quizDeck=_buildDeck(seed,state.duelSel.category,state.duelSel.difficulty,state.duelSel.mode);
-    notifyStateChange();
     // Show code to share
-    const codeEl=$('duel-room-code'); if(codeEl) codeEl.textContent=_fmtCode(code);
-    const modeEl=$('duel-waiting-mode');
-    if(modeEl) modeEl.textContent=`📬 ${t('duel.mode.'+state.duelSel.mode)} · ${t('duel.async.24h')}`;
-    $('duel-waiting').style.display='block';
-    $('duel-join-row').style.display='none';
+    state.duelLobbyUI.waiting={visible:true,roomCode:_fmtCode(code),modeLabel:`📬 ${t('duel.mode.'+state.duelSel.mode)} · ${t('duel.async.24h')}`};
+    state.duelLobbyUI.joinRowVisible=false;
+    notifyStateChange();
     // Start playing immediately
     if(_asyncStartTimer){clearTimeout(_asyncStartTimer);_asyncStartTimer=null;}
     _asyncStartTimer=setTimeout(()=>{
       _asyncStartTimer=null;
-      $('duel-waiting').style.display='none';
+      state.duelLobbyUI.waiting.visible=false;
+      notifyStateChange();
       _initGame(state.duelSel.mode, state.duelSel.maxHints, 1, {p1wins:0,p2wins:0,round:1}, state.duelSel.powerupsEnabled);
     }, 2000);
   } catch(e){
-    btn.disabled=false; btn.textContent=t('duel.async.send');
-    elMsg().textContent='❌ '+(e as Error).message; elMsg().style.display='block';
+    state.duelLobbyUI.asyncBtn.disabled=false;
+    state.duelLobbyUI.msg={visible:true,text:'❌ '+(e as Error).message,challenge:null};
+    notifyStateChange();
   }
 }
 
-async function joinAsyncChallenge(): Promise<void> {
+export async function joinAsyncChallenge(): Promise<void> {
   const code = await _askCode(t('duel.async.reply.title'), t('duel.async.reply.desc'));
   if (!code) return;
   try {
@@ -1180,14 +1185,15 @@ async function joinAsyncChallenge(): Promise<void> {
     state.duelRoom.oppName=challenge.challenger.name; state.duelRoom.oppAvatar=challenge.challenger.avatar;
     notifyStateChange();
     const mInfo=DUEL_MODES.find(m=>m.id===challenge.mode);
-    elMsg().innerHTML=`<span style="color:var(--accent)">📬 ${challenge.challenger.avatar} <b>${challenge.challenger.name}</b> · ${mInfo?.icon} ${mInfo?t('duel.mode.'+mInfo.id):''}</span>`;
-    elMsg().style.display='block';
+    state.duelLobbyUI.msg={visible:true,text:'',challenge:{avatar:challenge.challenger.avatar,name:challenge.challenger.name,modeIcon:mInfo?.icon??'',modeLabel:mInfo?t('duel.mode.'+mInfo.id):''}};
+    notifyStateChange();
     // Let the challenger know who accepted, so resume cards can show "vs <opponent>"
     _fbPatch(`/duel_async/${code}`,{opponent:{name:_getMyName(),avatar:_getMyAvatar(),score:0,done:false}}).catch(()=>{});
     if(_asyncStartTimer){clearTimeout(_asyncStartTimer);_asyncStartTimer=null;}
-    _asyncStartTimer=setTimeout(()=>{ _asyncStartTimer=null; elMsg().style.display='none'; _initGame(challenge.mode,state.duelRoom.roomMaxHints,challenge.bestOf??1,{p1wins:0,p2wins:0,round:1},challenge.powerupsEnabled??false); }, 1800);
+    _asyncStartTimer=setTimeout(()=>{ _asyncStartTimer=null; state.duelLobbyUI.msg.visible=false; notifyStateChange(); _initGame(challenge.mode,state.duelRoom.roomMaxHints,challenge.bestOf??1,{p1wins:0,p2wins:0,round:1},challenge.powerupsEnabled??false); }, 1800);
   } catch(e){
-    elMsg().textContent='❌ '+(e as Error).message; elMsg().style.display='block';
+    state.duelLobbyUI.msg={visible:true,text:'❌ '+(e as Error).message,challenge:null};
+    notifyStateChange();
   }
 }
 
@@ -1199,7 +1205,8 @@ function _doRematch():void{
   } else {
     // p2 gets new code to join
     _showLobby(); renderDuel();
-    elMsg().textContent=t('duel.rematch.ask'); elMsg().style.display='block';
+    state.duelLobbyUI.msg={visible:true,text:t('duel.rematch.ask'),challenge:null};
+    notifyStateChange();
   }
 }
 
@@ -1385,9 +1392,9 @@ function _tournRoundName(round:number, totalRounds:number): string {
   return `${t('duel.round.n')} ${round+1}`;
 }
 
-async function createTournament(size:4|8): Promise<void> {
-  const btn=$(`tourn-create-${size}`) as HTMLButtonElement;
-  btn.disabled=true; btn.textContent=t('duel.creating');
+export async function createTournament(size:4|8): Promise<void> {
+  const tournBtn = size===4 ? state.duelLobbyUI.tournBtn4 : state.duelLobbyUI.tournBtn8;
+  tournBtn.disabled=true; notifyStateChange();
   try {
     _tournId=_genCode();
     const tourn: Tournament = {
@@ -1402,12 +1409,12 @@ async function createTournament(size:4|8): Promise<void> {
     _renderTournWaiting(tourn);
     _startTournWaitPoll();
   } catch(e){
-    btn.disabled=false; btn.textContent=`${size===4?'🏟️':'🏆'} ${t('duel.tournament')} ×${size}`;
-    elMsg().textContent='❌ '+(e as Error).message; elMsg().style.display='block';
+    tournBtn.disabled=false; tournBtn.errorLabel='❌ '+(e as Error).message;
+    notifyStateChange();
   }
 }
 
-async function joinTournament(): Promise<void> {
+export async function joinTournament(): Promise<void> {
   const code = await _askCode(t('duel.tourn.join.title'), t('duel.tourn.join.desc'));
   if(!code) return;
   try {
@@ -1651,24 +1658,6 @@ export function renderDuel():void{
 }
 
 // ── Event bindings ────────────────────────────────────────────
-$('duel-create-btn')?.addEventListener('click',createRoom);
-$('duel-join-btn')?.addEventListener('click',joinRoom);
-$('duel-cancel-btn')?.addEventListener('click',_cancelRoom);
-$('duel-spectate-btn')?.addEventListener('click',joinAsSpectator);
-$('duel-async-btn')?.addEventListener('click',createAsyncChallenge);
-$('duel-async-join-btn')?.addEventListener('click',joinAsyncChallenge);
-$('tourn-create-4')?.addEventListener('click',()=>createTournament(4));
-$('tourn-create-8')?.addEventListener('click',()=>createTournament(8));
-$('tourn-join-btn')?.addEventListener('click',joinTournament);
-
-$('duel-join-input')?.addEventListener('keydown',(e:KeyboardEvent)=>{
-  const inp=e.target as HTMLInputElement;
-  let v=inp.value.replace(/[^A-Z0-9]/gi,'').toUpperCase();
-  if(v.length>3) v=v.slice(0,3)+'-'+v.slice(3);
-  inp.value=v.slice(0,7);
-  if(e.key==='Enter') joinRoom();
-});
-
 document.addEventListener('keydown',(e:KeyboardEvent)=>{
   const game=$('duel-game'); if(!game||game.style.display==='none') return;
   if(state.duelRoom.mode!=='write'&&!state.duelRoom.answered&&['1','2','3','4'].includes(e.key)){
@@ -1724,7 +1713,7 @@ $('duel-page-close')?.addEventListener('click', async () => {
   const tournVisible     = state.duelScreen === 'tournament';
   const spectVisible     = state.duelScreen === 'spectate';
   const countdownVisible = elCountdown().style.display !== 'none';
-  const waitingVisible   = ($('duel-waiting') as HTMLElement|null)?.style.display === 'block';
+  const waitingVisible   = state.duelLobbyUI.waiting.visible;
 
   // 24h async duel: leaving mid-question (or during the pre-game countdown)
   // never forfeits — the room stays alive, the session is saved, and the

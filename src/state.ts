@@ -88,4 +88,14 @@ export const state: AppState = {
   duelCountdownNum: 3,
   duelResult: null,
   duelTempo: { visible: false, num: 4 },
+  duelLobbyUI: {
+    msg: { visible: false, text: '', challenge: null },
+    waiting: { visible: false, roomCode: '', modeLabel: '' },
+    joinRowVisible: true,
+    createBtn: { disabled: false },
+    joinBtn: { disabled: false },
+    asyncBtn: { disabled: false },
+    tournBtn4: { disabled: false, errorLabel: null },
+    tournBtn8: { disabled: false, errorLabel: null },
+  },
 };
