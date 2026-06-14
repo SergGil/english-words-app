@@ -4,7 +4,7 @@
 // duel.ts (_startSpectatorView/_renderSpectatorView), яка викликає
 // refreshDuelSpectator() після кожного оновлення.
 import type { ReactElement } from 'react';
-import { _getSpecRoom, _leaveSpectator, DUEL_MODES, ROOM_SIZE } from './duel.ts';
+import { _getSpecRoom, _getDuelScreen, _leaveSpectator, DUEL_MODES, ROOM_SIZE } from './duel.ts';
 import { t } from './i18n.ts';
 import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 
@@ -20,6 +20,7 @@ function Dots({ idx, color }: { idx:number; color:string }): ReactElement {
 
 export function DuelSpectatorView(): ReactElement | null {
   useStateVersion();
+  if (_getDuelScreen() !== 'spectate') return null;
   const room = _getSpecRoom();
   if (!room) return null;
   const { p1, p2 } = room;

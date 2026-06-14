@@ -4,7 +4,7 @@
 // при кожній зміні (полінг кімнати очікування / турнірного браунзера).
 import type { ReactElement } from 'react';
 import { t } from './i18n.ts';
-import { _getTournamentData, _onTournStart, _onTournCancel, _onTournPlay, _onTournRejoin, type TournRoundVM } from './duel.ts';
+import { _getTournamentData, _getDuelScreen, _onTournStart, _onTournCancel, _onTournPlay, _onTournRejoin, type TournRoundVM } from './duel.ts';
 import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 
 function TournWaiting(): ReactElement | null {
@@ -108,8 +108,9 @@ function TournBracket(): ReactElement | null {
   );
 }
 
-export function DuelTournament(): ReactElement {
+export function DuelTournament(): ReactElement | null {
   useStateVersion();
+  if (_getDuelScreen() !== 'tournament') return null;
   return (
     <>
       <TournWaiting />

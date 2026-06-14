@@ -1089,8 +1089,7 @@ async function joinAsSpectator(): Promise<void> {
 }
 
 function _startSpectatorView(room:RoomData): void {
-  const el=$('duel-spectate') as HTMLElement|null; if(!el) return;
-  elLobby().style.display='none'; el.style.display='';
+  elLobby().style.display='none';
   elChatPanel().style.display='none';
   state.duelScreen='spectate'; notifyStateChange();
   _renderSpectatorView(room);
@@ -1104,7 +1103,7 @@ function _startSpectatorView(room:RoomData): void {
         // Clean up spectator entry in Firebase before leaving
         if(_specId) fetch(`${DB_URL}/duel_rooms/${state.duelRoom.roomId}/spectators/${_specId}.json`,{method:'DELETE'}).catch(()=>{});
         _specId=''; _isSpectator=false;
-        setTimeout(()=>{ el.style.display='none'; _showLobby(); renderDuel(); },3000);
+        setTimeout(()=>{ _showLobby(); renderDuel(); },3000);
       }
     }catch(e){}
   },1500);
@@ -1120,7 +1119,6 @@ function _renderSpectatorView(room:RoomData): void {
 // duel-spectator.tsx, а також зі smart close-кнопки нижче.
 export function _leaveSpectator(): void {
   _cancelRoom();
-  ($('duel-spectate') as HTMLElement).style.display='none';
   _showLobby();
   renderDuel();
 }
@@ -1327,8 +1325,7 @@ let _tournData: Tournament | null = null;
 let _tournPoll: ReturnType<typeof setInterval> | null = null;
 let _tournFinishHook: ((r:RoomData)=>void) | null = null;
 
-function _showTournament() { elLobby().style.display='none'; ($('duel-tournament') as HTMLElement).style.display=''; elChatPanel().style.display='none'; state.duelScreen='tournament'; notifyStateChange(); }
-function _hideTournament() { ($('duel-tournament') as HTMLElement).style.display='none'; }
+function _showTournament() { elLobby().style.display='none'; elChatPanel().style.display='none'; state.duelScreen='tournament'; notifyStateChange(); }
 
 // Знімок даних для duel-tournament.tsx (item 33, Фаза 5).
 export interface TournSlotVM { filled:boolean; avatar:string; name:string; label:string; }
@@ -1572,7 +1569,6 @@ async function _startTournMatch(tourn:Tournament, round:number, matchIdx:number)
   state.duelRoom.oppAvatar=tourn.players[match.p1===_tournSlot?match.p2:match.p1].avatar;
   state.duelRoom.quizDeck=_buildDeck(seed,tourn.category,tourn.difficulty,tourn.mode);
   notifyStateChange();
-  _hideTournament();
   _initGame(tourn.mode,3,1,{p1wins:0,p2wins:0,round:1},false);
   // After game finishes, save result to tournament
   _tournFinishHook=async(roomData:RoomData)=>{
@@ -1602,7 +1598,6 @@ async function _joinTournMatch(roomId:string): Promise<void> {
     state.duelRoom.quizDeck=_buildDeck(room.seed,room.category,room.difficulty,room.mode);
     state.duelRoom.oppName=room.p1.name; state.duelRoom.oppAvatar=room.p1.avatar;
     notifyStateChange();
-    _hideTournament();
     _initGame(room.mode,3,1,{p1wins:0,p2wins:0,round:1},false);
   }catch(e){}
 }
@@ -1646,7 +1641,7 @@ function _cancelTournament(): void {
   if(_tournPoll){clearInterval(_tournPoll);_tournPoll=null;}
   if(_tournId&&_tournSlot===0) fetch(`${DB_URL}/tournaments/${_tournId}.json`,{method:'DELETE'}).catch(()=>{});
   _tournId=''; _tournData=null; _tournSlot=-1;
-  _hideTournament(); _showLobby(); renderDuel();
+  _showLobby(); renderDuel();
 }
 
 // ── renderDuel (full page) ────────────────────────────────────
@@ -1726,8 +1721,8 @@ function _showConfirm(title: string, message: string, okLabel: string): Promise<
 // If game/tournament/spectator is active → return to lobby; else → close page
 $('duel-page-close')?.addEventListener('click', async () => {
   const gameVisible      = elGame().style.display !== 'none';
-  const tournVisible     = ($('duel-tournament') as HTMLElement|null)?.style.display !== 'none';
-  const spectVisible     = ($('duel-spectate') as HTMLElement|null)?.style.display !== 'none';
+  const tournVisible     = state.duelScreen === 'tournament';
+  const spectVisible     = state.duelScreen === 'spectate';
   const countdownVisible = elCountdown().style.display !== 'none';
   const waitingVisible   = ($('duel-waiting') as HTMLElement|null)?.style.display === 'block';
 
