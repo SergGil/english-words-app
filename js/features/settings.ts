@@ -5,6 +5,7 @@ import { W } from '../../data/words.js';
 import { openPage } from './sidebar.ts';
 import { t } from './i18n.ts';
 import { refreshGameBarLevel } from './game-bar-level.tsx';
+import { bindModalDismiss } from './overlay-utils.ts';
 import type { WordEntry } from '../../src/types.js';
 
 type VoidFn = () => void;
@@ -72,16 +73,11 @@ if (btnSW) {
 // ── Modes Modal ────────────────────────────────────────────────
 const _modesOvl = document.getElementById('modes-overlay');
 const _openBtn  = document.getElementById('btn-modes-open');
-const _closeBtn = document.getElementById('modes-close');
 if (_modesOvl && _openBtn) {
   const openModes  = (): void => { _modesOvl.className = 'modes-overlay open'; };
   const closeModes = (): void => { _modesOvl.className = 'modes-overlay'; };
   _openBtn.addEventListener('click', openModes);
-  _closeBtn?.addEventListener('click', closeModes);
-  _modesOvl.addEventListener('click', (e: MouseEvent) => { if (e.target === _modesOvl) closeModes(); });
-  document.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && _modesOvl.className.includes('open')) closeModes();
-  });
+  bindModalDismiss('modes-overlay', 'modes-close', closeModes);
 }
 
 // ── Achievements button ────────────────────────────────────────

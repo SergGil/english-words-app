@@ -9,6 +9,7 @@ import { playSound } from '../core/audio.ts';
 import { setDeck } from '../core/card-engine.ts';
 import { invalidateReadingIndex } from '../modes/reading.tsx';
 import { invalidateCatCache } from '../modes/catpairs.tsx';
+import { bindModalDismiss } from './overlay-utils.ts';
 
 type CustomWord = { en: string; ua: string; ex_en?: string; ex_ua?: string };
 type WordIdx = Map<string, number>;
@@ -93,9 +94,7 @@ document.getElementById('cw-save')?.addEventListener('click', () => {
 });
 
 document.getElementById('btn-add-word')?.addEventListener('click', openModal);
-document.getElementById('custom-modal-close')?.addEventListener('click', closeModal);
-modal.addEventListener('click', (e: MouseEvent) => { if (e.target === modal) closeModal(); });
-document.addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Escape' && modal.className === 'open') closeModal(); });
+bindModalDismiss('custom-modal', 'custom-modal-close', closeModal);
 
 // ── Export helpers ─────────────────────────────────────────────
 function _exportSrc(): (typeof W[number])[] {

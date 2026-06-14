@@ -10,6 +10,17 @@ export function bindOverlayOpenClose(btnId: string, overlayId: string, open: () 
   overlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) close(); });
 }
 
+/** Кнопка закриття + клік по фону + Escape (коли оверлей відкритий) викликають довільний close(). */
+export function bindModalDismiss(overlayId: string, closeBtnId: string | undefined, close: () => void): void {
+  const overlay = document.getElementById(overlayId) as HTMLElement | null;
+  if (!overlay) return;
+  if (closeBtnId) document.getElementById(closeBtnId)?.addEventListener('click', close);
+  overlay.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) close();
+  });
+}
+
 /** Кнопка закриття + клік по фону + Escape (коли оверлей відкритий) викликають closePage(). */
 export function bindOverlayDismiss(overlayId: string, closeBtnId?: string): void {
   const overlay = document.getElementById(overlayId) as HTMLElement | null;
