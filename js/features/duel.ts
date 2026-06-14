@@ -410,31 +410,31 @@ export function _showInfoTooltip(anchor: HTMLElement, type: 'hints' | 'powerups'
 }
 
 // ── Countdown ─────────────────────────────────────────────────
+// Знімок даних для duel-countdown.tsx (Фаза 9/1).
+export interface CountdownData {
+  oppAvatar:string; oppName:string; myAvatar:string; myName:string;
+  roomCode:string|null; num:number;
+}
+export function _getCountdownData(): CountdownData {
+  return {
+    oppAvatar: state.duelRoom.oppAvatar,
+    oppName:   state.duelRoom.oppName,
+    myAvatar:  _getMyAvatar(),
+    myName:    _getMyName(),
+    // Show room code so p1 still has time to share it during countdown
+    roomCode:  (state.duelRoom.roomId && state.duelRoom.mySlot === 'p1') ? state.duelRoom.roomId : null,
+    num:       state.duelCountdownNum,
+  };
+}
+
 function _runCountdown(cb: ()=>void): void {
   _showCountdown();
-  const numEl = $('dc-number');
-  const oppEl = $('dc-opp-row');
-  if (oppEl) oppEl.textContent = `${state.duelRoom.oppAvatar} ${state.duelRoom.oppName} vs ${_getMyAvatar()} ${_getMyName()}`;
-  // Show room code so p1 still has time to share it during countdown
-  const codeHint = $('dc-room-code-hint') as HTMLElement|null;
-  const codeVal  = $('dc-room-code-val')  as HTMLElement|null;
-  if (codeHint && codeVal) {
-    if (state.duelRoom.roomId && state.duelRoom.mySlot === 'p1') { codeVal.textContent = state.duelRoom.roomId; codeHint.style.display = ''; }
-    else { codeHint.style.display = 'none'; }
-  }
-  let n = 3;
-  numEl.textContent = '3';
+  state.duelCountdownNum = 3;
+  notifyStateChange();
   const _timer = setInterval(()=>{
-    n--;
-    if (n > 0) {
-      numEl.textContent = String(n);
-      numEl.style.transform = 'scale(1.4)';
-      setTimeout(()=>{ numEl.style.transform=''; }, 150);
-    } else if (n === 0) {
-      numEl.textContent = '⚡';
-    } else {
-      clearInterval(_timer); cb();
-    }
+    state.duelCountdownNum--;
+    notifyStateChange();
+    if (state.duelCountdownNum < 0) { clearInterval(_timer); cb(); }
   }, 1000);
 }
 

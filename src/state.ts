@@ -85,4 +85,5 @@ export const state: AppState = {
     roomMaxHints:     3,
   },
   duelScreen: 'lobby',
+  duelCountdownNum: 3,
 };
