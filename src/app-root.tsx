@@ -51,6 +51,7 @@ import { DuelQuestion } from '../js/features/duel-question.tsx';
 import { DuelResume } from '../js/features/duel-resume.tsx';
 import { DuelTournament } from '../js/features/duel-tournament.tsx';
 import { DuelCountdown } from '../js/features/duel-countdown.tsx';
+import { DuelResult } from '../js/features/duel-result.tsx';
 
 function Portal({ id, children }: { id: string; children: ReactNode }): ReactElement | null {
   const el = document.getElementById(id);
@@ -117,6 +118,7 @@ function AppRoot(): ReactElement {
     <Portal id="duel-resume-mount"><DuelResume/></Portal>
     <Portal id="duel-tournament-mount"><DuelTournament/></Portal>
     <Portal id="duel-countdown-mount"><DuelCountdown/></Portal>
+    <Portal id="duel-result-mount"><DuelResult/></Portal>
   </>;
 }
 

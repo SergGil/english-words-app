@@ -728,21 +728,7 @@
 
       <!-- RESULT -->
       <div id="duel-result" style="display:none;text-align:center;padding:10px 0;">
-        <div id="duel-result-inner"></div>
-        <!-- History line -->
-        <div id="duel-history-entry" style="font-size:.75rem;color:var(--text3);margin:10px 0 0;"></div>
-        <!-- Rematch + New game buttons -->
-        <div style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap;">
-          <button id="duel-rematch-btn" data-i18n="duel.rematch" style="display:none;padding:12px 24px;border-radius:12px;border:1.5px solid var(--accent);background:none;color:var(--accent);font-weight:700;cursor:pointer;font-family:inherit;font-size:.88rem;">⚔️ Реванш</button>
-          <button id="duel-again-btn" data-i18n="duel.newDuel" style="padding:12px 24px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.88rem;">🔄 Нова дуель</button>
-        </div>
-        <!-- Emoji reactions -->
-        <div style="margin-top:14px;">
-          <div style="font-size:.7rem;color:var(--text3);margin-bottom:6px;" data-i18n="duel.sendReaction">Надіслати реакцію суперникам:</div>
-          <div id="duel-reactions" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;"></div>
-        </div>
-        <!-- Received reaction display -->
-        <div id="duel-reaction-received" style="display:none;font-size:2.5rem;margin-top:10px;animation:duel-react-in .3s ease;"></div>
+        <div id="duel-result-mount"></div>
       </div>
 
     </div>

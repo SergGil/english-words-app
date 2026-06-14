@@ -86,4 +86,5 @@ export const state: AppState = {
   },
   duelScreen: 'lobby',
   duelCountdownNum: 3,
+  duelResult: null,
 };

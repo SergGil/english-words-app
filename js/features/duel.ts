@@ -929,6 +929,17 @@ async function _finishMyGame():Promise<void>{
   }catch(e){console.warn('[duel]',e);}
 }
 
+// Знімок даних для duel-result.tsx (Фаза 9/2).
+export type DuelResultOutcome = 'win' | 'tie' | 'loss';
+export type DuelResultData =
+  | { kind: 'round'; outcome: DuelResultOutcome; round: number; myWins: number; oppWins: number; myName: string; oppName: string }
+  | { kind: 'final'; outcome: DuelResultOutcome; modeIcon: string; modeLabel: string; catLabel: string;
+      myAvatar: string; myScore: number; oppAvatar: string; oppScore: number; oppName: string;
+      roomSize: number; historyText: string }
+  | null;
+
+export function _getResultData(): DuelResultData { return state.duelResult; }
+
 function _showFinish(room:RoomData):void{
   if(state.duelRoom.finished) return;
   state.duelRoom.finished=true;
@@ -963,39 +974,31 @@ function _showFinish(room:RoomData):void{
     notifyStateChange();
     if(myW<2&&oppW<2&&newSeries.round<=3){
       // Series not decided — show next round
-      $('duel-result-inner').innerHTML=
-        `<div style="font-size:2rem;margin-bottom:6px;">${won?'🏆':tie?'🤝':'😔'}</div>`+
-        `<div style="font-weight:700;font-size:1.1rem;color:var(--text);">${t('duel.round.n')} ${newSeries.round-1}: ${won?t('duel.series.win'):tie?t('duel.series.tie'):t('duel.series.loss')}</div>`+
-        `<div style="font-size:.85rem;color:var(--text2);margin:8px 0;">${t('duel.series.label')} ${_getMyName()} ${myW} — ${oppW} ${opp?.name||t('duel.opp')}</div>`;
-      const nb=$('duel-rematch-btn') as HTMLButtonElement; if(nb){ nb.style.display='inline-block'; nb.textContent=t('duel.nextRound'); }
+      const outcome:DuelResultOutcome = won?'win':tie?'tie':'loss';
+      state.duelResult={kind:'round',outcome,round:newSeries.round-1,myWins:myW,oppWins:oppW,myName:_getMyName(),oppName:opp?.name||t('duel.opp')};
       _showResult(); return;
     }
   }
 
   const catLabel=room.category?` · ${room.category.split(' ')[0]}`:'';
-  const histEl=$('duel-history-entry'); if(histEl) histEl.textContent=`${mInfo.icon} ${t('duel.mode.'+mInfo.id)}${catLabel} · ${new Date().toLocaleDateString(_dateLocale())}`;
-
-  $('duel-result-inner').innerHTML=
-    `<div style="font-size:.72rem;color:var(--text3);margin-bottom:6px;">${mInfo.icon} ${t('duel.mode.'+mInfo.id)}${catLabel}</div>`+
-    `<div style="font-size:3rem;margin-bottom:8px;">${won?'🏆':tie?'🤝':'😔'}</div>`+
-    `<div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:6px;">${won?t('duel.result.won'):tie?t('duel.result.tie'):t('duel.result.lost',{name:opp?.name||t('duel.opp')})}</div>`+
-    `<div style="display:flex;gap:20px;justify-content:center;margin:14px 0;">`+
-      `<div style="text-align:center;"><div style="font-size:2rem;">${me.avatar||'🧑'}</div><div style="font-weight:700;font-size:1.2rem;color:${won||tie?'#27ae60':'#e74c3c'}">${me.score}/${ROOM_SIZE}</div><div style="font-size:.72rem;color:var(--text3);">${t('duel.you')}</div></div>`+
-      `<div style="font-size:1.5rem;align-self:center;color:var(--text3);">VS</div>`+
-      `<div style="text-align:center;"><div style="font-size:2rem;">${opp?.avatar||'🧑'}</div><div style="font-weight:700;font-size:1.2rem;color:${!won&&!tie?'#27ae60':'#e74c3c'}">${opp?.score??0}/${ROOM_SIZE}</div><div style="font-size:.72rem;color:var(--text3);">${opp?.name||t('duel.opp')}</div></div>`+
-    `</div>`;
-
-  // Show rematch + reactions
-  const rb=$('duel-rematch-btn') as HTMLButtonElement; if(rb){ rb.style.display='inline-block'; rb.textContent=t('duel.rematch'); }
-  const reactEl=$('duel-reactions'); if(reactEl){
-    reactEl.innerHTML=REACTIONS.map(e=>`<button class="duel-react-end-btn" data-emoji="${e}" style="font-size:1.5rem;background:none;border:none;cursor:pointer;padding:4px;">${e}</button>`).join('');
-    reactEl.querySelectorAll<HTMLButtonElement>('.duel-react-end-btn').forEach(b=>{
-      b.addEventListener('click',()=>_sendChatMsg(b.dataset.emoji!));
-    });
-  }
+  const outcome:DuelResultOutcome = won?'win':tie?'tie':'loss';
+  state.duelResult={
+    kind:'final', outcome,
+    modeIcon:mInfo.icon, modeLabel:t('duel.mode.'+mInfo.id), catLabel,
+    myAvatar:me.avatar||'🧑', myScore:me.score,
+    oppAvatar:opp?.avatar||'🧑', oppScore:opp?.score??0, oppName:opp?.name||t('duel.opp'),
+    roomSize:ROOM_SIZE,
+    historyText:`${mInfo.icon} ${t('duel.mode.'+mInfo.id)}${catLabel} · ${new Date().toLocaleDateString(_dateLocale())}`,
+  };
   _showResult();
   _startResultPoll();
 }
+
+// ── Result screen actions (duel-result.tsx, Фаза 9/2) ──────────
+export function _onResultRematch(): void { _doRematch(); }
+export function _onResultNewDuel(): void { _cancelRoom(); _showLobby(); renderDuel(); }
+export function _onResultReaction(emoji:string): void { _sendChatMsg(emoji); }
+export { REACTIONS };
 
 function _cancelRoom():void{
   _clearSession();
@@ -1654,8 +1657,6 @@ export function renderDuel():void{
 $('duel-create-btn')?.addEventListener('click',createRoom);
 $('duel-join-btn')?.addEventListener('click',joinRoom);
 $('duel-cancel-btn')?.addEventListener('click',_cancelRoom);
-$('duel-again-btn')?.addEventListener('click',()=>{ _cancelRoom(); _showLobby(); renderDuel(); });
-$('duel-rematch-btn')?.addEventListener('click',_doRematch);
 $('duel-spectate-btn')?.addEventListener('click',joinAsSpectator);
 $('duel-async-btn')?.addEventListener('click',createAsyncChallenge);
 $('duel-async-join-btn')?.addEventListener('click',joinAsyncChallenge);
