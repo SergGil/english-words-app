@@ -688,7 +688,7 @@ function _startResultPoll(): void {
   },1500);
 }
 
-async function _sendChatMsg(text:string): Promise<void> {
+export async function _sendChatMsg(text:string): Promise<void> {
   if(!text.trim()) return;
   const ts=Date.now();
   try { await _fbPatch(`/duel_rooms/${state.duelRoom.roomId}/${state.duelRoom.mySlot}`,{reaction:text,reactionTs:ts}); } catch(e){}
@@ -1671,24 +1671,6 @@ $('duel-join-input')?.addEventListener('keydown',(e:KeyboardEvent)=>{
   inp.value=v.slice(0,7);
   if(e.key==='Enter') joinRoom();
 });
-
-// In-game reactions
-$('dm-react-row')?.querySelectorAll<HTMLButtonElement>('.dm-react-btn').forEach(b=>{
-  b.addEventListener('click',()=>_sendChatMsg(b.dataset.emoji!));
-});
-
-// Chat text input
-const _chatInput=$('duel-chat-input') as HTMLInputElement|null;
-const _chatSendBtn=$('duel-chat-send') as HTMLButtonElement|null;
-function _sendChatInput(): void {
-  if(!_chatInput) return;
-  const text=_chatInput.value.trim();
-  if(!text) return;
-  _sendChatMsg(text);
-  _chatInput.value='';
-}
-_chatSendBtn?.addEventListener('click',_sendChatInput);
-_chatInput?.addEventListener('keydown',(e:KeyboardEvent)=>{ if(e.key==='Enter') _sendChatInput(); });
 
 document.addEventListener('keydown',(e:KeyboardEvent)=>{
   const game=$('duel-game'); if(!game||game.style.display==='none') return;
