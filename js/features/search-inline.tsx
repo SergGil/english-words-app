@@ -5,15 +5,19 @@ import { W } from '../../data/words.js';
 import { state } from '../../src/state.ts';
 import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 import { shuffle } from '../core/srs.ts';
-import { ES_MODES, getMode } from './mode-utils.ts';
+import { ES_MODES, FR_MODES, IT_MODES, PT_MODES, DE_MODES, getMode } from './mode-utils.ts';
 import { t } from './i18n.ts';
 import { render, setDeck, setIdx, stopAuto } from '../core/card-engine.ts';
 import type { WordEntry } from '../../src/types.js';
 
 function activeKnown(): Set<string> {
-  return ES_MODES.has(getMode())
-    ? state.knownEs
-    : state.known;
+  const mode = getMode();
+  if (ES_MODES.has(mode)) return state.knownEs;
+  if (FR_MODES.has(mode)) return state.knownFr;
+  if (IT_MODES.has(mode)) return state.knownIt;
+  if (PT_MODES.has(mode)) return state.knownPt;
+  if (DE_MODES.has(mode)) return state.knownDe;
+  return state.known;
 }
 
 function goToWord(word: string, after: () => void): void {

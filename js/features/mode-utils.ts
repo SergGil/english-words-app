@@ -2,12 +2,18 @@
 // Shared ES mode detection + helpers used by app.ts and similar-words.ts
 import { W_ES } from '../../data/words_es.js';
 import { W_FR } from '../../data/words_fr.js';
+import { W_IT } from '../../data/words_it.js';
+import { W_PT } from '../../data/words_pt.js';
+import { W_DE } from '../../data/words_de.js';
 import { boldEn, boldUa, boldHead } from '../core/card-helpers.ts';
 import { state } from '../../src/state.ts';
 import type { WordEntry } from '../../src/types.js';
 
 export const ES_MODES = new Set(['en-es', 'es-en', 'es-ua', 'ua-es', 'es-fr', 'fr-es']);
 export const FR_MODES = new Set(['en-fr', 'fr-en', 'fr-ua', 'ua-fr', 'es-fr', 'fr-es']);
+export const IT_MODES = new Set(['en-it', 'it-en', 'it-ua', 'ua-it']);
+export const PT_MODES = new Set(['en-pt', 'pt-en', 'pt-ua', 'ua-pt']);
+export const DE_MODES = new Set(['en-de', 'de-en', 'de-ua', 'ua-de']);
 
 export function getMode(): string {
   const sel = document.getElementById('sel-mode') as HTMLSelectElement | null;
@@ -22,7 +28,7 @@ export function getMode(): string {
 
 // FRONT_LANG залежить лише від обраного режиму (не від конкретного слова) —
 // чисто обчислюється з `mode`, тому винесено окремо для CardMeta (item 28a).
-export function getFrontLang(mode: string): 'EN' | 'UA' | 'ES' | 'FR' {
+export function getFrontLang(mode: string): 'EN' | 'UA' | 'ES' | 'FR' | 'IT' | 'PT' | 'DE' {
   switch (mode) {
     case 'ua':    return 'UA';
     case 'es-en': return 'ES';
@@ -33,7 +39,16 @@ export function getFrontLang(mode: string): 'EN' | 'UA' | 'ES' | 'FR' {
     case 'ua-fr': return 'UA';
     case 'es-fr': return 'ES';
     case 'fr-es': return 'FR';
-    default:      return 'EN'; // 'en', 'en-es', 'en-fr'
+    case 'it-en': return 'IT';
+    case 'it-ua': return 'IT';
+    case 'ua-it': return 'UA';
+    case 'pt-en': return 'PT';
+    case 'pt-ua': return 'PT';
+    case 'ua-pt': return 'UA';
+    case 'de-en': return 'DE';
+    case 'de-ua': return 'DE';
+    case 'ua-de': return 'UA';
+    default:      return 'EN'; // 'en', 'en-es', 'en-fr', 'en-it', 'en-pt', 'en-de'
   }
 }
 
@@ -51,11 +66,14 @@ export function getActiveKnown(known: Set<string>): Set<string> {
   const mode = getResolvedMode();
   if (ES_MODES.has(mode)) return state.knownEs ?? known;
   if (FR_MODES.has(mode)) return state.knownFr ?? known;
+  if (IT_MODES.has(mode)) return state.knownIt ?? known;
+  if (PT_MODES.has(mode)) return state.knownPt ?? known;
+  if (DE_MODES.has(mode)) return state.knownDe ?? known;
   return known;
 }
 
 export interface CardView {
-  FRONT_LANG: 'EN' | 'UA' | 'ES' | 'FR';
+  FRONT_LANG: 'EN' | 'UA' | 'ES' | 'FR' | 'IT' | 'PT' | 'DE';
   frontWord: string;
   backWord: string;
   exenHtml: string;
@@ -72,8 +90,17 @@ export function computeCardView(cw: WordEntry, mode: string): CardView {
   const frE = FR_MODES.has(mode) ? frEntry(cw[0]) : null;
   const _frWord = frE ? frE[0] : '';
   const _frEx   = frE ? frE[1] : '';
+  const itE = IT_MODES.has(mode) ? itEntry(cw[0]) : null;
+  const _itWord = itE ? itE[0] : '';
+  const _itEx   = itE ? itE[1] : '';
+  const ptE = PT_MODES.has(mode) ? ptEntry(cw[0]) : null;
+  const _ptWord = ptE ? ptE[0] : '';
+  const _ptEx   = ptE ? ptE[1] : '';
+  const deE = DE_MODES.has(mode) ? deEntry(cw[0]) : null;
+  const _deWord = deE ? deE[0] : '';
+  const _deEx   = deE ? deE[1] : '';
 
-  let FRONT_LANG: 'EN' | 'UA' | 'ES' | 'FR';
+  let FRONT_LANG: 'EN' | 'UA' | 'ES' | 'FR' | 'IT' | 'PT' | 'DE';
   let frontWord: string, backWord: string;
   switch (mode) {
     case 'ua':    FRONT_LANG = 'UA'; frontWord = cw[1];   backWord = cw[0];   break;
@@ -87,6 +114,18 @@ export function computeCardView(cw: WordEntry, mode: string): CardView {
     case 'ua-fr': FRONT_LANG = 'UA'; frontWord = cw[1];   backWord = _frWord; break;
     case 'es-fr': FRONT_LANG = 'ES'; frontWord = _esWord; backWord = _frWord; break;
     case 'fr-es': FRONT_LANG = 'FR'; frontWord = _frWord; backWord = _esWord; break;
+    case 'en-it': FRONT_LANG = 'EN'; frontWord = cw[0];   backWord = _itWord; break;
+    case 'it-en': FRONT_LANG = 'IT'; frontWord = _itWord; backWord = cw[0];   break;
+    case 'it-ua': FRONT_LANG = 'IT'; frontWord = _itWord; backWord = cw[1];   break;
+    case 'ua-it': FRONT_LANG = 'UA'; frontWord = cw[1];   backWord = _itWord; break;
+    case 'en-pt': FRONT_LANG = 'EN'; frontWord = cw[0];   backWord = _ptWord; break;
+    case 'pt-en': FRONT_LANG = 'PT'; frontWord = _ptWord; backWord = cw[0];   break;
+    case 'pt-ua': FRONT_LANG = 'PT'; frontWord = _ptWord; backWord = cw[1];   break;
+    case 'ua-pt': FRONT_LANG = 'UA'; frontWord = cw[1];   backWord = _ptWord; break;
+    case 'en-de': FRONT_LANG = 'EN'; frontWord = cw[0];   backWord = _deWord; break;
+    case 'de-en': FRONT_LANG = 'DE'; frontWord = _deWord; backWord = cw[0];   break;
+    case 'de-ua': FRONT_LANG = 'DE'; frontWord = _deWord; backWord = cw[1];   break;
+    case 'ua-de': FRONT_LANG = 'UA'; frontWord = cw[1];   backWord = _deWord; break;
     default:      FRONT_LANG = 'EN'; frontWord = cw[0];   backWord = cw[1];
   }
 
@@ -121,6 +160,36 @@ export function computeCardView(cw: WordEntry, mode: string): CardView {
     }
     exenHtml = boldHead(_frontEx, frontWord) || _frontEx;
     exuaHtml = boldHead(_backEx, backWord) || _backEx;
+  } else if (IT_MODES.has(mode)) {
+    let _frontEx = '', _backEx = '';
+    switch (mode) {
+      case 'en-it': _frontEx = _enEx; _backEx = _itEx; break;
+      case 'it-en': _frontEx = _itEx; _backEx = _enEx; break;
+      case 'it-ua': _frontEx = _itEx; _backEx = _uaEx; break;
+      case 'ua-it': _frontEx = _uaEx; _backEx = _itEx; break;
+    }
+    exenHtml = boldHead(_frontEx, frontWord) || _frontEx;
+    exuaHtml = boldHead(_backEx, backWord) || _backEx;
+  } else if (PT_MODES.has(mode)) {
+    let _frontEx = '', _backEx = '';
+    switch (mode) {
+      case 'en-pt': _frontEx = _enEx; _backEx = _ptEx; break;
+      case 'pt-en': _frontEx = _ptEx; _backEx = _enEx; break;
+      case 'pt-ua': _frontEx = _ptEx; _backEx = _uaEx; break;
+      case 'ua-pt': _frontEx = _uaEx; _backEx = _ptEx; break;
+    }
+    exenHtml = boldHead(_frontEx, frontWord) || _frontEx;
+    exuaHtml = boldHead(_backEx, backWord) || _backEx;
+  } else if (DE_MODES.has(mode)) {
+    let _frontEx = '', _backEx = '';
+    switch (mode) {
+      case 'en-de': _frontEx = _enEx; _backEx = _deEx; break;
+      case 'de-en': _frontEx = _deEx; _backEx = _enEx; break;
+      case 'de-ua': _frontEx = _deEx; _backEx = _uaEx; break;
+      case 'ua-de': _frontEx = _uaEx; _backEx = _deEx; break;
+    }
+    exenHtml = boldHead(_frontEx, frontWord) || _frontEx;
+    exuaHtml = boldHead(_backEx, backWord) || _backEx;
   }
 
   return { FRONT_LANG, frontWord, backWord, exenHtml, exuaHtml };
@@ -132,4 +201,16 @@ export function esEntry(word: string): readonly [string, string] | null {
 
 export function frEntry(word: string): readonly [string, string] | null {
   return (W_FR as unknown as Record<string, readonly [string, string]>)[word] ?? null;
+}
+
+export function itEntry(word: string): readonly [string, string] | null {
+  return (W_IT as unknown as Record<string, readonly [string, string]>)[word] ?? null;
+}
+
+export function ptEntry(word: string): readonly [string, string] | null {
+  return (W_PT as unknown as Record<string, readonly [string, string]>)[word] ?? null;
+}
+
+export function deEntry(word: string): readonly [string, string] | null {
+  return (W_DE as unknown as Record<string, readonly [string, string]>)[word] ?? null;
 }

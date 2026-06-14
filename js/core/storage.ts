@@ -80,6 +80,33 @@ export function loadKnownFr(): Set<string> {
   return new Set(arr);
 }
 
+export function saveKnownIt(known: Set<string>): void {
+  _lzSave('ew_known_it', [...known]);
+}
+
+export function loadKnownIt(): Set<string> {
+  const arr = _lzLoad<string[]>('ew_known_it', []);
+  return new Set(arr);
+}
+
+export function saveKnownPt(known: Set<string>): void {
+  _lzSave('ew_known_pt', [...known]);
+}
+
+export function loadKnownPt(): Set<string> {
+  const arr = _lzLoad<string[]>('ew_known_pt', []);
+  return new Set(arr);
+}
+
+export function saveKnownDe(known: Set<string>): void {
+  _lzSave('ew_known_de', [...known]);
+}
+
+export function loadKnownDe(): Set<string> {
+  const arr = _lzLoad<string[]>('ew_known_de', []);
+  return new Set(arr);
+}
+
 export function saveSRS(srsData: SRSData): void {
   _lzSave('ew_srs', srsData);
 }

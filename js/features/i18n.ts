@@ -23,14 +23,32 @@ import frSkills from '../../locales/fr/skills.json';
 import enAchievements from '../../locales/en/achievements.json';
 import esAchievements from '../../locales/es/achievements.json';
 import frAchievements from '../../locales/fr/achievements.json';
+import it from '../../locales/it/translation.json';
+import pt from '../../locales/pt/translation.json';
+import de from '../../locales/de/translation.json';
+import itDates from '../../locales/it/dates.json';
+import ptDates from '../../locales/pt/dates.json';
+import deDates from '../../locales/de/dates.json';
+import itLevels from '../../locales/it/levels.json';
+import ptLevels from '../../locales/pt/levels.json';
+import deLevels from '../../locales/de/levels.json';
+import itCategories from '../../locales/it/categories.json';
+import ptCategories from '../../locales/pt/categories.json';
+import deCategories from '../../locales/de/categories.json';
+import itSkills from '../../locales/it/skills.json';
+import ptSkills from '../../locales/pt/skills.json';
+import deSkills from '../../locales/de/skills.json';
+import itAchievements from '../../locales/it/achievements.json';
+import ptAchievements from '../../locales/pt/achievements.json';
+import deAchievements from '../../locales/de/achievements.json';
 
-export type Lang = 'ua' | 'en' | 'es' | 'fr';
+export type Lang = 'ua' | 'en' | 'es' | 'fr' | 'it' | 'pt' | 'de';
 
 const LANG_KEY = 'ew_lang';
 
 function storedLang(): Lang {
   const v = localStorage.getItem(LANG_KEY);
-  return v === 'en' ? 'en' : v === 'es' ? 'es' : v === 'fr' ? 'fr' : 'ua';
+  return v === 'en' ? 'en' : v === 'es' ? 'es' : v === 'fr' ? 'fr' : v === 'it' ? 'it' : v === 'pt' ? 'pt' : v === 'de' ? 'de' : 'ua';
 }
 
 i18next.init({
@@ -45,6 +63,9 @@ i18next.init({
     en: { translation: en, dates: enDates, levels: enLevels, categories: enCategories, skills: enSkills, achievements: enAchievements },
     es: { translation: es, dates: esDates, levels: esLevels, categories: esCategories, skills: esSkills, achievements: esAchievements },
     fr: { translation: fr, dates: frDates, levels: frLevels, categories: frCategories, skills: frSkills, achievements: frAchievements },
+    it: { translation: it, dates: itDates, levels: itLevels, categories: itCategories, skills: itSkills, achievements: itAchievements },
+    pt: { translation: pt, dates: ptDates, levels: ptLevels, categories: ptCategories, skills: ptSkills, achievements: ptAchievements },
+    de: { translation: de, dates: deDates, levels: deLevels, categories: deCategories, skills: deSkills, achievements: deAchievements },
   },
 });
 
@@ -171,7 +192,8 @@ export function applyI18n(): void {
 
 document.querySelectorAll<HTMLElement>('.lang-opt').forEach(btn => {
   btn.addEventListener('click', () => {
-    const lang = btn.dataset.lang === 'en' ? 'en' : btn.dataset.lang === 'es' ? 'es' : btn.dataset.lang === 'fr' ? 'fr' : 'ua';
+    const dl = btn.dataset.lang;
+    const lang: Lang = dl === 'en' ? 'en' : dl === 'es' ? 'es' : dl === 'fr' ? 'fr' : dl === 'it' ? 'it' : dl === 'pt' ? 'pt' : dl === 'de' ? 'de' : 'ua';
     setLang(lang);
   });
 });

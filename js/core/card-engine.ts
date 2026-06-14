@@ -20,7 +20,7 @@ import { refreshGameBarLevel as renderLevelBadge } from '../features/game-bar-le
 import { checkAchievements }                       from '../features/render-achievements.ts';
 import { maybeSubmitScore }                        from '../features/leaderboard.ts';
 import { updateRing }                              from '../features/ring.ts';
-import { ES_MODES, FR_MODES, getMode }             from '../features/mode-utils.ts';
+import { ES_MODES, FR_MODES, IT_MODES, PT_MODES, DE_MODES, getMode } from '../features/mode-utils.ts';
 import { _isOnlineCheck, _offlineSvg }             from '../features/offline.ts';
 import { safe as _safe }                           from './card-helpers.ts';
 
@@ -34,6 +34,9 @@ function _activeKnown(): Set<string> {
   const mode = getMode();
   if (ES_MODES.has(mode)) return state.knownEs;
   if (FR_MODES.has(mode)) return state.knownFr;
+  if (IT_MODES.has(mode)) return state.knownIt;
+  if (PT_MODES.has(mode)) return state.knownPt;
+  if (DE_MODES.has(mode)) return state.knownDe;
   return state.known;
 }
 

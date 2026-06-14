@@ -32,7 +32,8 @@ export function PosTag() {
   if (!cw) return null;
   const { FRONT_LANG } = computeCardView(cw, getResolvedMode());
   const posCode = cw[5] || '';
-  const posLang: Lang = FRONT_LANG === 'EN' ? 'en' : FRONT_LANG === 'UA' ? 'ua' : FRONT_LANG === 'FR' ? 'fr' : 'es';
+  const posLang: Lang = FRONT_LANG === 'EN' ? 'en' : FRONT_LANG === 'UA' ? 'ua' : FRONT_LANG === 'FR' ? 'fr'
+    : FRONT_LANG === 'IT' ? 'it' : FRONT_LANG === 'PT' ? 'pt' : FRONT_LANG === 'DE' ? 'de' : 'es';
   const posText = posCode ? tLang('pos.' + posCode, posLang) : '';
   return <div className="pos-tag" id="wpos" style={{ display: posCode ? 'block' : 'none' }}>{posText}</div>;
 }

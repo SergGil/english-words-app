@@ -102,6 +102,9 @@ export interface AppState {
                                   // mirrors sidebar.ts's openPage/closePage (item 36 Phase 7.2)
   knownEs:        Set<string>;
   knownFr:        Set<string>;
+  knownIt:        Set<string>;
+  knownPt:        Set<string>;
+  knownDe:        Set<string>;
   _wordIdx:       Map<string, number>;
   _customWords:   Array<{ en: string; ua: string; ex_en?: string; ex_ua?: string }>;
   duelSel:        DuelSelState;

@@ -2,17 +2,17 @@
 // All flashcard interaction event listeners
 import { state } from '../../src/state.ts';
 import { sm2Update, buildSRSDeck, buildUnlearnedDeck, shuffle, updateSrsUI } from '../core/srs.ts';
-import { saveKnown, saveKnownEs, saveKnownFr, saveSRS } from '../core/storage.ts';
+import { saveKnown, saveKnownEs, saveKnownFr, saveKnownIt, saveKnownPt, saveKnownDe, saveSRS } from '../core/storage.ts';
 import { getGameData, saveGameData } from './game.ts';
 import { addCombo, breakCombo, flashCard } from './combo.ts';
 import { openNoteModal, hasNote } from './notes.ts';
 import { toggleBookmark } from './bookmarks.ts';
 import { isPronuncSupported, showPronuncResult, startPronunciationCheck } from './pronunciation.ts';
-import { getSelectedUkVoice, getSelectedEsVoice, getSelectedFrVoice } from './voice.ts';
+import { getSelectedUkVoice, getSelectedEsVoice, getSelectedFrVoice, getSelectedItVoice, getSelectedPtVoice, getSelectedDeVoice } from './voice.ts';
 import { speak, _speakWithLang } from './speech.ts';
 import { updateSimilarWords } from './similar-words.tsx';
 import { updateCollocations, updateWordFamilies } from './word-context.ts';
-import { ES_MODES, FR_MODES, getMode, esEntry as _esEntry, frEntry as _frEntry } from './mode-utils.ts';
+import { ES_MODES, FR_MODES, IT_MODES, PT_MODES, DE_MODES, getMode, esEntry as _esEntry, frEntry as _frEntry, itEntry as _itEntry, ptEntry as _ptEntry, deEntry as _deEntry } from './mode-utils.ts';
 import { playSound } from '../core/audio.ts';
 import { launchConfetti } from '../core/confetti.ts';
 import { t } from './i18n.ts';
@@ -31,6 +31,9 @@ function _activeKnown(): Set<string> {
   const mode = getMode();
   if (ES_MODES.has(mode)) return state.knownEs ?? state.known;
   if (FR_MODES.has(mode)) return state.knownFr ?? state.known;
+  if (IT_MODES.has(mode)) return state.knownIt ?? state.known;
+  if (PT_MODES.has(mode)) return state.knownPt ?? state.known;
+  if (DE_MODES.has(mode)) return state.knownDe ?? state.known;
   return state.known;
 }
 
@@ -59,6 +62,18 @@ document.getElementById('speak-word')!.addEventListener('click', function(e) {
   if (modeVal === 'fr-en' || modeVal === 'fr-ua') {
     const fr = _frEntry(cw[0]);
     if (fr && getSelectedFrVoice()) { _speakWithLang(fr[0], 'fr-FR', this); return; }
+  }
+  if (modeVal === 'it-en' || modeVal === 'it-ua') {
+    const it = _itEntry(cw[0]);
+    if (it && getSelectedItVoice()) { _speakWithLang(it[0], 'it-IT', this); return; }
+  }
+  if (modeVal === 'pt-en' || modeVal === 'pt-ua') {
+    const pt = _ptEntry(cw[0]);
+    if (pt && getSelectedPtVoice()) { _speakWithLang(pt[0], 'pt-PT', this); return; }
+  }
+  if (modeVal === 'de-en' || modeVal === 'de-ua') {
+    const de = _deEntry(cw[0]);
+    if (de && getSelectedDeVoice()) { _speakWithLang(de[0], 'de-DE', this); return; }
   }
   speak(cw[0], this);
 });
@@ -94,6 +109,54 @@ document.getElementById('speak-ex')!.addEventListener('click', function(e) {
       if (hasFrVoice && exFr) _speakWithLang(exFr, 'fr-FR', this);
       else speak(exEn, this);
     } else if (modeVal === 'ua-fr') {
+      const hasUkVoice = !!getSelectedUkVoice();
+      if (hasUkVoice && exUa) _speakWithLang(exUa, 'uk-UA', this);
+      else speak(exEn, this);
+    } else {
+      speak(exEn, this);
+    }
+    return;
+  }
+  if (IT_MODES.has(modeVal)) {
+    const it        = _itEntry(cw[0]);
+    const exIt      = it ? it[1] : '';
+    const hasItVoice = !!getSelectedItVoice();
+    if (modeVal === 'it-en' || modeVal === 'it-ua') {
+      if (hasItVoice && exIt) _speakWithLang(exIt, 'it-IT', this);
+      else speak(exEn, this);
+    } else if (modeVal === 'ua-it') {
+      const hasUkVoice = !!getSelectedUkVoice();
+      if (hasUkVoice && exUa) _speakWithLang(exUa, 'uk-UA', this);
+      else speak(exEn, this);
+    } else {
+      speak(exEn, this);
+    }
+    return;
+  }
+  if (PT_MODES.has(modeVal)) {
+    const pt        = _ptEntry(cw[0]);
+    const exPt      = pt ? pt[1] : '';
+    const hasPtVoice = !!getSelectedPtVoice();
+    if (modeVal === 'pt-en' || modeVal === 'pt-ua') {
+      if (hasPtVoice && exPt) _speakWithLang(exPt, 'pt-PT', this);
+      else speak(exEn, this);
+    } else if (modeVal === 'ua-pt') {
+      const hasUkVoice = !!getSelectedUkVoice();
+      if (hasUkVoice && exUa) _speakWithLang(exUa, 'uk-UA', this);
+      else speak(exEn, this);
+    } else {
+      speak(exEn, this);
+    }
+    return;
+  }
+  if (DE_MODES.has(modeVal)) {
+    const de        = _deEntry(cw[0]);
+    const exDe      = de ? de[1] : '';
+    const hasDeVoice = !!getSelectedDeVoice();
+    if (modeVal === 'de-en' || modeVal === 'de-ua') {
+      if (hasDeVoice && exDe) _speakWithLang(exDe, 'de-DE', this);
+      else speak(exEn, this);
+    } else if (modeVal === 'ua-de') {
       const hasUkVoice = !!getSelectedUkVoice();
       if (hasUkVoice && exUa) _speakWithLang(exUa, 'uk-UA', this);
       else speak(exEn, this);
@@ -169,6 +232,9 @@ document.getElementById('btn-know')!.addEventListener('click', function(e) {
     const _modeNow = getMode();
     if (ES_MODES.has(_modeNow)) { if (state.knownEs) saveKnownEs(state.knownEs); }
     else if (FR_MODES.has(_modeNow)) { if (state.knownFr) saveKnownFr(state.knownFr); }
+    else if (IT_MODES.has(_modeNow)) { if (state.knownIt) saveKnownIt(state.knownIt); }
+    else if (PT_MODES.has(_modeNow)) { if (state.knownPt) saveKnownPt(state.knownPt); }
+    else if (DE_MODES.has(_modeNow)) { if (state.knownDe) saveKnownDe(state.knownDe); }
     else { saveKnown(state.known); }
     saveSRS(state.srsData);
     state._srsStatsDirty = true;
@@ -278,11 +344,17 @@ document.getElementById('modal-confirm')!.addEventListener('click', function() {
   state.known.clear();
   state.knownEs?.clear();
   state.knownFr?.clear();
+  state.knownIt?.clear();
+  state.knownPt?.clear();
+  state.knownDe?.clear();
   state.srsData = {};
   state._srsStatsDirty = true;
   saveKnown(state.known);
   if (state.knownEs) saveKnownEs(state.knownEs);
   if (state.knownFr) saveKnownFr(state.knownFr);
+  if (state.knownIt) saveKnownIt(state.knownIt);
+  if (state.knownPt) saveKnownPt(state.knownPt);
+  if (state.knownDe) saveKnownDe(state.knownDe);
   saveSRS(state.srsData);
   _safe(() => localStorage.removeItem('ew_game'));
   _safe(() => localStorage.removeItem('ew_daily'));

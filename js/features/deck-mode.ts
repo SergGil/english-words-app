@@ -4,7 +4,10 @@ import { state } from '../../src/state.ts';
 import { W } from '../../data/words.js';
 import { W_ES } from '../../data/words_es.js';
 import { W_FR } from '../../data/words_fr.js';
-import { ES_MODES, FR_MODES, getMode } from './mode-utils.ts';
+import { W_IT } from '../../data/words_it.js';
+import { W_PT } from '../../data/words_pt.js';
+import { W_DE } from '../../data/words_de.js';
+import { ES_MODES, FR_MODES, IT_MODES, PT_MODES, DE_MODES, getMode } from './mode-utils.ts';
 import { t } from './i18n.ts';
 import { render, setDeck, setIdx, stopAuto } from '../core/card-engine.ts';
 import type { WordEntry } from '../../src/types.js';
@@ -31,6 +34,39 @@ function _getFrDeck(): WordEntry[] {
   return _frWords;
 }
 
+let _itWords: WordEntry[] | null = null;
+
+function _getItDeck(): WordEntry[] {
+  if (!_itWords) {
+    _itWords = (W as unknown as WordEntry[]).filter(
+      w => Object.prototype.hasOwnProperty.call(W_IT, w[0])
+    );
+  }
+  return _itWords;
+}
+
+let _ptWords: WordEntry[] | null = null;
+
+function _getPtDeck(): WordEntry[] {
+  if (!_ptWords) {
+    _ptWords = (W as unknown as WordEntry[]).filter(
+      w => Object.prototype.hasOwnProperty.call(W_PT, w[0])
+    );
+  }
+  return _ptWords;
+}
+
+let _deWords: WordEntry[] | null = null;
+
+function _getDeDeck(): WordEntry[] {
+  if (!_deWords) {
+    _deWords = (W as unknown as WordEntry[]).filter(
+      w => Object.prototype.hasOwnProperty.call(W_DE, w[0])
+    );
+  }
+  return _deWords;
+}
+
 let _esFrWords: WordEntry[] | null = null;
 
 // Words usable for ES⇄FR mode: need both an ES and an FR translation (bridged via EN).
@@ -48,13 +84,36 @@ let _preSpecialIdx = 0;
 
 const ES_FR_MODES = new Set(['es-fr', 'fr-es']);
 
+function _getSpecialDeck(m: string): WordEntry[] {
+  if (ES_FR_MODES.has(m)) return _getEsFrDeck();
+  if (ES_MODES.has(m))    return _getEsDeck();
+  if (FR_MODES.has(m))    return _getFrDeck();
+  if (IT_MODES.has(m))    return _getItDeck();
+  if (PT_MODES.has(m))    return _getPtDeck();
+  if (DE_MODES.has(m))    return _getDeDeck();
+  return [];
+}
+
+function _noTransKey(m: string): string {
+  if (ES_FR_MODES.has(m)) return 'deck.noEsFrTranslations';
+  if (ES_MODES.has(m))    return 'deck.noEsTranslations';
+  if (FR_MODES.has(m))    return 'deck.noFrTranslations';
+  if (IT_MODES.has(m))    return 'deck.noItTranslations';
+  if (PT_MODES.has(m))    return 'deck.noPtTranslations';
+  return 'deck.noDeTranslations';
+}
+
+export function _isSpecialMode(m: string): boolean {
+  return ES_MODES.has(m) || FR_MODES.has(m) || IT_MODES.has(m) || PT_MODES.has(m) || DE_MODES.has(m);
+}
+
 export function _rebuildEsDeck(): void {
   const m = getMode();
-  if (!ES_MODES.has(m)) return;
-  const esDeck = ES_FR_MODES.has(m) ? _getEsFrDeck() : _getEsDeck();
+  if (!_isSpecialMode(m)) return;
+  const specialDeck = _getSpecialDeck(m);
   const ats    = state._activeTagSet as Set<string> | null;
-  let deck     = ats ? esDeck.filter(w => (ats as Set<string>).has(w[0])) : esDeck.slice();
-  if (!deck.length) deck = esDeck.slice();
+  let deck     = ats ? specialDeck.filter(w => (ats as Set<string>).has(w[0])) : specialDeck.slice();
+  if (!deck.length) deck = specialDeck.slice();
   setDeck(deck);
   setIdx(0);
   render();
@@ -63,19 +122,16 @@ export function _rebuildEsDeck(): void {
 document.getElementById('sel-mode')!.addEventListener('change', function() {
   stopAuto();
   const m          = (this as HTMLSelectElement).value;
-  const isEsFr     = ES_FR_MODES.has(m);
-  const isEs       = ES_MODES.has(m);
-  const isFr       = FR_MODES.has(m);
-  const isSpecial  = isEs || isFr;
+  const isSpecial  = _isSpecialMode(m);
   const selRangeEl = document.getElementById('sel-range') as HTMLSelectElement | null;
   const selTagEl   = document.getElementById('sel-tag')   as HTMLSelectElement | null;
 
   if (isSpecial) {
-    const specialDeck = isEsFr ? _getEsFrDeck() : isEs ? _getEsDeck() : _getFrDeck();
+    const specialDeck = _getSpecialDeck(m);
     if (!specialDeck.length) {
       const _mt = document.getElementById('milestone-toast');
       if (_mt) {
-        _mt.textContent = t(isEsFr ? 'deck.noEsFrTranslations' : isEs ? 'deck.noEsTranslations' : 'deck.noFrTranslations');
+        _mt.textContent = t(_noTransKey(m));
         _mt.className = 'milestone-toast'; void _mt.offsetWidth;
         _mt.className = 'milestone-toast show';
         setTimeout(() => { _mt.className = 'milestone-toast'; }, 3500);

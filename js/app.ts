@@ -1,6 +1,6 @@
 // English Words App — js/app.ts
 import type { WordEntry } from '../src/types.js';
-import { _lzLoad, loadKnownEs, loadKnownFr } from './core/storage.ts';
+import { _lzLoad, loadKnownEs, loadKnownFr, loadKnownIt, loadKnownPt, loadKnownDe } from './core/storage.ts';
 import { W }                                       from '../data/words.js';
 import { state }                                   from '../src/state.ts';
 import { renderGameBar }                           from './features/render-game-bar.ts';
@@ -27,6 +27,9 @@ Object.keys(state.srsData).forEach(function(k: string){ if(typeof (state.srsData
 state.known   = new Set<string>(savedKnown as string[]);
 state.knownEs = loadKnownEs();
 state.knownFr = loadKnownFr();
+state.knownIt = loadKnownIt();
+state.knownPt = loadKnownPt();
+state.knownDe = loadKnownDe();
 
 state._baseWords = W.slice() as unknown as WordEntry[];
 

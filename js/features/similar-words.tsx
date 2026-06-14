@@ -8,12 +8,15 @@ import { state } from '../../src/state.ts';
 import { useStateVersion, notifyStateChange } from '../../src/store.ts';
 import { openWordDetail } from './word-detail.tsx';
 import type { WordEntry } from '../../src/types.js';
-import { ES_MODES, FR_MODES, getMode as _getMode, esEntry as _esEntry, frEntry as _frEntry } from './mode-utils.ts';
+import { ES_MODES, FR_MODES, IT_MODES, PT_MODES, DE_MODES, getMode as _getMode, esEntry as _esEntry, frEntry as _frEntry } from './mode-utils.ts';
 
 function _getActiveKnown(): Set<string> {
   const mode = _getMode();
   if (ES_MODES.has(mode)) return state.knownEs;
   if (FR_MODES.has(mode)) return state.knownFr;
+  if (IT_MODES.has(mode)) return state.knownIt;
+  if (PT_MODES.has(mode)) return state.knownPt;
+  if (DE_MODES.has(mode)) return state.knownDe;
   return state.known;
 }
 

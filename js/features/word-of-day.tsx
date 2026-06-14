@@ -7,7 +7,7 @@ import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 import { W } from '../../data/words.js';
 import type { WordEntry } from '../../src/types.ts';
 import { t } from './i18n.ts';
-import { ES_MODES, FR_MODES, getMode, esEntry as _esEntry, frEntry as _frEntry } from './mode-utils.ts';
+import { ES_MODES, FR_MODES, IT_MODES, PT_MODES, DE_MODES, getMode, esEntry as _esEntry, frEntry as _frEntry, itEntry as _itEntry, ptEntry as _ptEntry, deEntry as _deEntry } from './mode-utils.ts';
 import { loadWikiImage } from '../core/images.ts';
 import { closePage } from './sidebar.ts';
 import { render, setIdx } from '../core/card-engine.ts';
@@ -21,11 +21,17 @@ function pickWord(mode: string): WordEntry {
   const words = W as unknown as WordEntry[];
   const needsEs = ES_MODES.has(mode);
   const needsFr = FR_MODES.has(mode);
-  if (!needsEs && !needsFr) return words[wotdBaseIdx];
+  const needsIt = IT_MODES.has(mode);
+  const needsPt = PT_MODES.has(mode);
+  const needsDe = DE_MODES.has(mode);
+  if (!needsEs && !needsFr && !needsIt && !needsPt && !needsDe) return words[wotdBaseIdx];
   for (let i = 0; i < words.length; i++) {
     const cand = words[(wotdBaseIdx + i) % words.length];
     if (needsEs && !_esEntry(cand[0])) continue;
     if (needsFr && !_frEntry(cand[0])) continue;
+    if (needsIt && !_itEntry(cand[0])) continue;
+    if (needsPt && !_ptEntry(cand[0])) continue;
+    if (needsDe && !_deEntry(cand[0])) continue;
     return cand;
   }
   return words[wotdBaseIdx];
@@ -34,6 +40,9 @@ function pickWord(mode: string): WordEntry {
 function frontWord(cw: WordEntry, mode: string): string {
   const es = ES_MODES.has(mode) ? _esEntry(cw[0]) : null;
   const fr = FR_MODES.has(mode) ? _frEntry(cw[0]) : null;
+  const it = IT_MODES.has(mode) ? _itEntry(cw[0]) : null;
+  const pt = PT_MODES.has(mode) ? _ptEntry(cw[0]) : null;
+  const de = DE_MODES.has(mode) ? _deEntry(cw[0]) : null;
   switch (mode) {
     case 'ua':    return cw[1];
     case 'es-en':
@@ -44,6 +53,15 @@ function frontWord(cw: WordEntry, mode: string): string {
     case 'ua-fr': return cw[1];
     case 'es-fr': return es ? es[0] : '';
     case 'fr-es': return fr ? fr[0] : '';
+    case 'it-en':
+    case 'it-ua': return it ? it[0] : '';
+    case 'ua-it': return cw[1];
+    case 'pt-en':
+    case 'pt-ua': return pt ? pt[0] : '';
+    case 'ua-pt': return cw[1];
+    case 'de-en':
+    case 'de-ua': return de ? de[0] : '';
+    case 'ua-de': return cw[1];
     default:      return cw[0];
   }
 }

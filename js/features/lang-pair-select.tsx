@@ -6,18 +6,21 @@ import { useState, type ReactElement } from 'react';
 import { t } from './i18n.ts';
 import { notifyStateChange, useStateVersion } from '../../src/store.ts';
 
-export type LangCode = 'ua' | 'en' | 'es' | 'fr';
+export type LangCode = 'ua' | 'en' | 'es' | 'fr' | 'it' | 'pt' | 'de';
 export type Direction = 'fwd' | 'rev' | 'mix';
 
-const ALL_LANGS: LangCode[] = ['ua', 'en', 'es', 'fr'];
+const ALL_LANGS: LangCode[] = ['ua', 'en', 'es', 'fr', 'it', 'pt', 'de'];
 
 // Which "learn" languages are available for a given "know" language —
-// limited by the EN/UA/ES/FR word-pair data we actually have.
+// limited by the EN/UA/ES/FR/IT/PT/DE word-pair data we actually have.
 const LEARN_OPTIONS: Record<LangCode, LangCode[]> = {
-  ua: ['en', 'es', 'fr'],
-  en: ['ua', 'es', 'fr'],
+  ua: ['en', 'es', 'fr', 'it', 'pt', 'de'],
+  en: ['ua', 'es', 'fr', 'it', 'pt', 'de'],
   es: ['en', 'ua', 'fr'],
   fr: ['en', 'ua', 'es'],
+  it: ['en', 'ua'],
+  pt: ['en', 'ua'],
+  de: ['en', 'ua'],
 };
 
 // (frontLang, backLang) -> #sel-mode value
@@ -34,6 +37,18 @@ const MODE_MAP: Record<string, string> = {
   'ua|fr': 'ua-fr',
   'es|fr': 'es-fr',
   'fr|es': 'fr-es',
+  'it|en': 'it-en',
+  'en|it': 'en-it',
+  'it|ua': 'it-ua',
+  'ua|it': 'ua-it',
+  'pt|en': 'pt-en',
+  'en|pt': 'en-pt',
+  'pt|ua': 'pt-ua',
+  'ua|pt': 'ua-pt',
+  'de|en': 'de-en',
+  'en|de': 'en-de',
+  'de|ua': 'de-ua',
+  'ua|de': 'ua-de',
 };
 
 // #sel-mode value -> (learnLang, knowLang) — i.e. (front, back) — for restoring state on load
@@ -50,6 +65,18 @@ const MODE_TO_PAIR: Record<string, [LangCode, LangCode]> = {
   'ua-fr': ['ua', 'fr'],
   'es-fr': ['es', 'fr'],
   'fr-es': ['fr', 'es'],
+  'it-en': ['it', 'en'],
+  'en-it': ['en', 'it'],
+  'it-ua': ['it', 'ua'],
+  'ua-it': ['ua', 'it'],
+  'pt-en': ['pt', 'en'],
+  'en-pt': ['en', 'pt'],
+  'pt-ua': ['pt', 'ua'],
+  'ua-pt': ['ua', 'pt'],
+  'de-en': ['de', 'en'],
+  'en-de': ['en', 'de'],
+  'de-ua': ['de', 'ua'],
+  'ua-de': ['ua', 'de'],
 };
 
 const KNOW_KEY = 'ew_know_lang';
@@ -57,7 +84,7 @@ const LEARN_KEY = 'ew_learn_lang';
 const DIR_KEY = 'ew_direction';
 
 function isLangCode(v: string | null): v is LangCode {
-  return v === 'ua' || v === 'en' || v === 'es' || v === 'fr';
+  return v === 'ua' || v === 'en' || v === 'es' || v === 'fr' || v === 'it' || v === 'pt' || v === 'de';
 }
 
 function isDirection(v: string | null): v is Direction {

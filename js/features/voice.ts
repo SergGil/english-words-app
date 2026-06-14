@@ -7,6 +7,9 @@ let _enURI = localStorage.getItem('ew_ws_voice')    ?? '';
 let _ukURI = localStorage.getItem('ew_ws_uk_voice') ?? '';
 let _esURI = localStorage.getItem('ew_ws_es_voice') ?? '';
 let _frURI = localStorage.getItem('ew_ws_fr_voice') ?? '';
+let _itURI = localStorage.getItem('ew_ws_it_voice') ?? '';
+let _ptURI = localStorage.getItem('ew_ws_pt_voice') ?? '';
+let _deURI = localStorage.getItem('ew_ws_de_voice') ?? '';
 
 type VoiceMapEntry = { match: string; label: string; gender: string; accent: string };
 
@@ -73,6 +76,36 @@ const VOICE_MAP: VoiceMapEntry[] = [
   { match: 'Amelie',                   label: 'Apple Amélie',        gender: '👩', accent: 'CA' },
   { match: 'French',                   label: 'Français',            gender: '👩', accent: 'FR' },
   { match: 'français',                 label: 'Français',            gender: '👩', accent: 'FR' },
+  { match: 'Google italiano',          label: 'Google Italiano',     gender: '👩', accent: 'IT' },
+  { match: 'Google Italian',           label: 'Google Italian',      gender: '👩', accent: 'IT' },
+  { match: 'Microsoft Diego',          label: 'Microsoft Diego',     gender: '👨', accent: 'IT' },
+  { match: 'Microsoft Elsa',           label: 'Microsoft Elsa',      gender: '👩', accent: 'IT' },
+  { match: 'Microsoft Isabella',       label: 'Microsoft Isabella',  gender: '👩', accent: 'IT' },
+  { match: 'Microsoft Cosimo',         label: 'Microsoft Cosimo',    gender: '👨', accent: 'IT' },
+  { match: 'Alice',                    label: 'Apple Alice',         gender: '👩', accent: 'IT' },
+  { match: 'Italian',                  label: 'Italiano',            gender: '👩', accent: 'IT' },
+  { match: 'italiano',                 label: 'Italiano',            gender: '👩', accent: 'IT' },
+  { match: 'Google português',         label: 'Google Português',    gender: '👩', accent: 'BR' },
+  { match: 'Google Portuguese',        label: 'Google Portuguese',   gender: '👩', accent: 'BR' },
+  { match: 'Microsoft Francisca',      label: 'Microsoft Francisca', gender: '👩', accent: 'PT' },
+  { match: 'Microsoft Raquel',         label: 'Microsoft Raquel',    gender: '👩', accent: 'PT' },
+  { match: 'Microsoft Duarte',         label: 'Microsoft Duarte',    gender: '👨', accent: 'PT' },
+  { match: 'Microsoft Fabio',          label: 'Microsoft Fábio',     gender: '👨', accent: 'BR' },
+  { match: 'Microsoft Francisca',      label: 'Microsoft Francisca', gender: '👩', accent: 'BR' },
+  { match: 'Microsoft Antonio',        label: 'Microsoft Antônio',   gender: '👨', accent: 'BR' },
+  { match: 'Luciana',                  label: 'Apple Luciana',       gender: '👩', accent: 'BR' },
+  { match: 'Joana',                    label: 'Apple Joana',         gender: '👩', accent: 'PT' },
+  { match: 'Portuguese',               label: 'Português',           gender: '👩', accent: 'PT' },
+  { match: 'português',                label: 'Português',           gender: '👩', accent: 'PT' },
+  { match: 'Google Deutsch',           label: 'Google Deutsch',      gender: '👩', accent: 'DE' },
+  { match: 'Google German',            label: 'Google German',       gender: '👩', accent: 'DE' },
+  { match: 'Microsoft Katja',          label: 'Microsoft Katja',     gender: '👩', accent: 'DE' },
+  { match: 'Microsoft Conrad',         label: 'Microsoft Conrad',    gender: '👨', accent: 'DE' },
+  { match: 'Microsoft Amala',          label: 'Microsoft Amala',     gender: '👩', accent: 'DE' },
+  { match: 'Microsoft Killian',        label: 'Microsoft Killian',   gender: '👨', accent: 'DE' },
+  { match: 'Anna',                     label: 'Apple Anna',          gender: '👩', accent: 'DE' },
+  { match: 'German',                   label: 'Deutsch',             gender: '👩', accent: 'DE' },
+  { match: 'Deutsch',                  label: 'Deutsch',             gender: '👩', accent: 'DE' },
 ];
 
 function _getLabel(voice: SpeechSynthesisVoice): VoiceMapEntry {
@@ -94,6 +127,10 @@ function _langFlag(lang: string): string {
   if (l.startsWith('es')) return 'ES';
   if (l === 'fr-ca') return 'CA';
   if (l.startsWith('fr')) return 'FR';
+  if (l.startsWith('it')) return 'IT';
+  if (l === 'pt-br') return 'BR';
+  if (l.startsWith('pt')) return 'PT';
+  if (l.startsWith('de')) return 'DE';
   return '🌐';
 }
 
@@ -117,6 +154,24 @@ function _frVoices(): SpeechSynthesisVoice[] {
     return l.startsWith('fr') || n.includes('french') || n.includes('français') || n.includes('francais');
   });
 }
+function _itVoices(): SpeechSynthesisVoice[] {
+  return _allVoices().filter(v => {
+    const l = (v.lang ?? '').toLowerCase(), n = (v.name ?? '').toLowerCase();
+    return l.startsWith('it') || n.includes('italian') || n.includes('italiano');
+  });
+}
+function _ptVoices(): SpeechSynthesisVoice[] {
+  return _allVoices().filter(v => {
+    const l = (v.lang ?? '').toLowerCase(), n = (v.name ?? '').toLowerCase();
+    return l.startsWith('pt') || n.includes('portuguese') || n.includes('português') || n.includes('portugues');
+  });
+}
+function _deVoices(): SpeechSynthesisVoice[] {
+  return _allVoices().filter(v => {
+    const l = (v.lang ?? '').toLowerCase(), n = (v.name ?? '').toLowerCase();
+    return l.startsWith('de') || n.includes('german') || n.includes('deutsch');
+  });
+}
 function _findByURI(uri: string, voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
   return voices.find(v => v.voiceURI === uri) ?? null;
 }
@@ -129,6 +184,15 @@ export function getSelectedEsVoice(): SpeechSynthesisVoice | null {
 }
 export function getSelectedFrVoice(): SpeechSynthesisVoice | null {
   return _findByURI(_frURI, _frVoices()) ?? _frVoices()[0] ?? null;
+}
+export function getSelectedItVoice(): SpeechSynthesisVoice | null {
+  return _findByURI(_itURI, _itVoices()) ?? _itVoices()[0] ?? null;
+}
+export function getSelectedPtVoice(): SpeechSynthesisVoice | null {
+  return _findByURI(_ptURI, _ptVoices()) ?? _ptVoices()[0] ?? null;
+}
+export function getSelectedDeVoice(): SpeechSynthesisVoice | null {
+  return _findByURI(_deURI, _deVoices()) ?? _deVoices()[0] ?? null;
 }
 
 export const speakFakeYou = (text: string, btn: HTMLElement | null): boolean => {
@@ -187,8 +251,9 @@ export function _renderVoices(): void {
   const container = document.getElementById('fy-voices-list');
   if (!container) return;
   container.innerHTML = '';
-  const enVoices = _sortVoices(_enVoices()), ukVoices = _sortVoices(_ukVoices()), esVoices = _sortVoices(_esVoices()), frVoices = _sortVoices(_frVoices());
-  if (!enVoices.length && !ukVoices.length && !esVoices.length && !frVoices.length) {
+  const enVoices = _sortVoices(_enVoices()), ukVoices = _sortVoices(_ukVoices()), esVoices = _sortVoices(_esVoices()), frVoices = _sortVoices(_frVoices()),
+        itVoices = _sortVoices(_itVoices()), ptVoices = _sortVoices(_ptVoices()), deVoices = _sortVoices(_deVoices());
+  if (!enVoices.length && !ukVoices.length && !esVoices.length && !frVoices.length && !itVoices.length && !ptVoices.length && !deVoices.length) {
     container.innerHTML = '<span style="font-size:.78rem;color:var(--text3);">' + t('settings.voicesNotFound') + '</span>'; return;
   }
   const addSection = (title: string, voices: SpeechSynthesisVoice[], activeURI: string, storageKey: string, testText: string): void => {
@@ -202,6 +267,9 @@ export function _renderVoices(): void {
       if (storageKey === 'ew_ws_voice') _enURI = uri;
       else if (storageKey === 'ew_ws_es_voice') _esURI = uri;
       else if (storageKey === 'ew_ws_fr_voice') _frURI = uri;
+      else if (storageKey === 'ew_ws_it_voice') _itURI = uri;
+      else if (storageKey === 'ew_ws_pt_voice') _ptURI = uri;
+      else if (storageKey === 'ew_ws_de_voice') _deURI = uri;
       else _ukURI = uri;
       localStorage.setItem(storageKey, uri); _renderVoices();
       synth?.cancel(); const u = new SpeechSynthesisUtterance(testText);
@@ -222,10 +290,19 @@ export function _renderVoices(): void {
   else addMissing('settings.noEsVoicesTitle', 'settings.noEsVoicesDesc');
   if (frVoices.length) addSection(t('settings.frVoicesTitle'), frVoices, _frURI, 'ew_ws_fr_voice', 'Bonjour, comment ça va ?');
   else addMissing('settings.noFrVoicesTitle', 'settings.noFrVoicesDesc');
+  if (itVoices.length) addSection(t('settings.itVoicesTitle'), itVoices, _itURI, 'ew_ws_it_voice', 'Ciao, come stai?');
+  else addMissing('settings.noItVoicesTitle', 'settings.noItVoicesDesc');
+  if (ptVoices.length) addSection(t('settings.ptVoicesTitle'), ptVoices, _ptURI, 'ew_ws_pt_voice', 'Olá, como você está?');
+  else addMissing('settings.noPtVoicesTitle', 'settings.noPtVoicesDesc');
+  if (deVoices.length) addSection(t('settings.deVoicesTitle'), deVoices, _deURI, 'ew_ws_de_voice', 'Hallo, wie geht es dir?');
+  else addMissing('settings.noDeVoicesTitle', 'settings.noDeVoicesDesc');
   if (!_enURI && enVoices.length) { _enURI = (enVoices.find(v => v.name.toLowerCase().includes('google')) ?? enVoices[0]).voiceURI; localStorage.setItem('ew_ws_voice', _enURI); }
   if (!_ukURI && ukVoices.length) { _ukURI = ukVoices[0].voiceURI; localStorage.setItem('ew_ws_uk_voice', _ukURI); }
   if (!_esURI && esVoices.length) { _esURI = (esVoices.find(v => v.name.toLowerCase().includes('google')) ?? esVoices[0]).voiceURI; localStorage.setItem('ew_ws_es_voice', _esURI); }
   if (!_frURI && frVoices.length) { _frURI = (frVoices.find(v => v.name.toLowerCase().includes('google')) ?? frVoices[0]).voiceURI; localStorage.setItem('ew_ws_fr_voice', _frURI); }
+  if (!_itURI && itVoices.length) { _itURI = (itVoices.find(v => v.name.toLowerCase().includes('google')) ?? itVoices[0]).voiceURI; localStorage.setItem('ew_ws_it_voice', _itURI); }
+  if (!_ptURI && ptVoices.length) { _ptURI = (ptVoices.find(v => v.name.toLowerCase().includes('google')) ?? ptVoices[0]).voiceURI; localStorage.setItem('ew_ws_pt_voice', _ptURI); }
+  if (!_deURI && deVoices.length) { _deURI = (deVoices.find(v => v.name.toLowerCase().includes('google')) ?? deVoices[0]).voiceURI; localStorage.setItem('ew_ws_de_voice', _deURI); }
 }
 
 let _loaded = false;

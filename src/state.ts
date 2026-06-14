@@ -23,6 +23,9 @@ export const state: AppState = {
   activePage:     null,
   knownEs:        new Set<string>(),
   knownFr:        new Set<string>(),
+  knownIt:        new Set<string>(),
+  knownPt:        new Set<string>(),
+  knownDe:        new Set<string>(),
   _wordIdx:       new Map<string, number>(),
   _customWords:   [],
   duelSel: {
