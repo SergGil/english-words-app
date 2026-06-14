@@ -33,7 +33,15 @@ import { refreshDuelQuestion } from './duel-question.tsx';
 import { refreshDuelResume } from './duel-resume.tsx';
 import { refreshDuelTournament } from './duel-tournament.tsx';
 
-const DICT_SET = new Set(DICT);
+// Лінива ініціалізація: уникає TDZ-помилки у production-збірці, де
+// duel.ts і duel-tournament.tsx опиняються в циклічно залежних чанках
+// (rollup "Circular chunk" warning) — обчислення на рівні модуля може
+// виконатись раніше за визначення DICT у чанку duel-tournament.
+let _dictSet: Set<string> | null = null;
+function _getDictSet(): Set<string> {
+  if (!_dictSet) _dictSet = new Set(DICT);
+  return _dictSet;
+}
 
 export function _letterCounts(word: string): Record<string, number> {
   const c: Record<string, number> = {};
@@ -61,7 +69,7 @@ export function _shuffleLetters(word: string): string {
 // Pure answer-check for write/anagram/letters modes (item 32 prep, Фаза 5).
 // `val`/`ans` мають бути вже trim()+toLowerCase().
 export function _checkWriteAnswer(mode: DuelMode, val: string, ans: string): boolean {
-  if (mode === 'letters') return val.length >= 3 && _canForm(val, _letterCounts(ans)) && DICT_SET.has(val);
+  if (mode === 'letters') return val.length >= 3 && _canForm(val, _letterCounts(ans)) && _getDictSet().has(val);
   return val === ans || (ans.length > 3 && lev(val, ans) <= 1);
 }
 
