@@ -142,32 +142,30 @@ export function applyI18n(): void {
   // ~10 окремих window._refreshXxx/renderXxx викликів (усі — тонкі
   // notifyStateChange()-обгортки).
   notifyStateChange();
-  (window._refreshRangeOptions as (() => void) | undefined)?.();
-  import('../core/card-engine.ts').then(({ render }) => render());
+  import('./deck-filter.ts').then(({ _refreshRangeOptions }) => _refreshRangeOptions()).catch(() => {});
+  import('../core/card-engine.ts').then(({ render }) => render()).catch(() => {});
   if (document.getElementById('lp-overlay')?.classList.contains('open')) {
-    (window.renderLearningPath as (() => void) | undefined)?.();
+    import('./learning-path.ts').then(({ renderLearningPath }) => renderLearningPath()).catch(() => {});
   }
   if (document.getElementById('duel-overlay')?.classList.contains('open')) {
-    import('./duel.ts').then(({ renderDuel }) => renderDuel());
+    import('./duel.ts').then(({ renderDuel }) => renderDuel()).catch(() => {});
   }
   if (document.getElementById('grammar-overlay')?.classList.contains('open')) {
-    (window.openGrammarContent as (() => void) | undefined)?.();
+    import('./grammar-page.tsx').then(({ openGrammarContent }) => openGrammarContent()).catch(() => {});
   }
   if (document.getElementById('idioms-overlay')?.classList.contains('open')) {
-    (window._refreshIdiomsUI as (() => void) | undefined)?.();
+    import('./idioms-page.tsx').then(({ openIdiomsContent }) => openIdiomsContent()).catch(() => {});
   }
   if (document.getElementById('settings-overlay')?.classList.contains('open')) {
-    (window._refreshNotifUI as (() => void) | undefined)?.();
-    (window._refreshPrefetchUI as (() => void) | undefined)?.();
-    (window._refreshPixabayStatus as (() => void) | undefined)?.();
-    (window._refreshCloudSyncUI as (() => void) | undefined)?.();
-    (window._renderVoices as (() => void) | undefined)?.();
+    import('./notifications.ts').then(({ _updateUI }) => _updateUI()).catch(() => {});
+    import('./image-prefetch.ts').then(({ _refreshPrefetchUI, _refreshPixabayStatus }) => { _refreshPrefetchUI(); _refreshPixabayStatus(); }).catch(() => {});
+    import('./cloud-sync.ts').then(({ _refreshCloudSyncUI }) => _refreshCloudSyncUI()).catch(() => {});
+    import('./voice.ts').then(({ _renderVoices }) => _renderVoices()).catch(() => {});
   }
   const statsOverlay = document.getElementById('stats-overlay') as HTMLElement | null;
   if (statsOverlay && statsOverlay.style.display === 'flex') {
-    (window.renderStats as (() => void) | undefined)?.();
-    (window._refreshStatsExtras as (() => void) | undefined)?.();
-    (window._renderWeakWords as (() => void) | undefined)?.();
+    import('./stats-page.tsx').then(({ refreshStatsPage }) => refreshStatsPage()).catch(() => {});
+    import('../modes/catpairs.tsx').then(({ renderWeakWords }) => renderWeakWords()).catch(() => {});
   }
 }
 

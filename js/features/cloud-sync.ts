@@ -211,10 +211,10 @@ function _initUI(): void {
     }
   });
 }
-window._refreshCloudSyncUI = (): void => {
+export function _refreshCloudSyncUI(): void {
   const lastEl = document.getElementById('cs-last');
   if (lastEl && _fmtLast()) lastEl.textContent = t('settings.cloudAutoPrefix') + ' ' + _fmtLast();
-};
+}
 
 // Start auto-sync and bind UI
 _startAutoSync();

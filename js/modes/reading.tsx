@@ -42,7 +42,6 @@ function _buildIndex(): void {
 }
 
 export function invalidateReadingIndex(): void { _dictIndex = null; _stemCache = {}; }
-window.invalidateReadingIndex = invalidateReadingIndex;
 
 function _stems(w: string): string[] {
   const n = w.length, s: string[] = [];

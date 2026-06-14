@@ -45,8 +45,6 @@ export function _refreshRangeOptions(): void {
   }
 }
 
-window._refreshRangeOptions = _refreshRangeOptions;
-
 function _showToast(msg: string): void {
   const el = document.getElementById('milestone-toast');
   if (!el) return;
@@ -57,7 +55,7 @@ function _showToast(msg: string): void {
   setTimeout(() => { el.className = 'milestone-toast'; }, 3500);
 }
 
-document.getElementById('sel-range')!.addEventListener('change', function() {
+document.getElementById('sel-range')?.addEventListener('change', function() {
   stopAuto();
   const v        = (this as HTMLSelectElement).value;
   const selTagEl = document.getElementById('sel-tag') as HTMLSelectElement | null;

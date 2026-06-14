@@ -22,7 +22,6 @@ function setBest(k: string, secs: number): void { const b = getBest(k); if (!b |
 
 let _catCache: Record<string, WordEntry[]> = {};
 export function invalidateCatCache(): void { _catCache = {}; }
-window.invalidateCatCache = invalidateCatCache;
 
 function getCatWords(catName: string, catWords: string[]): WordEntry[] {
   if (_catCache[catName]) return _catCache[catName];
@@ -333,7 +332,5 @@ export function renderWeakWords(): void {
     `<span style="font-size:.72rem;color:#e74c3c;white-space:nowrap;margin-left:8px;">EF ${item.ef.toFixed(2)} · ✗${item.lapses}</span></div>`
   ).join('');
 }
-window._renderWeakWords = renderWeakWords;
-
 document.getElementById('stats-overlay')?.addEventListener('click', () => { try { renderWeakWords(); } catch (e) {} });
 document.getElementById('btn-stats')?.addEventListener('click', () => { setTimeout(() => { try { renderWeakWords(); } catch (e) {} }, 50); });

@@ -3,7 +3,7 @@
 // The stats overlay itself lives in stats-page.tsx (React).
 import { state } from '../../src/state.ts';
 import { t, getLang } from './i18n.ts';
-import { openStats, closeStats, refreshStatsPage } from './stats-page.tsx';
+import { openStats, closeStats } from './stats-page.tsx';
 
 function renderForgettingCurve(): void {
   const el = document.getElementById('srs-next');
@@ -31,8 +31,5 @@ document.getElementById('btn-stats')?.addEventListener('click', function(e) {
 document.getElementById('stats-overlay')?.addEventListener('click', function(e) {
   if (e.target === this) closeStats();
 });
-
-window.renderStats        = refreshStatsPage;
-window._refreshStatsExtras = refreshStatsPage;
 
 export {};

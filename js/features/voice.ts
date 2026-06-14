@@ -183,7 +183,7 @@ function _makeCard(v: SpeechSynthesisVoice, activeURI: string, onSelect: (uri: s
   return btn;
 }
 
-function _renderVoices(): void {
+export function _renderVoices(): void {
   const container = document.getElementById('fy-voices-list');
   if (!container) return;
   container.innerHTML = '';
@@ -227,7 +227,6 @@ function _renderVoices(): void {
   if (!_esURI && esVoices.length) { _esURI = (esVoices.find(v => v.name.toLowerCase().includes('google')) ?? esVoices[0]).voiceURI; localStorage.setItem('ew_ws_es_voice', _esURI); }
   if (!_frURI && frVoices.length) { _frURI = (frVoices.find(v => v.name.toLowerCase().includes('google')) ?? frVoices[0]).voiceURI; localStorage.setItem('ew_ws_fr_voice', _frURI); }
 }
-window._renderVoices = _renderVoices;
 
 let _loaded = false;
 function _tryLoad(): void {

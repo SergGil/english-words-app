@@ -7,6 +7,8 @@ import { t } from './i18n.ts';
 import { invalidateSimilarCache } from './similar-words.tsx';
 import { playSound } from '../core/audio.ts';
 import { setDeck } from '../core/card-engine.ts';
+import { invalidateReadingIndex } from '../modes/reading.tsx';
+import { invalidateCatCache } from '../modes/catpairs.tsx';
 
 type CustomWord = { en: string; ua: string; ex_en?: string; ex_ua?: string };
 type WordIdx = Map<string, number>;
@@ -78,8 +80,8 @@ document.getElementById('cw-save')?.addEventListener('click', () => {
   state.deck.push(entry as unknown as (typeof state.deck)[0]);
   errEl.textContent = '';
   recordCustomWordAdded();
-  (window.invalidateReadingIndex as (() => void) | undefined)?.();
-  (window.invalidateCatCache as (() => void) | undefined)?.();
+  invalidateReadingIndex();
+  invalidateCatCache();
   invalidateSimilarCache();
   enInp.value = ''; uaInp.value = ''; exEnInp.value = ''; exUaInp.value = '';
   renderList();

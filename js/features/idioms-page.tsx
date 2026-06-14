@@ -92,7 +92,6 @@ export function openIdiomsContent(): void {
   _bumpTick?.();
 }
 
-window._refreshIdiomsUI = openIdiomsContent;
 
 export function IdiomsPageRoot(): ReactElement {
   const [, setTick] = useState(0);

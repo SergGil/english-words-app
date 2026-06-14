@@ -5,6 +5,9 @@ import { W } from '../../data/words.js';
 import { t, wordsLabel } from './i18n.ts';
 import { showImgClearConfirm } from './sidebar.ts';
 
+export let _refreshPrefetchUI: () => void;
+export let _refreshPixabayStatus: () => void;
+
 // ── Background prefetch ───────────────────────────────────────
 (function() {
   let _running = false;
@@ -92,7 +95,7 @@ import { showImgClearConfirm } from './sidebar.ts';
     });
   });
 
-  window._refreshPrefetchUI = updateUI;
+  _refreshPrefetchUI = updateUI;
 })();
 
 // ── Pixabay key ───────────────────────────────────────────────
@@ -113,7 +116,7 @@ import { showImgClearConfirm } from './sidebar.ts';
     }
   }
   refreshStatus();
-  window._refreshPixabayStatus = refreshStatus;
+  _refreshPixabayStatus = refreshStatus;
 
   saveBtn.addEventListener('click', function() {
     const val = inp!.value.trim();

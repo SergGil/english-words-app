@@ -304,5 +304,3 @@ export function openLearningPath(retriesLeft = 2): void {
     if (retriesLeft > 0) setTimeout(() => openLearningPath(retriesLeft - 1), 200);
   }
 }
-window.openLearningPath = openLearningPath;
-window.renderLearningPath = renderLearningPath;

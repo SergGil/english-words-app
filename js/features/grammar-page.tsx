@@ -110,8 +110,6 @@ export function jumpToGrammarRule(id: string): void {
   openGrammar();
 }
 
-window.openGrammarContent = openGrammarContent;
-
 export function GrammarPage(): ReactElement {
   const [activeId, setActiveId] = useState('');
   const [, setTick] = useState(0);

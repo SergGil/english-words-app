@@ -6,6 +6,9 @@ import { openGrammarContent } from './grammar-page.tsx';
 import { openIdiomsContent } from './idioms-page.tsx';
 import { state } from '../../src/state.ts';
 import { notifyStateChange } from '../../src/store.ts';
+import { _renderVoices } from './voice.ts';
+import { _updateUI as _refreshNotifUI } from './notifications.ts';
+import { _refreshCloudSyncUI } from './cloud-sync.ts';
 
 // ── Image cache clear confirm ──────────────────────────────────
 let _imgClearCb: (() => void) | null = null;
@@ -80,11 +83,10 @@ export function openPage(page: string): void {
     mo?.classList.add('as-page', 'open');
   } else if (page === 'settings') {
     document.getElementById('settings-overlay')?.classList.add('open');
-    (window._renderVoices as (() => void) | undefined)?.();
-    (window._refreshNotifUI as (() => void) | undefined)?.();
-    (window._refreshPrefetchUI as (() => void) | undefined)?.();
-    (window._refreshPixabayStatus as (() => void) | undefined)?.();
-    (window._refreshCloudSyncUI as (() => void) | undefined)?.();
+    _renderVoices();
+    _refreshNotifUI();
+    import('./image-prefetch.ts').then(({ _refreshPrefetchUI, _refreshPixabayStatus }) => { _refreshPrefetchUI(); _refreshPixabayStatus(); }).catch(() => {});
+    _refreshCloudSyncUI();
   } else if (page === 'duel') {
     document.getElementById('duel-overlay')?.classList.add('open');
     renderDuel();
@@ -96,7 +98,7 @@ export function openPage(page: string): void {
     openIdiomsContent();
   } else if (page === 'learning-path') {
     document.getElementById('lp-overlay')?.classList.add('open');
-    (window.openLearningPath as (() => void) | undefined)?.();
+    import('./learning-path.ts').then(({ openLearningPath }) => openLearningPath()).catch(() => {});
   }
   if (window.innerWidth <= 900) closeSidebar();
 }

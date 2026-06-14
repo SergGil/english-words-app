@@ -76,7 +76,7 @@ const getTime    = (): string => localStorage.getItem(KEY_TIME) ?? '20:00';
 // Bug fix 1: renamed param from `t` to `val` to avoid shadowing the i18n `t` import
 const setTime    = (val: string): void => { localStorage.setItem(KEY_TIME, val); };
 
-function _updateUI(): void {
+export function _updateUI(): void {
   const tog      = document.getElementById('notif-toggle')   as HTMLInputElement | null;
   const status   = document.getElementById('notif-status')   as HTMLElement | null;
   const permBtn  = document.querySelector<HTMLButtonElement>('[onclick*="requestNotifPermission"]');
@@ -106,15 +106,14 @@ function _updateUI(): void {
   else if (granted)                   { status.textContent = t('settings.notifGrantedOff'); }
   else                                { status.textContent = t('settings.notifPromptToEnable'); }
 }
-window._refreshNotifUI = _updateUI;
 
-window.requestNotifPermission = (): void => {
+function requestNotifPermission(): void {
   if (!('Notification' in window)) return;
   Notification.requestPermission().then(perm => {
     if (perm === 'granted') setEnabled(true);
     _updateUI();
   });
-};
+}
 
 // Bug fix 2: returns true if notification was actually fired
 function _notify(title: string, body: string): boolean {
@@ -184,7 +183,7 @@ setInterval(_checkAndNotify, 15 * 60 * 1000);
 const toggle = document.getElementById('notif-toggle') as HTMLInputElement | null;
 if (toggle) {
   toggle.addEventListener('change', () => {
-    if (toggle.checked) (window.requestNotifPermission as (() => void) | undefined)?.();
+    if (toggle.checked) requestNotifPermission();
     else setEnabled(false);
   });
 }
