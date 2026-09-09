@@ -234,7 +234,7 @@ export function SettingsPage(): ReactElement {
       </div>
 
       <div className="settings-footer mt-1 mb-2 text-center text-[.72rem] text-[var(--text3)]">
-        © 2026 Vymova · v1.483.0 ·{' '}
+        © 2026 Vymova · v1.484.0 ·{' '}
         <a
           href="./privacy.html"
           target="_blank"
